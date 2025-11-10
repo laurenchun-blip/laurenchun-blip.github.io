@@ -4,10 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Location selection PoC</title>
+    <style>
+      .button_container {
+        margin: 10%;
+        display: flex;
+        gap: 16px;
+        flex-direction: column;
+      }
+      .button {
+        width: 100%;
+        border-radius: 16px;
+        padding: 16px;
+        background-color: #fafafa;
+      }
+    </style>
   </head>
   <body>
-    <button onclick="window.location.href='pins/index.html'">Pins</button>
-    <button onclick="window.location.href='heatmap/index.html'">Heatmap</button>
+    <div class="button_container">
+      <button onclick="window.location.href='pins/index.html'" class="button">
+        Pins
+      </button>
+      <button
+        onclick="window.location.href='heatmap/index.html'"
+        class="button"
+      >
+        Heatmap
+      </button>
+    </div>
   </body>
   <script></script>
 </html>
