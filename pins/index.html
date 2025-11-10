@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
     />
-    <title>MapLibre – Mobile-Safe Pins + Draggable Selection</title>
+    <title>MapLibre – Drop Pin + Search Area</title>
     <link
       href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css"
       rel="stylesheet"
@@ -20,7 +20,6 @@
         width: 100%;
         overflow: hidden;
         font-family: system-ui, sans-serif;
-        background: #f5f5f5;
       }
       #map {
         position: fixed;
@@ -29,16 +28,13 @@
         width: 100vw;
         height: 100vh;
         transform: translateZ(0);
-        will-change: transform;
       }
       #overlay,
       #ellipseLayer,
-      #interaction,
       #uiContainer {
         position: fixed;
         inset: 0;
         pointer-events: none;
-        touch-action: manipulation;
       }
       #overlay {
         z-index: 15;
@@ -78,12 +74,9 @@
       }
       #dragHit {
         pointer-events: auto;
-        touch-action: none;
         fill: rgba(0, 0, 0, 0.001);
         cursor: grab;
-      }
-      #dragHit.dragging {
-        cursor: grabbing;
+        touch-action: none;
       }
       #uiContainer {
         z-index: 50;
@@ -91,6 +84,7 @@
         flex-direction: column;
         gap: 8px;
         padding: 8px;
+        align-items: stretch;
       }
       #searchBar {
         pointer-events: auto;
@@ -110,13 +104,30 @@
         font-size: 15px;
         flex: 1;
       }
-      #searchBtn {
+      #searchBtn,
+      #closeBtn,
+      #dropPinBtn {
+        pointer-events: auto;
         border: none;
         border-radius: 8px;
         padding: 6px 10px;
         background: #0078ff;
         color: white;
         cursor: pointer;
+      }
+      #closeBtn {
+        background: #eee;
+        color: #333;
+      }
+      #dropPinBtn {
+        pointer-events: auto;
+        background: white;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        color: #0078ff;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
       #bottomOverlay {
         position: fixed;
@@ -171,6 +182,10 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         cursor: pointer;
       }
+      .current-location-text {
+        color: #0078ff;
+        font-weight: 400;
+      }
     </style>
   </head>
 
@@ -186,13 +201,20 @@
 
     <div id="uiContainer">
       <div id="searchBar">
-        <input id="searchInput" type="text" placeholder="Search city..." />
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Search city or use current location"
+        />
+
         <button id="searchBtn">Go</button>
+        <button id="closeBtn" style="display: none">×</button>
       </div>
+      <button id="dropPinBtn">📍 Drop Pin</button>
     </div>
 
     <div id="bottomOverlay">
-      <div id="statusText">Search a city to begin</div>
+      <div id="statusText">Search a city or drop a pin</div>
       <div id="radiusControls">
         <label for="radiusSlider">Radius (mi):</label>
         <input
@@ -230,45 +252,62 @@
           },
           layers: [{ id: "osm", type: "raster", source: "osm" }],
         },
-        center: [-98.5, 39.8],
+        center: [-98.5, 39.8], // fallback center
         zoom: 4,
       });
 
-      map.dragPan.enable();
-      map.scrollZoom.enable();
-      map.boxZoom.enable();
-      map.keyboard.enable();
       map.touchZoomRotate.enable();
-      map.touchZoomRotate.enableRotation();
+
+      // Try to center map on user's current location (no fly or zoom)
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            // Instantly recenter the map without zoom animation
+            map.setCenter([longitude, latitude]);
+            map.setZoom(11);
+            // Update UI
+            searchInput.value = "Current location";
+            searchInput.classList.add("current-location-text"); // ✅ blue text
+
+            closeBtn.style.display = "inline";
+            statusText.textContent = "Showing your current location";
+          },
+          (err) => {
+            console.warn("Geolocation failed:", err.message);
+            statusText.textContent =
+              "Could not get your location — search a city or drop a pin";
+          },
+          { enableHighAccuracy: true, timeout: 5000 }
+        );
+      } else {
+        statusText.textContent =
+          "Location not supported — search a city or drop a pin";
+      }
 
       const overlay = document.getElementById("overlay");
       const radiusCircle = document.getElementById("radiusCircle");
       const milesLabel = document.getElementById("milesLabel");
       const dragHit = document.getElementById("dragHit");
-      const radiusSlider = document.getElementById("radiusSlider");
-      const radiusValue = document.getElementById("radiusValue");
       const searchInput = document.getElementById("searchInput");
       const searchBtn = document.getElementById("searchBtn");
-      const statusText = document.getElementById("statusText");
+      const closeBtn = document.getElementById("closeBtn");
+      const dropPinBtn = document.getElementById("dropPinBtn");
+      const radiusSlider = document.getElementById("radiusSlider");
+      const radiusValue = document.getElementById("radiusValue");
       const radiusControls = document.getElementById("radiusControls");
+      const statusText = document.getElementById("statusText");
       const selectAreaBtn = document.getElementById("selectAreaBtn");
 
       const signsData = [
         { lng: -118.268, lat: 34.0407, impressions: 120000, cpm: 7.5 },
-        { lng: -118.2505, lat: 34.0535, impressions: 180000, cpm: 6.8 },
-        { lng: -118.2812, lat: 34.045, impressions: 95000, cpm: 8.2 },
         { lng: -122.2718, lat: 37.812, impressions: 60000, cpm: 5.6 },
-        { lng: -122.256, lat: 37.801, impressions: 80000, cpm: 5.8 },
-        { lng: -122.24, lat: 37.795, impressions: 50000, cpm: 6.0 },
-        { lng: -87.635, lat: 41.885, impressions: 150000, cpm: 7.1 },
-        { lng: -87.62, lat: 41.87, impressions: 110000, cpm: 6.9 },
         { lng: -111.9, lat: 40.77, impressions: 70000, cpm: 6.3 },
         { lng: -111.86, lat: 40.745, impressions: 54000, cpm: 6.6 },
         { lng: -111.905, lat: 40.78, impressions: 82000, cpm: 6.1 },
       ];
 
       let pinEls = [];
-
       map.on("load", () => {
         signsData.forEach((s) => {
           const el = document.createElement("div");
@@ -379,12 +418,7 @@
         if (!center) return alert("Try Oakland, LA, SLC, or Chicago");
         map.flyTo({ center: [center.lng, center.lat], zoom: 11 });
         map.once("moveend", () => {
-          map.touchZoomRotate.enable();
-          map.touchZoomRotate.enableRotation();
-          activePoint = { ...center };
-          radiusControls.style.display = "flex";
-          selectAreaBtn.disabled = false;
-          updateCircle();
+          dropPinAt(center.lat, center.lng);
         });
       }
 
@@ -393,12 +427,38 @@
         if (e.key === "Enter") handleSearch();
       });
 
+      dropPinBtn.addEventListener("click", () => {
+        const c = map.getCenter();
+        dropPinAt(c.lat, c.lng);
+      });
+
+      function dropPinAt(lat, lng) {
+        activePoint = { lat, lng };
+        radiusControls.style.display = "flex";
+        selectAreaBtn.disabled = false;
+        closeBtn.style.display = "inline";
+        searchInput.value = "Search area";
+        updateCircle();
+      }
+
+      closeBtn.addEventListener("click", () => {
+        activePoint = null;
+        radiusCircle.setAttribute("r", 0);
+        dragHit.setAttribute("r", 0);
+        milesLabel.textContent = "";
+        searchInput.value = "";
+        closeBtn.style.display = "none";
+        radiusControls.style.display = "none";
+        statusText.textContent = "Search a city or drop a pin";
+        pinEls.forEach((s) => s.el.classList.remove("in-selection"));
+        searchInput.classList.remove("current-location-text");
+      });
+
       dragHit.addEventListener("pointerdown", (e) => {
         if (!activePoint) return;
         isDragging = true;
         dragHit.classList.add("dragging");
         map.dragPan.disable();
-        map.scrollZoom.disable();
         map.touchZoomRotate.disable();
         window.addEventListener("pointermove", onMove);
         window.addEventListener("pointerup", stopDrag, { once: true });
@@ -418,9 +478,7 @@
         isDragging = false;
         dragHit.classList.remove("dragging");
         map.dragPan.enable();
-        map.scrollZoom.enable();
         map.touchZoomRotate.enable();
-        map.touchZoomRotate.enableRotation();
         window.removeEventListener("pointermove", onMove);
       }
 
@@ -432,7 +490,6 @@
         radiusSlider.value = radiusValue.value;
         updateCircle();
       };
-
       selectAreaBtn.onclick = () => {
         const miles = parseFloat(radiusValue.value);
         const { impressions, avgCpm, count } = getStats(activePoint, miles);
@@ -446,12 +503,12 @@
       };
 
       map.on("move", () => {
-        if (activePoint && !isDragging) updateCircle();
         updatePins();
+        if (activePoint && !isDragging) updateCircle();
       });
       map.on("zoom", () => {
-        if (activePoint && !isDragging) updateCircle();
         updatePins();
+        if (activePoint && !isDragging) updateCircle();
       });
     </script>
   </body>
