@@ -4,8 +4,9 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=yes"
     />
+
     <title>MapLibre – Search & Select Area (Draggable + Full-Radius Hit)</title>
 
     <link
@@ -29,6 +30,12 @@
       #map {
         position: absolute;
         inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        transform: translateZ(
+          0
+        ); /* ensures GPU rendering and prevents weird resize on flyTo */
       }
 
       /* Layers */
@@ -37,10 +44,12 @@
         inset: 0;
         width: 100%;
         height: 100%;
-        pointer-events: none;
         overflow: visible;
         z-index: 10;
+        pointer-events: none; /* critical — prevent intercepting gestures */
+        touch-action: manipulation; /* allows pinch/zoom gestures to reach map */
       }
+
       #overlay {
         position: absolute;
         inset: 0;
@@ -80,6 +89,10 @@
       }
       #dragHit.dragging {
         cursor: grabbing;
+      }
+      #dragHandle,
+      #dragHit {
+        touch-action: none; /* only restrict touch on the handle and radius */
       }
 
       /* ONLY sign pins (teal) */
@@ -443,7 +456,12 @@
       let activePoint = null;
 
       function flyTo(lat, lng) {
-        map.flyTo({ center: [lng, lat], zoom: 11, essential: true }); // <-- ensures zoom on search
+        map.flyTo({ center: [lng, lat], zoom: 11, essential: true });
+        map.once("moveend", () => {
+          // re-enable gesture zoom after animation
+          map.touchZoomRotate.enable();
+          map.touchZoomRotate.enableRotation();
+        });
       }
 
       function setActive(lat, lng) {
