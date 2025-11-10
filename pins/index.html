@@ -76,6 +76,7 @@
         stroke: none;
         pointer-events: auto;
         cursor: grab;
+        touch-action: none; /* critical for mobile multi-touch correctness */
       }
       #dragHit.dragging {
         cursor: grabbing;
@@ -94,7 +95,7 @@
         box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(0, 0, 0, 0.35);
       }
 
-      /* Draggable center handle (size set from JS by px radius) */
+      /* Draggable center handle */
       #dragHandle {
         position: absolute;
         border-radius: 50%;
@@ -104,7 +105,7 @@
         transform: translate(-50%, -50%);
         cursor: grab;
         pointer-events: auto;
-        touch-action: none;
+        touch-action: none; /* prevents accidental browser panning, still allows MapLibre zoom */
       }
       #dragHandle.dragging {
         cursor: grabbing;
@@ -344,10 +345,13 @@
         center: [-98.5, 39.8],
         zoom: 4,
       });
-      map.dragPan.enable();
+      // Enable full gesture support including mobile pinch-to-zoom and rotation
+      map.dragPan.enable({ linearity: 0.3 });
       map.scrollZoom.enable();
       map.boxZoom.enable();
       map.keyboard.enable();
+      map.touchZoomRotate.enable(); // <-- fix for mobile zoom
+      map.touchZoomRotate.enableRotation(); // optional but feels more natural on touch
 
       /* ---------- DOM ---------- */
       const overlay = document.getElementById("overlay");
@@ -629,9 +633,11 @@
         dragHandle.classList.remove("dragging");
         map.dragPan.enable();
         map.scrollZoom.enable();
+        map.touchZoomRotate.enable(); // <--- add this
         window.removeEventListener("pointermove", onPointerMove);
         window.removeEventListener("pointerup", onPointerUp);
       }
+
       dragHandle.addEventListener("pointerdown", (e) => {
         if (!activePoint) return;
         isDraggingHandle = true;
@@ -674,6 +680,7 @@
         dragHit.classList.remove("dragging");
         map.dragPan.enable();
         map.scrollZoom.enable();
+        map.touchZoomRotate.enable();
         window.removeEventListener("pointermove", onHitPointerMove);
         window.removeEventListener("pointerup", onHitPointerUp);
       }
