@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Discover Locations – Map Section</title>
+
+    <link
+      href="https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search"
+    />
+    <script src="https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.js"></script>
+
+    <style>
+      :root {
+        --pink: #ff3e86;
+        --light-pink: #fca5d3;
+        --cta: #3056d3;
+        --ink: #30406a;
+        --muted: #747982;
+        --bg: #fafafa;
+      }
+      body {
+        margin: 0;
+        font-family: "Lexend", sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+      }
+
+      /* === Sticky Navbar === */
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 24px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      }
+
+      .logo {
+        width: 95px; /* default desktop width */
+        height: auto; /* preserve aspect ratio */
+        display: block;
+      }
+
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .nav-link {
+        text-decoration: none;
+        color: #222;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .nav-button {
+        background: #ff0066;
+        color: #fff;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: background 0.2s ease;
+      }
+
+      .nav-button:hover {
+        background: #e2005d;
+      }
+
+      .menu-icon {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 20px;
+        height: 15px;
+        cursor: pointer;
+      }
+
+      .menu-icon span {
+        display: block;
+        height: 2px;
+        background: #333;
+        border-radius: 2px;
+      }
+
+      section.map-section {
+        padding: 60px 24px;
+        text-align: left;
+        max-width: 1080px;
+        margin: 0 auto;
+      }
+
+      section.map-section .text {
+        max-width: 1040px;
+        margin-left: 0;
+      }
+
+      h2 {
+        font-size: 40px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--ink);
+      }
+      p {
+        color: var(--muted);
+        /* max-width: 700px; */
+        margin: 0 auto 28px;
+        font-size: 20px;
+        line-height: 1.5;
+        font-weight: 400;
+        text-align: left;
+      }
+      .map-container {
+        position: relative;
+        height: 560px;
+        max-width: 1040px;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      #map {
+        height: 100%;
+        width: 100%;
+      }
+      .search-box {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+        background: #fafafa;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+        display: flex;
+        gap: 8px;
+        padding: 8px 10px;
+        align-items: center;
+      }
+      #search {
+        background-color: var(--bg);
+      }
+      .search-box input {
+        border: none;
+        outline: none;
+        font-size: 14px;
+        width: 250px;
+      }
+      .search-box button {
+        background: var(--cta);
+        /* color: #fff; */
+        /* border: none; */
+        /* padding: 8px 14px; */
+        /* border-radius: 8px; */
+        cursor: pointer;
+        font-weight: 500;
+      }
+      .search-btn {
+        background: var(--bg) !important;
+        border: none;
+        padding: none;
+      }
+      /* === Popup container === */
+      .maplibregl-popup-content {
+        padding: 0;
+        margin: 0;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        background: #fff;
+        font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        width: 220px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      /* Remove the default MapLibre popup tip */
+      .maplibregl-popup-tip {
+        display: none;
+      }
+
+      /* === Popup content wrapper === */
+      .popup {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-bottom: 10px; /* space before the button */
+        text-align: center;
+        border-radius: 12px;
+      }
+
+      /* === Image === */
+      .popup img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        margin-bottom: 8px;
+      }
+
+      /* === Title === */
+      .popup strong {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+      }
+
+      /* === CTA Button === */
+      .popup .cta {
+        display: inline-block;
+        background: #007bff;
+        color: #fff;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 14px;
+        border-radius: 8px;
+        transition: background-color 0.2s ease-in-out;
+        margin-top: 2px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .popup .cta:hover {
+        background-color: #005fc4;
+      }
+
+      @media screen and (max-width: 500px) {
+        section.map-section {
+          padding: 60px 0px;
+        }
+        .mobile-spacing {
+          padding: 0px 24px;
+        }
+        .map-container {
+          border-radius: 0px;
+        }
+        .logo {
+          width: 44px;
+        }
+        h2 {
+          font-size: 24px;
+        }
+        p {
+          font-size: 16px;
+        }
+        .search-box {
+          max-width: 343px;
+        }
+        .search-box input {
+          width: 295px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sticky Navigation -->
+    <nav class="navbar">
+      <div class="nav-left">
+        <div><img src="assets/logo.svg" class="logo" /></div>
+      </div>
+      <div class="nav-right">
+        <a href="#" class="nav-link">Login</a>
+        <a href="#" class="nav-button">Get Started</a>
+        <div class="menu-icon">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </nav>
+
+    <section class="map-section">
+      <div class="text">
+        <h2 class="mobile-spacing">
+          Discover Locations To Reach Your Next Customer
+        </h2>
+        <p class="mobile-spacing">
+          Appear locally or nationwide. Select screens in your desired markets
+          with your target audience.
+        </p>
+      </div>
+      <div class="map-container">
+        <div class="search-box">
+          <input
+            id="search"
+            type="text"
+            placeholder="Enter a city (e.g. New York, Chicago)"
+          />
+          <button class="search-btn" onclick="searchCity()">
+            <span class="material-symbols-outlined"> search </span>
+          </button>
+        </div>
+        <div id="map"></div>
+      </div>
+    </section>
+
+    <!-- Load data files -->
+    <script src="cluster-cities.js"></script>
+    <script src="signs-data.js"></script>
+
+    <script>
+      // ===== MAP SETUP =====
+      const map = new maplibregl.Map({
+        container: "map",
+        style: {
+          version: 8,
+          glyphs: "https://fonts.openmaptiles.org/{fontstack}/{range}.pbf",
+          sources: {
+            osm: {
+              type: "raster",
+              tiles: [
+                "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+              ],
+              tileSize: 256,
+              attribution: "&copy; OpenStreetMap contributors",
+            },
+          },
+          layers: [{ id: "osm", type: "raster", source: "osm" }],
+        },
+        center: [-98.35, 39.5],
+        zoom: 4,
+      });
+
+      map.addControl(new maplibregl.NavigationControl());
+
+      // ===== DATA SOURCES =====
+      const cityClusterGeoJSON = {
+        type: "FeatureCollection",
+        features: CLUSTER_CITIES.map((c) => ({
+          type: "Feature",
+          geometry: { type: "Point", coordinates: c.coords },
+          properties: {
+            name: c.name,
+            count: c.count,
+            img: c.img,
+            venue: c.venue,
+          },
+        })),
+      };
+
+      const signGeoJSON = {
+        type: "FeatureCollection",
+        features: SIGN_DATA.map((s) => ({
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [s.coords[1], s.coords[0]] },
+          properties: {
+            city: s.city,
+            venue: s.venue,
+            img: s.img,
+            href: s.href,
+          },
+        })),
+      };
+
+      // ===== MAP LOAD =====
+      map.on("load", () => {
+        const marker = new Image(24, 24);
+        marker.onload = () => map.addImage("marker-15", marker);
+        marker.src =
+          "data:image/svg+xml;charset=utf-8," +
+          encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+        <circle cx="12" cy="12" r="6" fill="#ff3e86" stroke="#ffffff" stroke-width="2" />
+      </svg>
+    `);
+        // --- City Bubbles (DMA clusters) ---
+        map.addSource("cityClusters", {
+          type: "geojson",
+          data: cityClusterGeoJSON,
+        });
+
+        map.addLayer({
+          id: "city-bubbles",
+          type: "circle",
+          source: "cityClusters",
+          paint: {
+            "circle-color": "#ff3e86",
+            "circle-radius": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              3,
+              18,
+              6,
+              28,
+              8,
+              38,
+              //   10,
+              //   48,
+              //   12,
+              //   56,
+            ],
+            "circle-stroke-color": "#fff",
+            "circle-stroke-width": 2,
+            "circle-opacity": 0.9,
+          },
+        });
+
+        map.addLayer({
+          id: "city-count",
+          type: "symbol",
+          source: "cityClusters",
+          layout: {
+            "text-field": ["get", "count"],
+            "text-size": 16,
+            "text-font": ["Open Sans Regular"],
+          },
+          paint: {
+            "text-color": "#fff",
+            "text-halo-color": "#ff3e86",
+            "text-halo-width": 1.5,
+          },
+        });
+
+        // --- Signs (Local Billboard Clusters) ---
+        map.addSource("signs", {
+          type: "geojson",
+          data: signGeoJSON,
+          cluster: true,
+          clusterMaxZoom: 18,
+          clusterRadius: 40,
+        });
+
+        map.addLayer({
+          id: "sign-clusters",
+          type: "circle",
+          source: "signs",
+          filter: ["has", "point_count"],
+          paint: {
+            "circle-color": "#fca5d3",
+            "circle-radius": [
+              "step",
+              ["get", "point_count"],
+              10,
+              10,
+              16,
+              30,
+              24,
+            ],
+            "circle-opacity": 0.9,
+          },
+          layout: { visibility: "none" },
+        });
+
+        map.addLayer({
+          id: "sign-count",
+          type: "symbol",
+          source: "signs",
+          filter: ["has", "point_count"],
+          layout: {
+            "text-field": ["get", "point_count_abbreviated"],
+            "text-size": 12,
+            "text-font": ["Open Sans Regular"],
+            visibility: "none",
+          },
+          paint: {
+            "text-color": "#fff",
+            "text-halo-color": "#f472b6",
+            "text-halo-width": 1.5,
+          },
+        });
+
+        map.addLayer({
+          id: "sign-points",
+          type: "symbol",
+          source: "signs",
+          filter: ["!", ["has", "point_count"]],
+          layout: {
+            "icon-image": "marker-15",
+            "icon-size": 1,
+            visibility: "none",
+          },
+        });
+
+        // ===== POPUP LOGIC FOR CITY CLUSTERS =====
+        let activePopup = null;
+        let popupLocked = false;
+
+        function showClusterPreview(feature) {
+          if (activePopup) {
+            activePopup.remove();
+            activePopup = null;
+          }
+
+          const coords = feature.geometry.coordinates.slice();
+          const cityName = feature.properties.name;
+          const city = CLUSTER_CITIES.find(
+            (c) => c.name.toLowerCase() === cityName.toLowerCase()
+          );
+          if (!city) return;
+
+          const title = `${city.venue} in ${city.name}`;
+          const popupHTML = `
+        <div class="popup">
+          <img src="${city.img}" alt="${city.venue}">
+          <strong>${title}</strong>
+          <a href="https://marketplace.blipbillboards.com/register" target="_blank" class="cta">Log in to get started</a>
+        </div>
+      `;
+
+          activePopup = new maplibregl.Popup({
+            offset: 25,
+            closeButton: false,
+            closeOnClick: false,
+          })
+            .setLngLat(coords)
+            .setHTML(popupHTML)
+            .addTo(map);
+        }
+
+        // Hover → preview
+        map.on("mouseenter", "city-bubbles", (e) => {
+          if (popupLocked) return;
+          map.getCanvas().style.cursor = "pointer";
+          showClusterPreview(e.features[0]);
+        });
+
+        // Mouseleave → hide
+        map.on("mouseleave", "city-bubbles", () => {
+          map.getCanvas().style.cursor = "";
+          if (!popupLocked && activePopup) {
+            activePopup.remove();
+            activePopup = null;
+          }
+        });
+
+        // Click → lock popup
+        map.on("click", "city-bubbles", (e) => {
+          showClusterPreview(e.features[0]);
+          popupLocked = true;
+        });
+
+        // Click elsewhere → close popup
+        map.on("click", (e) => {
+          const features = map.queryRenderedFeatures(e.point, {
+            layers: ["city-bubbles"],
+          });
+          if (features.length === 0 && popupLocked && activePopup) {
+            activePopup.remove();
+            activePopup = null;
+            popupLocked = false;
+          }
+        });
+
+        // ===== POPUP FOR INDIVIDUAL SIGNS =====
+        map.on("click", "sign-points", (e) => {
+          const p = e.features[0].properties;
+          new maplibregl.Popup({ offset: 20 })
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML(
+              `
+          <div class="popup">
+            <img src="${p.img}" alt="${p.venue}">
+            <strong>${p.venue}</strong><br/>
+            <span style="color:#666;font-size:13px">${p.city}</span>
+          </div>
+        `
+            )
+            .addTo(map);
+        });
+
+        // ===== ZOOM SWITCH BETWEEN LEVELS =====
+        const ZOOM_SWITCH = 11;
+        function safeSetVisibility(id, visibility) {
+          if (map.getLayer(id))
+            map.setLayoutProperty(id, "visibility", visibility);
+        }
+
+        map.on("zoom", () => {
+          const zoom = map.getZoom();
+          const showSigns = zoom > ZOOM_SWITCH;
+          //   console.log("Zoom:", map.getZoom(), "=> showSigns:", showSigns);
+
+          safeSetVisibility("city-bubbles", showSigns ? "none" : "visible");
+          safeSetVisibility("city-count", showSigns ? "none" : "visible");
+          safeSetVisibility("sign-clusters", showSigns ? "visible" : "none");
+          safeSetVisibility("sign-count", showSigns ? "visible" : "none");
+          safeSetVisibility("sign-points", showSigns ? "visible" : "none");
+        });
+      });
+
+      // ===== CITY SEARCH =====
+      function searchCity() {
+        const input = document
+          .getElementById("search")
+          .value.trim()
+          .toLowerCase();
+        const coords = CITY_CENTERS[input];
+        if (coords) {
+          map.flyTo({ center: coords, zoom: 10, speed: 0.7 });
+        } else {
+          alert("City not found in cluster-cities.js list.");
+        }
+      }
+      document.getElementById("search").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") searchCity();
+      });
+    </script>
+  </body>
+</html>
