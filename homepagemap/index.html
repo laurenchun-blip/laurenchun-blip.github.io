@@ -140,6 +140,7 @@
         height: 100%;
         width: 100%;
       }
+      /* search bar  */
       .search-box {
         position: absolute;
         top: 20px;
@@ -150,9 +151,14 @@
         border-radius: 10px;
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
         display: flex;
+        flex-direction: column;
         gap: 8px;
         padding: 8px 10px;
-        align-items: center;
+      }
+
+      .search-bar {
+        display: flex;
+        flex-direction: row;
       }
       #search {
         background-color: var(--bg);
@@ -176,6 +182,37 @@
         background: var(--bg) !important;
         border: none;
         padding: none;
+      }
+
+      /* suggestions */
+
+      /* === Autocomplete suggestions integrated under search box === */
+      #suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 6px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        max-height: 200px;
+        overflow-y: auto;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        z-index: 3; /* above the map, below header if needed */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      #suggestions li {
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      #suggestions li:hover {
+        background: #f4f4f4;
       }
       /* === Popup container === */
       .maplibregl-popup-content {
@@ -265,14 +302,31 @@
         .search-box {
           max-width: 343px;
         }
-        .search-box input {
+        .search-bar {
+          max-width: 343px;
+        }
+        .search-bar input {
           width: 295px;
+        }
+        .maplibregl-control-container {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 320px) {
+        .search-box {
+          max-width: 280px;
+        }
+        .search-bar {
+          max-width: 280px;
+        }
+        .search-bar input {
+          width: 250px;
         }
       }
     </style>
   </head>
   <body>
-    <!-- Sticky Navigation -->
     <nav class="navbar">
       <div class="nav-left">
         <div><img src="assets/logo.svg" class="logo" /></div>
@@ -287,7 +341,6 @@
         </div>
       </div>
     </nav>
-
     <section class="map-section">
       <div class="text">
         <h2 class="mobile-spacing">
@@ -300,15 +353,21 @@
       </div>
       <div class="map-container">
         <div class="search-box">
-          <input
-            id="search"
-            type="text"
-            placeholder="Enter a city (e.g. New York, Chicago)"
-          />
-          <button class="search-btn" onclick="searchCity()">
-            <span class="material-symbols-outlined"> search </span>
-          </button>
+          <div class="search-bar">
+            <input
+              id="search"
+              type="text"
+              placeholder="Enter a city (e.g. New York, Chicago)"
+              autocomplete="off"
+            />
+            <button class="search-btn" onclick="searchCity()">
+              <span class="material-symbols-outlined">search</span>
+            </button>
+          </div>
+
+          <ul id="suggestions"></ul>
         </div>
+
         <div id="map"></div>
       </div>
     </section>
@@ -367,6 +426,7 @@
           properties: {
             city: s.city,
             venue: s.venue,
+            title: s.title,
             img: s.img,
             href: s.href,
           },
@@ -375,15 +435,34 @@
 
       // ===== MAP LOAD =====
       map.on("load", () => {
-        const marker = new Image(24, 24);
-        marker.onload = () => map.addImage("marker-15", marker);
-        marker.src =
-          "data:image/svg+xml;charset=utf-8," +
-          encodeURIComponent(`
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
-        <circle cx="12" cy="12" r="6" fill="#ff3e86" stroke="#ffffff" stroke-width="2" />
-      </svg>
-    `);
+        const pinPaths = {
+          "convenience-store": "assets/pins/convenience-store.svg",
+          entertainment: "assets/pins/entertainment.svg",
+          default: "assets/pins/default.svg",
+          selected: "assets/pins/selected.svg",
+          transit: "assets/pins/transit.svg",
+          "grocery-store": "assets/pins/grocery-store.svg",
+          health: "assets/pins/health.svg",
+          retail: "assets/pins/retail.svg",
+          financial: "assets/pins/financial.svg",
+        };
+
+        // Dynamically register all pins with MapLibre
+        Object.entries(pinPaths).forEach(([key, url]) => {
+          const img = new Image(28, 28);
+          img.onload = () => map.addImage(`pin-${key}`, img);
+          img.src = url;
+        });
+
+        // Optional fallback handler if an icon is missing
+        map.on("styleimagemissing", (e) => {
+          const id = e.id;
+          if (id.startsWith("pin-")) {
+            console.warn(`⚠️ Missing icon ${id}, using default pin`);
+            map.addImage(id, map.getImage("pin-default"));
+          }
+        });
+
         // --- City Bubbles (DMA clusters) ---
         map.addSource("cityClusters", {
           type: "geojson",
@@ -480,15 +559,34 @@
             "text-halo-width": 1.5,
           },
         });
-
         map.addLayer({
           id: "sign-points",
           type: "symbol",
           source: "signs",
           filter: ["!", ["has", "point_count"]],
           layout: {
-            "icon-image": "marker-15",
+            "icon-image": [
+              "match",
+              ["get", "venue"],
+              "convenience-store",
+              "pin-convenience-store",
+              "entertainment",
+              "pin-entertainment",
+              "transit",
+              "pin-transit",
+              "grocery-store",
+              "pin-grocery-store",
+              "health",
+              "pin-health",
+              "retail",
+              "pin-retail",
+              "financial",
+              "pin-financial",
+              /* default fallback: */
+              "pin-default",
+            ],
             "icon-size": 1,
+            "icon-allow-overlap": true,
             visibility: "none",
           },
         });
@@ -512,12 +610,12 @@
 
           const title = `${city.venue} in ${city.name}`;
           const popupHTML = `
-        <div class="popup">
-          <img src="${city.img}" alt="${city.venue}">
-          <strong>${title}</strong>
-          <a href="https://marketplace.blipbillboards.com/register" target="_blank" class="cta">Log in to get started</a>
-        </div>
-      `;
+                    <div class="popup">
+                      <img src="${city.img}" alt="${city.venue}">
+                      <strong>${city.title}</strong>
+                      <a href="https://marketplace.blipbillboards.com/register" target="_blank" class="cta">Log in to get started</a>
+                    </div>
+                  `;
 
           activePopup = new maplibregl.Popup({
             offset: 25,
@@ -562,26 +660,61 @@
             popupLocked = false;
           }
         });
+        let selectedSignId = null;
 
-        // ===== POPUP FOR INDIVIDUAL SIGNS =====
         map.on("click", "sign-points", (e) => {
-          const p = e.features[0].properties;
+          const feature = e.features[0];
+          const id =
+            feature.id ||
+            feature.properties.id ||
+            Math.random().toString(36).substring(2);
+          selectedSignId = id;
+
+          // 🧩 Update the layer so the selected pin uses the "pin-selected" image
+          map.setLayoutProperty("sign-points", "icon-image", [
+            "case",
+            ["==", ["id"], selectedSignId],
+            "pin-selected",
+            [
+              "match",
+              ["get", "venue"],
+              "convenience-store",
+              "pin-convenience-store",
+              "entertainment",
+              "pin-entertainment",
+              "transit",
+              "pin-transit",
+              "grocery-store",
+              "pin-grocery-store",
+              "health",
+              "pin-health",
+              "retail",
+              "pin-retail",
+              "financial",
+              "pin-financial",
+              "pin-default",
+            ],
+          ]);
+
+          // === 4️⃣ Show the popup at the same time ===
+          const p = feature.properties;
           new maplibregl.Popup({ offset: 20 })
-            .setLngLat(e.features[0].geometry.coordinates)
+            .setLngLat(feature.geometry.coordinates)
             .setHTML(
               `
-          <div class="popup">
-            <img src="${p.img}" alt="${p.venue}">
-            <strong>${p.venue}</strong><br/>
-            <span style="color:#666;font-size:13px">${p.city}</span>
-          </div>
-        `
+        <div class="popup">
+          <img src="${p.img}" alt="${p.title}">
+          <strong>${p.title}</strong><br/>
+          <a href="${p.href}" target="_blank" class="cta">Log in to get started</a>
+        </div>
+      `
             )
+
             .addTo(map);
         });
 
         // ===== ZOOM SWITCH BETWEEN LEVELS =====
-        const ZOOM_SWITCH = 11;
+        const ZOOM_SWITCH = 9;
         function safeSetVisibility(id, visibility) {
           if (map.getLayer(id))
             map.setLayoutProperty(id, "visibility", visibility);
@@ -615,6 +748,47 @@
       }
       document.getElementById("search").addEventListener("keydown", (e) => {
         if (e.key === "Enter") searchCity();
+      });
+
+      /* === Autocomplete integration with existing search box === */
+
+      const searchInput = document.getElementById("search");
+      const suggestionsList = document.getElementById("suggestions");
+
+      // Pull city names from your cluster data
+      const cityNames = CLUSTER_CITIES.map((c) => c.name);
+
+      // Typing handler
+      searchInput.addEventListener("input", () => {
+        const query = searchInput.value.trim().toLowerCase();
+        suggestionsList.innerHTML = "";
+
+        if (!query) return;
+
+        const matches = cityNames.filter((city) =>
+          city.toLowerCase().startsWith(query)
+        );
+
+        matches.slice(0, 5).forEach((city) => {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${city.substr(
+            0,
+            query.length
+          )}</strong>${city.substr(query.length)}`;
+          li.addEventListener("click", () => {
+            searchInput.value = city;
+            suggestionsList.innerHTML = "";
+            searchCity(city); // ✅ triggers your existing zoom function
+          });
+          suggestionsList.appendChild(li);
+        });
+      });
+
+      // Hide suggestions when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!document.querySelector(".search-box").contains(e.target)) {
+          suggestionsList.innerHTML = "";
+        }
       });
     </script>
   </body>

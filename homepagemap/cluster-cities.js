@@ -44,6 +44,11 @@ const CLUSTER_CITIES = [
     venue: "Restaurant",
     img: "https://images.unsplash.com/photo-1525610553991-2bede1a236e2?w=400",
   },
+  { name: "Nashville", coords: [-86.7816, 36.1627], count: 60, venue: "Entertainment", img: "https://picsum.photos/seed/nashville/400/200" },
+  { name: "New Orleans", coords: [-90.0715, 29.9511], count: 50, venue: "Entertainment", img: "https://picsum.photos/seed/neworleans/400/200" },
+{ name: "San Antonio", coords: [-98.4936, 29.4241], count: 80, venue: "Retail", img: "https://picsum.photos/seed/sanantonio/400/200" },
+  { name: "Austin", coords: [-97.7431, 30.2672], count: 90, venue: "Entertainment", img: "https://picsum.photos/seed/austin/400/200" },
+
   {
     name: "Houston",
     coords: [-95.3698, 29.7604],
@@ -84,7 +89,7 @@ const CLUSTER_CITIES = [
     coords: [-112.074, 33.4484],
     count: 50,
     venue: "Billboard",
-    img: "https://images.unsplash.com/photo-1590608897129-79da98d159c8?w=400",
+    img: "https://blipboards-bb-storage.s3.amazonaws.com/lambda-images/sign-photos/resized/SignPhoto-5bsvan-resized.jpg",
   },
   {
     name: "Orlando",
@@ -98,8 +103,13 @@ const CLUSTER_CITIES = [
     coords: [-115.1398, 36.1699],
     count: 40,
     venue: "Casino Display",
-    img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400",
+    img: "https://blipboards-bb-storage.s3.amazonaws.com/lambda-images/sign-photos/resized/SignPhoto-u5e7q3-resized.jpg",
   },
+   { name: "Detroit", coords: [-83.0458, 42.3314], count: 65, venue: "Retail", img: "https://picsum.photos/seed/detroit/400/200" },
+  { name: "Minneapolis", coords: [-93.265, 44.9778], count: 55, venue: "Retail", img: "https://picsum.photos/seed/minneapolis/400/200" },
+  { name: "Indianapolis", coords: [-86.1581, 39.7684], count: 45, venue: "Convenience Store", img: "https://picsum.photos/seed/indianapolis/400/200" },
+  { name: "Kansas City", coords: [-94.5786, 39.0997], count: 40, venue: "Grocery Store", img: "https://picsum.photos/seed/kansascity/400/200" },
+
   {
     name: "Portland",
     coords: [-122.6765, 45.5231],
@@ -111,15 +121,15 @@ const CLUSTER_CITIES = [
     name: "Boston",
     coords: [-71.0589, 42.3601],
     count: 90,
-    venue: "Transit Station",
-    img: "https://images.unsplash.com/photo-1523875194681-bedd468c58bf?w=400",
+    venue: "Billboard",
+    img: "https://blipboards-bb-storage.s3.amazonaws.com/lambda-images/sign-photos/resized/SignPhoto-52yu2c-resized.jpg",
   },
   {
     name: "Philadelphia",
     coords: [-75.1652, 39.9526],
     count: 85,
     venue: "Pharmacy",
-    img: "https://images.unsplash.com/photo-1586099840923-42d64ef2c4f3?w=400",
+    img: "https://blipboards-bb-storage.s3.amazonaws.com/lambda-images/sign-photos/resized/SignPhoto-9bh4n8-resized.jpg",
   },
   {
     name: "Minneapolis",
