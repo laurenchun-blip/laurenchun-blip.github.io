@@ -398,7 +398,7 @@
           layers: [{ id: "osm", type: "raster", source: "osm" }],
         },
         center: [-98.35, 39.5],
-        zoom: 4,
+        zoom: 3.49,
       });
 
       map.addControl(new maplibregl.NavigationControl());
@@ -467,6 +467,9 @@
         map.addSource("cityClusters", {
           type: "geojson",
           data: cityClusterGeoJSON,
+          cluster: true,
+          clusterRadius: 28,
+          clusterMaxZoom: 7,
         });
 
         map.addLayer({
@@ -612,7 +615,7 @@
           const popupHTML = `
                     <div class="popup">
                       <img src="${city.img}" alt="${city.venue}">
-                      <strong>${city.title}</strong>
+                      <strong>${city.venue} in ${city.name}</strong>
                       <a href="https://marketplace.blipbillboards.com/register" target="_blank" class="cta">Log in to get started</a>
                     </div>
                   `;
