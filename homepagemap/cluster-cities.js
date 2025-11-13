@@ -177,6 +177,32 @@ const CLUSTER_CITIES = [
   img: "https://picsum.photos/seed/billings/400/200",
   // aliases: ["Bozeman", "Missoula", "Great Falls"]
 },
+
+{
+  name: "Des Moines",
+  coords: [-93.6091, 41.6005],
+  count: 45,  // You said you have 45 signs
+  venue: "Billboard",
+  img: "https://picsum.photos/seed/desmoines/400/200",
+  // aliases: ["West Des Moines", "Ames", "Ankeny", "Urbandale"]
+},
+{
+  name: "Cedar Rapids",
+  coords: [-91.6656, 42.0083],
+  count: 18,
+  venue: "Retail",
+  img: "https://picsum.photos/seed/cedarrapids/400/200",
+  // aliases: ["Marion", "Hiawatha"]
+},
+{
+  name: "Davenport",
+  coords: [-90.5776, 41.5236],
+  count: 12,
+  venue: "Billboard",
+  img: "https://picsum.photos/seed/davenport/400/200",
+  // aliases: ["Moline", "Rock Island", "Bettendorf"]
+},
+
 ];
 
 // For quick search / map fly-to lookups

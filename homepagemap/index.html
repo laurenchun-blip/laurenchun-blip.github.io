@@ -470,29 +470,91 @@
           cluster: true,
           clusterRadius: 28,
           clusterMaxZoom: 7,
+          clusterProperties: {
+            // totalCount = sum of all "count" values inside cluster
+            totalCount: ["+", ["get", "count"]],
+          },
         });
 
+        // map.addLayer({
+        //   id: "city-bubbles",
+        //   type: "circle",
+        //   source: "cityClusters",
+        //   paint: {
+        //     "circle-color": "#ff3e86",
+        //     "circle-radius": [
+        //       "interpolate",
+        //       ["linear"],
+        //       ["zoom"],
+        //       3,
+        //       18,
+        //       6,
+        //       28,
+        //       8,
+        //       38,
+        //       //   10,
+        //       //   48,
+        //       //   12,
+        //       //   56,
+        //     ],
+        //     "circle-stroke-color": "#fff",
+        //     "circle-stroke-width": 2,
+        //     "circle-opacity": 0.9,
+        //   },
+        // });
+
+        // map.addLayer({
+        //   id: "city-count",
+        //   type: "symbol",
+        //   source: "cityClusters",
+        //   layout: {
+        //     "text-field": [
+        //       "case",
+        //       ["has", "point_count"], // clustered feature
+        //       ["get", "totalCount"], // ⭐ summed value
+        //       ["get", "count"],
+        //     ],
+
+        //     "text-size": 16,
+        //     "text-font": ["Open Sans Regular"],
+        //   },
+        //   paint: {
+        //     "text-color": "#fff",
+        //     "text-halo-color": "#ff3e86",
+        //     "text-halo-width": 1.5,
+        //   },
+        // });
         map.addLayer({
-          id: "city-bubbles",
+          id: "cluster-bubbles",
           type: "circle",
           source: "cityClusters",
+          filter: ["has", "point_count"], // ⭐ clustered features only
           paint: {
             "circle-color": "#ff3e86",
             "circle-radius": [
-              "interpolate",
-              ["linear"],
-              ["zoom"],
-              3,
-              18,
-              6,
-              28,
-              8,
-              38,
-              //   10,
-              //   48,
-              //   12,
-              //   56,
+              "step",
+              ["get", "totalCount"], // ⭐ summed cluster count
+              18, // < 18 signs
+              25, // 50–149 signs
+              24,
+              150,
+              25, // 150–299 signs
+              300,
+              25, // 300+
             ],
+            "circle-stroke-color": "#fff",
+            "circle-stroke-width": 2,
+            "circle-opacity": 0.9,
+          },
+        });
+        map.addLayer({
+          id: "unclustered-bubbles",
+          type: "circle",
+          source: "cityClusters",
+          filter: ["!", ["has", "point_count"]], // ⭐ NOT clusters
+          paint: {
+            "circle-color": "#ff3e86",
+            "circle-radius": 25,
             "circle-stroke-color": "#fff",
             "circle-stroke-width": 2,
             "circle-opacity": 0.9,
@@ -500,12 +562,29 @@
         });
 
         map.addLayer({
-          id: "city-count",
+          id: "cluster-count",
           type: "symbol",
           source: "cityClusters",
+          filter: ["has", "point_count"],
+          layout: {
+            "text-field": ["get", "totalCount"], // ⭐ sum
+            "text-size": 16,
+            "text-font": ["Open Sans Regular"],
+          },
+          paint: {
+            "text-color": "#fff",
+            "text-halo-color": "#ff3e86",
+            "text-halo-width": 1.5,
+          },
+        });
+        map.addLayer({
+          id: "unclustered-count",
+          type: "symbol",
+          source: "cityClusters",
+          filter: ["!", ["has", "point_count"]],
           layout: {
             "text-field": ["get", "count"],
-            "text-size": 16,
+            "text-size": 14,
             "text-font": ["Open Sans Regular"],
           },
           paint: {
