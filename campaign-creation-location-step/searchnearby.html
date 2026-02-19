@@ -3,31 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Binary Shift & Suggest - Prototype</title>
+    <title>Hybrid Design: Binary + Manual Control</title>
     <style>
       :root {
         --primary-blue: #2563eb;
-        --success-bg: #ecfdf5;
-        --success-border: #10b981;
-        --fail-bg: #fff7ed;
-        --fail-border: #f97316;
-        --text-main: #1f2937;
         --border: #e5e7eb;
+        --text-main: #1f2937;
+        --text-muted: #6b7280;
+        --success-bg: #ecfdf5;
+        --fail-bg: #fff7ed;
       }
       body {
         font-family: sans-serif;
         background: #f3f4f6;
-        padding: 40px;
+        padding: 20px;
         display: flex;
         justify-content: center;
       }
       .card {
         background: white;
-        width: 480px;
+        width: 500px;
         padding: 24px;
         border-radius: 12px;
         border: 1px solid var(--border);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
       }
 
       .search-input {
@@ -35,91 +34,101 @@
         padding: 12px;
         border: 1px solid var(--border);
         border-radius: 6px;
-        font-size: 16px;
-        box-sizing: border-box;
-        margin-bottom: 16px;
-      }
-
-      /* Notification Box */
-      .status-box {
-        padding: 16px;
-        border-radius: 8px;
-        margin-bottom: 16px;
-        display: none;
-        border: 1px solid transparent;
-      }
-      .status-box.success {
-        display: block;
-        background: var(--success-bg);
-        border-color: var(--success-border);
-        color: #065f46;
-      }
-      .status-box.fail {
-        display: block;
-        background: var(--fail-bg);
-        border-color: var(--fail-border);
-        color: #9a3412;
-      }
-
-      .status-title {
-        font-weight: 700;
         font-size: 15px;
-        margin-bottom: 4px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        box-sizing: border-box;
+        margin-bottom: 12px;
       }
 
-      /* Suggestions */
+      /* Notification Area */
+      .status-area {
+        min-height: 80px;
+        margin-bottom: 16px;
+        border-radius: 8px;
+        padding: 12px;
+        border: 1px solid transparent;
+        display: none;
+      }
+      .status-area.visible {
+        display: block;
+      }
+      .status-area.success {
+        background: var(--success-bg);
+        border-color: #10b981;
+      }
+      .status-area.fail {
+        background: var(--fail-bg);
+        border-color: #f97316;
+      }
+
       .suggestion-chips {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         flex-wrap: wrap;
-        margin-top: 12px;
+        margin-top: 8px;
       }
       .chip {
         background: white;
         border: 1px solid var(--border);
-        padding: 6px 12px;
-        border-radius: 16px;
-        font-size: 13px;
+        padding: 4px 10px;
+        border-radius: 14px;
+        font-size: 12px;
         cursor: pointer;
-        transition: 0.2s;
-        font-weight: 500;
       }
       .chip:hover {
         border-color: var(--primary-blue);
-        color: var(--primary-blue);
-        background: #eff6ff;
       }
 
-      /* Map Simulation */
-      .map-box {
-        height: 220px;
+      /* Map and Controls */
+      .map-container {
+        height: 300px;
         background: #e5e7eb;
         border-radius: 8px;
         position: relative;
         overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        cursor: crosshair;
+        margin-bottom: 16px;
       }
-      .map-radius {
-        position: absolute;
+      .radius-circle {
         background: rgba(37, 99, 235, 0.15);
         border: 2px solid var(--primary-blue);
         border-radius: 50%;
-        width: 120px;
-        height: 120px;
-        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: absolute;
+        pointer-events: none;
         transform: translate(-50%, -50%);
+        transition:
+          width 0.2s,
+          height 0.2s;
       }
-      .map-pin {
+      .pin {
         position: absolute;
         font-size: 28px;
-        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: grab;
         transform: translate(-50%, -100%);
         z-index: 10;
+        user-select: none;
+      }
+      .pin:active {
+        cursor: grabbing;
+      }
+
+      .slider-box {
+        background: #f9fafb;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        margin-bottom: 12px;
+      }
+      .slider-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--primary-blue);
+        cursor: pointer;
       }
 
       .btn-next {
@@ -131,100 +140,129 @@
         border-radius: 6px;
         font-weight: 600;
         cursor: pointer;
-        margin-top: 20px;
+        margin-top: 16px;
       }
     </style>
   </head>
   <body>
     <div class="card">
-      <h3 style="margin-top: 0">Choose Your Target Area</h3>
-      <input
-        type="text"
-        id="search"
-        class="search-input"
-        placeholder="Search city or zip..."
-        value="Oakland, CA"
-      />
+      <h3 style="margin: 0 0 16px 0">Find Your Ad Space</h3>
 
-      <div id="status" class="status-box"></div>
+      <input type="text" id="search" class="search-input" value="Oakland, CA" />
 
-      <div class="map-box">
-        <div
-          id="visual-radius"
-          class="map-radius"
-          style="left: 50%; top: 50%"
-        ></div>
-        <div id="visual-pin" class="map-pin" style="left: 50%; top: 50%">
-          📍
+      <div id="status" class="status-area"></div>
+      <div class="slider-box">
+        <div class="slider-header">
+          <span>Search Radius</span>
+          <span id="miles-val" style="color: var(--primary-blue)">5 miles</span>
         </div>
-                <img src="assets/map.jpg" style="background-position-x: left; width:200%; height:200%; object-fit:cover;"></img>
-
-        <!-- <div style="color: #9ca3af; font-size: 12px">Map Preview</div> -->
+        <input type="range" id="radius-slider" min="1" max="50" value="5" />
+      </div>
+      <div class="map-container" id="map">
+        <div id="visual-radius" class="radius-circle"></div>
+        <div id="draggable-pin" class="pin">📍</div>
+        <div
+          style="
+            width: 500px;
+            height: 300px;
+            overflow: hidden;
+            border: 1px solid #ccc;
+          "
+        >
+          <img
+            src="assets/map.jpg"
+            style="width: 100%; height: 100%; object-fit: cover"
+          />
+        </div>
       </div>
 
-      <button class="btn-next">Next: Set Strategy</button>
+      <button class="btn-next">Next Step</button>
     </div>
 
     <script>
-      const search = document.getElementById("search");
-      const status = document.getElementById("status");
-      const pin = document.getElementById("visual-pin");
-      const radius = document.getElementById("visual-radius");
+      const searchInput = document.getElementById("search");
+      const statusArea = document.getElementById("status");
+      const map = document.getElementById("map");
+      const pin = document.getElementById("draggable-pin");
+      const radiusCircle = document.getElementById("visual-radius");
+      const slider = document.getElementById("radius-slider");
+      const milesVal = document.getElementById("miles-val");
 
-      // Market Data Map Coordinates (Simulated % values)
-      const markets = {
-        "Oakland, CA": {
-          signs: 0,
-          x: 50,
-          y: 50,
-          suggestions: ["San Francisco", "Berkeley"],
-        },
-        "San Francisco": { signs: 42, x: 30, y: 65, suggestions: [] },
-        Berkeley: { signs: 12, x: 65, y: 35, suggestions: [] },
-      };
+      // Mock Settings
+      let currentX = 300;
+      let currentY = 165;
+      let isDragging = false;
+      const pockets = [
+        { name: "Downtown SF", x: 150, y: 180, signs: 2 },
+        { name: "Orinda", x: 390, y: 80, signs: 2 },
+        { name: "Berkeley Hub", x: 290, y: 80, signs: 3 },
+      ];
 
-      function updateMarket(val) {
-        const data = markets[val];
+      function updateEverything() {
+        // Update Pin Position
+        pin.style.left = currentX + "px";
+        pin.style.top = currentY + "px";
+        radiusCircle.style.left = currentX + "px";
+        radiusCircle.style.top = currentY + "px";
 
-        // Move Pin & Radius (The "Shift" animation)
-        pin.style.left = data.x + "%";
-        pin.style.top = data.y + "%";
-        radius.style.left = data.x + "%";
-        radius.style.top = data.y + "%";
+        // Update Radius Size
+        const miles = slider.value;
+        const pxRadius = miles * 6;
+        radiusCircle.style.width = pxRadius * 2 + "px";
+        radiusCircle.style.height = pxRadius * 2 + "px";
+        milesVal.innerText = `${miles} miles`;
 
-        if (data.signs > 0) {
-          status.className = "status-box success";
-          status.innerHTML = `
-        <div class="status-title">✓ Market Confirmed</div>
-        We found ${data.signs} high-impact signs in the ${val} area.
-      `;
+        // Calculate Signs
+        let totalSigns = 0;
+        pockets.forEach((p) => {
+          const dist = Math.sqrt(
+            Math.pow(p.x - currentX, 2) + Math.pow(p.y - currentY, 2),
+          );
+          if (dist < pxRadius) totalSigns += p.signs;
+        });
+
+        // Update Status Box
+        statusArea.className =
+          "status-area visible " + (totalSigns > 0 ? "success" : "fail");
+        if (totalSigns > 0) {
+          statusArea.innerHTML = `<strong>✓ Market Active</strong><br>${totalSigns} signs found in this zone.`;
         } else {
-          status.className = "status-box fail";
-          let chips = data.suggestions
-            .map(
-              (s) =>
-                `<div class="chip" onclick="handleSelect('${s}')">${s}</div>`,
-            )
-            .join("");
-          status.innerHTML = `
-        <div class="status-title">⚠ No Signs in Oakland</div>
-        No inventory available in this exact area. Try a nearby active market:
-        <div class="suggestion-chips">${chips}</div>
+          statusArea.innerHTML = `
+        <strong>No signs found here.</strong><br>
+        Try expanding your radius or checking:
+        <div class="suggestion-chips">
+          <div class="chip" onclick="moveTo(150, 180, 'San Francisco')">San Francisco</div>
+          <div class="chip" onclick="moveTo(290, 80, 'Berkeley Hub')">Berkeley</div>
+          <div class="chip" onclick="moveTo(390, 80, 'Orinda')">Orinda</div>
+
+        </div>
       `;
         }
       }
 
-      window.handleSelect = (name) => {
-        search.value = name;
-        updateMarket(name);
+      // Interaction Logic
+      window.moveTo = (x, y, name) => {
+        currentX = x;
+        currentY = y;
+        searchInput.value = name;
+        updateEverything();
       };
 
-      search.addEventListener("change", (e) => {
-        if (markets[e.target.value]) updateMarket(e.target.value);
+      pin.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        e.preventDefault();
+      });
+      window.addEventListener("mouseup", () => (isDragging = false));
+      window.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const rect = map.getBoundingClientRect();
+        currentX = Math.max(0, Math.min(e.clientX - rect.left, 500));
+        currentY = Math.max(0, Math.min(e.clientY - rect.top, 300));
+        updateEverything();
       });
 
-      // Initial Load
-      updateMarket("Oakland, CA");
+      slider.addEventListener("input", updateEverything);
+      updateEverything();
     </script>
   </body>
 </html>
