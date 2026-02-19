@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Binary Shift & Suggest - Prototype</title>
+    <style>
+      :root {
+        --primary-blue: #2563eb;
+        --success-bg: #ecfdf5;
+        --success-border: #10b981;
+        --fail-bg: #fff7ed;
+        --fail-border: #f97316;
+        --text-main: #1f2937;
+        --border: #e5e7eb;
+      }
+      body {
+        font-family: sans-serif;
+        background: #f3f4f6;
+        padding: 40px;
+        display: flex;
+        justify-content: center;
+      }
+      .card {
+        background: white;
+        width: 480px;
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 16px;
+        box-sizing: border-box;
+        margin-bottom: 16px;
+      }
+
+      /* Notification Box */
+      .status-box {
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        display: none;
+        border: 1px solid transparent;
+      }
+      .status-box.success {
+        display: block;
+        background: var(--success-bg);
+        border-color: var(--success-border);
+        color: #065f46;
+      }
+      .status-box.fail {
+        display: block;
+        background: var(--fail-bg);
+        border-color: var(--fail-border);
+        color: #9a3412;
+      }
+
+      .status-title {
+        font-weight: 700;
+        font-size: 15px;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* Suggestions */
+      .suggestion-chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .chip {
+        background: white;
+        border: 1px solid var(--border);
+        padding: 6px 12px;
+        border-radius: 16px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.2s;
+        font-weight: 500;
+      }
+      .chip:hover {
+        border-color: var(--primary-blue);
+        color: var(--primary-blue);
+        background: #eff6ff;
+      }
+
+      /* Map Simulation */
+      .map-box {
+        height: 220px;
+        background: #e5e7eb;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .map-radius {
+        position: absolute;
+        background: rgba(37, 99, 235, 0.15);
+        border: 2px solid var(--primary-blue);
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transform: translate(-50%, -50%);
+      }
+      .map-pin {
+        position: absolute;
+        font-size: 28px;
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transform: translate(-50%, -100%);
+        z-index: 10;
+      }
+
+      .btn-next {
+        width: 100%;
+        background: #111827;
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h3 style="margin-top: 0">Choose Your Target Area</h3>
+      <input
+        type="text"
+        id="search"
+        class="search-input"
+        placeholder="Search city or zip..."
+        value="Oakland, CA"
+      />
+
+      <div id="status" class="status-box"></div>
+
+      <div class="map-box">
+        <div
+          id="visual-radius"
+          class="map-radius"
+          style="left: 50%; top: 50%"
+        ></div>
+        <div id="visual-pin" class="map-pin" style="left: 50%; top: 50%">
+          📍
+        </div>
+                <img src="assets/map.jpg" style="background-position-x: left; width:200%; height:200%; object-fit:cover;"></img>
+
+        <!-- <div style="color: #9ca3af; font-size: 12px">Map Preview</div> -->
+      </div>
+
+      <button class="btn-next">Next: Set Strategy</button>
+    </div>
+
+    <script>
+      const search = document.getElementById("search");
+      const status = document.getElementById("status");
+      const pin = document.getElementById("visual-pin");
+      const radius = document.getElementById("visual-radius");
+
+      // Market Data Map Coordinates (Simulated % values)
+      const markets = {
+        "Oakland, CA": {
+          signs: 0,
+          x: 50,
+          y: 50,
+          suggestions: ["San Francisco", "Berkeley"],
+        },
+        "San Francisco": { signs: 42, x: 30, y: 65, suggestions: [] },
+        Berkeley: { signs: 12, x: 65, y: 35, suggestions: [] },
+      };
+
+      function updateMarket(val) {
+        const data = markets[val];
+
+        // Move Pin & Radius (The "Shift" animation)
+        pin.style.left = data.x + "%";
+        pin.style.top = data.y + "%";
+        radius.style.left = data.x + "%";
+        radius.style.top = data.y + "%";
+
+        if (data.signs > 0) {
+          status.className = "status-box success";
+          status.innerHTML = `
+        <div class="status-title">✓ Market Confirmed</div>
+        We found ${data.signs} high-impact signs in the ${val} area.
+      `;
+        } else {
+          status.className = "status-box fail";
+          let chips = data.suggestions
+            .map(
+              (s) =>
+                `<div class="chip" onclick="handleSelect('${s}')">${s}</div>`,
+            )
+            .join("");
+          status.innerHTML = `
+        <div class="status-title">⚠ No Signs in Oakland</div>
+        No inventory available in this exact area. Try a nearby active market:
+        <div class="suggestion-chips">${chips}</div>
+      `;
+        }
+      }
+
+      window.handleSelect = (name) => {
+        search.value = name;
+        updateMarket(name);
+      };
+
+      search.addEventListener("change", (e) => {
+        if (markets[e.target.value]) updateMarket(e.target.value);
+      });
+
+      // Initial Load
+      updateMarket("Oakland, CA");
+    </script>
+  </body>
+</html>
