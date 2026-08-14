@@ -1,0 +1,1463 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+</head>
+<body>
+<title>Blip — location step + budget spread</title>
+<style>
+  :root{
+    --page:#eef1f6; --surface:#ffffff; --surface-2:#f7f9fc;
+    --text:#151a21; --text-2:#5a6572; --text-3:#94a0ad;
+    --border:#e4e8ef; --border-2:#d4dae4;
+    --accent:#2f6bd8; --accent-2:#1f4fa0; --accent-bg:#eaf1fc; --accent-border:#bcd4f6;
+    --success:#0f7a54; --success-bg:#e4f5ec;
+    --warn:#9a6412; --warn-bg:#fbeecf; --warn-border:#f0cf8a;
+    --slate:#5b6b7f; --slate-bg:#eef1f5;
+    --danger:#b23b3b; --danger-bg:#fbeaea; --danger-border:#eeb9b9;
+    --map:#dbe4ec; --map-grid:#c9d4de; --map-label:#65717d;
+    --water:#cddff0; --land:#eef2ea; --land-edge:#d6ddcc; --road:#a8b4c0; --map-label-sh:rgba(255,255,255,.75);
+    --ring-on:rgba(47,107,216,.18); --ring-on-b:rgba(47,107,216,.78);
+    --ring-off:rgba(120,132,145,.10); --ring-off-b:rgba(120,132,145,.42);
+    --sign-off:#98a4b0; --shadow:0 1px 2px rgba(20,30,50,.05),0 8px 24px rgba(20,30,50,.06);
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  :root[data-theme="light"]{ color-scheme:light; }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+    --page:#0f1319; --surface:#171d26; --surface-2:#1d242f;
+    --text:#eef2f7; --text-2:#a4afbd; --text-3:#6c7784;
+    --border:#2a313c; --border-2:#3a424f;
+    --accent:#5a95ec; --accent-2:#8bb5f2; --accent-bg:#172433; --accent-border:#2c445f;
+    --success:#4cc38a; --success-bg:#122720;
+    --warn:#e0a94a; --warn-bg:#2b2413; --warn-border:#574a24;
+    --slate:#9aa7b6; --slate-bg:#212a34;
+    --danger:#e5706f; --danger-bg:#2b1718; --danger-border:#573030;
+    --map:#1a2330; --map-grid:#26313f; --map-label:#7c8794;
+    --water:#0e1b28; --land:#1b2330; --land-edge:#2b3648; --road:#3d4a5b; --map-label-sh:rgba(0,0,0,.55);
+    --sign-off:#59636f; --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --page:#0f1319; --surface:#171d26; --surface-2:#1d242f;
+    --text:#eef2f7; --text-2:#a4afbd; --text-3:#6c7784;
+    --border:#2a313c; --border-2:#3a424f;
+    --accent:#5a95ec; --accent-2:#8bb5f2; --accent-bg:#172433; --accent-border:#2c445f;
+    --success:#4cc38a; --success-bg:#122720;
+    --warn:#e0a94a; --warn-bg:#2b2413; --warn-border:#574a24;
+    --slate:#9aa7b6; --slate-bg:#212a34;
+    --danger:#e5706f; --danger-bg:#2b1718; --danger-border:#573030;
+    --map:#1a2330; --map-grid:#26313f; --map-label:#7c8794;
+    --water:#0e1b28; --land:#1b2330; --land-edge:#2b3648; --road:#3d4a5b; --map-label-sh:rgba(0,0,0,.55);
+    --sign-off:#59636f; --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  .wrap{font-family:var(--font);background:var(--page);color:var(--text);min-height:100vh;padding:28px 20px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .shell{max-width:1060px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border);}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px;}
+  .brand .mark{width:22px;height:22px;border-radius:6px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;}
+  .topttl{font-size:14px;font-weight:600;color:var(--text);}
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--accent-bg);color:var(--accent-2);display:grid;place-items:center;font-size:12px;font-weight:600;}
+  .body{display:grid;grid-template-columns:200px 1fr;}
+  .rail{border-right:1px solid var(--border);padding:24px 20px;background:var(--surface-2);}
+  .step{display:flex;gap:11px;padding:9px 0;align-items:flex-start;}
+  .step .num{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:600;border:1.5px solid var(--border-2);color:var(--text-3);background:var(--surface);}
+  .step.active .num{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .step .lbl{font-size:13px;font-weight:600;color:var(--text-3);line-height:1.25;}
+  .step.active .lbl{color:var(--text);}
+  .step .sub{font-size:11.5px;font-weight:400;color:var(--text-3);}
+  .main{padding:26px 28px 22px;}
+  .h1{font-size:19px;font-weight:600;margin:0 0 3px;letter-spacing:-.01em;}
+  .lede{font-size:13.5px;color:var(--text-2);margin:0 0 18px;}
+
+  .covbar{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border:1px solid var(--border);background:var(--surface-2);border-radius:12px;margin-bottom:18px;}
+  .covbar.warn{border-color:var(--warn-border);background:var(--warn-bg);}
+  .covbar.bad{border-color:var(--danger-border);background:var(--danger-bg);}
+  .covbar .covicon{width:30px;height:30px;border-radius:50%;background:var(--slate);color:#fff;display:grid;place-items:center;flex:none;font-size:16px;}
+  .covbar.warn .covicon{background:var(--warn);}
+  .covbar.bad .covicon{background:var(--danger);}
+  .covbar .covtext{flex:1;min-width:0;}
+  /* Ranked stack (priority: 1 target areas · 2 eligible signs · 3 suggested budget) */
+  .covbar .covmain{font-size:15px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;line-height:1.25;}
+  .covbar .covmain b{font-weight:700;}
+  .covbar .covsigns{font-size:13px;color:var(--text-2);font-variant-numeric:tabular-nums;line-height:1.4;margin-top:3px;}
+  .covbar .covsigns b{font-weight:600;color:var(--text);}
+  .covbar .covbudget{color:var(--text-3);}
+  .covbar .covsub{font-size:12px;color:var(--text-2);margin-top:2px;line-height:1.4;}
+  .covbar.muted{border-color:var(--border);background:var(--surface-2);}
+  .covbar.muted .covicon{background:var(--text-3);}
+  /* overlap nuance lives in a hover tooltip on the sign count — line stays clean, detail on demand */
+  .covtip{position:relative;display:inline-block;cursor:help;border-bottom:1px dotted var(--border-2);outline:none;}
+  .covtip .tipbubble{position:absolute;bottom:calc(100% + 9px);left:0;z-index:40;width:max-content;max-width:230px;background:#232a33;color:#f2f5f9;font-size:11.5px;font-weight:500;line-height:1.45;font-variant-numeric:normal;padding:8px 11px;border-radius:9px;box-shadow:0 6px 20px rgba(20,30,50,.28);opacity:0;visibility:hidden;transform:translateY(3px);transition:opacity .12s,transform .12s;pointer-events:none;}
+  .covtip:hover .tipbubble,.covtip:focus-visible .tipbubble{opacity:1;visibility:visible;transform:translateY(0);}
+  .covtip .tipbubble:after{content:"";position:absolute;top:100%;left:18px;border:5px solid transparent;border-top-color:#232a33;}
+  .searchhelp{font-size:12px;color:var(--accent);font-weight:500;margin:2px 0 12px;}
+  .mapempty{width:100%;max-width:560px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2);padding:30px 22px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:11px;color:var(--text-2);min-height:190px;justify-content:center;}
+  .mapempty .mei{font-size:20px;color:var(--text-3);display:grid;place-items:center;}
+  .mapempty b{color:var(--text);font-size:13.5px;}
+  .mapempty .mesub{font-size:12px;color:var(--text-3);margin-top:4px;max-width:34ch;line-height:1.5;}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:4px 11px;border-radius:20px;white-space:nowrap;}
+  .pill.ok{background:var(--success-bg);color:var(--success);}
+  .pill.warn{background:var(--warn-bg);color:var(--warn);}
+  .pill.bad{background:var(--danger-bg);color:var(--danger);}
+  .pill.neutral{background:var(--surface-2);color:var(--text-2);}
+
+  .notes{max-width:1060px;margin:22px auto 0;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:22px 26px;}
+  .notes h3{font-size:15px;margin:0 0 3px;font-weight:600;}
+  .notesub{font-size:12.5px;color:var(--text-2);margin:0 0 14px;}
+  .clist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;}
+  .clist li{font-size:13px;color:var(--text-2);line-height:1.5;padding-left:26px;position:relative;}
+  .clist li:before{content:'○';position:absolute;left:4px;top:0;color:var(--text-3);}
+  .clist li.done:before{content:'✓';color:var(--success);font-weight:700;}
+  .clist li b{color:var(--text);font-weight:600;}
+  .badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:var(--success-bg);color:var(--success);margin-left:6px;vertical-align:1px;}
+
+  .cols{display:grid;grid-template-columns:1fr;gap:20px;align-items:start;}
+  .cols.revealed{grid-template-columns:minmax(300px,330px) minmax(0,1fr);}
+  .cols:not(.revealed) .searchbox{max-width:460px;}
+
+  .field{display:flex;align-items:center;gap:9px;border:1px solid var(--border-2);border-radius:10px;padding:0 12px;height:40px;background:var(--surface);margin-bottom:9px;}
+  .field input{border:0;background:none;outline:none;flex:1;font:inherit;font-size:13.5px;color:var(--text);}
+  .field input::placeholder{color:var(--text-3);}
+  .searchrow{display:flex;gap:8px;align-items:flex-start;margin-bottom:9px;}
+  .pinbtn{width:40px;height:40px;flex:none;border:1px solid var(--border-2);border-radius:10px;background:var(--surface);display:grid;place-items:center;cursor:pointer;transition:background .15s,border-color .15s;}
+  .pinbtn:hover{background:var(--surface-2);}
+  .pinbtn.armed{background:var(--accent-bg);border-color:var(--accent);}
+  .pinbtn svg{display:block;}
+  .searchbox{position:relative;flex:1;min-width:0;}
+  .searchbox .field{margin-bottom:0;}
+  /* first-run (pre-map) explicit alternatives: search OR drop a pin */
+  .ordiv{display:flex;align-items:center;gap:12px;margin:11px 0;color:var(--text-3);font-size:11px;font-weight:700;letter-spacing:.06em;}
+  .ordiv:before,.ordiv:after{content:"";flex:1;height:1px;background:var(--border);}
+  #firstRun .btn.block{margin-bottom:0;}
+  .cols:not(.revealed) #firstRun{max-width:460px;}
+  .results{position:absolute;top:46px;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);z-index:30;overflow:hidden;}
+  .results button{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;background:none;border:0;text-align:left;font:inherit;padding:9px 12px;cursor:pointer;color:var(--text);}
+  .results button:hover,.results button.hl{background:var(--surface-2);}
+  .results .r1{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px;}
+  .results .r1 svg{color:var(--text-3);}
+  .results .r2{font-size:12px;color:var(--text-3);white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .results .empty{padding:11px 12px;font-size:13px;color:var(--text-3);}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font:inherit;font-size:13px;font-weight:600;height:38px;padding:0 14px;border-radius:10px;border:1px solid var(--border-2);background:var(--surface);color:var(--text);cursor:pointer;transition:background .15s,border-color .15s;}
+  .btn:hover{background:var(--surface-2);}
+  .btn.block{width:100%;margin-bottom:8px;}
+  .btn.block:disabled{opacity:.5;cursor:not-allowed;}
+  .btn.primary:disabled{opacity:.5;cursor:not-allowed;}
+  .btn.primary:disabled:hover{background:var(--accent);}
+  .btn.armed{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent-2);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;padding:0 20px;height:40px;}
+  .btn.primary:hover{background:var(--accent-2);}
+  .btn.ghost{border-color:transparent;background:transparent;}
+  .btn.ghost:hover{background:var(--surface-2);}
+  .caphint{font-size:11px;color:var(--text-3);margin:0 0 16px;}
+
+  .listhead{font-size:12px;font-weight:600;color:var(--text-2);margin:8px 0 9px;display:flex;justify-content:space-between;}
+  .zones{display:flex;flex-direction:column;gap:9px;}
+  .zone{border:1.5px solid var(--border);background:var(--surface);border-radius:12px;padding:11px 13px;cursor:pointer;transition:border-color .15s,background .15s;}
+  .zone:hover{border-color:var(--border-2);}
+  .zone.sel{border-color:var(--accent);background:var(--accent-bg);}
+  .zone.low{border-color:var(--warn-border);}
+  .zone.none{border-color:var(--border-2);}
+  .zone.none:not(.sel){background:var(--surface-2);}
+  /* per-card no-signs notice — clearer signal than the tag alone, esp. when mixed with signed areas */
+  .zone .zonenote{display:flex;align-items:flex-start;gap:7px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--text-2);line-height:1.45;}
+  .zone .zonenote .zni{color:var(--warn);flex:none;display:grid;place-items:center;margin-top:1px;}
+  .zone .zonenote .zni svg{width:14px;height:14px;}
+  .zone .row{display:flex;align-items:center;gap:10px;}
+  .zone .ico{color:var(--text-3);flex:none;display:grid;place-items:center;}
+  .zone.sel .ico{color:var(--accent);}
+  .zone .nm{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;}
+  .zone .sub{font-size:12px;color:var(--text-2);margin-top:1px;font-variant-numeric:tabular-nums;}
+  .zone .rm{margin-left:auto;color:var(--text-3);background:none;border:0;cursor:pointer;padding:4px;border-radius:6px;display:grid;place-items:center;}
+  .zone .rm:hover{background:rgba(120,132,145,.15);color:var(--text);}
+  .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;}
+  .tag.low{background:var(--warn-bg);color:var(--warn);}
+  .tag.none{background:var(--surface-2);color:var(--text-2);border:1px solid var(--border);}
+  .radius{margin-top:11px;}
+  .radius .lab{display:flex;justify-content:space-between;font-size:12px;color:var(--text-2);margin-bottom:4px;font-variant-numeric:tabular-nums;}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:20px;background:var(--border-2);outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--accent);cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--accent);cursor:pointer;}
+
+  .discover{margin-top:12px;border:1.5px dashed var(--accent-border);background:var(--accent-bg);border-radius:12px;padding:12px 13px;}
+  .discover .dh{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--accent-2);margin-bottom:10px;}
+  .discover .subhead{font-size:11.5px;color:var(--text-2);font-weight:600;margin:12px 0 2px;}
+  /* gray "no signs here" variant — informational, not an error */
+  .discover.muted{border-style:solid;border-color:var(--border);background:var(--surface-2);}
+  .discover.muted .dh{color:var(--text);}
+  .discover.muted .dh .di{color:var(--text-3);}
+  .discover .dbody{font-size:12px;color:var(--text-2);line-height:1.5;margin-bottom:11px;}
+  .reqsigns{font:inherit;font-weight:600;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+  .reqsigns:hover{text-decoration:none;}
+  .remedy{display:flex;width:100%;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 11px;font:inherit;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer;text-align:left;}
+  .remedy:hover{background:var(--surface-2);}
+  .remedy .rmi{font-size:15px;display:grid;place-items:center;flex:none;color:var(--accent);}
+  .sugg{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 11px;margin-top:7px;}
+  .sugg .s1{font-size:13px;font-weight:600;}
+  .sugg .s2{font-size:12px;color:var(--text-2);font-weight:400;font-variant-numeric:tabular-nums;}
+  .addlink{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--accent);background:none;border:0;cursor:pointer;padding:4px 6px;border-radius:7px;white-space:nowrap;}
+  .addlink:hover{background:var(--accent-bg);}
+  .addlink:disabled{opacity:.45;cursor:not-allowed;}
+  .addlink:disabled:hover{background:none;}
+
+  .mapcol{display:none;flex-direction:column;}
+  .cols.revealed .mapcol{display:flex;}
+  .redosearch{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:6;background:var(--surface);color:var(--accent-2);border:1px solid var(--accent-border);border-radius:20px;padding:7px 15px;font:inherit;font-size:12.5px;font-weight:600;box-shadow:0 2px 10px rgba(20,30,50,.20);cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+  .redosearch:hover{background:var(--accent-bg);}
+  .mapwrap{position:relative;width:100%;max-width:600px;overflow:hidden;border-radius:12px;border:1px solid var(--border);}
+  .stage{position:relative;width:100%;height:430px;background:var(--surface-2);overflow:hidden;}
+  .stage.arming .maplibregl-canvas{cursor:crosshair;}
+  .maplibregl-ctrl-attrib{font-size:9px;}
+  .maplibregl-ctrl-attrib a{color:var(--text-3);}
+  /* zone centre pin + market count chip live inside MapLibre markers */
+  .ctr{width:15px;height:15px;border-radius:50%;border:2.5px solid #fff;background:#176BF5;box-shadow:0 1px 5px rgba(0,0,0,.45);cursor:pointer;}
+  .ctr.off{background:#6b7686;}
+  .clusterchip{background:#176BF5;color:#fff;font-size:11.5px;font-weight:700;min-width:24px;height:24px;border-radius:20px;display:grid;place-items:center;padding:0 7px;box-shadow:0 1px 5px rgba(0,0,0,.4);border:2.5px solid #fff;cursor:pointer;}
+  .armhint{position:absolute;top:9px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:20px;box-shadow:var(--shadow);pointer-events:none;z-index:5;}
+  .mapctrl{position:absolute;right:9px;top:9px;display:flex;flex-direction:column;gap:6px;z-index:5;}
+  .mapbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border-2);background:var(--surface);color:var(--text);font-size:16px;font-weight:600;cursor:pointer;display:grid;place-items:center;box-shadow:0 1px 3px rgba(0,0,0,.15);}
+  .mapbtn:hover{background:var(--surface-2);}
+  .mapbtn.wide{width:auto;padding:0 10px;font-size:11px;font-weight:600;}
+  .maphelp{font-size:11.5px;color:var(--text-2);margin-top:7px;display:flex;align-items:center;gap:6px;}
+
+  .footer{display:flex;justify-content:space-between;align-items:center;margin-top:22px;padding-top:18px;border-top:1px solid var(--border);}
+  svg.ic{width:1em;height:1em;display:block;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+
+  /* ===== budget spread (step 2, live off the location step) ===== */
+  .splitcard{max-width:1060px;margin:20px auto 0;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;}
+  .splithead{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;padding:22px 26px 0;flex-wrap:wrap;}
+  .splithead .htext{flex:1 1 300px;min-width:0;}
+  .splithead .htext h2{font-size:19px;margin:0 0 4px;font-weight:600;letter-spacing:-.01em;}
+  .splithead .htext p{margin:0;font-size:13.5px;color:var(--text-2);max-width:56ch;}
+  .fields{display:flex;gap:14px;flex-wrap:wrap;}
+  .budgetfield{flex:none;}
+  .budgetfield label{display:block;font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;}
+  .budgetfield label .lblhint{font-weight:500;text-transform:none;letter-spacing:0;color:var(--text-3);}
+  .fieldhint{font-size:11px;color:var(--text-3);margin-top:5px;max-width:170px;line-height:1.35;}
+  .fieldhint.warn{color:var(--warn);}
+  .money input#maxBidInput{width:66px;}
+  .money{display:flex;align-items:center;gap:3px;border:1px solid var(--border-2);border-radius:11px;height:46px;padding:0 15px;background:var(--surface);transition:border-color .15s,box-shadow .15s;}
+  .money:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);}
+  .money .cur{font-size:19px;font-weight:600;color:var(--text-2);}
+  .money input{border:0;background:none;outline:none;font:inherit;font-size:23px;font-weight:700;width:76px;color:var(--text);font-variant-numeric:tabular-nums;-moz-appearance:textfield;}
+  .money input::-webkit-outer-spin-button,.money input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .money .per{font-size:13px;color:var(--text-3);font-weight:500;}
+
+  /* ===== budget status — neutral pill + reassurance callout under the field (no warning color) ===== */
+  /* full-bleed divider: negative side margins cancel the card's 20px padding, re-added as padding so text still aligns */
+  .bstat{display:flex;gap:8px;align-items:flex-start;margin:14px -20px 0;padding:12px 20px 0;border-top:1px solid var(--border);}
+  .bstat-pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px;}
+  .bstat-pill.tone-warn{background:var(--warn-bg);color:var(--warn);}
+  .bstat-pill.tone-good{background:var(--success-bg);color:var(--success);}
+  .bstat-pill.tone-ok{background:var(--slate-bg);color:var(--slate);}
+  .bstat .bsicon{color:var(--text-2);flex:none;display:grid;place-items:center;margin-top:1px;}
+  .bstat .bsicon svg{width:15px;height:15px;}
+  .bstat .bsmsg{font-size:12.5px;color:var(--text-2);line-height:1.5;}
+  .bstat .bslead{color:var(--text);font-weight:500;}
+
+  .glance{padding:16px 26px 0;font-size:13px;color:var(--text-2);line-height:1.5;}
+  .glance b{color:var(--text);font-weight:600;}
+  .guidance{margin:14px 26px 0;display:flex;gap:10px;align-items:flex-start;background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:12px;padding:11px 14px;font-size:13px;color:var(--warn);line-height:1.5;}
+  .guidance b{color:var(--warn);font-weight:700;}
+  .guidance .bicon{color:var(--warn);}
+  .bicon{font-size:17px;display:grid;place-items:center;flex:none;}
+  /* step-1 budget context now lives inside the coverage bar as the quiet .covbudget line — see renderBudget */
+
+  .spread{padding:18px 26px 0;}
+  .spreadbar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--surface-2);}
+  .spreadbar span{border-right:2px solid var(--surface);transition:width .3s ease,opacity .3s ease;}
+  .spreadbar span:last-child{border-right:none;}
+
+  .srows{padding:4px 26px 0;}
+  .sgroup{display:flex;align-items:center;gap:9px;padding:15px 0 5px;}
+  .sgroup .gi{color:var(--text-3);display:grid;place-items:center;font-size:15px;flex:none;}
+  .sgroup .gn{font-size:12.5px;font-weight:600;color:var(--text);}
+  .sgroup .gchip{font-size:10.5px;color:var(--text-3);border:1px solid var(--border);border-radius:20px;padding:1px 8px;font-weight:600;}
+  .sgroup .gsub{margin-left:auto;font-size:11.5px;color:var(--text-3);font-weight:600;font-variant-numeric:tabular-nums;}
+  .sindent{padding-left:22px;}
+  .srow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+  .srow:last-child{border-bottom:none;}
+  .srow:hover{background:var(--surface-2);margin:0 -8px;padding-left:8px;padding-right:8px;border-radius:8px;}
+  .srow.off{opacity:.5;}
+  .switch{flex:none;width:34px;height:20px;border-radius:20px;background:var(--accent);position:relative;border:0;cursor:pointer;padding:0;transition:background .2s;}
+  .switch:after{content:"";position:absolute;top:2px;left:16px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,.25);}
+  .switch.off{background:var(--border-2);}
+  .switch.off:after{left:2px;}
+  .switch:disabled{cursor:not-allowed;opacity:.5;}
+  .sname{flex:1 1 auto;min-width:0;}
+  .sname .snm{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .sname .scpm{font-size:11.5px;color:var(--text-3);font-weight:400;margin-top:1px;font-variant-numeric:tabular-nums;}
+  .sflag{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--warn-bg);color:var(--warn);}
+  .sflag.none{background:var(--surface-2);color:var(--text-2);border:1px solid var(--border);}
+  .sfig{text-align:right;flex:none;font-variant-numeric:tabular-nums;}
+  .sfig .pct{font-size:14px;font-weight:700;color:var(--text);}
+  .sfig .impr{font-size:11.5px;color:var(--text-3);}
+  .sfig.muted .pct{color:var(--text-3);font-weight:600;}
+
+  .ssum{display:flex;flex-wrap:wrap;gap:26px;margin-top:6px;padding:17px 26px 22px;border-top:1px solid var(--border);}
+  .ssum .stat .k{font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .ssum .stat .v{font-size:20px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
+  .ssum .stat .v small{font-size:12px;font-weight:500;color:var(--text-2);}
+
+  /* ===== step flow: budget spread lives inside main as step 2 ===== */
+  #step2{animation:fadeStep .25s ease;}
+  @keyframes fadeStep{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+  #step2 .splithead{padding:0;margin-bottom:2px;}
+  #step2 .glance{padding:14px 0 0;}
+  #step2 .guidance{margin:14px 0 0;}
+  #step2 .spread{padding:18px 0 0;}
+  #step2 .srows{padding:4px 0 0;}
+  #step2 .ssum{padding:17px 0 2px;margin-top:6px;}
+  #step2 .footer{border-top:none;margin-top:12px;padding-top:0;}
+
+  /* ===== real-product sections (goal, advanced settings, creative, reach) ===== */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:16px;}
+  .card > .ch{font-size:15px;font-weight:600;margin:0 0 3px;display:flex;align-items:center;gap:7px;}
+  .card > .csub{font-size:12.5px;color:var(--text-2);margin:0 0 14px;line-height:1.5;}
+  .infodot{width:15px;height:15px;border-radius:50%;border:1.4px solid var(--text-3);color:var(--text-3);font-size:9px;font-weight:700;font-style:italic;display:inline-grid;place-items:center;font-family:Georgia,serif;}
+  .namerow{display:grid;grid-template-columns:130px 1fr;align-items:center;gap:14px;}
+  .namerow label{font-size:13px;color:var(--text-2);font-weight:500;}
+  .inp{border:1px solid var(--border-2);border-radius:9px;height:40px;padding:0 12px;font:inherit;font-size:13.5px;color:var(--text);background:var(--surface);width:100%;}
+  .inp:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);}
+
+  .goalgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
+  .goals{display:flex;flex-direction:column;gap:9px;}
+  .goal{display:flex;gap:11px;align-items:flex-start;border:1.5px solid var(--border);border-radius:11px;padding:11px 13px;cursor:pointer;transition:border-color .15s,background .15s;}
+  .goal:hover{border-color:var(--border-2);}
+  .goal.sel{border-color:var(--accent);background:var(--accent-bg);}
+  .goal .radio{width:17px;height:17px;border-radius:50%;border:1.6px solid var(--border-2);flex:none;margin-top:1px;display:grid;place-items:center;}
+  .goal.sel .radio{border-color:var(--accent);}
+  .goal.sel .radio:after,.opt.sel .radio:after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .goal .gt{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:7px;}
+  .goal .gd{font-size:12px;color:var(--text-2);margin-top:2px;line-height:1.4;}
+  .goaldetail{border:1px solid var(--border);border-radius:12px;padding:16px 17px;background:var(--surface-2);}
+  .goaldetail .gdi{width:52px;height:52px;border-radius:12px;background:var(--accent-bg);display:grid;place-items:center;color:var(--accent);margin-bottom:12px;}
+  .goaldetail h4{font-size:15px;margin:0 0 5px;font-weight:600;}
+  .goaldetail p{font-size:12.5px;color:var(--text-2);margin:0 0 13px;line-height:1.45;}
+  .goaldetail .uc{font-size:12px;font-weight:600;color:var(--text-2);margin:0 0 8px;}
+  .goaldetail ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;}
+  .goaldetail li{font-size:12.5px;color:var(--text);display:flex;gap:8px;align-items:flex-start;}
+  .goaldetail li svg{color:var(--accent);flex:none;margin-top:1px;width:15px;height:15px;}
+
+  .s2grid{display:grid;grid-template-columns:1fr 258px;gap:18px;align-items:start;}
+  .badge-opt{font-size:11px;font-weight:600;color:var(--success);display:inline-flex;align-items:center;gap:6px;}
+  .badge-opt:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--success);}
+  .adv{border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .advrow{border-top:1px solid var(--border);}
+  .advrow:first-child{border-top:none;}
+  .advhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;cursor:pointer;font-size:13.5px;font-weight:600;background:var(--surface);color:var(--text);}
+  .advhead:hover{background:var(--surface-2);}
+  .advhead .chev{color:var(--text-3);display:grid;place-items:center;transition:transform .2s;}
+  .advrow.open .advhead .chev{transform:rotate(180deg);}
+  .advbody{padding:2px 15px 16px;display:none;}
+  .advrow.open .advbody{display:block;}
+  .advrow.primary .advhead{background:var(--accent-bg);color:var(--accent-2);}
+  .advrow.primary.open .advhead{border-bottom:1px solid var(--accent-border);}
+
+  .fieldlabel{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 4px;}
+  .hint2{font-size:11.5px;color:var(--text-3);margin-top:6px;line-height:1.45;}
+  .hint2 b{color:var(--text-2);font-weight:600;}
+  .pillrow{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px;}
+  .selpill{font:inherit;font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:9px;border:1px solid var(--border-2);background:var(--surface);color:var(--text-2);cursor:pointer;}
+  .selpill.on{border-color:var(--accent);background:var(--accent-bg);color:var(--accent-2);}
+  .optlist{display:flex;flex-direction:column;gap:1px;margin-top:6px;}
+  .opt{display:flex;gap:11px;align-items:flex-start;padding:9px 5px;cursor:pointer;border-radius:8px;}
+  .opt:hover{background:var(--surface-2);}
+  .opt .radio{width:17px;height:17px;border-radius:50%;border:1.6px solid var(--border-2);flex:none;margin-top:1px;display:grid;place-items:center;}
+  .opt.sel .radio{border-color:var(--accent);}
+  .opt .ot{font-size:13px;font-weight:600;}
+  .opt .od{font-size:12px;color:var(--text-2);margin-top:1px;}
+
+  .dropzone{border:1.6px dashed var(--border-2);border-radius:12px;padding:22px;text-align:center;}
+  .dropzone .dz1{font-size:13.5px;font-weight:600;margin-bottom:11px;}
+  .dzbtns{display:flex;gap:8px;justify-content:center;margin-bottom:10px;}
+  .dzmeta{font-size:11.5px;color:var(--text-3);}
+  .sizes{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+  .sizerow{display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:10px;padding:10px 13px;font-size:12.5px;font-weight:500;}
+  .sizeprev{width:40px;height:22px;border-radius:4px;background:var(--surface-2);border:1px solid var(--border-2);flex:none;}
+
+  /* Estimated reach = the hero of step 2 */
+  .card.reach{position:sticky;top:16px;border-color:var(--accent-border);}
+  .reach .rlabel{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin-bottom:9px;}
+  .reach .rperiod{font-size:11px;font-weight:600;color:var(--accent-2);text-transform:none;letter-spacing:0;}
+  .reach .rkick{font-size:12.5px;color:var(--text-2);line-height:1;margin-bottom:4px;}
+  .reach .rhero{font-size:34px;font-weight:750;letter-spacing:-.025em;color:var(--text);font-variant-numeric:tabular-nums;line-height:1;}
+  .reach .rherosub{font-size:12px;color:var(--text-2);margin-top:5px;margin-bottom:15px;}
+  .reach .rrow{display:flex;align-items:center;justify-content:space-between;padding:9px 0;font-size:13px;border-top:1px solid var(--border);}
+  .reach .rrow .rk{color:var(--text-2);}
+  .reach .rrow .rv{font-weight:700;font-variant-numeric:tabular-nums;}
+  .reach .rbar{display:flex;height:8px;margin:14px 0 5px;gap:3px;}
+  .reach .rseg{background:var(--surface-2);border-radius:20px;}
+  .reach .rseg.mo{flex:1;}
+  .reach .rseg.tail{flex:1.5;}
+  .reach .rseg.on{background:var(--accent);}
+  .reach .rseg.tail.on{background:linear-gradient(90deg,var(--accent),var(--accent-bg));}
+  .reach .rticks{display:flex;gap:3px;font-size:10.5px;color:var(--text-3);font-variant-numeric:tabular-nums;}
+  .reach .rtk{text-align:right;}
+  .reach .rtk.mo{flex:1;}
+  .reach .rtk.tail{flex:1.5;color:var(--accent-2);font-weight:600;}
+  .reach .rnote{font-size:12px;margin-top:13px;display:flex;gap:7px;align-items:flex-start;color:var(--success);font-weight:600;}
+  .reach .rnote.muted{color:var(--text-2);font-weight:500;}
+  .reach .rnote svg{flex:none;margin-top:1px;width:14px;height:14px;}
+  .reach .rfoot{font-size:11px;color:var(--text-3);margin-top:11px;line-height:1.5;}
+
+  /* ===== review (step 3) ===== */
+  .ch.between{justify-content:space-between;}
+  .cardedit{color:var(--text-3);background:none;border:0;cursor:pointer;padding:5px;border-radius:7px;display:grid;place-items:center;font-size:15px;}
+  .cardedit:hover{background:var(--surface-2);color:var(--text);}
+  .sumrow{display:grid;grid-template-columns:150px 1fr auto;gap:14px;align-items:start;padding:12px 0;border-top:1px solid var(--border);font-size:13.5px;}
+  .sumrow:first-of-type{border-top:none;}
+  .sumrow .sk{color:var(--text-2);font-weight:500;}
+  .sumrow .sv{color:var(--text);min-width:0;}
+  .sumrow .sv b{font-weight:700;font-variant-numeric:tabular-nums;}
+  .sumrow .svsub{font-size:12px;color:var(--text-2);margin-top:3px;line-height:1.45;}
+  .editlink{color:var(--accent);font-weight:600;font-size:13px;cursor:pointer;background:none;border:0;font-family:inherit;padding:0;white-space:nowrap;}
+  .editlink:hover{text-decoration:underline;}
+  .creativethumbs{display:flex;gap:10px;margin-top:12px;}
+  .thumb{width:96px;}
+  .thumb .ph{height:54px;border-radius:8px;background:linear-gradient(135deg,#7fb8e6,#a8d0f0);border:1px solid var(--border);}
+  .thumb .fn{font-size:11px;color:var(--text-2);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pay{display:flex;flex-direction:column;gap:10px;}
+  .paylabel{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;justify-content:space-between;}
+  .cardicons{display:flex;gap:4px;}
+  .cardicons span{width:28px;height:18px;border-radius:3px;border:1px solid var(--border);background:var(--surface-2);font-size:6.5px;font-weight:700;color:var(--text-3);display:grid;place-items:center;letter-spacing:.02em;}
+  .payrow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .paynote{font-size:11.5px;color:var(--text-3);text-align:center;margin-top:6px;display:flex;gap:6px;align-items:center;justify-content:center;}
+  .paynote a{color:var(--accent);text-decoration:none;}
+  .launch{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:14px;padding:18px 20px;margin-bottom:16px;}
+  .launchtop{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;}
+  .launchtop .lt{font-size:14px;font-weight:600;margin-bottom:4px;}
+  .launchtop .ld{font-size:12.5px;color:var(--text-2);max-width:54ch;line-height:1.5;}
+  .launchtop .ld a{color:var(--accent);text-decoration:underline;}
+  .btn.launch-btn{background:var(--accent);border-color:var(--accent);color:#fff;height:42px;padding:0 22px;font-size:14px;flex:none;}
+  .btn.launch-btn:hover{background:var(--accent-2);}
+  .process{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid var(--accent-border);}
+  .pstep{text-align:center;font-size:11.5px;color:var(--text-2);line-height:1.45;}
+  .pstep .pn{width:22px;height:22px;border-radius:50%;background:var(--surface);border:1px solid var(--accent-border);color:var(--accent);font-weight:700;font-size:12px;display:grid;place-items:center;margin:0 auto 7px;}
+  .launched{display:flex;gap:10px;align-items:center;background:var(--success-bg);border:1px solid var(--success);color:var(--success);border-radius:12px;padding:14px 16px;font-size:13.5px;font-weight:600;margin-bottom:16px;}
+  .spreadfoot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0 0;margin-top:5px;border-top:1px solid var(--border);font-size:12.5px;color:var(--text-2);font-weight:500;}
+  .guardnote{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-top:14px;font-size:12.5px;color:var(--text-2);line-height:1.5;}
+  .guardnote b{color:var(--text);font-weight:700;}
+  .guardnote .gicon{color:var(--text-3);font-size:15px;flex:none;margin-top:0;line-height:1.4;}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:200;display:flex;align-items:center;gap:14px;background:#232a33;color:#f2f5f9;border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:11px 16px;box-shadow:0 8px 28px rgba(0,0,0,.28);font-size:13px;font-weight:500;max-width:calc(100vw - 32px);animation:toastin .2s ease;}
+  @keyframes toastin{from{opacity:0;transform:translate(-50%,10px);}to{opacity:1;transform:translate(-50%,0);}}
+  .toast b{font-weight:700;color:#fff;}
+  .toast .toastundo{background:none;border:0;color:#8fbaf7;font:inherit;font-size:13px;font-weight:700;cursor:pointer;padding:3px 7px;border-radius:6px;flex:none;}
+  .toast .toastundo:hover{background:rgba(255,255,255,.10);}
+  .toast .toastundo:focus-visible{outline:2px solid #8fbaf7;outline-offset:2px;}
+  @media (max-width:900px){ .s2grid{grid-template-columns:1fr;} .goalgrid{grid-template-columns:1fr;} .reach{position:static;} }
+  @media (max-width:560px){ .sumrow{grid-template-columns:1fr auto;} .sumrow .sk{grid-column:1;} .payrow2{grid-template-columns:1fr;} .process{grid-template-columns:1fr;} }
+
+  @media (max-width:1024px){ .cols.revealed{grid-template-columns:1fr;} .mapwrap{max-width:none;} }
+  @media (max-width:820px){ .body{grid-template-columns:1fr;} .rail{display:none;} }
+  @media (prefers-reduced-motion:reduce){ #step2,.toast{animation:none;} }
+
+  /* Request-signs modal */
+  .modalveil{position:fixed;inset:0;z-index:300;background:rgba(15,20,30,.45);display:flex;align-items:center;justify-content:center;padding:20px;animation:veilin .15s ease;}
+  @keyframes veilin{from{opacity:0;}to{opacity:1;}}
+  .modalcard{position:relative;width:100%;max-width:440px;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:22px 22px 18px;animation:cardin .2s ease;}
+  @keyframes cardin{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .modalx{position:absolute;top:14px;right:14px;width:28px;height:28px;border:0;background:none;color:var(--text-3);font-size:15px;cursor:pointer;border-radius:8px;display:grid;place-items:center;}
+  .modalx:hover{background:var(--surface-2);color:var(--text);}
+  .modalhead{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px;padding-right:24px;}
+  .modalicon{width:36px;height:36px;border-radius:10px;flex:none;background:var(--accent-bg);color:var(--accent-2);display:grid;place-items:center;}
+  .modalicon svg{width:19px;height:19px;}
+  .modaltitle{font-size:15.5px;font-weight:700;color:var(--text);letter-spacing:-.01em;}
+  .modalsub{font-size:12.5px;color:var(--text-2);line-height:1.5;margin-top:3px;}
+  .modalbody{display:flex;flex-direction:column;gap:12px;}
+  .fld{display:flex;flex-direction:column;gap:5px;}
+  .fldlab{font-size:12px;font-weight:600;color:var(--text-2);}
+  .fldlab .opt{font-weight:400;color:var(--text-3);}
+  .fld input,.fld textarea{font:inherit;font-size:13.5px;color:var(--text);background:var(--surface-2);border:1px solid var(--border-2);border-radius:9px;padding:9px 11px;resize:none;}
+  .fld input:focus,.fld textarea:focus{outline:none;border-color:var(--accent-border);background:var(--surface);}
+  .modalfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
+  .modaldone{text-align:center;padding:8px 4px 4px;}
+  .modaldone .dcheck{width:44px;height:44px;border-radius:50%;background:var(--accent-bg);color:var(--accent-2);display:grid;place-items:center;margin:0 auto 12px;font-size:22px;}
+  .modaldone .dt{font-size:15.5px;font-weight:700;color:var(--text);}
+  .modaldone .ds{font-size:12.5px;color:var(--text-2);line-height:1.5;margin-top:5px;}
+</style>
+
+<div class="wrap">
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand"><span class="mark">b</span> Blip</div>
+      <div class="topttl">2026-07-29 Blip Airlines campaign</div>
+      <div class="avatar">JD</div>
+    </div>
+    <div class="body">
+      <nav class="rail" aria-label="Campaign steps">
+        <div class="step active"><span class="num">1</span><span><span class="lbl">Set up</span><br><span class="sub">Goal &amp; location</span></span></div>
+        <div class="step"><span class="num">2</span><span><span class="lbl">Strategy</span><br><span class="sub">Budget &amp; targeting</span></span></div>
+        <div class="step"><span class="num">3</span><span><span class="lbl">Review</span><br><span class="sub">Confirm &amp; launch</span></span></div>
+      </nav>
+      <main class="main">
+       <div id="step1">
+        <section class="card">
+          <div class="namerow">
+            <label for="campName">Campaign name</label>
+            <input class="inp" id="campName" value="2026-07-29 Blip Airlines Campaign" aria-label="Campaign name">
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="ch">Choose your goal</div>
+          <p class="csub">This tunes how Blip optimizes delivery across your areas. You can change it later.</p>
+          <div class="goalgrid">
+            <div class="goals" id="goals"></div>
+            <div class="goaldetail" id="goalDetail"></div>
+          </div>
+        </section>
+
+        <section class="card">
+        <div class="ch">Where should your ads appear?</div>
+        <p class="csub">Pick the places you want to reach. Blip runs your ad across the best-performing signs in each.</p>
+
+        <section class="covbar" id="covBar" aria-live="polite">
+          <span class="covicon" id="covIcon"></span>
+          <div class="covtext">
+            <div class="covmain" id="covMain"><b>3</b> target areas</div>
+            <div class="covsigns" id="covSigns"><span id="covSignsNum"><b>14</b> eligible signs</span><span class="covbudget" id="covBudget" style="display:none"></span></div>
+            <div class="covsub" id="covSub" style="display:none">Enough signs to show up across your areas.</div>
+          </div>
+        </section>
+
+        <div class="cols">
+          <div>
+            <div class="searchrow">
+              <button class="pinbtn" id="dropBtn" type="button" title="Drop a pin on the map" aria-label="Drop a pin on the map"><span id="i-drop"></span></button>
+              <div class="searchbox">
+                <div class="field">
+                  <span style="color:var(--text-3);font-size:16px" id="i-search"></span>
+                  <input id="searchInput" placeholder="Search a city, address, or ZIP" aria-label="Search a city, address, or ZIP" autocomplete="off" />
+                </div>
+                <div class="results" id="results" role="listbox" style="display:none"></div>
+              </div>
+            </div>
+            <div id="firstRun">
+              <div class="ordiv">OR</div>
+              <button class="btn block" id="dropBtnBig" type="button"><svg viewBox="0 0 22 26" width="15" height="18" style="flex:none"><path d="M11 1.4C6.3 1.4 2.5 5.1 2.5 9.8 2.5 16 11 24.4 11 24.4S19.5 16 19.5 9.8C19.5 5.1 15.7 1.4 11 1.4Z" fill="#FB0060" stroke="#fff" stroke-width="1.8"/><circle cx="11" cy="9.6" r="3" fill="#fff"/></svg> Drop a pin on the map</button>
+            </div>
+            <div class="searchhelp" id="searchHelp" style="display:none">Choose a location to unlock coverage and continue.</div>
+
+            <div class="listhead" id="listhead"><span>Delivery areas</span><span id="listCount">Up to 5 areas</span></div>
+            <div class="zones" id="zones"></div>
+          </div>
+
+          <div class="mapcol">
+            <div class="mapwrap" id="mapwrap">
+              <div class="stage" id="stage">
+                <button class="redosearch" id="redoSearch" type="button" style="display:none"><span style="font-size:14px;line-height:1">↻</span> Redo search in this area</button>
+                <div class="mapctrl">
+                  <button class="mapbtn" id="zoomIn" type="button" aria-label="Zoom in">+</button>
+                  <button class="mapbtn" id="zoomOut" type="button" aria-label="Zoom out">&minus;</button>
+                  <button class="mapbtn wide" id="overviewBtn" type="button" aria-label="See all areas">Overview</button>
+                </div>
+                <div class="armhint" id="armHint" style="display:none">Click anywhere on the map to drop a pin</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </section>
+
+        <div class="footer">
+          <button class="btn ghost" disabled>Back</button>
+          <button class="btn primary" id="toStep2">Next: Set budget <span style="font-size:15px">→</span></button>
+        </div>
+       </div>
+
+       <div id="step2" style="display:none" aria-label="Strategy">
+        <div class="s2grid">
+         <div class="s2main">
+
+          <section class="card">
+            <div class="ch between"><span style="display:flex;align-items:center;gap:7px">Daily Budget <span class="infodot">i</span></span><span class="bstat-pill" id="bsPill"><span id="bsLabel">—</span></span></div>
+            <div class="money" style="width:172px;margin-top:2px"><span class="cur">$</span><input id="budgetInput" type="number" min="0" step="5" value="150" inputmode="numeric" aria-label="Daily budget in dollars"><span class="per">/day</span></div>
+            <div class="bstat" id="bstat" aria-live="polite">
+              <span class="bsicon" id="bsIcon"></span>
+              <div class="bsmsg"><span class="bslead" id="bsLead"></span> <span id="bsNudge"></span></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="ch" style="justify-content:space-between"><span style="display:flex;align-items:center;gap:7px">Advanced Settings <span class="infodot">i</span></span><span class="badge-opt">Blip-optimized on</span></div>
+            <div class="adv" id="adv">
+
+              <div class="advrow">
+                <div class="advhead"><span>Duration</span><span class="chev"></span></div>
+                <div class="advbody">
+                  <div class="fieldlabel">Start date</div>
+                  <div class="pillrow" data-group="start"><button type="button" class="selpill on">ASAP</button><button type="button" class="selpill">Specific date</button></div>
+                  <div class="fieldlabel">End date</div>
+                  <div class="pillrow" data-group="end"><button type="button" class="selpill on">Ongoing</button><button type="button" class="selpill">30 days</button><button type="button" class="selpill">60 days</button><button type="button" class="selpill">90 days</button><button type="button" class="selpill">Custom</button></div>
+                </div>
+              </div>
+
+              <div class="advrow">
+                <div class="advhead"><span>Hourly Play</span><span class="chev"></span></div>
+                <div class="advbody">
+                  <p class="hint2" style="margin-top:8px">Your ad will only run during these times.</p>
+                  <div class="optlist" data-group="hourly">
+                    <div class="opt sel"><span class="radio"></span><div><div class="ot">Maximize Audience</div><div class="od">Best for the most impressions per play</div></div></div>
+                    <div class="opt"><span class="radio"></span><div><div class="ot">Meal Times</div><div class="od">Weekdays 11 AM–1 PM & 5–8 PM</div></div></div>
+                    <div class="opt"><span class="radio"></span><div><div class="ot">Daily Commute</div><div class="od">Weekdays 7–9 AM & 5–7 PM</div></div></div>
+                    <div class="opt"><span class="radio"></span><div><div class="ot">Custom</div><div class="od">Pick your own hours</div></div></div>
+                  </div>
+                  <p class="hint2">If your daily budget runs out, your ads will pause until the next day.</p>
+                </div>
+              </div>
+
+              <div class="advrow">
+                <div class="advhead"><span>Bid limit</span><span class="chev"></span></div>
+                <div class="advbody">
+                  <p class="hint2" style="margin-top:8px">Raise it to win busier boards, lower it to stretch your budget.</p>
+                  <div class="money" style="width:280px;margin-top:6px"><span class="cur">$</span><input id="maxBidInput" type="number" min="0" step="0.25" value="6.00" inputmode="decimal" aria-label="Max bid CPM in dollars"><span class="per" style="font-size:11.5px">per 1,000 impressions</span></div>
+                  <div class="fieldhint" id="bidHint"></div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="ch">Creative <span class="infodot">i</span></div>
+            <p class="csub">Upload your creative. Blip matches it to the right signs in your area.</p>
+            <div class="dropzone">
+              <div class="dz1">Drag file here to upload your creative</div>
+              <div class="dzbtns"><button class="btn primary" type="button">Upload from computer</button><button class="btn" type="button">My Library</button></div>
+              <div class="dzmeta">PNG, JPG, JPEG · up to 10 files per size</div>
+            </div>
+            <div class="fieldlabel" style="margin-top:15px">Upload all three sizes to maximize your sign coverage</div>
+            <div class="sizes">
+              <div class="sizerow"><span class="sizeprev"></span> 1400 × 400 · Landscape</div>
+              <div class="sizerow"><span class="sizeprev"></span> 840 × 400 · Landscape</div>
+              <div class="sizerow"><span class="sizeprev"></span> 1200 × 400 · Landscape</div>
+            </div>
+            <p class="hint2" style="margin-top:13px">Your creative will be reviewed within 48 hours. Once approved, your campaign goes live and you'll get a confirmation email.</p>
+          </section>
+
+          <div class="footer">
+            <button class="btn ghost" id="toStep1"><span style="font-size:15px">←</span> Back to locations</button>
+            <button class="btn primary" id="toStep3">Next: Review <span style="font-size:15px">→</span></button>
+          </div>
+         </div>
+
+         <aside class="s2side">
+          <section class="card reach">
+            <div class="rlabel">Estimated reach <span class="rperiod" id="reachPeriod"></span></div>
+            <div class="rkick" id="reachKick" style="display:none">up to</div>
+            <div class="rhero" id="reachImpr">—</div>
+            <div class="rherosub" id="reachSub">estimated impressions</div>
+            <div class="rrow"><span class="rk">Blips</span><span class="rv" id="reachBlips">—</span></div>
+            <div class="rbar" id="reachBar"></div>
+            <div class="rticks" id="reachTicks"></div>
+            <div class="rnote" id="reachNote"></div>
+            <div class="rfoot">Campaign length and daily budget drive this. Estimates shift with board availability.</div>
+          </section>
+         </aside>
+        </div>
+       </div>
+
+       <div id="step3" style="display:none" aria-label="Review">
+        <section class="card">
+          <div class="namerow">
+            <label for="campName2">Campaign name</label>
+            <input class="inp" id="campName2" value="2026-07-29 Blip Airlines Campaign" aria-label="Campaign name">
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="ch between">Definition <button class="cardedit" id="editDef" aria-label="Edit setup">✎</button></div>
+          <div class="sumrow"><span class="sk">Goal</span><span class="sv" id="revGoal">—</span><button class="editlink" data-goto="1">Edit</button></div>
+          <div class="sumrow"><span class="sk">Location</span><span class="sv"><span id="revLocMain">—</span><div class="svsub" id="revLocSub"></div></span><button class="editlink" data-goto="1">Edit</button></div>
+        </section>
+
+        <section class="card">
+          <div class="ch between">Strategy <button class="cardedit" id="editStrat" aria-label="Edit strategy">✎</button></div>
+          <div class="sumrow"><span class="sk">Daily Budget</span><span class="sv"><span id="revBudget">—</span><div class="svsub" id="revBudgetSub"></div></span><button class="editlink" data-goto="2">Edit</button></div>
+          <div class="sumrow"><span class="sk">Max bid</span><span class="sv" id="revBid">—</span><button class="editlink" data-goto="2">Edit</button></div>
+          <div class="sumrow"><span class="sk">Duration</span><span class="sv" id="revDuration">—</span><button class="editlink" data-goto="2">Edit</button></div>
+          <div class="sumrow"><span class="sk">Hourly Play</span><span class="sv" id="revHourly">—</span><button class="editlink" data-goto="2">Edit</button></div>
+          <div class="sumrow"><span class="sk">Creative</span><span class="sv">2 files uploaded<div class="creativethumbs"><div class="thumb"><div class="ph"></div><div class="fn">AdImage-1400.png</div></div><div class="thumb"><div class="ph"></div><div class="fn">AdImage-840.png</div></div></div></span><button class="editlink" data-goto="2">Edit</button></div>
+        </section>
+
+        <section class="card">
+          <div class="paylabel">Payment <span class="cardicons"><span>VISA</span><span>AMEX</span><span>MC</span><span>DISC</span></span></div>
+          <div class="pay">
+            <input class="inp" placeholder="Name on card" aria-label="Name on card">
+            <input class="inp" placeholder="1234 1234 1234 1234" aria-label="Card number">
+            <div class="payrow2"><input class="inp" placeholder="MM / YY" aria-label="Expiry"><input class="inp" placeholder="CVC" aria-label="CVC"></div>
+            <input class="inp" placeholder="Zip code" aria-label="Zip code">
+          </div>
+          <div class="paynote">🔒 Secured by Spreedly · <a href="#" onclick="return false">Terms and conditions</a></div>
+        </section>
+
+        <div id="launchWrap">
+        <section class="launch">
+          <div class="launchtop">
+            <div>
+              <div class="lt">Ready to go live?</div>
+              <div class="ld">By launching this campaign, you authorize Blip to select signs and spend your budget as outlined in our <a href="#" onclick="return false">Terms and Conditions</a>.</div>
+            </div>
+            <button class="btn launch-btn" id="launchBtn">Launch Campaign</button>
+          </div>
+          <div class="process">
+            <div class="pstep"><div class="pn">1</div>Creative reviewed by moderation within 1–2 business days</div>
+            <div class="pstep"><div class="pn">2</div>Campaign goes live at scheduled date</div>
+            <div class="pstep"><div class="pn">3</div>Confirmation email sent to you</div>
+          </div>
+        </section>
+        </div>
+
+        <div class="footer">
+          <button class="btn ghost" id="toStep2b"><span style="font-size:15px">←</span> Back to strategy</button>
+          <span style="font-size:12px;color:var(--text-3)">Prototype — no real campaign is launched.</span>
+        </div>
+       </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" style="display:none">
+    <span id="toastMsg"></span>
+    <button class="toastundo" id="toastUndo" type="button">Undo</button>
+  </div>
+
+  <!-- Request-signs modal: opened from the "No signs" coverage state to register interest in a location -->
+  <div class="modalveil" id="reqModal" style="display:none">
+    <div class="modalcard" role="dialog" aria-modal="true" aria-labelledby="reqTitle">
+      <button class="modalx" id="reqClose" type="button" aria-label="Close">✕</button>
+      <div class="modalhead">
+        <div class="modalicon" id="reqIcon"></div>
+        <div>
+          <div class="modaltitle" id="reqTitle">Request signs in this area</div>
+          <div class="modalsub">We don't have signs here yet. Tell us where you want to run and we'll notify you when inventory opens up.</div>
+        </div>
+      </div>
+      <div class="modalbody" id="reqBody">
+        <label class="fld">
+          <span class="fldlab">Area or city</span>
+          <input type="text" id="reqArea" placeholder="City, address, or ZIP" autocomplete="off" />
+        </label>
+        <label class="fld">
+          <span class="fldlab">Work email</span>
+          <input type="email" id="reqEmail" placeholder="you@company.com" autocomplete="off" />
+        </label>
+        <label class="fld">
+          <span class="fldlab">Anything else? <span class="opt">(optional)</span></span>
+          <textarea id="reqNote" rows="2" placeholder="Timing, budget, sign type…"></textarea>
+        </label>
+      </div>
+      <div class="modalfoot">
+        <button class="btn ghost" id="reqCancel" type="button">Cancel</button>
+        <button class="btn primary" id="reqSubmit" type="button">Request signs</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const IC={
+  search:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>',
+  drop:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z"/><path d="M12 7v5M9.5 9.5h5"/></svg>',
+  pin:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+  pinc:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z"/><path d="M9.5 10l1.7 1.7L14.5 8.5"/></svg>',
+  x:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  plus:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  compass:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5 5-2Z"/></svg>',
+  info:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
+  bulb:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.3 1 2.1V16h6v-.4c0-.8.4-1.5 1-2.1A6 6 0 0 0 12 3Z"/></svg>',
+  wallet:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18"/><circle cx="16.5" cy="14" r="1.1"/></svg>',
+  expand:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5"/></svg>',
+  megaphone:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1Z"/><path d="M15 8.5a4 4 0 0 1 0 7"/></svg>',
+  monitor:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+  ticket:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 2 2 0 0 0 0-4Z"/><path d="M13.5 6v12"/></svg>',
+  users:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5.5a3 3 0 0 1 0 5M21.5 20a6 6 0 0 0-4.5-5.8"/></svg>',
+  check:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  chev:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M6 9l6 6 6-6"/></svg>'
+};
+document.getElementById('i-search').innerHTML=IC.search;
+document.getElementById('i-drop').innerHTML='<svg viewBox="0 0 22 26" width="16" height="19"><path d="M11 1.4C6.3 1.4 2.5 5.1 2.5 9.8 2.5 16 11 24.4 11 24.4S19.5 16 19.5 9.8C19.5 5.1 15.7 1.4 11 1.4Z" fill="#FB0060" stroke="#fff" stroke-width="1.8"/><circle cx="11" cy="9.6" r="3" fill="#fff"/></svg>';
+document.getElementById('covIcon').innerHTML=IC.pin;
+document.querySelectorAll('#adv .chev').forEach(c=>c.innerHTML=IC.chev);
+
+// ----- Goal selection (Step 1) -----
+const GOALS=[
+ {k:'awareness',t:'Brand awareness and reach',d:'Best for building visibility and reaching people repeatedly in a target area.',uc:['Build general brand awareness','Launch a new product or service','Keep your business top of mind'],icon:IC.megaphone},
+ {k:'traffic',t:'Website Traffic',d:'Best for driving people to take action after seeing your ad.',uc:['Send people to your website','Promote an offer or landing page','Drive online conversions'],icon:IC.monitor},
+ {k:'event',t:'Event Promotion',d:'Best for promoting a time-bound event or announcement.',uc:['Fill seats for an event','Promote a grand opening','Announce a limited-time sale'],icon:IC.ticket},
+ {k:'leads',t:'Leads',d:'Best for encouraging follow-up after exposure.',uc:['Collect sign-ups and inquiries','Generate inbound calls','Build a prospect list'],icon:IC.users}
+];
+let goal='awareness';
+function renderGoals(){
+  const list=document.getElementById('goals'), det=document.getElementById('goalDetail');
+  if(!list)return;
+  list.innerHTML=GOALS.map(g=>`<div class="goal${g.k===goal?' sel':''}" data-k="${g.k}" tabindex="0" role="radio" aria-checked="${g.k===goal}"><span class="radio"></span><div><div class="gt"><span style="font-size:16px;color:var(--text-2);display:grid;place-items:center">${g.icon}</span>${g.t}</div><div class="gd">${g.d}</div></div></div>`).join('');
+  const g=GOALS.find(x=>x.k===goal);
+  det.innerHTML=`<div class="gdi" style="font-size:24px">${g.icon}</div><h4>${g.t}</h4><p>${g.d}</p><div class="uc">Use cases</div><ul>${g.uc.map(u=>`<li>${IC.check}${u}</li>`).join('')}</ul>`;
+  list.querySelectorAll('.goal').forEach(el=>{
+    const pick=()=>{goal=el.dataset.k;renderGoals();};
+    el.addEventListener('click',pick);
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}});
+  });
+}
+
+/* ===================== map data model (rendered on MapLibre GL + OpenFreeMap tiles) ===================== */
+const R_EARTH=3958.8; // earth radius (mi), for haversine
+function haversine(aLng,aLat,bLng,bLat){ const dLat=(bLat-aLat)*Math.PI/180,dLng=(bLng-aLng)*Math.PI/180; const s=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2; return 2*R_EARTH*Math.asin(Math.min(1,Math.sqrt(s))); }
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function seedOf(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+
+// ---- searchable cities (real coordinates). inv = billboards physically in that city (0 = no signs). ----
+const CITIES=[
+ // Miami market
+ {name:"Miami, FL",city:"Miami",lng:-80.1918,lat:25.7617,region:"Miami",cpm:4.60,inv:16,spread:6},
+ {name:"Miami Beach, FL",city:"Miami Beach",lng:-80.1300,lat:25.7907,region:"Miami",cpm:5.20,inv:6,spread:2},
+ {name:"Coral Gables, FL",city:"Coral Gables",lng:-80.2684,lat:25.7215,region:"Miami",cpm:4.30,inv:5,spread:2},
+ {name:"Hialeah, FL",city:"Hialeah",lng:-80.2781,lat:25.8576,region:"Miami",cpm:3.80,inv:6,spread:3},
+ {name:"Fort Lauderdale, FL",city:"Fort Lauderdale",lng:-80.1373,lat:26.1224,region:"Miami",cpm:4.10,inv:7,spread:3},
+ // Chicago market
+ {name:"Chicago, IL",city:"Chicago",lng:-87.6298,lat:41.8781,region:"Chicago",cpm:6.20,inv:18,spread:6},
+ {name:"Evanston, IL",city:"Evanston",lng:-87.6877,lat:42.0451,region:"Chicago",cpm:5.40,inv:5,spread:2},
+ {name:"Naperville, IL",city:"Naperville",lng:-88.1535,lat:41.7508,region:"Chicago",cpm:4.60,inv:6,spread:3},
+ {name:"Oak Park, IL",city:"Oak Park",lng:-87.7845,lat:41.8850,region:"Chicago",cpm:5.00,inv:5,spread:2},
+ {name:"Cicero, IL",city:"Cicero",lng:-87.7539,lat:41.8456,region:"Chicago",cpm:4.20,inv:4,spread:2},
+ // Seattle market
+ {name:"Seattle, WA",city:"Seattle",lng:-122.3321,lat:47.6062,region:"Seattle",cpm:5.60,inv:15,spread:6},
+ {name:"Bellevue, WA",city:"Bellevue",lng:-122.2015,lat:47.6104,region:"Seattle",cpm:5.10,inv:6,spread:2},
+ {name:"Tacoma, WA",city:"Tacoma",lng:-122.4443,lat:47.2529,region:"Seattle",cpm:4.00,inv:6,spread:3},
+ {name:"Redmond, WA",city:"Redmond",lng:-122.1215,lat:47.6740,region:"Seattle",cpm:4.80,inv:5,spread:2},
+ {name:"Everett, WA",city:"Everett",lng:-122.2021,lat:47.9790,region:"Seattle",cpm:3.90,inv:5,spread:3},
+ // Bay Area market (same-market, multi-city) — Napa has no signs; Berkeley is limited coverage
+ {name:"San Francisco, CA",city:"San Francisco",lng:-122.4194,lat:37.7749,region:"Bay Area",cpm:6.00,inv:18,spread:4},
+ {name:"Oakland, CA",city:"Oakland",lng:-122.2712,lat:37.8044,region:"Bay Area",cpm:4.75,inv:16,spread:6},
+ {name:"San Jose, CA",city:"San Jose",lng:-121.8863,lat:37.3382,region:"Bay Area",cpm:5.00,inv:14,spread:6},
+ {name:"Berkeley, CA",city:"Berkeley",lng:-122.2730,lat:37.8715,region:"Bay Area",cpm:5.25,inv:3,spread:2.5},
+ {name:"San Leandro, CA",city:"San Leandro",lng:-122.1561,lat:37.7249,region:"Bay Area",cpm:3.90,inv:8,spread:4},
+ {name:"Vallejo, CA",city:"Vallejo",lng:-122.2566,lat:38.1041,region:"Bay Area",cpm:3.60,inv:5,spread:4},
+ {name:"Napa, CA",city:"Napa",lng:-122.2869,lat:38.2975,region:"Bay Area",cpm:3.10,inv:0}
+];
+const cityByName={}; CITIES.forEach(c=>cityByName[c.city]=c);
+
+// ---- billboards: scattered around each covered city, owned by that city (sign dots load per area) ----
+const BOARDS=[];
+CITIES.filter(c=>c.inv>0).forEach(c=>{
+  const rnd=mulberry32(seedOf(c.city)), spread=c.spread||5;
+  for(let i=0;i<c.inv;i++){ const ang=rnd()*Math.PI*2, rad=Math.sqrt(rnd())*spread; const dLat=(rad*Math.cos(ang))/69, dLng=(rad*Math.sin(ang))/(69*Math.cos(c.lat*Math.PI/180)); BOARDS.push({lng:c.lng+dLng,lat:c.lat+dLat,owner:c.city}); }
+});
+
+// geography (coastlines, freeways, water, city labels) comes from the OpenFreeMap basemap — no hand-authored geometry
+const MARKETS={ "Miami":{center:[-80.19,25.86],zoom:10}, "Chicago":{center:[-87.66,41.88],zoom:9.7}, "Seattle":{center:[-122.31,47.62],zoom:9.8}, "Bay Area":{center:[-122.24,37.81],zoom:10.2} };
+
+// ---- one prototype: every market searchable in a single map. ?scenario only sets the starting camera ----
+const ALL_REGIONS=["Miami","Chicago","Seattle","Bay Area"];
+const SCENARIOS={
+ region:{regions:ALL_REGIONS, view:{center:[-96,38.5],zoom:3.4}},   // default: continental US
+ metro:{regions:ALL_REGIONS, view:{center:[-122.24,37.81],zoom:9.6}} // optional: start over the Bay Area
+};
+// scenario from ?scenario= or #hash (some hosts strip query strings) — defaults to region
+const _spScenario=new URLSearchParams(location.search).get('scenario'), _hashScenario=(location.hash||'').replace(/^#/,'');
+const scenario=SCENARIOS[_spScenario]?_spScenario:SCENARIOS[_hashScenario]?_hashScenario:'region';
+const SC=SCENARIOS[scenario];
+
+const PER_ZONE_MIN=25, MAX=5, DAYS=30, SMALL=0.15, PER_SIGN_CAP=15;
+let zones=[]; let sel=0, armed=false;
+
+const stage=document.getElementById('stage'), wrap=document.getElementById('mapwrap');
+const DOT_ZOOM=7.5; // individual sign dots appear at/above this zoom; below it, per-market count chips
+const map=new maplibregl.Map({ container:'stage', style:'https://tiles.openfreemap.org/styles/bright',
+  center:SC.view.center, zoom:SC.view.zoom, attributionControl:{compact:true}, cooperativeGestures:true, dragRotate:false, pitchWithRotate:false });
+map.touchZoomRotate.disableRotation();
+let mapReady=false, mapRevealed=false, searchCenter=null, previewMarkets=new Set(), zoneMarkers=[], clusterMarkers=[], waterLayerIds=[];
+// polygon approximating a radius (miles) around a point, in [lng,lat]
+function circleGeo(lng,lat,miles,pts=48){ const out=[], dLat=miles/69, dLng=miles/(69*Math.cos(lat*Math.PI/180)); for(let i=0;i<=pts;i++){ const a=i/pts*2*Math.PI; out.push([lng+dLng*Math.cos(a), lat+dLat*Math.sin(a)]); } return out; }
+// pink map-pin for sign markers — fill #FB0060, white stroke
+function pinDataURI(){ const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="44" height="60" viewBox="0 0 22 30"><path d="M11 1.2C6 1.2 2 5.2 2 10.2 2 17 11 28.6 11 28.6S20 17 20 10.2C20 5.2 16 1.2 11 1.2Z" fill="#FB0060" stroke="#ffffff" stroke-width="2"/><circle cx="11" cy="10.2" r="3.1" fill="#ffffff"/></svg>`; return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); }
+map.on('load',()=>{
+  // emphasise state / province borders from the basemap's boundary layer
+  const stateLayer={id:'blip-states',type:'line',source:'openmaptiles','source-layer':'boundary',filter:['==',['get','admin_level'],4],
+    paint:{'line-color':'#7c889a','line-width':['interpolate',['linear'],['zoom'],3,0.7,6,1.5],'line-opacity':0.8}};
+  try{ map.addLayer(stateLayer,'boundary_3'); }catch(e){ try{ map.addLayer(stateLayer); }catch(_){} }
+  // radius rings — #176BF5 stroke + 20% tinted fill
+  map.addSource('rings',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+  map.addLayer({id:'ring-fill',type:'fill',source:'rings',paint:{'fill-color':'#176BF5','fill-opacity':['case',['get','sel'],0.2,0.09]}});
+  map.addLayer({id:'ring-line',type:'line',source:'rings',paint:{'line-color':'#176BF5','line-width':['case',['get','sel'],2,1.2],'line-opacity':['case',['get','sel'],0.9,0.5]}});
+  map.addSource('boards',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+  waterLayerIds=map.getStyle().layers.filter(l=>l.type==='fill'&&l['source-layer']==='water').map(l=>l.id);
+  const boardsCircle=()=>map.addLayer({id:'boards',type:'circle',source:'boards',minzoom:DOT_ZOOM,paint:{'circle-radius':5,'circle-color':'#FB0060','circle-stroke-color':'#ffffff','circle-stroke-width':1.5,'circle-opacity':['case',['get','sel'],1,0.55]}});
+  const img=new Image(); img.decoding='async';
+  img.onload=()=>{ try{ if(!map.hasImage('blip-pin'))map.addImage('blip-pin',img,{pixelRatio:2});
+      map.addLayer({id:'boards',type:'symbol',source:'boards',minzoom:DOT_ZOOM,
+        layout:{'icon-image':'blip-pin','icon-size':0.55,'icon-anchor':'bottom','icon-allow-overlap':true,'icon-ignore-placement':true},
+        paint:{'icon-opacity':['case',['get','sel'],1,0.5]}});
+    }catch(e){ boardsCircle(); } mapReady=true; renderMap(); };
+  img.onerror=()=>{ boardsCircle(); mapReady=true; renderMap(); };
+  img.src=pinDataURI();
+});
+map.on('zoomend',()=>{ if(mapReady)renderMap(); });
+map.on('idle',deOcean);
+map.on('click',e=>{ if(armed)placePin([e.lngLat.lng,e.lngLat.lat]); });
+// nudge any sign pin that landed on water toward its city centre until it sits on land
+function deOcean(){
+  if(!mapReady||!waterLayerIds.length||map.getZoom()<DOT_ZOOM)return;
+  const activeMarkets=new Set([...zones.map(z=>zMeta(z).region), ...previewMarkets]);
+  const W=map.getCanvas().clientWidth, H=map.getCanvas().clientHeight; let touched=false;
+  const onWater=xy=>map.queryRenderedFeatures(xy,{layers:waterLayerIds}).length>0;
+  const landByCity={}; // remember a confirmed-land board per city, for snapping stubborn ones
+  BOARDS.forEach(b=>{
+    if(!activeMarkets.has(cityByName[b.owner].region))return;
+    if(b.landChecked){ if(!landByCity[b.owner])landByCity[b.owner]=b; return; }
+    const c=cityByName[b.owner]; let p=map.project([b.lng,b.lat]);
+    if(p.x<0||p.y<0||p.x>W||p.y>H)return; // off-screen — check when it scrolls into view
+    let t=0;
+    while(t<16 && onWater([p.x,p.y])){ b.lng+=(c.lng-b.lng)*0.3; b.lat+=(c.lat-b.lat)*0.3; p=map.project([b.lng,b.lat]); t++; }
+    // last resort: still on water (river/canal sliver) → snap next to a sibling already on dry land
+    if(onWater([p.x,p.y]) && landByCity[b.owner]){ const s=landByCity[b.owner]; b.lng=s.lng+(Math.abs(Math.sin(b.lat*997))-0.5)*0.012; b.lat=s.lat+(Math.abs(Math.cos(b.lng*991))-0.5)*0.012; }
+    b.landChecked=true; touched=true; if(!landByCity[b.owner])landByCity[b.owner]=b;
+  });
+  if(touched) render(); // reveal the just-cleared pins (on land) and keep cards/chips/totals in sync
+}
+// "Redo search in this area" — appears after panning away from the last searched spot
+map.on('moveend',updateRedo);
+function updateRedo(){
+  const btn=document.getElementById('redoSearch');
+  if(!mapReady||!mapRevealed||armed||!searchCenter){ btn.style.display='none'; return; }
+  const c=map.getCenter(), b=map.getBounds();
+  const viewW=haversine(b.getWest(),c.lat,b.getEast(),c.lat) || 1;
+  const moved=haversine(c.lng,c.lat,searchCenter[0],searchCenter[1]);
+  btn.style.display = moved>viewW*0.35 ? 'inline-flex' : 'none';
+}
+function searchThisArea(){
+  // reveal the inventory in this area WITHOUT selecting/adding a delivery area — the user decides whether to add it
+  const c=map.getCenter(), nc=nearestCity(c.lng,c.lat), d=haversine(c.lng,c.lat,nc.lng,nc.lat);
+  searchCenter=[c.lng,c.lat];
+  document.getElementById('redoSearch').style.display='none';
+  if(d>60){ showToast('No signs found in this area yet.'); return; }
+  previewMarkets.add(nc.region);
+  render();        // add the market's pins to the map (only land-checked ones appear)
+  // land-check the new pins — now if tiles are ready, otherwise once they finish loading (avoids false "land")
+  if(map.areTilesLoaded()) deOcean(); else map.once('idle',deOcean);
+}
+
+// ---- coverage model: a zone's eligible boards = its city's boards within radius (no cross-city bleed) ----
+function zCity(z){ return z.city?cityByName[z.city]:nearestCity(z.lng,z.lat); }
+function nearestCity(lng,lat){ let b=null,bd=1e9; for(const c of CITIES){ if(!SC.regions.includes(c.region))continue; const d=haversine(lng,lat,c.lng,c.lat); if(d<bd){bd=d;b=c;} } return b||CITIES[0]; }
+function zCount(z){ const c=zCity(z); if(!c||c.inv<=0)return 0; let n=0; for(const b of BOARDS){ if(b.owner===c.city && haversine(b.lng,b.lat,z.lng,z.lat)<=z.r)n++; } return n; }
+function zMeta(z){ const c=zCity(z); return c?{cpm:c.cpm,region:c.region}:{cpm:4.0,region:"Other"}; }
+function eligibleBoards(){ const set=new Set(); zones.forEach(z=>{ const c=zCity(z); if(!c||c.inv<=0)return; BOARDS.forEach((b,bi)=>{ if(b.owner===c.city && haversine(b.lng,b.lat,z.lng,z.lat)<=z.r)set.add(bi); }); }); return [...set]; }
+function nearbySuggestions(z){ const added=new Set(zones.map(x=>x.city)); return CITIES.filter(c=>c.inv>0&&SC.regions.includes(c.region)&&!added.has(c.city)&&c.city!==(z&&z.city)).map(c=>({...c,d:haversine(z.lng,z.lat,c.lng,c.lat)})).sort((a,b)=>a.d-b.d).slice(0,2); }
+function status(c){ if(c===0)return'none'; if(c<4)return'low'; return'ok'; }
+// inline no-signs notice for a delivery card — clearer than the tag alone, and carries the request CTA
+function noSignNote(i){ return `<div class="zonenote"><span class="zni">${IC.info}</span><span>No signs in this area yet. <button type="button" class="reqsigns" data-req="${i}">Request signs</button></span></div>`; }
+
+function render(){
+  const list=document.getElementById('zones'); list.innerHTML='';
+  zones.forEach((z,i)=>{
+    const c=zCount(z), st=status(c), on=i===sel;
+    const card=document.createElement('div');
+    card.className='zone'+(on?' sel':'')+(st==='none'?' none':'');
+    card.tabIndex=0;
+    const tag=st==='none'?'<span class="tag none">No signs</span>':'';
+    card.innerHTML=`
+      <div class="row">
+        <span class="ico" style="font-size:17px">${z.custom?IC.pinc:IC.pin}</span>
+        <div style="min-width:0">
+          <div class="nm">${z.name}${tag}</div>
+          <div class="sub">${c===0?'No signs':`${c} eligible sign${c===1?'':'s'}`} · ${z.r} mi radius</div>
+        </div>
+        <button class="rm" data-i="${i}" aria-label="Remove ${z.name}" style="font-size:16px">${IC.x}</button>
+      </div>
+      ${on?`<div class="radius">
+        <div class="lab"><span>Radius</span><span>${z.r} mi</span></div>
+        <input type="range" min="1" max="50" step="1" value="${z.r}" class="rad" data-i="${i}" aria-label="Radius for ${z.name}">
+      </div>`:''}
+      ${st==='none'?noSignNote(i):''}`;
+    card.addEventListener('click',e=>{if(e.target.closest('.rm')||e.target.closest('.reqsigns')||e.target.classList.contains('rad'))return;selectZone(i);});
+    card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectZone(i);}});
+    list.appendChild(card);
+  });
+  list.querySelectorAll('.rad').forEach(inp=>{
+    inp.addEventListener('click',e=>e.stopPropagation());
+    // live radius update — no full list rebuild, so the slider keeps focus while dragging
+    inp.addEventListener('input',e=>{
+      const zi=+e.target.dataset.i; zones[zi].r=+e.target.value;
+      const card=e.target.closest('.zone');
+      if(card){ const lab=card.querySelector('.radius .lab span:last-child'); if(lab)lab.textContent=zones[zi].r+' mi';
+        const cnt=zCount(zones[zi]);
+        const sub=card.querySelector('.sub'); if(sub){sub.textContent=`${cnt===0?'No signs':`${cnt} eligible sign${cnt===1?'':'s'}`} · ${zones[zi].r} mi radius`;}
+        // the count changed with the radius — reflect the no-signs state on the card, its tag, and notice
+        card.classList.toggle('none',cnt===0);
+        const nm=card.querySelector('.nm'); if(nm){ const t=nm.querySelector('.tag.none'); if(cnt===0&&!t){nm.insertAdjacentHTML('beforeend','<span class="tag none">No signs</span>');} else if(cnt>0&&t){t.remove();} }
+        const note=card.querySelector('.zonenote'); if(cnt===0&&!note){card.insertAdjacentHTML('beforeend',noSignNote(zi));} else if(cnt>0&&note){note.remove();} }
+      renderMap(); renderTotal(); renderBudget(); renderSplit();
+    });
+  });
+  list.querySelectorAll('.rm').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();removeZone(+b.dataset.i);}));
+
+  // (per feedback) no coverage-nudge / suggestions panel — a thin or no-signs area is conveyed only by the tag on its own card
+
+  // soft cap: no running count, and no disabled/blocked state — the 5-area limit is surfaced as a toast on the 6th add
+  // map is hidden only on initial page load; once the first location is added it stays visible
+  // (even if every location is later removed) — see mapRevealed
+  const empty=zones.length===0;
+  document.getElementById('covBar').style.display=empty?'none':'flex';
+  document.getElementById('searchHelp').style.display=empty?'block':'none';
+  document.getElementById('listhead').style.display=empty?'none':'flex';
+  if(!empty && !mapRevealed && mapReady){ mapRevealed=true; requestAnimationFrame(()=>map.resize()); }
+  document.querySelector('#step1 .cols').classList.toggle('revealed', mapRevealed);
+  // pre-map (first run): show Search OR Drop-a-pin explicitly. Once the map is open: pin becomes the leading icon.
+  dropBtn.style.display=mapRevealed?'':'none';
+  document.getElementById('firstRun').style.display=mapRevealed?'none':'';
+  document.getElementById('toStep2').disabled=empty;
+  renderMap(); renderTotal(); renderBudget(); renderSplit();
+}
+
+// Step-1 budget context — priority 3, kept quiet: trails the eligible-signs line (line 2) in muted text,
+// so the bar stays two lines. Runs after renderTotal (which owns line 1 + the signs span + no-signs
+// remedy); shows only at 3+ signed areas, as a per-day CAMPAIGN total (not per area).
+function renderBudget(){
+  const budget=document.getElementById('covBudget');
+  // Count only areas that actually have signs — a no-signs location doesn't count toward the threshold
+  // and shouldn't inflate the recommendation (nothing to spend on there).
+  const n=zones.filter(z=>zCount(z)>0).length, total=n*PER_ZONE_MIN;
+  if(n<3){ budget.style.display='none'; return; }   // below 3 signed areas: no budget nudge
+  // flat $25/area model kept internal (see oppRange); shown here only as a campaign per-day total
+  budget.textContent=` · about $${total}/day suggested budget`;
+  budget.style.display='';
+}
+
+function renderMap(){
+  if(!mapReady)return;
+  const s=zones[sel], zoomedOut=map.getZoom()<DOT_ZOOM;
+  // radius rings (all zones; selected accented) — GeoJSON polygons
+  map.getSource('rings').setData({type:'FeatureCollection',features:zones.map((z,i)=>(
+    {type:'Feature',properties:{sel:i===sel},geometry:{type:'Polygon',coordinates:[circleGeo(z.lng,z.lat,z.r)]}}))});
+  // sign dots — every city in an active market (so adding one city shows the metro's inventory);
+  // accented when inside the selected area's radius, faded otherwise (layer hides below DOT_ZOOM)
+  // only render pins already confirmed on land (deOcean sets landChecked) so none ever flash over water
+  const activeMarkets=new Set([...zones.map(z=>zMeta(z).region), ...previewMarkets]);
+  map.getSource('boards').setData({type:'FeatureCollection',features:BOARDS.filter(b=>b.landChecked&&activeMarkets.has(cityByName[b.owner].region)).map(b=>(
+    {type:'Feature',properties:{sel:!!(s&&s.city===b.owner&&haversine(b.lng,b.lat,s.lng,s.lat)<=s.r)},geometry:{type:'Point',coordinates:[b.lng,b.lat]}}))});
+  // per-market count chips when pulled back; no centre dot when zoomed in (a lone dot reads as draggable)
+  zoneMarkers.forEach(m=>m.remove()); zoneMarkers=[];
+  clusterMarkers.forEach(m=>m.remove()); clusterMarkers=[];
+  if(zoomedOut){
+    const byMarket={}; zones.forEach(z=>{ const c=zCount(z); if(c<=0)return; const m=zMeta(z).region; byMarket[m]=(byMarket[m]||0)+c; });
+    Object.keys(byMarket).forEach(m=>{ const mk=MARKETS[m]; if(!mk)return;
+      const el=document.createElement('div'); el.className='clusterchip'; el.textContent=byMarket[m];
+      el.addEventListener('click',()=>map.flyTo({center:mk.center,zoom:mk.zoom}));
+      clusterMarkers.push(new maplibregl.Marker({element:el}).setLngLat(mk.center).addTo(map)); });
+  }
+}
+
+function renderTotal(){
+  const coveredArr=eligibleBoards();          // deduped union — a sign in overlapping areas is counted once
+  const n=coveredArr.length;
+  const covBar=document.getElementById('covBar');
+  const covMain=covBar.querySelector('.covmain');   // priority 1 — target areas
+  const covSigns=document.getElementById('covSigns'); // priority 2 — eligible signs
+  const covBudget=document.getElementById('covBudget'); // priority 3 — suggested budget (renderBudget owns the copy)
+  const covSub=document.getElementById('covSub');
+  covBar.classList.remove('warn','bad','muted');
+
+  // No signs anywhere — say "No signs" flatly, no matter how many areas are selected. Don't quote a
+  // "0 eligible signs" figure, and (see renderBudget) don't prompt for a budget yet — there's nothing
+  // to spend on. Route the user to widen the radius, pick elsewhere, or request signs.
+  if(n===0){
+    covBar.classList.add('muted');
+    covMain.innerHTML='<b>No signs</b>';
+    covSigns.style.display='none';
+    covBudget.style.display='none';
+    covSub.style.display='';
+    // guidance only — the "Request signs" CTA lives on the empty area's card (works in mixed state too)
+    covSub.textContent='Adjust the radius or choose a different area to continue.';
+    return;
+  }
+
+  // count only areas that actually have signs — a no-signs location isn't a target area
+  const liveAreas=zones.filter(z=>zCount(z)>0).length;
+  covMain.innerHTML=`<b>${liveAreas}</b> target area${liveAreas===1?'':'s'}`;
+  // line 2 = eligible signs (renderBudget trails the quiet budget suggestion onto the same line).
+  // overlap = signs inside 2+ areas' radii — surfaced only in a hover tooltip so the line stays to two.
+  let overlap=0;
+  coveredArr.forEach(bi=>{ const b=BOARDS[bi]; let hits=0; for(const z of zones){ if(haversine(b.lng,b.lat,z.lng,z.lat)<=z.r && ++hits>=2){ overlap++; break; } } });
+  const signsTxt=`<b>${n}</b> eligible sign${n===1?'':'s'}`;
+  document.getElementById('covSignsNum').innerHTML = overlap>0
+    ? `<span class="covtip" tabindex="0" role="note" aria-label="${overlap} sign${overlap===1?'':'s'} shared in target areas">${signsTxt}<span class="tipbubble">${overlap} sign${overlap===1?'':'s'} shared in target areas</span></span>`
+    : signsTxt;
+  covSigns.style.display='';
+  covSub.style.display='none';
+}
+
+function fmtImpr(n){
+  if(n<1000)return Math.round(n).toString();
+  if(n<1e6){const k=n/1000;return (k<10?k.toFixed(1):Math.round(k))+'K';}
+  return (n/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+}
+// Reach is an estimate — model a low/high band around the point value; the card leads with the high ("up to").
+const REACH_SPREAD=0.18;
+
+function srowEl(r){
+  const el=document.createElement('div');
+  el.className='srow'+(r.on?'':' off');
+  el.dataset.i=r.i;
+  const noInv=r.signs===0;
+  let flag='';
+  if(noInv)flag=`<span class="sflag none">No signs</span>`;
+  else if(r.on&&r.share<SMALL)flag=`<span class="sflag">Small share</span>`;
+  let fig;
+  if(!r.on)fig=`<div class="sfig muted"><div class="pct">Off</div><div class="impr">Not included</div></div>`;
+  else if(noInv)fig=`<div class="sfig muted"><div class="pct">—</div><div class="impr">No signs yet</div></div>`;
+  else fig=`<div class="sfig"><div class="pct">${Math.round(r.share*100)}%</div><div class="impr">~${fmtImpr(r.impr)}/mo</div></div>`;
+  el.innerHTML=`
+    <button class="switch${r.on?'':' off'}" data-toggle="${r.i}" aria-label="${r.on?'Turn off':'Turn on'} ${r.z.name}"${noInv?' disabled':''}></button>
+    <div class="sname"><div class="snm">${r.z.name}${flag}</div><div class="scpm">avg $${r.cpm.toFixed(2)} CPM · ${r.signs} sign${r.signs===1?'':'s'}</div></div>
+    ${fig}`;
+  el.addEventListener('click',e=>{if(e.target.closest('.switch'))return;sel=r.i;render();});
+  const sw=el.querySelector('.switch');
+  sw.addEventListener('click',e=>{e.stopPropagation();const cur=zones[r.i].on!==false;zones[r.i].on=!cur;render();});
+  return el;
+}
+
+// Balanced water-fill: hand out `total` evenly across buckets, capped per bucket; leftover is returned unspent.
+function waterfill(caps,total){
+  const alloc=caps.map(()=>0); let active=caps.map((_,i)=>i), remaining=total, guard=0;
+  while(active.length && remaining>1e-6 && guard++<caps.length+3){
+    const share=remaining/active.length; const next=[]; let capped=false;
+    for(const i of active){
+      if(caps[i] < alloc[i]+share-1e-9){ alloc[i]=caps[i]; capped=true; }
+      else next.push(i);
+    }
+    if(!capped){ for(const i of active) alloc[i]+=share; remaining=0; break; }
+    remaining=total-alloc.reduce((a,b)=>a+b,0); active=next;
+  }
+  return alloc;
+}
+
+// Shared allocation model — balanced across markets first, availability trims. Used by the spread AND the review summary.
+function computeSplit(){
+  const budget=Math.max(0,Math.round(+budgetInput.value||0));
+  const rows=zones.map((z,i)=>{const s=zCount(z),m=zMeta(z);return{i,z,base:z.name.split(',')[0],signs:s,cpm:m.cpm,region:m.region,on:z.on!==false,share:0,spend:0,impr:0};});
+  const kept=rows.filter(r=>r.on&&r.signs>0);
+  const marketOrder=[], marketOf={};
+  kept.forEach(r=>{ if(!marketOf[r.region]){ marketOf[r.region]={region:r.region,cities:[],signs:0}; marketOrder.push(r.region); } marketOf[r.region].cities.push(r); marketOf[r.region].signs+=r.signs; });
+  const markets=marketOrder.map(k=>marketOf[k]);
+  const caps=markets.map(m=>m.signs*PER_SIGN_CAP);                 // max $/day a market can realistically absorb
+  const alloc=(budget>0&&markets.length)?waterfill(caps,budget):markets.map(()=>0);
+  const placed=alloc.reduce((a,b)=>a+b,0), unplaced=Math.max(0,budget-placed);
+  markets.forEach((m,mi)=>{ const ms=m.signs||1; m.alloc=alloc[mi]; m.share=budget>0?alloc[mi]/budget:0; m.cities.forEach(c=>{ c.spend=alloc[mi]*(c.signs/ms); c.share=budget>0?c.spend/budget:0; c.impr=c.cpm>0?c.spend*DAYS/c.cpm*1000:0; }); });
+  const totalImpr=kept.reduce((a,r)=>a+r.impr,0);
+  const blended=totalImpr>0?(placed*DAYS)/totalImpr*1000:0;
+  return {budget, rows, kept, N:kept.length, markets, M:markets.length, placed, unplaced, totalImpr, blended};
+}
+
+// Opportunity range — per area (inventory × CPM → spendable range), summed to campaign Min / Target / Useful-max.
+const IMPR_PER_SIGN=3750, TARGET_FRAC=0.55, MIN_FRAC=0.22;
+function oppRange(){
+  let max=0;
+  zones.forEach(z=>{ const s=zCount(z); if(s<=0) return; max += s*IMPR_PER_SIGN*zMeta(z).cpm/1000; });
+  return {min:max*MIN_FRAC, target:max*TARGET_FRAC, max};
+}
+// Qualitative status — thresholds stay internal (opp-range), never shown as dollar amounts.
+// Returns a reassurance `lead` + optional-opportunity `nudge` (separated from any warning), plus a
+// neutral `icon`. `tone`/`label` are kept for the Review step's inline status. No warning color in step 2.
+function budgetStatus(budget){
+  const {min,target,max}=oppRange();
+  const N=zones.filter(z=>zCount(z)>0).length;                 // areas that actually carry budget
+  const scope = N===1 ? 'your target area' : `all ${N} target areas`;
+  const opt   = N===1 ? 'optimized to the top signs' : 'optimized within each';
+  if(max<=0)        return {label:'No coverage', tone:'ok', empty:true, icon:'bulb',
+                            lead:'Add a target area with available signs.', nudge:'Budget guidance appears once at least one area has signs.'};
+  if(budget<min)    return {label:'Limited',  tone:'warn', icon:'bulb',
+                            lead:`Runs across ${scope}, ${opt}.`, nudge:'Raising your daily budget shows your ads more consistently. You can launch as-is.'};
+  if(budget<target) return {label:'Adequate', tone:'ok',   icon:'bulb',
+                            lead:`Covers ${scope} well, ${opt}.`, nudge:'A little more would broaden how often your ads show.'};
+  if(budget<max)    return {label:'Healthy',  tone:'good', icon:'check',
+                            lead:`Set for strong, steady delivery across ${scope}.`, nudge:`You're in a great spot to launch.`};
+  return                  {label:'Expanded', tone:'ok',   icon:'bulb',
+                            lead:`Running as often as ${scope} allow${N===1?'s':''}.`, nudge:'Extra budget adds little here. Adding areas would grow your reach.'};
+}
+const BLIPS_PER_BUDGET=18600; // illustrative: monthly blips ≈ ($/day) × this
+// Campaign length drives estimated reach the most; read the selected End date.
+function campaignDays(){
+  const p=document.querySelector('[data-group="end"] .selpill.on');
+  const t=p?p.textContent.trim():'Ongoing';
+  const m=t.match(/(\d+)/);
+  return m?{days:+m[1],label:t}:{days:null,label:t};
+}
+
+function renderSplit(){
+  const maxBid=Math.max(0,(+maxBidInput.value||0));
+  const {budget,kept,N,totalImpr}=computeSplit();
+  const st=budgetStatus(budget);
+
+  // budget status — neutral label pill (header) + a calm reassurance-first callout under the field
+  const bstat=document.getElementById('bstat');
+  if(bstat){
+    document.getElementById('bsPill').className='bstat-pill tone-ok';   // always neutral here — no warning color
+    document.getElementById('bsLabel').textContent=st.label;
+    document.getElementById('bsIcon').innerHTML={bulb:IC.bulb,check:IC.check,info:IC.info}[st.icon]||IC.info;
+    document.getElementById('bsLead').textContent=st.lead;
+    document.getElementById('bsNudge').textContent=st.nudge;
+  }
+
+  // estimated reach — DURATION is the primary driver, daily budget is the rate (hourly play / bid limit: out of scope)
+  const rI=document.getElementById('reachImpr'), rBl=document.getElementById('reachBlips'), rN=document.getElementById('reachNote'),
+        rPer=document.getElementById('reachPeriod'), rBar=document.getElementById('reachBar'),
+        rKick=document.getElementById('reachKick'), rSub=document.getElementById('reachSub');
+  const dur=campaignDays(), mult=dur.days?dur.days/DAYS:1;
+  const imprTot=totalImpr*mult, blipsTot=budget*BLIPS_PER_BUDGET*mult;
+  const imprMax=imprTot*(1+REACH_SPREAD), imprMin=imprTot*(1-REACH_SPREAD), blipsMax=blipsTot*(1+REACH_SPREAD);
+  if(rI){
+    if(N===0){ rI.textContent='—'; rBl.textContent='—'; if(rKick)rKick.style.display='none'; if(rSub)rSub.textContent='estimated impressions'; if(rPer)rPer.textContent=''; if(rN)rN.innerHTML=''; if(rBar)rBar.innerHTML=''; }
+    else{
+      if(rKick)rKick.style.display='';
+      rI.textContent=fmtImpr(imprMax);
+      rBl.textContent='up to '+fmtImpr(blipsMax);
+      if(rSub)rSub.textContent='impressions · starts around '+fmtImpr(imprMin);
+      if(rPer) rPer.textContent = dur.days?`over ${dur.days} days`:'per month · ongoing';
+      const mf=dur.days?Math.min(3,Math.max(1,Math.round(dur.days/30))):3, ong=!dur.days;
+      if(rBar) rBar.innerHTML=[1,2,3].map(m=>`<span class="rseg mo${m<=mf?' on':''}"></span>`).join('')+`<span class="rseg tail${ong?' on':''}"></span>`;
+      const rTk=document.getElementById('reachTicks');
+      if(rTk) rTk.innerHTML=`<span class="rtk mo">1 mo</span><span class="rtk mo">2 mo</span><span class="rtk mo">3 mo</span><span class="rtk tail">${ong?'ongoing →':''}</span>`;
+      if(rN){ const strong=!dur.days||dur.days>=60;
+        rN.className=strong?'rnote':'rnote muted';
+        rN.innerHTML=strong?`${IC.check} Long enough to stick with people.`:`${IC.info} A longer run helps people remember you.`; }
+    }
+  }
+
+  // max-bid floor hint (auto floor derived from each market's CPM)
+  const bidHint=document.getElementById('bidHint');
+  const priciest=kept.reduce((a,r)=>r.cpm>a.cpm?r:a,{cpm:0,base:''});
+  if(N>0&&maxBid>0&&maxBid<priciest.cpm){
+    bidHint.className='fieldhint warn';
+    bidHint.innerHTML=`Boards in ${priciest.base} run a bit higher — nudge this up so your ad still shows up there.`;
+  }else{
+    bidHint.className='fieldhint';
+    bidHint.innerHTML=`Your bid limit applies across all your areas.`;
+  }
+}
+
+// MapLibre handles its own resize; call this when the container becomes visible again
+function fit(){ if(mapReady)map.resize(); }
+
+// ---- camera (MapLibre native pan/zoom + fly-to) ----
+function zoomForRadius(r){ return Math.max(8.5, 12.2 - Math.log2(Math.max(1,r))); } // tighter radius → deeper zoom
+function overview(){
+  if(!zones.length){ map.flyTo({center:SC.view.center,zoom:SC.view.zoom}); return; }
+  if(zones.length===1){ const z=zones[0]; map.flyTo({center:[z.lng,z.lat],zoom:zoomForRadius(z.r)}); return; }
+  const b=new maplibregl.LngLatBounds(); zones.forEach(z=>b.extend([z.lng,z.lat]));
+  map.fitBounds(b,{padding:{top:60,bottom:60,left:60,right:60},maxZoom:11,duration:650});
+}
+function selectZone(i){ sel=i; const z=zones[i]; searchCenter=[z.lng,z.lat]; render(); map.flyTo({center:[z.lng,z.lat],zoom:zoomForRadius(z.r),duration:650}); }
+
+// custom-pin placement — the map 'click' handler calls this with [lng,lat] while armed
+function placePin(lngLat){
+  if(zones.length>=MAX){ showToast('You can select up to 5 target areas.'); setArmed(false); return; }
+  const [lng,lat]=lngLat, nc=nearestCity(lng,lat);
+  zones.push({name:'Area near '+nc.city, city:nc.city, lng, lat, r:5, custom:true, on:true});
+  sel=zones.length-1; searchCenter=[lng,lat]; setArmed(false); render(); flagNoSignsAdd(zones[sel]); map.flyTo({center:[lng,lat],zoom:Math.max(map.getZoom(),10)});
+}
+
+// pink map-pin (unarmed) + cancel X (armed) for the leading drop-a-pin button
+const PIN_SVG=`<svg viewBox="0 0 22 26" width="16" height="19"><path d="M11 1.4C6.3 1.4 2.5 5.1 2.5 9.8 2.5 16 11 24.4 11 24.4S19.5 16 19.5 9.8C19.5 5.1 15.7 1.4 11 1.4Z" fill="#FB0060" stroke="#fff" stroke-width="1.8"/><circle cx="11" cy="9.6" r="3" fill="#fff"/></svg>`;
+const CANCEL_SVG=`<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#1f4fa0" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
+const dropBtn=document.getElementById('dropBtn'), armHint=document.getElementById('armHint');
+const budgetInput=document.getElementById('budgetInput');
+const maxBidInput=document.getElementById('maxBidInput');
+function setArmed(v){
+  if(v && zones.length>=MAX){ showToast('You can select up to 5 target areas.'); return; }
+  armed=v; stage.classList.toggle('arming',v); armHint.style.display=v?'block':'none';
+  map.getCanvas().style.cursor=v?'crosshair':'';
+  dropBtn.classList.toggle('armed',v);
+  dropBtn.innerHTML=v?CANCEL_SVG:PIN_SVG;
+  dropBtn.title=v?'Cancel — click again to stop placing':'Drop a pin on the map';
+  updateRedo();
+}
+dropBtn.addEventListener('click',()=>setArmed(!armed));
+// open the map (first run has none yet), then arm it for a pin drop
+function revealMap(){ if(mapRevealed)return; mapRevealed=true; render(); requestAnimationFrame(()=>{ if(mapReady)map.resize(); }); }
+document.getElementById('dropBtnBig').addEventListener('click',()=>{ revealMap(); setArmed(true); });
+document.getElementById('zoomIn').addEventListener('click',()=>map.zoomIn());
+document.getElementById('zoomOut').addEventListener('click',()=>map.zoomOut());
+document.getElementById('overviewBtn').addEventListener('click',overview);
+document.getElementById('redoSearch').addEventListener('click',searchThisArea);
+
+// ---- add / search cities ----
+function addCityByName(name){
+  const c=cityByName[name]; if(!c)return;
+  const ex=zones.findIndex(z=>z.city===c.city);
+  if(ex>=0){ selectZone(ex); return; }
+  if(zones.length>=MAX){ showToast('You can select up to 5 target areas.'); return; }
+  zones.push({name:c.name,city:c.city,lng:c.lng,lat:c.lat,r:5,custom:false,on:true});
+  sel=zones.length-1; searchCenter=[c.lng,c.lat]; render(); flagNoSignsAdd(zones[sel]);
+  // resize first (the map may have just been revealed), then fly so the reveal is seamless
+  const targetZoom=MARKETS[c.region]?MARKETS[c.region].zoom:10.5;
+  requestAnimationFrame(()=>{ if(mapReady){ map.resize(); map.flyTo({center:[c.lng,c.lat],zoom:targetZoom,duration:900}); } });
+}
+const searchInput=document.getElementById('searchInput'), results=document.getElementById('results');
+const LOCATE_ICON=`<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent)"><circle cx="12" cy="12" r="3.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" stroke-linecap="round"/></svg>`;
+function renderResults(q){
+  q=(q||'').trim().toLowerCase();
+  // "Current location" is always the first suggestion (shown as soon as the field is focused), like the live product
+  let html=`<button type="button" data-current="1"><span class="r1">${LOCATE_ICON}Current location</span><span class="r2">Use my location</span></button>`;
+  if(q){
+    const m=CITIES.filter(c=>SC.regions.includes(c.region)&&(c.city.toLowerCase().includes(q)||c.name.toLowerCase().includes(q)));
+    // label the location TYPE (City / Address / Zip …), not a sign count — the count depends on the radius you set
+    html+= m.length
+      ? m.slice(0,6).map(c=>{ const added=zones.some(z=>z.city===c.city), label=added?'Already added':(c.type||'City'); return `<button type="button" data-name="${c.city}"><span class="r1">${IC.pin}${c.name}</span><span class="r2">${label}</span></button>`; }).join('')
+      : '<div class="empty">No matching location in this campaign area.</div>';
+  }
+  results.innerHTML=html; results.style.display='block';
+  results.querySelectorAll('button[data-name]').forEach(b=>b.addEventListener('mousedown',e=>{e.preventDefault();chooseCity(b.dataset.name);}));
+  const cur=results.querySelector('[data-current]'); if(cur)cur.addEventListener('mousedown',e=>{e.preventDefault();chooseCurrentLocation();});
+}
+function chooseCity(name){ addCityByName(name); searchInput.value=''; results.style.display='none'; }
+function chooseCurrentLocation(){
+  searchInput.value=''; results.style.display='none';
+  if(zones.length>=MAX){ showToast('You can select up to 5 target areas.'); return; }
+  const lng=-122.4194, lat=37.7749, nc=nearestCity(lng,lat);   // mock geolocation for the prototype (San Francisco)
+  zones.push({name:'Current location', city:nc.city, lng, lat, r:5, custom:true, on:true});
+  sel=zones.length-1; searchCenter=[lng,lat]; render(); flagNoSignsAdd(zones[sel]);
+  requestAnimationFrame(()=>{ if(mapReady){ map.resize(); map.flyTo({center:[lng,lat],zoom:11,duration:900}); } });
+}
+searchInput.addEventListener('input',e=>renderResults(e.target.value));
+searchInput.addEventListener('focus',e=>renderResults(e.target.value));
+searchInput.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){const b=results.querySelector('button[data-name]');if(b){e.preventDefault();chooseCity(b.dataset.name);}}
+  else if(e.key==='Escape'){results.style.display='none';}
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.searchbox'))results.style.display='none';});
+
+budgetInput.addEventListener('input',renderSplit);
+maxBidInput.addEventListener('input',renderSplit);
+
+/* ---- step navigation (Step 1 locations → Step 2 budget) ---- */
+const step1El=document.getElementById('step1'), step2El=document.getElementById('step2'), step3El=document.getElementById('step3');
+const railSteps=document.querySelectorAll('.rail .step');
+function goStep(n){
+  step1El.style.display=n===1?'':'none';
+  step2El.style.display=n===2?'':'none';
+  step3El.style.display=n===3?'':'none';
+  railSteps.forEach((el,i)=>el.classList.toggle('active',i<n));
+  if(n===1&&mapReady){ requestAnimationFrame(()=>map.resize()); }
+  if(n===2){renderSplit();budgetInput.focus();}
+  if(n===3){renderReview();}
+  try{window.scrollTo({top:0,behavior:'instant'});}catch(_){window.scrollTo(0,0);}
+}
+function renderReview(){
+  const S=computeSplit();
+  const maxBid=Math.max(0,(+maxBidInput.value||0));
+  const g=GOALS.find(x=>x.k===goal)||GOALS[0];
+  document.getElementById('revGoal').textContent=g.t;
+  const marketCount=new Set(zones.map(z=>zMeta(z).region)).size;
+  document.getElementById('revLocMain').innerHTML=`<b>${zones.length}</b> area${zones.length===1?'':'s'} in <b>${marketCount}</b> market${marketCount===1?'':'s'}`;
+  document.getElementById('revLocSub').textContent=zones.map(z=>`${z.name.split(',')[0]} · ${z.r} mi`).join('   •   ');
+  const st=budgetStatus(S.budget);
+  const toneVar=st.tone==='good'?'success':st.tone==='warn'?'warn':'accent-2';
+  document.getElementById('revBudget').innerHTML=`<b>$${S.budget}</b>/day · <span style="color:var(--${toneVar});font-weight:600">${st.label}</span>`;
+  document.getElementById('revBudgetSub').textContent=`~${fmtImpr(S.totalImpr)} impressions/mo · ~${fmtImpr(S.budget*BLIPS_PER_BUDGET)} blips/mo`;
+  document.getElementById('revBid').textContent=`$${maxBid.toFixed(2)} per 1,000 impressions`;
+  const startSel=document.querySelector('[data-group="start"] .selpill.on'), endSel=document.querySelector('[data-group="end"] .selpill.on');
+  document.getElementById('revDuration').textContent=`${startSel?startSel.textContent:'ASAP'} – ${endSel?endSel.textContent:'Ongoing'}`;
+  const hourly=document.querySelector('.optlist .opt.sel .ot');
+  document.getElementById('revHourly').textContent=hourly?hourly.textContent:'Maximize Audience';
+}
+document.getElementById('toStep2').addEventListener('click',()=>goStep(2));
+document.getElementById('toStep1').addEventListener('click',()=>goStep(1));
+document.getElementById('toStep3').addEventListener('click',()=>goStep(3));
+document.getElementById('toStep2b').addEventListener('click',()=>goStep(2));
+document.getElementById('editDef').addEventListener('click',()=>goStep(1));
+document.getElementById('editStrat').addEventListener('click',()=>goStep(2));
+
+// Remove-a-location undo toast
+let lastRemoved=null, toastTimer=null;
+const toastEl=document.getElementById('toast'), toastMsg=document.getElementById('toastMsg'), toastUndo=document.getElementById('toastUndo');
+function showToast(html,undoable){
+  toastMsg.innerHTML=html;
+  toastUndo.style.display=undoable?'':'none';   // Undo only for undoable actions (e.g. removing an area)
+  toastEl.style.display='flex';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(hideToast,6000);
+}
+function hideToast(){ toastEl.style.display='none'; clearTimeout(toastTimer); lastRemoved=null; }
+// immediate heads-up when a just-added area turns out to have no signs (esp. alongside signed areas)
+function flagNoSignsAdd(z){ if(z && zCount(z)===0) showToast(`No signs in <b>${z.name.split(',')[0]}</b> yet`); }
+
+// ---- Request-signs modal (opened from the "No signs" coverage state) ----
+const reqModal=document.getElementById('reqModal');
+function openRequestSigns(areaName){
+  const ic=document.getElementById('reqIcon'); if(ic) ic.innerHTML=IC.drop;
+  // reset to the form each time it's opened (in case a prior submit swapped in the confirmation)
+  document.getElementById('reqBody').style.display='';
+  document.querySelector('#reqModal .modalfoot').style.display='';
+  document.getElementById('reqTitle').textContent='Request signs in this area';
+  document.querySelector('#reqModal .modalsub').style.display='';
+  // prefill with the requested area (per-card button passes its own), else the selected location
+  const z=zones[sel]; const areaInput=document.getElementById('reqArea');
+  if(areaInput) areaInput.value = (typeof areaName==='string' && areaName) ? areaName : (z ? z.name : '');
+  reqModal.style.display='flex';
+  requestAnimationFrame(()=>{ const f = areaInput && !areaInput.value ? areaInput : document.getElementById('reqEmail'); if(f) f.focus(); });
+}
+function closeRequestSigns(){ reqModal.style.display='none'; }
+function submitRequestSigns(){
+  const area=(document.getElementById('reqArea').value||'').trim();
+  document.getElementById('reqBody').style.display='none';
+  document.querySelector('#reqModal .modalfoot').style.display='none';
+  document.getElementById('reqTitle').textContent='';
+  document.querySelector('#reqModal .modalsub').style.display='none';
+  document.getElementById('reqBody').insertAdjacentHTML('afterend',
+    `<div class="modaldone" id="reqDone"><div class="dcheck">✓</div>`
+    +`<div class="dt">Request received</div>`
+    +`<div class="ds">We'll reach out when signs become available${area?` in <b>${area.split(',')[0]}</b>`:''}. Thanks for letting us know where you want to run.</div></div>`);
+  setTimeout(()=>{ const d=document.getElementById('reqDone'); if(d)d.remove(); closeRequestSigns(); }, 2200);
+}
+document.getElementById('reqClose').addEventListener('click',closeRequestSigns);
+document.getElementById('reqCancel').addEventListener('click',closeRequestSigns);
+document.getElementById('reqSubmit').addEventListener('click',submitRequestSigns);
+// delegated: a "Request signs" link inside any no-signs delivery card opens the modal for that area
+document.getElementById('zones').addEventListener('click',e=>{ const rb=e.target.closest('.reqsigns[data-req]'); if(!rb)return; e.stopPropagation(); const z=zones[+rb.dataset.req]; openRequestSigns(z?z.name:''); });
+reqModal.addEventListener('click',e=>{ if(e.target===reqModal) closeRequestSigns(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && reqModal.style.display!=='none') closeRequestSigns(); });
+function removeZone(i){
+  const removed=zones[i];
+  lastRemoved={zone:removed, index:i, sel:sel};
+  zones.splice(i,1);
+  if(sel>=zones.length)sel=zones.length-1;
+  render();
+  showToast(`Removed <b>${removed.name.split(',')[0]}</b>`, true);
+}
+toastUndo.addEventListener('click',()=>{
+  if(lastRemoved){
+    zones.splice(Math.min(lastRemoved.index,zones.length),0,lastRemoved.zone);
+    sel=lastRemoved.sel;
+    render();
+  }
+  hideToast();
+});
+document.querySelectorAll('#step3 .editlink').forEach(b=>b.addEventListener('click',()=>goStep(+b.dataset.goto)));
+document.getElementById('launchBtn').addEventListener('click',()=>{
+  document.getElementById('launchWrap').innerHTML='<div class="launched">✓ Campaign submitted for review — this is a prototype, nothing was actually launched.</div>';
+});
+
+// Advanced Settings accordion + selectable pills/options (Step 2)
+const advEl=document.getElementById('adv');
+if(advEl) advEl.addEventListener('click',e=>{const h=e.target.closest('.advhead'); if(!h)return; h.parentElement.classList.toggle('open');});
+document.querySelectorAll('.pillrow').forEach(g=>g.addEventListener('click',e=>{const b=e.target.closest('.selpill'); if(!b)return; g.querySelectorAll('.selpill').forEach(x=>x.classList.remove('on')); b.classList.add('on'); renderSplit();}));
+document.querySelectorAll('.optlist').forEach(g=>g.addEventListener('click',e=>{const o=e.target.closest('.opt'); if(!o)return; g.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel')); o.classList.add('sel');}));
+
+window.addEventListener('resize',fit);
+renderGoals();
+render();          // map layers draw once map 'load' fires (renderMap no-ops until then)
+goStep(1);
+</script>
+
+</body>
+</html>
