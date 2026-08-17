@@ -1,0 +1,1154 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<title>Blip — mobile campaign builder (step 1)</title>
+<style>
+  :root{
+    --page:#c9ced6; --surface:#ffffff; --surface-2:#f6f8fb;
+    --text:#141a21; --text-2:#5a6572; --text-3:#95a0ad;
+    --border:#e6eaf0; --border-2:#d7dde6;
+    --accent:#2f6bd8; --accent-2:#1f4fa0; --accent-bg:#eaf1fc; --accent-border:#bcd4f6;
+    --navy:#1f3a63;
+    --pin:#FB0060; --ring:#176BF5;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --shadow:0 1px 2px rgba(20,30,50,.05),0 8px 24px rgba(20,30,50,.08);
+    color-scheme:light;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{font-family:var(--font);background:var(--page);color:var(--text);-webkit-font-smoothing:antialiased;
+    display:flex;align-items:center;justify-content:center;min-height:100vh;padding:22px;line-height:1.5;}
+
+  .phone{width:390px;height:844px;max-height:calc(100vh - 44px);background:var(--surface);border-radius:44px;
+    box-shadow:0 0 0 11px #10141b,0 30px 70px rgba(0,0,0,.42);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+  .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:120px;height:29px;background:#10141b;border-radius:20px;z-index:60;}
+  .statusbar{height:52px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 6px;font-size:14px;font-weight:600;color:var(--text);position:relative;z-index:55;}
+  .statusbar .sbr{display:flex;align-items:center;gap:6px;font-size:12px;}
+
+  .apphead{flex:none;display:flex;align-items:center;justify-content:space-between;padding:8px 20px 12px;border-bottom:1px solid var(--border);position:relative;z-index:40;background:var(--surface);}
+  .iconbtn{width:34px;height:34px;display:grid;place-items:center;border:0;background:none;color:var(--text);cursor:pointer;border-radius:9px;font-size:20px;margin-left:-6px;}
+  .iconbtn:hover{background:var(--surface-2);}
+  .helplink{color:var(--accent);font-size:16px;font-weight:600;background:none;border:0;cursor:pointer;padding:6px 2px;}
+
+  .stage{flex:1;min-height:0;position:relative;overflow:hidden;}
+  .screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;}
+  .screen[hidden]{display:none;}
+  .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:22px 22px 16px;}
+  h1.title{font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 14px;}
+  h2.sect{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:26px 0 14px;}
+  .sub{font-size:15px;color:var(--text-2);margin:-8px 0 16px;}
+
+  .inp{width:100%;border:1px solid var(--border-2);border-radius:12px;height:52px;padding:0 16px;font:inherit;font-size:16px;color:var(--text);background:var(--surface);}
+  .inp:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);}
+
+  /* objective cards */
+  .obj{display:flex;flex-direction:column;gap:12px;}
+  .card{border:1.5px solid var(--border-2);border-radius:16px;padding:18px 18px;cursor:pointer;background:var(--surface);transition:border-color .15s,box-shadow .15s;}
+  .card.sel{border-color:var(--accent);border-width:2px;padding:17px 17px;box-shadow:0 0 0 3px var(--accent-bg);}
+  .card .chd{display:flex;gap:14px;align-items:flex-start;}
+  .card .ci{flex:none;color:var(--text);display:grid;place-items:center;width:26px;height:26px;font-size:24px;margin-top:1px;}
+  .card .ct{font-size:19px;font-weight:700;letter-spacing:-.01em;margin-bottom:5px;}
+  .card .cd{font-size:15px;color:var(--text-2);line-height:1.4;}
+  .card .uc{margin-top:16px;}
+  .card .uch{font-size:15px;color:var(--text-3);margin-bottom:10px;}
+  .card .ucl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;}
+  .card .ucl li{font-size:17px;color:var(--text);display:flex;gap:12px;align-items:flex-start;line-height:1.3;}
+  .card .ucl li svg{color:var(--accent);flex:none;margin-top:2px;width:19px;height:19px;}
+
+  /* footer */
+  .foot{flex:none;background:var(--surface);}
+  .progress{height:4px;background:#e3e7ee;position:relative;}
+  .progress > span{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:0 3px 3px 0;transition:width .3s ease;}
+  .navrow{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 24px;}
+  .backbtn{background:none;border:0;font:inherit;font-size:18px;font-weight:700;color:var(--text);cursor:pointer;padding:8px 4px;}
+  .backbtn:disabled{color:var(--text-3);cursor:default;}
+  .cta{border:0;border-radius:12px;font:inherit;font-size:17px;font-weight:700;color:#fff;height:52px;padding:0 26px;cursor:pointer;background:var(--accent);transition:background .15s;}
+  .cta:hover{background:var(--accent-2);}
+  .cta.navy{background:var(--navy);}
+  .cta:disabled{cursor:default;}
+
+  /* location intro — left-aligned hero carrying the desktop pre-map content */
+  .lochero{padding-top:14px;}
+  .lochero .heroicon{display:grid;place-items:center;width:52px;height:52px;border-radius:14px;background:var(--accent-bg);border:1px solid var(--accent-border);color:var(--accent);margin:0 0 14px;}
+  .lochero .heroh{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:0 0 6px;}
+  .lochero .heros{font-size:14.5px;color:var(--text-2);line-height:1.45;margin:0 0 18px;}
+  /* neutral resting field (no accent ring) — same as the desktop search box */
+  .locfield{display:flex;align-items:center;gap:10px;border:1px solid var(--border-2);border-radius:12px;height:50px;padding:0 14px;background:var(--surface);cursor:text;text-align:left;}
+  .locfield .ph{color:var(--text-3);font-size:15px;}
+
+  /* explicit alternatives: search OR drop a pin (same pairing as desktop first-run) */
+  .ordiv{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--text-3);font-size:11.5px;font-weight:700;letter-spacing:.06em;}
+  .ordiv:before,.ordiv:after{content:"";flex:1;height:1px;background:var(--border);}
+  .dropbig{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;height:50px;border:1px solid var(--border-2);border-radius:12px;background:var(--surface);font:inherit;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;transition:background .15s,border-color .15s;}
+  .dropbig:hover{background:var(--surface-2);}
+
+  /* search overlay */
+  #searchOverlay{position:absolute;inset:0;background:var(--surface);z-index:50;display:flex;flex-direction:column;}
+  #searchOverlay[hidden]{display:none;}
+  .searchbar{display:flex;align-items:center;gap:12px;border:1px solid var(--border-2);border-radius:12px;min-height:50px;padding:8px 14px;margin:14px 20px 10px;background:var(--surface);}
+  .searchbar:focus-within{border-color:var(--accent);}
+  .searchbar .baq{color:var(--text-2);display:grid;place-items:center;cursor:pointer;font-size:20px;flex:none;}
+  .searchbar input{border:0;background:none;outline:none;flex:1;font:inherit;font-size:16px;color:var(--text);min-width:0;}
+  .searchbar input::placeholder{color:var(--text-3);}
+  .curloc{display:flex;align-items:center;gap:14px;padding:14px 22px;color:var(--accent);font-size:17px;font-weight:600;cursor:pointer;}
+  .curloc svg{width:22px;height:22px;}
+  .reslist{flex:1;overflow-y:auto;}
+  .resitem{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;background:none;font:inherit;padding:15px 22px;cursor:pointer;color:var(--text);border-top:1px solid var(--border);}
+  .resitem:hover{background:var(--surface-2);}
+  .resitem .ri1{color:var(--text-3);flex:none;display:grid;place-items:center;}
+  .resitem .rmain{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .resitem .rnm{font-size:16px;font-weight:600;}
+  .resitem .rsub{font-size:13px;color:var(--text-3);margin-top:2px;}
+  .resitem .rcount{font-size:13px;color:var(--text-3);font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .resitem .rcount.added{color:var(--accent);font-weight:600;}
+  .resempty{padding:22px;color:var(--text-3);font-size:15px;}
+
+  /* map-first multi-location view */
+  .locmap{position:absolute;inset:0;display:flex;flex-direction:column;}
+  .locmap[hidden]{display:none;}
+  /* pin button + search bar, same pairing as the desktop .searchrow once the map is up */
+  .maprow{flex:none;display:flex;align-items:center;gap:8px;margin:12px 20px;}
+  .pinbtn{width:50px;height:50px;flex:none;padding:0;border:1px solid var(--border-2);border-radius:12px;background:var(--surface);display:grid;place-items:center;cursor:pointer;transition:background .15s,border-color .15s;}
+  .pinbtn.armed{background:var(--accent-bg);border-color:var(--accent);}
+  .pinbtn:disabled{opacity:.45;cursor:default;}
+  .addbar{flex:1;min-width:0;display:flex;align-items:center;gap:10px;border:1px solid var(--border-2);border-radius:12px;height:50px;padding:0 14px;background:var(--surface);color:var(--text-3);cursor:text;}
+  .addbar svg{color:var(--text-3);flex:none;}
+  .addbar .ph{font-size:15px;}
+  .stagearea{flex:1;min-height:0;position:relative;}
+  #mapStage{position:absolute;inset:0;background:var(--surface-2);}
+  .armhint{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:20px;box-shadow:var(--shadow);pointer-events:none;z-index:12;white-space:nowrap;}
+  .armhint[hidden]{display:none;}
+
+  /* overview: name + count chip */
+  .areachip{display:flex;align-items:center;gap:7px;background:#fff;border:1.5px solid var(--border-2);border-radius:20px;padding:5px 6px 5px 11px;font-size:12.5px;font-weight:700;color:var(--text);box-shadow:0 3px 10px rgba(20,30,50,.24);white-space:nowrap;cursor:pointer;}
+  .areachip .cnt{background:var(--surface-2);color:var(--text-2);border-radius:20px;font-size:11.5px;font-weight:800;padding:2px 8px;font-variant-numeric:tabular-nums;}
+  .areachip.sel{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .areachip.sel .cnt{background:rgba(255,255,255,.24);color:#fff;}
+  .areachip.inert{pointer-events:none;opacity:.8;}   /* while placing a pin, taps belong to the map */
+
+  /* floating swipe sheet */
+  .sheet{position:absolute;left:0;right:0;bottom:0;z-index:15;background:var(--surface);border-top:1px solid var(--border);border-radius:18px 18px 0 0;box-shadow:0 -8px 24px rgba(20,30,50,.14);}
+  .drag{cursor:grab;touch-action:none;user-select:none;}
+  .drag:active{cursor:grabbing;}
+  .grab{width:44px;height:5px;border-radius:3px;background:var(--border-2);margin:9px auto 8px;transition:background .15s;}
+  .drag:hover .grab{background:var(--text-3);}
+  .summary{display:flex;align-items:center;gap:18px;padding:2px 20px 14px;}
+  .stat{display:flex;align-items:center;gap:8px;}
+  .stat .si{width:30px;height:30px;border-radius:9px;background:var(--accent-bg);color:var(--accent);display:grid;place-items:center;flex:none;}
+  .stat .sv{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;}
+  .stat .sk{font-size:12px;color:var(--text-2);font-weight:600;}
+  /* add stays reachable from the collapsed sheet — the list's own add row is behind a drag */
+  .addquick{margin-left:auto;display:flex;align-items:center;gap:5px;flex:none;border:0;border-radius:20px;padding:8px 13px;
+    background:var(--accent-bg);color:var(--accent-2);font:inherit;font-size:13px;font-weight:700;cursor:pointer;touch-action:manipulation;}
+  .addquick:hover{background:var(--accent-border);}
+  .addquick:disabled{opacity:.45;cursor:default;}
+  .listwrap{height:0;overflow:hidden;transition:height .28s ease;}
+  .alist{padding:0 20px 8px;border-top:1px solid var(--border);}
+  .arow{display:flex;align-items:center;gap:12px;padding:12px 2px;border-top:1px solid var(--border);cursor:pointer;}
+  .arow:first-child{border-top:none;}
+  .arow.sel{background:var(--accent-bg);margin:0 -12px;padding-left:12px;padding-right:12px;border-radius:10px;border-top-color:transparent;}
+  .arow .api{color:var(--accent);flex:none;}
+  .arow .anm{flex:1;min-width:0;}
+  .arow .anm b{font-size:15px;font-weight:700;display:block;}
+  .arow .anm span{font-size:13px;color:var(--text-2);font-variant-numeric:tabular-nums;}
+  .arow .arm{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--text-3);flex:none;}
+  .arow .arm:hover{background:rgba(0,0,0,.06);color:var(--text);}
+  .emptyrow{padding:16px 2px 14px;color:var(--text-3);font-size:13.5px;line-height:1.45;}
+
+  /* ---- step 2: strategy ---- */
+  .lblrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;}
+  .lbl{font-size:17px;font-weight:700;display:flex;align-items:center;gap:7px;}
+  .infodot{width:17px;height:17px;border-radius:50%;border:1.4px solid var(--text-3);color:var(--text-3);
+    font-size:10.5px;font-weight:700;font-style:italic;display:inline-grid;place-items:center;flex:none;}
+  .money{display:flex;align-items:center;gap:9px;border:1px solid var(--border-2);border-radius:12px;height:58px;padding:0 16px;background:var(--surface);}
+  .money:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);}
+  .money .cur{font-size:20px;font-weight:700;color:var(--text-2);}
+  .money input{border:0;background:none;outline:none;flex:1;min-width:0;font:inherit;font-size:25px;font-weight:700;
+    color:var(--text);font-variant-numeric:tabular-nums;-moz-appearance:textfield;}
+  .money input::-webkit-outer-spin-button,.money input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .money .per{font-size:15px;font-weight:600;color:var(--text-3);}
+  /* status label stays neutral here on purpose — step 2 reassures, it never warns (same as desktop) */
+  .bspill{display:inline-flex;align-items:center;font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;
+    background:var(--surface-2);color:var(--text-2);white-space:nowrap;}
+  .bstat{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding-top:15px;border-top:1px solid var(--border);}
+  .bstat .bsicon{color:var(--text-2);flex:none;margin-top:2px;display:grid;place-items:center;}
+  .bstat .bsicon svg{width:17px;height:17px;}
+  .bstat .bsmsg{font-size:14px;color:var(--text-2);line-height:1.5;}
+  .bstat .bslead{color:var(--text);font-weight:600;}
+  .hr{height:1px;background:var(--border);margin:26px 0 20px;}
+  .optpill{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:#1a7f45;
+    border:1px solid #9fd8b6;background:#f1faf4;border-radius:20px;padding:6px 12px;white-space:nowrap;}
+  .optpill .dot{width:7px;height:7px;border-radius:50%;background:#1a7f45;flex:none;}
+  /* advanced settings push to their own screens on mobile, so these are nav rows rather than accordions */
+  .navlist{border:1px solid var(--border-2);border-radius:12px;overflow:hidden;}
+  .navitem{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;
+    background:var(--surface);border:0;border-top:1px solid var(--border);font:inherit;font-size:16px;color:var(--text);padding:16px;cursor:pointer;}
+  .navitem:first-child{border-top:0;}
+  .navitem:hover{background:var(--surface-2);}
+  .navitem .chev{color:var(--text-3);display:grid;place-items:center;}
+
+  /* ---- step 3: creative ---- */
+  .csub{font-size:15px;color:var(--text-2);line-height:1.45;margin:7px 0 16px;}
+  .cvhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px;}
+  .cvcount{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
+  .cvhint{font-size:12.5px;color:var(--text-2);text-align:right;}
+  .cvbar{height:5px;border-radius:3px;background:#e3e7ee;overflow:hidden;margin-bottom:18px;}
+  .cvbar>span{display:block;height:100%;width:0;background:var(--accent);border-radius:3px;transition:width .3s ease;}
+  .drop{border:1.5px dashed var(--border-2);border-radius:12px;padding:16px;text-align:center;}
+  .btnp{width:100%;height:48px;border:0;border-radius:10px;background:var(--accent);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;}
+  .btnp:hover{background:var(--accent-2);}
+  .btnp:disabled{opacity:.5;cursor:default;}
+  .btno{width:100%;height:48px;margin-top:10px;border:1px solid var(--accent);border-radius:10px;background:var(--surface);
+    color:var(--accent);font:inherit;font-size:16px;font-weight:700;cursor:pointer;}
+  .btno:hover{background:var(--accent-bg);}
+  .dropnote{font-size:12.5px;color:var(--text-2);margin-top:10px;}
+  .szhead{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;margin:22px 0 9px;}
+  .szhead span:last-child{color:var(--text-2);font-weight:600;}
+  .szlist{border:1px solid var(--border-2);border-radius:12px;overflow:hidden;}
+  .szrow{display:flex;align-items:center;gap:13px;padding:12px 14px;border-top:1px solid var(--border);}
+  .szrow:first-child{border-top:0;}
+  .szthumb{width:56px;height:34px;flex:none;display:grid;place-items:center;}
+  .szthumb i{display:block;background:var(--surface-2);border:1px solid var(--border);border-radius:3px;}
+  .szmain{flex:1;min-width:0;}
+  .szmain b{display:block;font-size:15px;font-weight:700;}
+  .szmain span{font-size:13px;color:var(--text-2);}
+  .szn{font-size:15px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;flex:none;}
+  .szrow.done .szn{color:var(--text-3);}
+  .szok{color:#1a7f45;display:grid;place-items:center;flex:none;}
+  .szok svg{width:17px;height:17px;}
+  .szmore{display:flex;align-items:center;justify-content:space-between;width:100%;background:var(--surface);border:0;
+    border-top:1px solid var(--border);font:inherit;font-size:14px;font-weight:600;color:var(--text);padding:13px 14px;cursor:pointer;}
+  .szmore:hover{background:var(--surface-2);}
+  .szmore .ml{display:flex;align-items:center;gap:9px;}
+  .szmore .ml svg{color:var(--text-3);width:17px;height:17px;}
+  .szmore .szn{color:var(--text-3);font-weight:600;}
+  .needcard{border:1px solid var(--border-2);border-radius:12px;padding:15px 16px;margin-top:18px;}
+  .needcard .nct{font-size:15px;font-weight:700;margin-bottom:9px;}
+  .lnk{color:var(--accent);text-decoration:none;font-size:14.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer;}
+  .lnk svg{width:13px;height:13px;}
+  .needcard .lnk{display:flex;margin-top:9px;}
+  .legal{font-size:12.5px;color:var(--text-2);line-height:1.55;margin:18px 0 0;}
+  .legal .lnk{font-size:12.5px;margin-top:9px;text-decoration:underline;}
+
+  /* ---- step 4: review ---- */
+  #scrReview .scroll{background:#f1f3f6;}
+  .rlabel{font-size:16px;font-weight:700;margin:0 0 8px;}
+  .rcard{background:var(--surface);border:1px solid var(--border-2);border-radius:12px;margin-bottom:14px;}
+  .rhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;width:100%;text-align:left;
+    background:none;border:0;font:inherit;padding:15px 16px;cursor:pointer;color:var(--text);}
+  .rhead .rt{display:block;font-size:17px;font-weight:700;}
+  .rhead .rs{display:block;font-size:14.5px;color:var(--text-2);margin-top:4px;}
+  .rhead .rc{color:var(--text-2);flex:none;margin-top:3px;display:grid;place-items:center;transition:transform .2s;}
+  .rhead .rc svg{width:20px;height:20px;}
+  .rcard.open .rhead .rc{transform:rotate(180deg);}
+  .rbody{display:none;padding:0 16px 6px;}
+  .rcard.open .rbody{display:block;}
+  /* label / value / Edit — the row shape the product already uses in this card */
+  .drow{padding:13px 0;}
+  .drow:first-child{border-top:1px solid var(--border);}
+  .drowh{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .drowh .lb{font-size:14px;color:var(--text-2);}
+  .edit{background:none;border:0;padding:0 0 0 12px;font:inherit;font-size:14px;font-weight:600;color:var(--accent);cursor:pointer;}
+  .edit:hover{color:var(--accent-2);text-decoration:underline;}
+  .drowv{font-size:15.5px;font-weight:700;margin-top:2px;line-height:1.35;}
+  .drowd{font-size:12.5px;color:var(--text-3);line-height:1.45;margin-top:4px;}
+  .dsep{border-top:1px solid var(--border);}
+  /* Every slot is the same box so the row keeps an even rhythm whatever mix of sizes was uploaded;
+     the creative sits centred inside it at its own aspect ratio, letterboxed by the backing. */
+  .cvthumbs{display:flex;gap:9px;margin-top:10px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;}
+  .cvthumb{flex:none;width:150px;height:86px;border-radius:7px;border:1px solid var(--border-2);
+    background:var(--surface-2);display:grid;place-items:center;overflow:hidden;}
+  .cvthumb i{display:block;border-radius:3px;background:linear-gradient(135deg,#e3eaf6,#b9cbe6);
+    box-shadow:0 1px 3px rgba(20,30,50,.16);}
+  /* payment — prototype form only, nothing is submitted anywhere */
+  .psec{background:var(--surface);border:1px solid var(--border-2);border-radius:12px;padding:16px;margin-bottom:14px;}
+  .pttl{font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--text-2);margin-bottom:15px;}
+  .plab{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;margin-bottom:9px;}
+  .cards{display:flex;gap:4px;}
+  .cbrand{width:30px;height:20px;border-radius:3px;display:grid;place-items:center;font-size:7px;font-weight:800;
+    color:#fff;letter-spacing:.02em;flex:none;}
+  .pfield{width:100%;height:48px;border:1px solid var(--border-2);border-radius:9px;padding:0 13px;font:inherit;
+    font-size:15px;color:var(--text);background:var(--surface);margin-bottom:10px;}
+  .pfield::placeholder{color:var(--text-3);}
+  .pfield:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);}
+  .pnum{display:flex;align-items:center;gap:10px;border:1px solid var(--border-2);border-radius:9px;height:48px;
+    padding:0 13px;margin-bottom:10px;background:var(--surface);}
+  .pnum:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);}
+  .pnum svg{color:var(--text-3);flex:none;}
+  .pnum input{border:0;background:none;outline:none;flex:1;min-width:0;font:inherit;font-size:15px;color:var(--text);}
+  .pnum input::placeholder{color:var(--text-3);}
+  .prow2{display:flex;gap:10px;}
+  .prow2 .pfield{flex:1;min-width:0;}
+  .psecure{display:flex;align-items:center;justify-content:center;gap:7px;font-size:12.5px;color:var(--text-2);
+    border-top:1px solid var(--border);margin-top:5px;padding-top:14px;}
+  .psecure svg{width:13px;height:13px;flex:none;}
+  .gocard{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:12px;padding:16px;}
+  .got{font-size:16px;font-weight:700;color:var(--accent-2);margin:0 0 7px;}
+  .god{font-size:14.5px;color:var(--accent-2);line-height:1.5;margin:0 0 14px;}
+  .steps3{display:flex;background:var(--surface);border:1px solid var(--accent-border);border-radius:10px;padding:14px 4px;}
+  .step3{flex:1;text-align:center;padding:0 6px;}
+  .step3+.step3{border-left:1px solid var(--accent-border);}
+  .step3 .n{width:26px;height:26px;border-radius:50%;background:var(--accent-bg);color:var(--accent-2);
+    font-size:13px;font-weight:700;display:grid;place-items:center;margin:0 auto 9px;}
+  .step3 .t{font-size:12.5px;color:var(--accent-2);line-height:1.35;}
+  /* review closes on a single full-width launch action — Back lives in the header arrow instead */
+  .navrow.solo .backbtn{display:none;}
+  .navrow.solo .cta{flex:1;}
+
+  .maplibregl-ctrl-attrib{font-size:9px;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+
+<div class="phone" id="phone">
+  <div class="notch"></div>
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="sbr">••••  <span style="letter-spacing:-1px">🛜</span>  <span style="border:1.5px solid var(--text);border-radius:4px;padding:0 3px;font-size:10px">61</span></span>
+  </div>
+
+  <div class="apphead">
+    <button class="iconbtn" id="closeBtn" aria-label="Close" data-ic="x"></button>
+    <button class="helplink">Need Help?</button>
+  </div>
+
+  <div class="stage">
+
+    <!-- SCREEN 1: NAME + OBJECTIVE -->
+    <section class="screen" id="scrObjective">
+      <div class="scroll">
+        <h1 class="title">Name</h1>
+        <input class="inp" id="campName" value="2026-08-13 Campaign" aria-label="Campaign name">
+        <h2 class="sect">Objective</h2>
+        <div class="obj" id="objList"></div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: LOCATION -->
+    <section class="screen" id="scrLocation" hidden>
+      <!-- intro (no areas yet) -->
+      <div class="scroll" id="locIntro">
+        <div class="lochero">
+          <div class="heroicon" data-ic="pinlg"></div>
+          <h1 class="heroh">Where should your ads appear?</h1>
+          <p class="heros">Pick the places you want to reach. Blip runs your ad across the best-performing signs in each.</p>
+          <div class="locfield" id="openSearch">
+            <span style="color:var(--text-3);display:grid;place-items:center" data-ic="search"></span>
+            <span class="ph">Search a city, address, or ZIP</span>
+          </div>
+          <div class="ordiv">OR</div>
+          <button class="dropbig" id="dropBtnBig" type="button"></button>
+        </div>
+      </div>
+
+      <!-- full-screen search overlay (adds an area) -->
+      <div id="searchOverlay" hidden>
+        <div class="searchbar">
+          <span class="baq" id="searchBack" data-ic="back"></span>
+          <input id="searchInput" placeholder="Search a city, address, or ZIP" autocomplete="off" aria-label="Search a city, address, or ZIP">
+        </div>
+        <div class="curloc" id="curLoc"><span data-ic="nav"></span> Current Location</div>
+        <div class="reslist" id="resList"></div>
+      </div>
+
+      <!-- map-first multi-location view -->
+      <div class="locmap" id="locMap" hidden>
+        <div class="maprow">
+          <button class="pinbtn" id="dropBtn" type="button" aria-label="Drop a pin on the map"></button>
+          <div class="addbar" id="addBar">
+            <span data-ic="search"></span><span class="ph">Search a city, address, or ZIP</span>
+          </div>
+        </div>
+        <div class="stagearea">
+          <div id="mapStage"></div>
+          <div class="armhint" id="armHint" hidden>Tap the map to drop a pin</div>
+          <div class="sheet" id="sheet">
+            <div class="drag" id="drag">
+              <div class="grab"></div>
+              <div class="summary">
+                <div class="stat"><span class="si" data-ic="pin"></span><span><span class="sv" id="numAreas">0</span> <span class="sk" id="labAreas">areas</span></span></div>
+                <div class="stat"><span class="si" data-ic="sign"></span><span><span class="sv" id="numSigns">0</span> <span class="sk" id="labSigns">signs</span></span></div>
+                <button class="addquick" id="addQuick" type="button">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Add area
+                </button>
+              </div>
+            </div>
+            <div class="listwrap"><div class="alist" id="alist"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: STRATEGY -->
+    <section class="screen" id="scrStrategy" hidden>
+      <div class="scroll">
+        <h1 class="title">Strategy</h1>
+
+        <div class="lblrow">
+          <span class="lbl">Daily Budget <span class="infodot">i</span></span>
+          <span class="bspill" id="bsPill">—</span>
+        </div>
+        <div class="money">
+          <span class="cur">$</span>
+          <input id="budgetInput" type="number" min="0" step="5" value="150" inputmode="numeric" aria-label="Daily budget in dollars">
+          <span class="per">/day</span>
+        </div>
+        <div class="bstat" id="bstat" aria-live="polite">
+          <span class="bsicon" id="bsIcon"></span>
+          <div class="bsmsg"><span class="bslead" id="bsLead"></span> <span id="bsNudge"></span></div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="lblrow">
+          <span class="lbl">Advanced Settings <span class="infodot">i</span></span>
+          <span class="optpill"><span class="dot"></span> Blip-optimized on</span>
+        </div>
+        <div class="navlist">
+          <button class="navitem" type="button">Duration <span class="chev" data-ic="chev"></span></button>
+          <button class="navitem" type="button">Hourly Play <span class="chev" data-ic="chev"></span></button>
+          <button class="navitem" type="button">More settings <span class="chev" data-ic="chev"></span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: CREATIVE -->
+    <section class="screen" id="scrCreative" hidden>
+      <div class="scroll">
+        <div class="lbl" style="font-size:19px">Creative <span class="infodot">i</span></div>
+        <p class="csub">The more sizes you upload, the more people see your ad.</p>
+
+        <div class="cvhead">
+          <span class="cvcount"><span id="cvDone">0</span> of <span id="cvTotal">0</span> signs</span>
+          <span class="cvhint">Each size unlocks more impressions.</span>
+        </div>
+        <div class="cvbar"><span id="cvFill"></span></div>
+
+        <div class="drop">
+          <button class="btnp" id="upBtn" type="button">Upload</button>
+          <button class="btno" id="libBtn" type="button">My Library</button>
+          <div class="dropnote">PNG, JPG, JPEG · up to 10 files per size</div>
+          <div class="dropnote">Need more? <span class="lnk">Contact support</span></div>
+        </div>
+
+        <div class="szhead"><span>Most common sizes in your area</span><span>Eligible signs</span></div>
+        <div class="szlist" id="szList"></div>
+
+        <div class="needcard">
+          <div class="nct">Need a creative?</div>
+          <span class="lnk">Canva templates <span data-ic="ext"></span></span>
+          <span class="lnk">Blip's design team ($99/design) <span data-ic="ext"></span></span>
+        </div>
+
+        <p class="legal">
+          Creatives are reviewed within 48 hrs. You'll get an email when approved and your campaign goes live.<br>
+          Sign owners set their own content exclusions, some placements may not be available.
+          <span class="lnk">View content guidelines <span data-ic="ext"></span></span>
+        </p>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: REVIEW -->
+    <section class="screen" id="scrReview" hidden>
+      <div class="scroll">
+        <h1 class="title">Review</h1>
+
+        <div class="rlabel">Name</div>
+        <input class="inp" id="revName" aria-label="Campaign name" style="margin-bottom:14px">
+
+        <div class="rcard" id="rcDef">
+          <button class="rhead" type="button">
+            <span><span class="rt">Definition</span><span class="rs" id="defSum"></span></span>
+            <span class="rc" data-ic="chevD"></span>
+          </button>
+          <div class="rbody" id="defBody"></div>
+        </div>
+
+        <div class="rcard" id="rcStr">
+          <button class="rhead" type="button">
+            <span><span class="rt">Strategy</span><span class="rs" id="strSum"></span></span>
+            <span class="rc" data-ic="chevD"></span>
+          </button>
+          <div class="rbody" id="strBody"></div>
+        </div>
+
+        <div class="psec">
+          <div class="pttl">PAYMENT</div>
+          <div class="plab">Card information
+            <span class="cards">
+              <span class="cbrand" style="background:#1a1f71">VISA</span>
+              <span class="cbrand" style="background:#1f72cd">AMEX</span>
+              <span class="cbrand" style="background:#eb001b">MC</span>
+              <span class="cbrand" style="background:#f076223b;color:#e2650f">DISC</span>
+            </span>
+          </div>
+          <input class="pfield" placeholder="Name on card" autocomplete="off" aria-label="Name on card">
+          <div class="pnum">
+            <span data-ic="card"></span>
+            <input placeholder="1234 1234 1234 1234" inputmode="numeric" autocomplete="off" aria-label="Card number">
+          </div>
+          <div class="prow2">
+            <input class="pfield" placeholder="MM/YY" inputmode="numeric" autocomplete="off" aria-label="Expiry date">
+            <input class="pfield" placeholder="CVC" inputmode="numeric" autocomplete="off" aria-label="Security code">
+          </div>
+          <input class="pfield" placeholder="Zipcode" inputmode="numeric" autocomplete="off" aria-label="Billing ZIP code" style="width:calc(50% - 5px)">
+          <div class="psecure"><span data-ic="lock"></span> Secured by Spreedly · <span class="lnk" style="font-size:12.5px">Terms and conditions</span></div>
+        </div>
+
+        <div class="gocard">
+          <p class="got">Ready to go live?</p>
+          <p class="god">Your creative will be reviewed within 1&nbsp;-&nbsp;2 business days, then your campaign will start when scheduled.</p>
+          <div class="steps3">
+            <div class="step3"><span class="n">1</span><span class="t">Creative reviewed by moderation</span></div>
+            <div class="step3"><span class="n">2</span><span class="t">Campaign goes live at scheduled date</span></div>
+            <div class="step3"><span class="n">3</span><span class="t">Confirmation email sent to you</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="foot" id="foot">
+    <div class="progress"><span id="progFill" style="width:18%"></span></div>
+    <div class="navrow">
+      <button class="backbtn" id="backBtn" disabled>Back</button>
+      <button class="cta" id="ctaBtn">Next</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- icons ---------- */
+const IC={
+  x:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  search:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>',
+  back:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  nav:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 11l18-8-8 18-2-7-8-3z"/></svg>',
+  pinlg:'<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+  sign:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="11" rx="1.6"/><path d="M12 15v5M8.5 20h7"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  bulb:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.3 1 2.1V16h6v-.4c0-.8.4-1.5 1-2.1A6 6 0 0 0 12 3Z"/></svg>',
+  chev:'<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  chevD:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  chevU:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>',
+  ext:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+  card:'<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
+  megaphone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1Z"/><path d="M15 8.5a4 4 0 0 1 0 7"/></svg>',
+  monitor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+  ticket:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 2 2 0 0 0 0-4Z"/><path d="M13.5 6v12"/></svg>',
+  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5.5a3 3 0 0 1 0 5M21.5 20a6 6 0 0 0-4.5-5.8"/></svg>'
+};
+document.querySelectorAll('[data-ic]').forEach(el=>el.innerHTML=IC[el.dataset.ic]||'');
+
+/* ---------- objective (screen 1) ---------- */
+const OBJECTIVES=[   // s = short label, used in the Review summary line
+ {k:'awareness',s:'Awareness',t:'Brand awareness and reach',d:'Best for building visibility and reaching people repeatedly in a target area.',uc:['Build general brand awareness','Launch a new product or service','Keep your business top of mind'],icon:IC.megaphone},
+ {k:'traffic',s:'Website traffic',t:'Website traffic',d:'Best for driving people to take action after seeing your ad.',uc:['Send people to your website','Promote an offer or landing page','Drive online conversions'],icon:IC.monitor},
+ {k:'event',s:'Event promotion',t:'Event Promotion',d:'Best for promoting a time-bound event or announcement.',uc:['Fill seats for an event','Promote a grand opening','Announce a limited-time sale'],icon:IC.ticket},
+ {k:'leads',s:'Leads',t:'Leads',d:'Best for encouraging follow-up after exposure.',uc:['Collect sign-ups and inquiries','Generate inbound calls','Build a prospect list'],icon:IC.users}
+];
+let objective='awareness';
+function renderObjectives(){
+  const list=document.getElementById('objList');
+  list.innerHTML=OBJECTIVES.map(o=>{
+    const s=o.k===objective;
+    return `<div class="card${s?' sel':''}" data-k="${o.k}" role="radio" aria-checked="${s}" tabindex="0">
+      <div class="chd"><span class="ci">${o.icon}</span>
+        <div style="min-width:0"><div class="ct">${o.t}</div><div class="cd">${o.d}</div>
+        ${s?`<div class="uc"><div class="uch">Use cases</div><ul class="ucl">${o.uc.map(u=>`<li>${IC.check}${u}</li>`).join('')}</ul></div>`:''}</div>
+      </div></div>`;
+  }).join('');
+  list.querySelectorAll('.card').forEach(el=>{
+    const pick=()=>{objective=el.dataset.k;renderObjectives();};
+    el.addEventListener('click',pick);
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}});
+  });
+}
+renderObjectives();
+
+/* ===================== location data model ===================== */
+const R=3958.8;
+function hav(aLng,aLat,bLng,bLat){const dLat=(bLat-aLat)*Math.PI/180,dLng=(bLng-aLng)*Math.PI/180;const s=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(s)));}
+// cpm mirrors the desktop prototype's per-city rates — it drives the budget opportunity range
+const CITIES=[
+ {short:"San Francisco",name:"San Francisco, CA, USA",lng:-122.4194,lat:37.7749,region:"Bay Area",cpm:6.00},
+ {short:"Oakland",name:"Oakland, CA, USA",lng:-122.2712,lat:37.8044,region:"Bay Area",cpm:4.75},
+ {short:"San Jose",name:"San Jose, CA, USA",lng:-121.8863,lat:37.3382,region:"Bay Area",cpm:5.00},
+ {short:"Berkeley",name:"Berkeley, CA, USA",lng:-122.2730,lat:37.8715,region:"Bay Area",cpm:5.25},
+ {short:"San Leandro",name:"San Leandro, CA, USA",lng:-122.1561,lat:37.7249,region:"Bay Area",cpm:3.90},
+ {short:"Miami",name:"Miami, FL, USA",lng:-80.1918,lat:25.7617,region:"Miami",cpm:4.60},
+ {short:"Miami Beach",name:"Miami Beach, FL, USA",lng:-80.1300,lat:25.7907,region:"Miami",cpm:5.20},
+ {short:"Fort Lauderdale",name:"Fort Lauderdale, FL, USA",lng:-80.1373,lat:26.1224,region:"Miami",cpm:4.10},
+ {short:"Chicago",name:"Chicago, IL, USA",lng:-87.6298,lat:41.8781,region:"Chicago",cpm:6.20},
+ {short:"Evanston",name:"Evanston, IL, USA",lng:-87.6877,lat:42.0451,region:"Chicago",cpm:5.40},
+ {short:"Naperville",name:"Naperville, IL, USA",lng:-88.1535,lat:41.7508,region:"Chicago",cpm:4.60},
+ {short:"Seattle",name:"Seattle, WA, USA",lng:-122.3321,lat:47.6062,region:"Seattle",cpm:5.60},
+ {short:"Bellevue",name:"Bellevue, WA, USA",lng:-122.2015,lat:47.6104,region:"Seattle",cpm:5.10},
+ {short:"Tacoma",name:"Tacoma, WA, USA",lng:-122.4443,lat:47.2529,region:"Seattle",cpm:4.00}
+];
+const byShort={}; CITIES.forEach(c=>byShort[c.short]=c);
+
+// Sign positions [lng,lat], one list per city. These were scattered around each city centre and
+// then filtered against the basemap's water polygons, so no sign sits in a bay, lake, or ocean —
+// which a live scatter can't guarantee (Miami Beach and Seattle put most random draws in water).
+// Counts are sized so no 15mi area tops ~22 signs. Because neighbouring cities share a region,
+// one area's ring sweeps in its neighbours' signs — so per-city inventory has to stay well under
+// the cap for the ring total to land there (the four Bay Area cities hold 22 between them).
+const SIGNS={
+ "San Francisco":[[-122.39968,37.72721],[-122.43634,37.75772],[-122.4661,37.74253],[-122.39374,37.74824],[-122.43195,37.76441],[-122.48082,37.75816],[-122.39402,37.74211],[-122.40421,37.74746]],
+ "Oakland":[[-122.30606,37.7948],[-122.24298,37.82622],[-122.21457,37.84578],[-122.20559,37.74492],[-122.1823,37.78817],[-122.23418,37.8631],[-122.22326,37.82287]],
+ "San Jose":[[-121.81204,37.27714],[-121.82632,37.30706],[-121.7915,37.3506],[-121.88422,37.40181],[-121.91901,37.25562],[-121.91597,37.31988],[-121.81763,37.29468],[-121.84194,37.41425],[-121.82966,37.37238],[-121.93128,37.38224]],
+ "Berkeley":[[-122.24183,37.84739],[-122.24484,37.84597],[-122.26097,37.89787]],
+ "San Leandro":[[-122.16783,37.76432],[-122.10338,37.74724],[-122.16444,37.70202],[-122.16518,37.67778]],
+ "Miami":[[-80.14803,25.75182],[-80.22935,25.76028],[-80.16079,25.74019],[-80.20117,25.80778],[-80.20246,25.84552],[-80.20327,25.84044],[-80.13807,25.78058],[-80.16152,25.7699],[-80.20447,25.78034],[-80.13118,25.78443],[-80.19849,25.8041],[-80.22328,25.79236],[-80.20787,25.78408]],
+ "Miami Beach":[[-80.13205,25.77412],[-80.14635,25.79134],[-80.13358,25.79305],[-80.1419,25.77579],[-80.13808,25.81821]],
+ "Fort Lauderdale":[[-80.18432,26.12253],[-80.16871,26.11682],[-80.1697,26.14628],[-80.17303,26.10806],[-80.1407,26.10305],[-80.17879,26.1066],[-80.14916,26.10182]],
+ "Chicago":[[-87.68227,41.91903],[-87.71279,41.87365],[-87.65424,41.89126],[-87.66879,41.83301],[-87.68373,41.87681],[-87.65762,41.79388],[-87.62961,41.85602],[-87.64682,41.93404],[-87.69036,41.80489],[-87.65371,41.81768],[-87.73543,41.87435],[-87.60261,41.82247],[-87.68209,41.92796],[-87.69596,41.80829],[-87.65555,41.83929]],
+ "Evanston":[[-87.70167,42.06451],[-87.67673,42.04859],[-87.6911,42.03765],[-87.68973,42.02418],[-87.69683,42.0366]],
+ "Naperville":[[-88.14029,41.75954],[-88.18326,41.78028],[-88.18086,41.74647],[-88.16568,41.75566],[-88.14375,41.72807],[-88.10634,41.72629]],
+ "Seattle":[[-122.21062,47.63358],[-122.31385,47.55759],[-122.31643,47.54443],[-122.30614,47.66512],[-122.29017,47.5785],[-122.35106,47.54205],[-122.30369,47.61052],[-122.36818,47.62738],[-122.29636,47.59736],[-122.33123,47.56649],[-122.31129,47.59098],[-122.35635,47.53098],[-122.38673,47.58634],[-122.32018,47.53451]],
+ "Bellevue":[[-122.20755,47.63327],[-122.18456,47.60032],[-122.19952,47.61561],[-122.23384,47.6176],[-122.18941,47.62992],[-122.19627,47.59483]],
+ "Tacoma":[[-122.47174,47.27582],[-122.49653,47.24458],[-122.40285,47.23826],[-122.49246,47.2659],[-122.46359,47.26581],[-122.46672,47.24563]]
+};
+const BOARDS=[];
+CITIES.forEach(c=>(SIGNS[c.short]||[]).forEach(([lng,lat])=>BOARDS.push({lng,lat,region:c.region})));
+
+// ZT is where the map swaps the "City · n" summary chip for the individual sign pins. Kept low so
+// pins show up as soon as an area fills a decent part of the screen — the chip is a far-out-only
+// fallback for when several areas are on screen at once and pins would be unreadable dots.
+const RADIUS=15, MAX=5, ZT=8.5;   // default radius; area cap; zoom threshold (below=chips, above=pins)
+// whole-country view — fitted to bounds rather than a fixed zoom, since a 390px-wide
+// viewport needs a much lower zoom than desktop to actually show the full map
+const US_BOUNDS=[[-124.7,25.8],[-66.9,49.4]];   // continental US only — no Alaska, Hawaii, or the Keys
+// only left/right affect the zoom here (the country is far wider than tall, so width binds) —
+// keeping them tight makes the US fill the frame. Top/bottom just clear the arm hint and the
+// collapsed sheet. Coastal chips stay readable by flipping their anchor near an edge, see updateMarkers.
+const OVERVIEW_PAD={top:40,bottom:88,left:16,right:16};
+let zones=[], sel=0, open=false;   // zones: {short,name,lng,lat,region,r}
+
+function zCount(z){let n=0;BOARDS.forEach(b=>{if(b.region===z.region&&hav(b.lng,b.lat,z.lng,z.lat)<=z.r)n++;});return n;}
+// what a search result promises must be what the area actually delivers once added: the same
+// radius count, not the city's own inventory (a 15mi ring around Berkeley also picks up Oakland)
+function cityCount(c){return zCount({lng:c.lng,lat:c.lat,region:c.region,r:RADIUS});}
+// unique across the given areas — overlapping rings in one market share signs, so they can't be summed
+function signsIn(zs){const set=new Set();zs.forEach(z=>BOARDS.forEach((b,i)=>{if(b.region===z.region&&hav(b.lng,b.lat,z.lng,z.lat)<=z.r)set.add(i);}));return set.size;}
+function totalSigns(){return signsIn(zones);}
+function activeRegions(){return new Set(zones.map(z=>z.region));}
+function circle(lng,lat,mi,p=64){const o=[],dLat=mi/69,dLng=mi/(69*Math.cos(lat*Math.PI/180));for(let i=0;i<=p;i++){const a=i/p*2*Math.PI;o.push([lng+dLng*Math.cos(a),lat+dLat*Math.sin(a)]);}return o;}
+function pinURI(){const s=`<svg xmlns="http://www.w3.org/2000/svg" width="44" height="60" viewBox="0 0 22 30"><path d="M11 1.2C6 1.2 2 5.2 2 10.2 2 17 11 28.6 11 28.6S20 17 20 10.2C20 5.2 16 1.2 11 1.2Z" fill="#FB0060" stroke="#fff" stroke-width="2"/><circle cx="11" cy="10.2" r="3.1" fill="#fff"/></svg>`;return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s);}
+
+/* ---------- screen elements ---------- */
+const scrObjective=document.getElementById('scrObjective'), scrLocation=document.getElementById('scrLocation');
+const locIntro=document.getElementById('locIntro'), searchOverlay=document.getElementById('searchOverlay'), locMap=document.getElementById('locMap');
+const backBtn=document.getElementById('backBtn'), ctaBtn=document.getElementById('ctaBtn'), progFill=document.getElementById('progFill'), foot=document.getElementById('foot');
+let screen='objective';
+
+/* ---------- search overlay (adds an area) ---------- */
+const searchInput=document.getElementById('searchInput'), resList=document.getElementById('resList');
+function openSearchOverlay(){setArmed(false);searchOverlay.hidden=false;foot.style.display='none';renderResults('');setTimeout(()=>searchInput.focus(),40);}
+function closeSearchOverlay(){searchOverlay.hidden=true;foot.style.display='';searchInput.value='';}
+document.getElementById('openSearch').addEventListener('click',openSearchOverlay);
+document.getElementById('addBar').addEventListener('click',openSearchOverlay);
+document.getElementById('searchBack').addEventListener('click',closeSearchOverlay);
+document.getElementById('curLoc').addEventListener('click',()=>chooseCity('Oakland'));
+function renderResults(q){
+  q=(q||'').trim().toLowerCase();
+  const matches=q?CITIES.filter(c=>c.short.toLowerCase().includes(q)||c.name.toLowerCase().includes(q)||c.region.toLowerCase().includes(q)):CITIES.slice(0,6);
+  if(!matches.length){resList.innerHTML='<div class="resempty">No matching location.</div>';return;}
+  resList.innerHTML=matches.slice(0,8).map(c=>{
+    const added=zones.some(z=>z.short===c.short), n=cityCount(c);
+    return `<button class="resitem" data-city="${c.short}">
+      <span class="ri1">${IC.pin}</span>
+      <span class="rmain"><span class="rnm">${c.name}</span><span class="rsub">${c.region} region</span></span>
+      <span class="rcount${added?' added':''}">${added?'Added ✓':(n?n+(n===1?' sign':' signs'):'No signs')}</span>
+    </button>`;
+  }).join('');
+  resList.querySelectorAll('.resitem').forEach(b=>b.addEventListener('click',()=>chooseCity(b.dataset.city)));
+}
+searchInput.addEventListener('input',e=>renderResults(e.target.value));
+function chooseCity(short){
+  const c=byShort[short]; if(!c){return;}
+  const ex=zones.findIndex(z=>z.short===c.short);
+  closeSearchOverlay();
+  if(ex>=0){ sel=ex; showMapState(); flyToZone(ex); return; }   // already added → jump to it
+  if(zones.length>=MAX){ showMapState(); return; }
+  zones.push({short:c.short,name:c.name,lng:c.lng,lat:c.lat,region:c.region,r:RADIUS});
+  sel=zones.length-1;
+  showMapState();
+  flyToZone(sel);   // zoom into the newly added area, not an overview of all
+}
+
+/* ---------- location states ---------- */
+// the map is the landing state only until the first area lands; after that it stays up even if
+// every area is removed, so clearing the list doesn't throw the user back to a blank screen
+let mapRevealed=false;
+function showLocIntro(){zones=[];mapRevealed=false;setArmed(false);locMap.hidden=true;locIntro.hidden=false;updateCta();}
+function showMapState(){
+  mapRevealed=true;
+  locIntro.hidden=true; locMap.hidden=false;
+  render();
+  if(!map){initMap();} else {requestAnimationFrame(()=>map.resize());}
+  updateCta();
+}
+
+/* ---------- sheet render ---------- */
+function renderSummary(){
+  const n=zones.length, s=totalSigns();
+  document.getElementById('numAreas').textContent=n;
+  document.getElementById('labAreas').textContent=n===1?'area':'areas';
+  document.getElementById('numSigns').textContent=s;
+  document.getElementById('labSigns').textContent=s===1?'sign':'signs';
+}
+function renderList(){
+  // no add row here — the summary row's pill is the single persistent add action, and it stays
+  // visible whether the sheet is collapsed or open
+  document.getElementById('alist').innerHTML=zones.length?zones.map((z,i)=>`
+    <div class="arow${i===sel?' sel':''}" data-i="${i}">
+      <span class="api">${IC.pin}</span>
+      <span class="anm"><b>${z.short}</b><span>${zCount(z)} signs · ${z.r} mi</span></span>
+      <span class="arm" data-x="${i}" aria-label="Remove ${z.short}">${IC.x}</span>
+    </div>`).join(''):`<div class="emptyrow">No areas yet — search above or drop a pin on the map.</div>`;
+  document.querySelectorAll('#alist .arow').forEach(el=>el.addEventListener('click',e=>{
+    if(e.target.closest('[data-x]')){removeZone(+e.target.closest('[data-x]').dataset.x);return;}
+    focus(+el.dataset.i);}));
+}
+function render(){renderSummary();renderList();if(open){measureList();applyOpenHeight();}drawRings();updateMarkers();updateCta();
+  const full=zones.length>=MAX;                       // soft cap: adding goes unavailable at 5 areas
+  dropBtn.disabled=full; addQuick.disabled=full; if(full&&armed)setArmed(false);}
+
+/* ---------- drag sheet (click-drag on desktop, swipe on touch) ---------- */
+const sheet=document.getElementById('sheet'), drag=document.getElementById('drag'), listwrap=document.querySelector('.listwrap');
+let maxH=0;
+function measureList(){const a=document.getElementById('alist');maxH=a?a.offsetHeight:0;}
+function applyOpenHeight(){listwrap.style.height=(open?maxH:0)+'px';}
+function setOpen(v){open=v;measureList();listwrap.style.transition='height .28s ease';applyOpenHeight();}
+let dragStartY=null,startH=0,dragMoved=false;
+drag.addEventListener('pointerdown',e=>{measureList();dragStartY=e.clientY;startH=open?maxH:0;dragMoved=false;listwrap.style.transition='none';drag.setPointerCapture(e.pointerId);});
+drag.addEventListener('pointermove',e=>{
+  if(dragStartY===null)return;
+  const dy=dragStartY-e.clientY;
+  if(Math.abs(dy)>3)dragMoved=true;
+  listwrap.style.height=Math.max(0,Math.min(maxH,startH+dy))+'px';
+});
+function endDrag(){
+  if(dragStartY===null)return;
+  listwrap.style.transition='height .28s ease';
+  if(!dragMoved){open=!open;} else {open=(parseFloat(listwrap.style.height)||0)>maxH*0.4;}
+  applyOpenHeight();
+  dragStartY=null;
+}
+drag.addEventListener('pointerup',endDrag);
+drag.addEventListener('pointercancel',endDrag);
+// the quick-add pill lives inside the drag handle — keep its taps from starting a drag / toggling the sheet
+const addQuick=document.getElementById('addQuick');
+['pointerdown','pointermove','pointerup'].forEach(t=>addQuick.addEventListener(t,e=>e.stopPropagation()));
+addQuick.addEventListener('click',e=>{e.stopPropagation();openSearchOverlay();});
+
+/* ---------- drop a pin (mirrors the desktop arm → tap-to-place flow) ---------- */
+const PIN_SVG='<svg viewBox="0 0 22 26" width="17" height="20"><path d="M11 1.4C6.3 1.4 2.5 5.1 2.5 9.8 2.5 16 11 24.4 11 24.4S19.5 16 19.5 9.8C19.5 5.1 15.7 1.4 11 1.4Z" fill="#FB0060" stroke="#fff" stroke-width="1.8"/><circle cx="11" cy="9.6" r="3" fill="#fff"/></svg>';
+const CANCEL_SVG='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#1f4fa0" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const dropBtn=document.getElementById('dropBtn'), armHint=document.getElementById('armHint');
+let armed=false, armedFromIntro=false;   // armedFromIntro: the map was opened purely to place this pin
+
+function nearestCity(lng,lat){let b=CITIES[0],bd=1e9;CITIES.forEach(c=>{const d=hav(lng,lat,c.lng,c.lat);if(d<bd){bd=d;b=c;}});return b;}
+function uniqueName(base){let n=base,i=2;while(zones.some(z=>z.short===n)){n=base+' '+i;i++;}return n;}
+
+function setArmed(v){
+  if(v&&zones.length>=MAX)return;
+  armed=v;
+  armHint.hidden=!v;
+  dropBtn.classList.toggle('armed',v);
+  dropBtn.innerHTML=v?CANCEL_SVG:PIN_SVG;
+  dropBtn.setAttribute('aria-label',v?'Cancel pin placement':'Drop a pin on the map');
+  if(!v)armedFromIntro=false;
+  if(map)map.getCanvas().style.cursor=v?'crosshair':'';
+  updateMarkers();   // chips go inert while placing so taps land on the map, not on an existing area
+  // pull back to the full-country view so the whole map is a target — any already-added
+  // areas stay legible as chips at this zoom, so context isn't lost while placing
+  if(v)overview();
+}
+function placePin(lng,lat){
+  if(zones.length>=MAX){setArmed(false);return;}
+  const nc=nearestCity(lng,lat), nm=uniqueName('Area near '+nc.short);
+  zones.push({short:nm,name:nm,lng,lat,region:nc.region,r:RADIUS,custom:true});
+  sel=zones.length-1;
+  setArmed(false);
+  render();
+  flyToZone(sel);
+}
+// intro: open the map (there is none yet on this screen), then arm it
+document.getElementById('dropBtnBig').addEventListener('click',()=>{const fresh=!mapRevealed;showMapState();setArmed(true);armedFromIntro=fresh;});
+dropBtn.addEventListener('click',()=>{
+  // backing out of a pin that was the only reason the map opened returns to the landing screen;
+  // once the map has been earned, cancelling just leaves you on it
+  const back=armed&&armedFromIntro&&!zones.length;
+  setArmed(!armed);
+  if(back)showLocIntro();
+});
+dropBtn.innerHTML=PIN_SVG;
+document.getElementById('dropBtnBig').innerHTML=PIN_SVG+' Drop a pin on the map';
+
+/* ---------- zone actions ---------- */
+let pendingCam=null;
+function runCam(fn){ if(ready)fn(); else pendingCam=fn; }   // defer camera moves until the map is ready
+// duration scales with distance: nearby jumps ease a little (~0.9s), cross-country flies smoothly (up to ~3.2s)
+function flyDuration(lng,lat){const c=map.getCenter();const d=hav(c.lng,c.lat,lng,lat);return Math.round(Math.min(3200,Math.max(900,d*1.6+700)));}
+function flyToZone(i){const z=zones[i];if(!z)return;runCam(()=>map.flyTo({center:[z.lng,z.lat],zoom:10.6,duration:flyDuration(z.lng,z.lat),curve:1.5}));}
+// emptying the list keeps the map up and just pulls back to the country view, ready for the next add
+function removeZone(i){zones.splice(i,1);if(sel>=zones.length)sel=zones.length-1;render();if(zones.length)fitZones();else overview();}
+function focus(i){sel=i;render();flyToZone(i);}
+
+/* ---------- map ---------- */
+let map=null,ready=false,chips=[];
+function initMap(){
+  map=new maplibregl.Map({container:'mapStage',style:'https://tiles.openfreemap.org/styles/bright',bounds:US_BOUNDS,fitBoundsOptions:{padding:OVERVIEW_PAD},attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false});
+  map.touchZoomRotate.disableRotation();
+  map.on('load',()=>{
+    tuneBasemap();
+    map.addSource('rings',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+    map.addLayer({id:'rf',type:'fill',source:'rings',paint:{'fill-color':'#176BF5','fill-opacity':['case',['get','sel'],0.18,0.07]}});
+    map.addLayer({id:'rl',type:'line',source:'rings',paint:{'line-color':'#176BF5','line-width':['case',['get','sel'],2,1.2],'line-opacity':['case',['get','sel'],0.85,0.4]}});
+    map.addSource('boards',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+    const img=new Image();
+    img.onload=()=>{if(!map.hasImage('bp'))map.addImage('bp',img,{pixelRatio:2});
+      map.addLayer({id:'bd',type:'symbol',source:'boards',minzoom:ZT,layout:{'icon-image':'bp','icon-size':0.46,'icon-anchor':'bottom','icon-allow-overlap':true,'icon-ignore-placement':true}});
+      ready=true;render();if(pendingCam){const f=pendingCam;pendingCam=null;f();}else fitZones();};
+    img.onerror=()=>{map.addLayer({id:'bd',type:'circle',source:'boards',minzoom:ZT,paint:{'circle-radius':5,'circle-color':'#FB0060','circle-stroke-color':'#fff','circle-stroke-width':1.5}});ready=true;render();if(pendingCam){const f=pendingCam;pendingCam=null;f();}else fitZones();};
+    img.src=pinURI();
+  });
+  map.on('zoom',updateMarkers);
+  map.on('zoomend',updateMarkers);
+  map.on('moveend',updateMarkers);   // re-evaluates each chip's edge anchor after a pan
+  map.on('click',e=>{if(armed)placePin(e.lngLat.lng,e.lngLat.lat);});
+  if(armed)map.getCanvas().style.cursor='crosshair';
+}
+// State features in the basemap carry only a name — no abbreviation, and no country code either.
+// This lookup supplies both: it renders the short code, and doubles as the US-only filter, since
+// a state that isn't in it (a Mexican state, a Canadian province) matches nothing and drops out.
+const STATE_ABBR={Alabama:'AL',Alaska:'AK',Arizona:'AZ',Arkansas:'AR',California:'CA',Colorado:'CO',
+ Connecticut:'CT',Delaware:'DE','District of Columbia':'DC',Florida:'FL',Georgia:'GA',Hawaii:'HI',
+ Idaho:'ID',Illinois:'IL',Indiana:'IN',Iowa:'IA',Kansas:'KS',Kentucky:'KY',Louisiana:'LA',Maine:'ME',
+ Maryland:'MD',Massachusetts:'MA',Michigan:'MI',Minnesota:'MN',Mississippi:'MS',Missouri:'MO',
+ Montana:'MT',Nebraska:'NE',Nevada:'NV','New Hampshire':'NH','New Jersey':'NJ','New Mexico':'NM',
+ 'New York':'NY','North Carolina':'NC','North Dakota':'ND',Ohio:'OH',Oklahoma:'OK',Oregon:'OR',
+ Pennsylvania:'PA','Rhode Island':'RI','South Carolina':'SC','South Dakota':'SD',Tennessee:'TN',
+ Texas:'TX',Utah:'UT',Vermont:'VT',Virginia:'VA',Washington:'WA','West Virginia':'WV',
+ Wisconsin:'WI',Wyoming:'WY'};
+
+// Inventory is continental-US only, so the basemap is retuned for that: foreign names go, state
+// borders and codes carry the overview, and city names hold off until you're zoomed into a region.
+function tuneBasemap(){
+  const NAME=['coalesce',['get','name:en'],['get','name']];
+
+  // no country names at all — foreign ones are noise, and "United States" just doubles up on the
+  // state codes that already label every part of the map
+  ['label_country_1','label_country_2','label_country_3'].forEach(id=>{
+    if(map.getLayer(id))map.setLayoutProperty(id,'visibility','none');
+  });
+  // sea names (Caribbean Sea, Hudson Bay) only clutter the overview — keep them from zoom 6 up,
+  // where they turn back into useful local context (San Francisco Bay, Lake Michigan)
+  ['water_name_point_label','water_name_line_label'].forEach(id=>{
+    if(map.getLayer(id))map.setLayerZoomRange(id,6,24);
+  });
+
+  // state borders from the country view down. The stock boundary layer bundles states with
+  // counties and starts at zoom 5, so states get their own layer and it keeps 5-6 (counties),
+  // which stay a zoomed-in detail rather than a mess of lines across the overview.
+  const b3=map.getLayer('boundary_3')&&map.getStyle().layers.find(l=>l.id==='boundary_3');
+  if(b3&&!map.getLayer('state_border')){
+    map.setFilter('boundary_3',['all',['>=',['get','admin_level'],5],['<=',['get','admin_level'],6],
+      ['!=',['get','maritime'],1],['!=',['get','disputed'],1]]);
+    map.addLayer({id:'state_border',type:'line',source:b3.source,'source-layer':b3['source-layer'],minzoom:2,
+      filter:['all',['>=',['get','admin_level'],3],['<=',['get','admin_level'],4],
+        ['!=',['get','maritime'],1],['!=',['get','disputed'],1]],
+      paint:{'line-color':'hsl(0,0%,62%)','line-dasharray':[2,2],
+        'line-width':['interpolate',['linear'],['zoom'],2,0.6,5,1,11,1.8],
+        'line-opacity':['interpolate',['linear'],['zoom'],2,0.55,5,0.85]}},'boundary_3');
+  }
+
+  // state codes read at the overview, where full names wouldn't fit; they bow out at zoom 8
+  // once city-level detail takes over
+  if(map.getLayer('label_state')){
+    const pairs=[];Object.entries(STATE_ABBR).forEach(([n,a])=>pairs.push(n,a));
+    map.setFilter('label_state',['all',['==',['get','class'],'state'],
+      ['in',NAME,['literal',Object.keys(STATE_ABBR)]]]);
+    map.setLayoutProperty('label_state','text-field',['match',NAME,...pairs,'']);
+    map.setLayoutProperty('label_state','text-size',['interpolate',['linear'],['zoom'],2,11,5,12,8,14]);
+    map.setLayerZoomRange('label_state',2,8);
+  }
+  // hold city names back so the states land first — otherwise cities start at zoom 3, ahead of them
+  ['label_city','label_city_capital'].forEach(id=>{
+    if(map.getLayer(id))map.setLayerZoomRange(id,5.5,24);
+  });
+}
+function drawRings(){
+  if(!ready)return;
+  map.getSource('rings').setData({type:'FeatureCollection',features:zones.map((z,i)=>({type:'Feature',properties:{sel:i===sel},geometry:{type:'Polygon',coordinates:[circle(z.lng,z.lat,z.r)]}}))});
+  const regs=activeRegions();
+  map.getSource('boards').setData({type:'FeatureCollection',features:BOARDS.filter(b=>regs.has(b.region)).map(b=>({type:'Feature',geometry:{type:'Point',coordinates:[b.lng,b.lat]}}))});
+}
+// zoom-adaptive: overview => name+count chips; zoomed in => nothing (ring + pins only)
+function updateMarkers(){
+  if(!ready)return;
+  chips.forEach(m=>m.remove());chips=[];
+  if(map.getZoom()<ZT){
+    const w=map.getCanvas().clientWidth, EDGE=70;
+    zones.forEach((zn,i)=>{
+      const el=document.createElement('div');el.className='areachip'+(i===sel?' sel':'')+(armed?' inert':'');
+      el.innerHTML=`${zn.short}<span class="cnt">${zCount(zn)}</span>`;
+      el.addEventListener('click',()=>focus(i));
+      // a centred chip on a coastal area (SF, Miami) would hang off the edge at the country view —
+      // anchor it inward instead so the label stays fully readable
+      const x=map.project([zn.lng,zn.lat]).x;
+      const anchor=x<EDGE?'left':(x>w-EDGE?'right':'center');
+      chips.push(new maplibregl.Marker({element:el,anchor}).setLngLat([zn.lng,zn.lat]).addTo(map));
+    });
+  }
+}
+function overview(dur=700){runCam(()=>map.fitBounds(US_BOUNDS,{padding:OVERVIEW_PAD,duration:dur}));}
+function fitZones(){
+  runCam(()=>{
+    if(!zones.length)return;
+    if(zones.length===1){const z=zones[0];map.flyTo({center:[z.lng,z.lat],zoom:10.6,duration:flyDuration(z.lng,z.lat),curve:1.5});return;}
+    const b=new maplibregl.LngLatBounds();zones.forEach(z=>circle(z.lng,z.lat,z.r,24).forEach(p=>b.extend(p)));
+    map.fitBounds(b,{padding:{top:70,bottom:130,left:34,right:34},maxZoom:11,duration:600});
+  });
+}
+
+/* ===================== step 2: daily budget ===================== */
+// Same model as the desktop step 2: an "opportunity range" per area (how much spend the signs there
+// can realistically absorb), with the budget's position in that range read out qualitatively.
+// Thresholds stay internal — the user sees a label and a tip, never a target dollar figure.
+const IMPR_PER_SIGN=3750, TARGET_FRAC=0.55, MIN_FRAC=0.22;
+const budgetInput=document.getElementById('budgetInput');
+function zCpm(z){const c=byShort[z.short];if(c)return c.cpm;const n=nearestCity(z.lng,z.lat);return n?n.cpm:4.0;}
+function oppRange(){
+  let max=0;
+  zones.forEach(z=>{const s=zCount(z);if(s>0)max+=s*IMPR_PER_SIGN*zCpm(z)/1000;});
+  return {min:max*MIN_FRAC,target:max*TARGET_FRAC,max};
+}
+function budgetStatus(budget){
+  const {min,target,max}=oppRange();
+  const N=zones.filter(z=>zCount(z)>0).length;                  // only areas that can carry budget
+  const scope=N===1?'your target area':`all ${N} target areas`;
+  const opt=N===1?'optimized to the top signs':'optimized within each';
+  if(max<=0)     return {label:'No coverage',icon:'bulb',
+    lead:'Add a target area with available signs.',nudge:'Budget guidance appears once at least one area has signs.'};
+  if(budget<min) return {label:'Limited',icon:'bulb',
+    lead:`Runs across ${scope}, ${opt}.`,nudge:'Raising your daily budget shows your ads more consistently. You can launch as-is.'};
+  if(budget<target) return {label:'Adequate',icon:'bulb',
+    lead:`Covers ${scope} well, ${opt}.`,nudge:'A little more would broaden how often your ads show.'};
+  if(budget<max) return {label:'Healthy',icon:'check',
+    lead:`Set for strong, steady delivery across ${scope}.`,nudge:`You're in a great spot to launch.`};
+  return {label:'Expanded',icon:'bulb',
+    lead:`Running as often as ${scope} allow${N===1?'s':''}.`,nudge:'Extra budget adds little here. Adding areas would grow your reach.'};
+}
+function renderBudget(){
+  const st=budgetStatus(Math.max(0,Math.round(+budgetInput.value||0)));
+  document.getElementById('bsPill').textContent=st.label;
+  document.getElementById('bsIcon').innerHTML=st.icon==='check'?IC.check:IC.bulb;
+  document.getElementById('bsLead').textContent=st.lead;
+  document.getElementById('bsNudge').textContent=st.nudge;
+}
+budgetInput.addEventListener('input',renderBudget);
+
+/* ===================== step 3: creative ===================== */
+// Sizes partition the eligible signs, so uploading more sizes unlocks more of them — which is the
+// whole point of the "0 of N signs" progress read-out.
+const CSIZES=[{w:1400,h:400,o:'Landscape',f:.45},{w:840,h:400,o:'Landscape',f:.18},
+ {w:1920,h:1080,o:'Landscape',f:.15},{w:1080,h:1920,o:'Portrait',f:.12},{w:400,h:400,o:'Square',f:.10}];
+const SZ_SHOWN=3;
+let upSizes=new Set(), szOpen=false;
+function sizeCounts(){
+  const t=totalSigns(), c=CSIZES.map(s=>Math.round(t*s.f));
+  c[0]+=t-c.reduce((a,b)=>a+b,0);                       // rounding remainder lands on the commonest size
+  return c.map(n=>Math.max(0,n));
+}
+function szThumb(w,h){const s=Math.min(52/w,30/h);return `<span class="szthumb"><i style="width:${Math.max(9,Math.round(w*s))}px;height:${Math.max(7,Math.round(h*s))}px"></i></span>`;}
+function renderCreative(){
+  const t=totalSigns(), counts=sizeCounts();
+  const done=[...upSizes].reduce((a,i)=>a+counts[i],0);
+  document.getElementById('cvDone').textContent=done;
+  document.getElementById('cvTotal').textContent=t;
+  document.getElementById('cvFill').style.width=(t?done/t*100:0)+'%';
+  const vis=szOpen?CSIZES.length:SZ_SHOWN;
+  let html=CSIZES.slice(0,vis).map((s,i)=>{const up=upSizes.has(i);
+    return `<div class="szrow${up?' done':''}">${szThumb(s.w,s.h)}
+      <span class="szmain"><b>${s.w} × ${s.h} px</b><span>${s.o}</span></span>
+      ${up?`<span class="szok">${IC.check}</span>`:''}<span class="szn">${counts[i]}</span></div>`;}).join('');
+  const rest=counts.slice(SZ_SHOWN).reduce((a,b)=>a+b,0);
+  html+=szOpen
+    ? `<button class="szmore" id="szMore" type="button"><span class="ml">${IC.chevU} Show fewer</span></button>`
+    : `<button class="szmore" id="szMore" type="button"><span class="ml">${IC.chevD} Show ${CSIZES.length-SZ_SHOWN} sizes</span><span class="szn">${rest}</span></button>`;
+  document.getElementById('szList').innerHTML=html;
+  document.getElementById('szMore').addEventListener('click',()=>{szOpen=!szOpen;renderCreative();});
+  const all=upSizes.size===CSIZES.length;
+  document.getElementById('upBtn').textContent=all?'All sizes uploaded':'Upload';
+  document.getElementById('upBtn').disabled=all;
+}
+// stands in for a file picker: each tap covers the next-most-common size still missing
+function addSize(){
+  const i=CSIZES.findIndex((s,idx)=>!upSizes.has(idx));
+  if(i<0)return;
+  upSizes.add(i);
+  if(i>=SZ_SHOWN)szOpen=true;
+  renderCreative();
+}
+document.getElementById('upBtn').addEventListener('click',addSize);
+document.getElementById('libBtn').addEventListener('click',addSize);
+
+/* ===================== step 4: review ===================== */
+// Duration / hourly play aren't editable yet (advanced settings are stub screens), so the summary
+// reads the same defaults those rows imply.
+const START_LABEL='ASAP', END_LABEL='Ongoing', HOURLY_LABEL='Maximize Audience';
+const revName=document.getElementById('revName'), campName=document.getElementById('campName');
+function objMeta(){return OBJECTIVES.find(o=>o.k===objective)||OBJECTIVES[0];}
+function regionLabels(){
+  // a market often shares its name with a city inside it — qualify it so the two don't read as one
+  return areaGroups().map(g=>g.zs.some(z=>z.short===g.region)?`${g.region} region`:g.region);
+}
+// Names two regions and counts the rest: past two the line wraps without telling you much, and the
+// cities underneath already spell out exactly where the campaign runs.
+function regionSummary(){
+  const r=regionLabels();
+  return r.length<=2?r.join(', '):`${r.slice(0,2).join(', ')} +${r.length-2}`;
+}
+// Matches the product's collapsed line: goal • where. Sign count is deliberately absent — it has its
+// own row inside, the way "16 selected" does today.
+function areaSummary(){
+  if(!zones.length)return 'No areas';
+  return zones.length===1?zones[0].name:regionSummary();
+}
+function budgetVal(){return Math.max(0,Math.round(+budgetInput.value||0));}
+
+// Areas collapse by market, but only where collapsing earns its keep: a market holding one area stays
+// named as that city rather than nesting under a header that repeats it. Radius is stated once at the
+// section head while every area shares one, and moves onto the areas themselves as soon as they differ.
+function areaGroups(){
+  const order=[],by={};
+  zones.forEach(z=>{if(!by[z.region]){by[z.region]={region:z.region,zs:[]};order.push(z.region);}by[z.region].zs.push(z);});
+  return order.map(r=>by[r]);
+}
+function drow(label,value,detail,go,extra){
+  return `<div class="drow">
+    <div class="drowh"><span class="lb">${label}</span><button class="edit" type="button" data-go="${go}">Edit</button></div>
+    <div class="drowv">${value}</div>${detail?`<div class="drowd">${detail}</div>`:''}${extra||''}</div>`;
+}
+// one thumb per uploaded size: a uniform slot, with the creative scaled to fit inside it
+function creativeThumbs(){
+  if(!upSizes.size)return '';
+  const BOX=138, BOY=74;   // usable area inside the 150×86 slot, leaving a margin all round
+  return `<div class="cvthumbs">${[...upSizes].sort((a,b)=>a-b).map(i=>{
+    const s=CSIZES[i], k=Math.min(BOX/s.w,BOY/s.h);
+    return `<div class="cvthumb" title="${s.w}×${s.h}"><i style="width:${Math.round(s.w*k)}px;height:${Math.round(s.h*k)}px"></i></div>`;
+  }).join('')}</div>`;
+}
+// Location reads as a summary — regions on the value line, the individual areas demoted underneath.
+// The radius is stated once while every area shares it, and per-area only when they differ.
+function locationValue(){
+  if(!zones.length)return {v:'No areas selected',d:''};
+  if(zones.length===1){
+    const z=zones[0];
+    return {v:z.name,d:`${z.r} mi radius`};
+  }
+  const uniform=zones.every(z=>z.r===zones[0].r);
+  const cities=zones.map(z=>z.short+(uniform?'':` ${z.r} mi`)).join(' · ');
+  return {v:regionSummary(),d:uniform?`${zones[0].r} mi radius · ${cities}`:cities};
+}
+function renderReview(){
+  revName.value=campName.value;
+  document.getElementById('defSum').textContent=`${objMeta().s} • ${areaSummary()}`;
+  document.getElementById('strSum').textContent=`$${budgetVal()}/Day • ${START_LABEL} - ${END_LABEL}`;
+  const loc=locationValue(), signs=totalSigns();
+  document.getElementById('defBody').innerHTML=
+    drow('Goal',objMeta().t,'','objective')+
+    drow('Location',loc.v,loc.d,'location')+
+    `<div class="dsep"></div>`+
+    drow('Signs',`${signs} selected`,'','location');
+  const sizes=upSizes.size;
+  document.getElementById('strBody').innerHTML=[
+    drow('Daily Budget',`$${budgetVal()}/Day · ${budgetStatus(budgetVal()).label}`,'','strategy'),
+    drow('Duration',`${START_LABEL} - ${END_LABEL}`,'','strategy'),
+    drow('Hourly Play',HOURLY_LABEL,'','strategy'),
+    drow('Creative',sizes?`${sizes} creative${sizes===1?'':'s'} added`:'No creatives added','','creative',creativeThumbs())
+  ].join('<div class="dsep"></div>');
+  // Edit jumps straight back to the step that owns the value
+  document.querySelectorAll('#defBody .edit,#strBody .edit').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();
+    ({objective:goObjective,location:goLocation,strategy:goStrategy,creative:goCreative})[b.dataset.go]();
+  }));
+}
+revName.addEventListener('input',()=>{campName.value=revName.value;});
+document.querySelectorAll('.rcard .rhead').forEach(h=>h.addEventListener('click',()=>h.closest('.rcard').classList.toggle('open')));
+
+/* ---------- step navigation ---------- */
+const scrStrategy=document.getElementById('scrStrategy'), scrCreative=document.getElementById('scrCreative'),
+      scrReview=document.getElementById('scrReview');
+const SCREENS={objective:scrObjective,location:scrLocation,strategy:scrStrategy,creative:scrCreative,review:scrReview};
+const STEP={objective:{prog:'16%',back:false},location:{prog:'34%'},strategy:{prog:'52%'},
+            creative:{prog:'72%'},review:{prog:'100%'}};
+function showScreen(name){screen=name;Object.entries(SCREENS).forEach(([k,el])=>el.hidden=k!==name);}
+const closeBtn=document.getElementById('closeBtn'), navrow=document.querySelector('.navrow');
+function updateCta(){
+  const s=STEP[screen], rev=screen==='review';
+  progFill.style.width=s.prog;
+  backBtn.disabled=s.back===false;
+  navrow.classList.toggle('solo',rev);            // review drops the Back button for a full-width launch
+  closeBtn.innerHTML=rev?IC.arrow:IC.x;           // ...and the header ✕ becomes a back arrow
+  closeBtn.setAttribute('aria-label',rev?'Back':'Close');
+  ctaBtn.className='cta';ctaBtn.disabled=false;
+  if(screen==='objective')ctaBtn.textContent='Next';
+  else if(screen==='location'){
+    ctaBtn.textContent='Confirm Locations';
+    if(!zones.length){ctaBtn.className='cta navy';ctaBtn.disabled=true;}
+  }
+  else if(screen==='strategy')ctaBtn.textContent='Next: Creative';
+  else if(screen==='creative')ctaBtn.textContent='Next: Review';
+  else ctaBtn.textContent='Launch campaign';
+}
+function goObjective(){setArmed(false);showScreen('objective');updateCta();}
+function goLocation(){showScreen('location');
+  if(zones.length){showMapState();fitZones();}
+  else if(mapRevealed){showMapState();}   // came back to an emptied list — keep the map, don't re-land
+  else showLocIntro();
+  updateCta();}
+function goStrategy(){setArmed(false);showScreen('strategy');renderBudget();updateCta();}
+function goCreative(){showScreen('creative');renderCreative();updateCta();}
+function goReview(){showScreen('review');renderReview();updateCta();}
+
+function goBack(){
+  if(screen==='location')goObjective();
+  else if(screen==='strategy')goLocation();
+  else if(screen==='creative')goStrategy();
+  else if(screen==='review')goCreative();
+}
+backBtn.addEventListener('click',goBack);
+closeBtn.addEventListener('click',()=>{
+  if(!searchOverlay.hidden){closeSearchOverlay();return;}
+  goBack();
+});
+ctaBtn.addEventListener('click',()=>{
+  if(screen==='objective')goLocation();
+  else if(screen==='location'){if(zones.length)goStrategy();}
+  else if(screen==='strategy')goCreative();
+  else if(screen==='creative')goReview();
+  else{   // prototype: nothing is submitted, this just closes the loop
+    ctaBtn.disabled=true;ctaBtn.textContent='✓ Campaign submitted';
+  }
+});
+
+updateCta();
+</script>
+</body>
+</html>
