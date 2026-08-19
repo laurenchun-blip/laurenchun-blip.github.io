@@ -774,9 +774,8 @@ function setArmed(v){
   if(!v)armedFromIntro=false;
   if(map)map.getCanvas().style.cursor=v?'crosshair':'';
   updateMarkers();   // chips go inert while placing so taps land on the map, not on an existing area
-  // pull back to the full-country view so the whole map is a target — any already-added
-  // areas stay legible as chips at this zoom, so context isn't lost while placing
-  if(v)overview();
+  // deliberately no camera move: arming leaves zoom and centre exactly where the user left them, so
+  // the pin lands on the view they were already looking at
 }
 function placePin(lng,lat){
   if(zones.length>=MAX){setArmed(false);return;}
@@ -784,8 +783,7 @@ function placePin(lng,lat){
   zones.push({short:nm,name:nm,lng,lat,region:nc.region,r:RADIUS,custom:true});
   sel=zones.length-1;
   setArmed(false);
-  render();
-  flyToZone(sel);
+  render();   // no flyTo either — the pin was dropped on the view the user chose, so leave it there
 }
 // intro: open the map (there is none yet on this screen), then arm it
 document.getElementById('dropBtnBig').addEventListener('click',()=>{const fresh=!mapRevealed;showMapState();setArmed(true);armedFromIntro=fresh;});
