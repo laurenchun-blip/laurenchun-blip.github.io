@@ -391,8 +391,11 @@
   .card.reach{position:sticky;top:16px;border-color:var(--accent-border);}
   .reach .rlabel{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin-bottom:9px;}
   .reach .rperiod{font-size:11px;font-weight:600;color:var(--accent-2);text-transform:none;letter-spacing:0;}
-  .reach .rkick{font-size:12.5px;color:var(--text-2);line-height:1;margin-bottom:4px;}
-  .reach .rhero{font-size:34px;font-weight:750;letter-spacing:-.025em;color:var(--text);font-variant-numeric:tabular-nums;line-height:1;}
+  .reach .rhero{font-size:28px;font-weight:750;letter-spacing:-.025em;color:var(--text);font-variant-numeric:tabular-nums;line-height:1;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;}
+  .reach .rdash{color:var(--text-3);font-weight:600;}
+  .reach .rhero.novalue #reachLow,.reach .rhero.novalue .rdash{display:none;}   /* no areas yet — one dash, not three */
+  /* the rail is 216px — a low–high range plus the unit cannot share one line, so the unit locks to its own */
+  .reach .runit{font-size:15px;font-weight:600;letter-spacing:0;color:var(--text-2);font-variant-numeric:normal;flex-basis:100%;margin-top:3px;}
   .reach .rherosub{font-size:12px;color:var(--text-2);margin-top:5px;margin-bottom:15px;}
   .reach .rrow{display:flex;align-items:center;justify-content:space-between;padding:9px 0;font-size:13px;border-top:1px solid var(--border);}
   .reach .rrow .rk{color:var(--text-2);}
@@ -657,9 +660,8 @@
          <aside class="s2side">
           <section class="card reach">
             <div class="rlabel">Estimated reach <span class="rperiod" id="reachPeriod"></span></div>
-            <div class="rkick" id="reachKick" style="display:none">up to</div>
-            <div class="rhero" id="reachImpr">—</div>
-            <div class="rherosub" id="reachSub">estimated impressions</div>
+            <div class="rhero"><span id="reachLow">—</span><span class="rdash">–</span><span id="reachImpr">—</span><span class="runit">impressions</span></div>
+            <div class="rherosub" id="reachSub"></div>
             <div class="rrow"><span class="rk">Blips</span><span class="rv" id="reachBlips">—</span></div>
             <div class="rbar" id="reachBar"></div>
             <div class="rticks" id="reachTicks"></div>
@@ -1234,17 +1236,20 @@ function renderSplit(){
   // estimated reach — DURATION is the primary driver, daily budget is the rate (hourly play / bid limit: out of scope)
   const rI=document.getElementById('reachImpr'), rBl=document.getElementById('reachBlips'), rN=document.getElementById('reachNote'),
         rPer=document.getElementById('reachPeriod'), rBar=document.getElementById('reachBar'),
-        rKick=document.getElementById('reachKick'), rSub=document.getElementById('reachSub');
+        rLow=document.getElementById('reachLow'), rSub=document.getElementById('reachSub'),
+        rHero=document.getElementById('reachImpr')?document.getElementById('reachImpr').parentElement:null;
   const dur=campaignDays(), mult=dur.days?dur.days/DAYS:1;
   const imprTot=totalImpr*mult, blipsTot=budget*BLIPS_PER_BUDGET*mult;
   const imprMax=imprTot*(1+REACH_SPREAD), imprMin=imprTot*(1-REACH_SPREAD), blipsMax=blipsTot*(1+REACH_SPREAD);
   if(rI){
-    if(N===0){ rI.textContent='—'; rBl.textContent='—'; if(rKick)rKick.style.display='none'; if(rSub)rSub.textContent='estimated impressions'; if(rPer)rPer.textContent=''; if(rN)rN.innerHTML=''; if(rBar)rBar.innerHTML=''; }
+    if(N===0){ rI.textContent='—'; if(rHero)rHero.classList.add('novalue'); rBl.textContent='—'; if(rSub)rSub.textContent=''; if(rPer)rPer.textContent=''; if(rN)rN.innerHTML=''; if(rBar)rBar.innerHTML=''; }
     else{
-      if(rKick)rKick.style.display='';
+      // low–high band: a range reads as an estimate, where a single large figure reads as a total
+      if(rHero)rHero.classList.remove('novalue');
+      if(rLow)rLow.textContent=fmtImpr(imprMin);
       rI.textContent=fmtImpr(imprMax);
       rBl.textContent='up to '+fmtImpr(blipsMax);
-      if(rSub)rSub.textContent='impressions · starts around '+fmtImpr(imprMin);
+      if(rSub)rSub.textContent='';
       if(rPer) rPer.textContent = dur.days?`over ${dur.days} days`:'per month · ongoing';
       const mf=dur.days?Math.min(3,Math.max(1,Math.round(dur.days/30))):3, ong=!dur.days;
       if(rBar) rBar.innerHTML=[1,2,3].map(m=>`<span class="rseg mo${m<=mf?' on':''}"></span>`).join('')+`<span class="rseg tail${ong?' on':''}"></span>`;
