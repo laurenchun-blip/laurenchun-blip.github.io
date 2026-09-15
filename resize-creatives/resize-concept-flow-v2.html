@@ -116,7 +116,9 @@
   .meterhead .why{font-size:13.5px;color:var(--text-2);font-weight:500;}
   .meterhead .why.good{color:var(--success);font-weight:600;}
   .meter{height:7px;border-radius:var(--r-pill);background:var(--surface-3);overflow:hidden;margin-bottom:var(--sp-5);}
-  .meter i{display:block;height:100%;background:var(--accent);border-radius:var(--r-pill);transition:width .45s cubic-bezier(.4,0,.2,1);}
+  .meter i{display:block;height:100%;background:var(--accent);border-radius:var(--r-pill);transition:width .9s cubic-bezier(.22,.61,.36,1);}
+  .meterhead .why.good.arrive{animation:fadein .35s ease .8s both;}
+  @media (prefers-reduced-motion:reduce){ .meter i{transition:none;} .meterhead .why.good.arrive{animation:none;} }
   .dropregion{position:relative;cursor:pointer;}
   .dveil{position:absolute;inset:0;z-index:20;border-radius:var(--r-md);background:var(--accent-bg);
          border:var(--stroke) dashed var(--border-2);display:none;align-items:center;justify-content:center;
@@ -135,6 +137,7 @@
   .srow .line{display:flex;align-items:center;gap:var(--sp-3);padding:9px 12px;min-height:54px;}
   .srow .line.head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;
        grid-template-areas:'sw dim cnt' 'sw meta cnt';column-gap:12px;row-gap:1px;align-content:center;align-items:center;}
+  .srow .line.head.solo{grid-template-areas:'sw dim cnt';}
   .line.head .swatch{grid-area:sw;}
   .line.head .sdim{grid-area:dim;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .line.head .smeta{grid-area:meta;font-size:12.5px;font-weight:500;color:var(--text-2);white-space:nowrap;}
@@ -182,6 +185,23 @@
   .srow .line.head{cursor:pointer;}
   .srow .line.head:hover{background:var(--surface-2);border-radius:var(--r-md);}
   .rowbody{border-top:var(--hair) solid var(--border);padding:12px;}
+  /* filled size, open: the creative tiles it holds, then the selected file's name and status */
+  .srow.filled .rowbody{padding:0;}
+  .srow.filled .scount .chv{color:var(--text);flex:none;}
+  .srow.filled .scount.done{color:var(--text);font-weight:500;}
+  .cstrip{display:flex;align-items:center;gap:12px;padding:14px 16px;}
+  .ctiles{display:flex;flex-wrap:wrap;gap:12px;flex:1;min-width:0;}
+  .ctile{position:relative;width:282px;height:158px;border-radius:var(--r-md);background:var(--surface-3);
+         display:grid;place-items:center;border:var(--stroke) solid transparent;}
+  .ctile.sel{border-color:var(--accent);}
+  .ctile .img{display:block;background-size:100% 100%;border-radius:1px;}
+  .ctile .ok{position:absolute;top:8px;left:8px;width:22px;height:22px;border-radius:50%;background:var(--success);color:#fff;
+             font-size:12px;display:grid;place-items:center;border:2px solid #fff;box-sizing:content-box;margin:-2px;}
+  .cstrip .addmore{flex:none;align-self:center;}
+  .cinfo{border-top:var(--hair) solid var(--border);padding:12px 16px 14px;}
+  .cinfo .cmeta{margin-top:0;}
+  .scount.offer{color:var(--text);font-weight:500;}
+  .srow .line .sori{min-width:0;flex-shrink:1;overflow:hidden;text-overflow:ellipsis;}
   .creatives{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .cthumb{position:relative;border:var(--stroke) solid var(--accent);border-radius:var(--r-sm);background:var(--surface-3);
           padding:12px 0;display:grid;place-items:center;width:172px;}
@@ -205,24 +225,57 @@
 
   /* modal */
   .veil{position:fixed;inset:0;background:rgba(22,22,22,.44);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;overflow:auto;}
-  .md{background:var(--surface);border-radius:var(--r-lg);box-shadow:0 14px 44px rgba(0,0,0,.26);width:100%;max-width:780px;overflow:hidden;display:flex;flex-direction:column;max-height:100%;}
+  .md{background:var(--surface);border-radius:var(--r-lg);box-shadow:0 14px 44px rgba(0,0,0,.26);width:100%;max-width:960px;overflow:hidden;display:flex;flex-direction:column;max-height:100%;}
   .mdhd{padding:14px 20px 12px;border-bottom:var(--hair) solid var(--border);display:flex;align-items:center;gap:12px;}
   .mdhd .t{font-size:15.5px;font-weight:600;margin:0;} .mdhd .s{font-size:12.5px;color:var(--text-2);font-weight:500;margin:2px 0 0;}
   .mdhd .sp{flex:1;}
   .mdhd .back{background:transparent;border:0;color:var(--text-2);cursor:pointer;font-size:17px;padding:2px 6px 2px 0;}
+  .mdhd .x{background:transparent;border:0;color:var(--text-2);cursor:pointer;font-size:15px;line-height:1;width:28px;height:28px;
+           border-radius:var(--r-sm);display:grid;place-items:center;margin:-4px -8px -4px 0;padding:0;}
+  .mdhd .x:hover{background:var(--surface-2);color:var(--text);}
+  .md{position:relative;}
+  .mdft{min-height:57px;box-sizing:border-box;}
+  /* exit confirmation, over the modal it would discard */
+  .confirm{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:16px;background:rgba(22,22,22,.32);}
+  .cbox{width:100%;max-width:360px;background:var(--surface);border-radius:var(--r-lg);box-shadow:0 10px 32px rgba(0,0,0,.24);padding:18px 20px 16px;}
+  .cbox .ct{font-size:15px;font-weight:600;margin:0 0 4px;}
+  .cbox .cs{font-size:13px;line-height:1.45;color:var(--text-2);font-weight:500;margin:0 0 16px;}
+  .cbox .cacts{display:flex;justify-content:flex-end;gap:var(--sp-2);}
+  .nlcard.landed{animation:land .55s cubic-bezier(.2,.7,.2,1);}
+  /* skeleton loading: neutral blocks in the sign's shape, one sweep shared by every card */
+  .skel{background:var(--surface-2);cursor:default;}
+  .skel .sk{display:block;border-radius:3px;box-shadow:none;
+    background-color:#e6e6e6;background-image:linear-gradient(90deg,#e6e6e6 0,#f4f4f4 160px,#e6e6e6 320px);
+    background-size:640px 100%;background-repeat:repeat-x;background-attachment:fixed;animation:sweep 1.5s linear infinite;}
+  @keyframes sweep{from{background-position:-640px 0}to{background-position:0 0}}
+  @media (prefers-reduced-motion:reduce){ .skel .sk{animation:none;} }
+  @keyframes land{from{opacity:.25;transform:scale(.96)}to{opacity:1;transform:none}}
+  /* B: the layouts screen carries the rest of the results */
+  .sublab{font-size:12px;font-weight:600;color:var(--text-3);margin:14px 0 6px;}
+  .rhead + .sublab{margin-top:0;}
+  .incl .srcline{margin-bottom:6px;}
+  .incl .rd{font-family:var(--mono);font-size:11.5px;font-weight:600;}
+  .incl .lm{font-size:12px;color:var(--text-3);font-weight:500;}
+  .incl .cover{margin-right:6px;}
   .steps{display:flex;gap:6px;} .steps i{width:6px;height:6px;border-radius:50%;background:var(--border-2);display:block;}
   .steps i.on{background:var(--accent);} .steps i.past{background:var(--accent-border);}
-  .mdbody{padding:18px 20px;background:var(--surface-2);overflow:auto;height:460px;}
+  .mdbody{padding:18px 20px;background:var(--surface-2);overflow:auto;height:560px;}
   .mdft{display:flex;align-items:center;gap:var(--sp-2);padding:12px 20px;border-top:var(--hair) solid var(--border);background:var(--surface);}
   .mdft .sp{flex:1;} .mdft .note{font-size:12.5px;color:var(--text-3);font-weight:500;}
 
-  .loadwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;min-height:424px;}
-  .loadthumb{width:150px;border-radius:var(--r-md);border:var(--hair) solid var(--border-2);background-size:cover;background-position:center;}
+  .loadwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;min-height:524px;}
+  .loadthumb{width:400px;max-width:100%;border-radius:var(--r-md);border:var(--hair) solid var(--border-2);background-size:cover;background-position:center;}
   .loadbar{width:190px;height:3px;border-radius:var(--r-pill);background:var(--surface-3);overflow:hidden;position:relative;}
   .loadbar i{position:absolute;left:0;top:0;height:100%;width:40%;background:var(--accent);border-radius:var(--r-pill);animation:slide 1.25s cubic-bezier(.5,0,.5,1) infinite;}
   .loadbar.vio i{background:var(--violet);}
   @keyframes slide{0%{left:-42%}100%{left:102%}}
   .loadphr{font-size:14px;font-weight:600;color:var(--text);min-height:21px;text-align:center;animation:fadein .35s ease;}
+  .loaddone{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;}
+  .loadok{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:var(--text);margin:0;}
+  .loadok i{width:17px;height:17px;border-radius:50%;background:var(--success);color:#fff;display:grid;place-items:center;
+            font-size:10px;font-style:normal;line-height:1;}
+  .loadfile{font-size:12.5px;color:var(--text-2);font-weight:500;margin:0;}
+  .loadrep{margin-top:-2px;}
   @keyframes fadein{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 
   .headline{font-size:19px;font-weight:600;letter-spacing:-.014em;margin:0 0 2px;}
@@ -269,7 +322,7 @@
   .rcard.act{border-color:var(--accent-border);}
   .rcard.ai{border-color:var(--border);}
   .rcard.wait{border-style:dashed;border-color:var(--border-2);}
-  .rpv{height:84px;background:var(--surface-3);display:grid;place-items:center;overflow:hidden;position:relative;}
+  .rpv{height:110px;background:var(--surface-3);display:grid;place-items:center;overflow:hidden;position:relative;}
   .rpv.zoomable{cursor:zoom-in;}
   .rpv.zoomable span{transition:transform .14s ease;}
   .rpv.zoomable:hover span{transform:scale(1.03);}
@@ -312,9 +365,30 @@
   .unlockcard .ot{font-size:15px;font-weight:600;margin:0;}
   .unlockcard .os{font-size:12.5px;color:var(--text-2);font-weight:500;margin:0 0 3px;}
   .disc{font-size:11.5px;color:var(--text-3);font-weight:500;line-height:1.5;margin:0 0 13px;}
+  .disc.below{margin:10px 2px 0;}
+
+  /* checklist: two matching neutral panels, the crop (with its source file) then the AI offer */
+  .ckpanel{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);padding:12px 14px;}
+  .ckpanel + .ckpanel{margin-top:12px;}
+  .ckpanel.offer,.disc.below{transition:opacity .35s ease, filter .35s ease, background-color .35s ease;}
+  .ckpanel.offer.skipped{opacity:.45;filter:grayscale(1);background-color:var(--surface-2);}
+  .disc.below.skipped{opacity:.45;}
+  .md.closing{pointer-events:none;}
+  @media (prefers-reduced-motion:reduce){ .ckpanel.offer,.disc.below{transition:none;} }
+  .ckpanel .rhead{margin-bottom:10px;}
+  .ckpanel.offer .ot{font-size:15px;font-weight:600;margin:0 0 2px;}
+  .ckpanel.offer .os{font-size:12.5px;color:var(--text-2);font-weight:500;margin:0 0 10px;}
+  .ckpanel .rgrid{gap:10px;}
+  .ckpanel .rpv{height:92px;}
+  .ckpanel .rft .r2{margin-top:4px;min-height:20px;}
+  .rft .fromfile{font-size:11.5px;color:var(--text-3);font-weight:500;margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .unlockcard .os{margin-bottom:10px;}
   .disc a{color:var(--accent);font-weight:600;text-decoration:underline;cursor:pointer;white-space:nowrap;}
   .aitag{font-size:12.5px;font-weight:500;color:var(--text-2);white-space:nowrap;}
   .orow{display:flex;align-items:center;gap:10px;padding:6px 2px;cursor:pointer;border-top:var(--hair) solid var(--border);}
+  .orow .othumb{width:66px;height:34px;flex:none;display:grid;place-items:center;margin:-2px 0;}
+  .orow .oghost{display:block;border:1.5px dashed #a9a9a9;border-radius:2px;background:var(--surface-2);box-sizing:border-box;}
+  .orow.off .oghost{opacity:.5;}
   .orow:first-of-type{border-top:0;}
   .orow input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex:none;margin:0;}
   .orow .od{font-family:var(--mono);font-size:11.5px;font-weight:600;min-width:78px;}
@@ -328,7 +402,7 @@
   .ofoot .tot{font-size:12.5px;color:var(--text-2);font-weight:500;}
 
   /* editor + ai options */
-  .canvas{position:relative;height:334px;background:var(--surface-2);border:var(--hair) solid var(--border);border-radius:var(--r-md);
+  .canvas{position:relative;height:424px;background:var(--surface-2);border:var(--hair) solid var(--border);border-radius:var(--r-md);
           display:grid;place-items:center;overflow:hidden;user-select:none;touch-action:none;}
   .imgwrap{position:relative;line-height:0;}
   .lay{position:absolute;top:0;left:0;background-size:100% 100%;background-repeat:no-repeat;}
@@ -353,9 +427,59 @@
   .airesult{background:var(--surface-3);border:var(--hair) solid var(--border-2);border-radius:var(--r-md);
             display:grid;place-items:center;overflow:hidden;padding:14px;}
   .airesult span{display:block;background-size:100% 100%;background-repeat:no-repeat;border-radius:2px;box-shadow:0 2px 8px rgba(0,0,0,.24);}
-  .nlgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .nlgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
   .nlcard{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);overflow:hidden;}
-  .nlpv{height:112px;background:var(--surface-3);display:grid;place-items:center;overflow:hidden;cursor:zoom-in;position:relative;}
+  .nlpv{height:150px;background:var(--surface-3);display:grid;place-items:center;overflow:hidden;cursor:zoom-in;position:relative;}
+  /* remove sits on the preview, apart from the refine links, because it discards rather than refines */
+  .nlpv .rm{position:absolute;top:6px;right:6px;z-index:2;width:24px;height:24px;padding:0;border-radius:50%;cursor:pointer;
+            display:grid;place-items:center;font-size:12px;line-height:1;color:var(--text);
+            background:rgba(255,255,255,.94);border:var(--hair) solid rgba(0,0,0,.16);box-shadow:0 1px 3px rgba(0,0,0,.22);}
+  .nlpv .rm:hover{background:#fff;}
+  .mdft .ftlink{font-size:12.5px;margin-right:10px;}
+  /* removed layout, card style */
+  .nlcard.gone .nlpv{cursor:default;background:var(--surface-2);}
+  .nlcard.gone .nlpv em{font-style:normal;font-size:12px;font-weight:500;color:var(--text-3);}
+  .nlcard.gone .gonebox{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:0 10px;}
+  .nlcard .errline{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#b42318;white-space:nowrap;}
+  .nlcard .errline svg{flex:none;}
+
+  /* simulated system file picker (prototype stand-in for the OS dialog, deliberately generic) */
+  .fpveil{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.16);}
+  .fp{width:100%;max-width:700px;height:440px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;
+      background:#fbfbfb;color:#1d1d1f;font-size:13px;border-radius:12px;border:1px solid rgba(0,0,0,.2);box-shadow:0 24px 64px rgba(0,0,0,.36);}
+  .fp.enter{animation:fpin .18s ease-out;}
+  @keyframes fpin{from{opacity:0;transform:translateY(-10px) scale(.98)}to{opacity:1;transform:none}}
+  .fp-top{display:flex;align-items:center;gap:14px;padding:9px 12px;background:#f2f2f2;border-bottom:1px solid #e0e0e0;}
+  .fp-dots{display:flex;gap:7px;} .fp-dots i{display:block;width:11px;height:11px;border-radius:50%;background:#d2d2d2;}
+  .fp-nav{color:#9a9a9a;font-size:16px;word-spacing:6px;}
+  .fp-loc{font-weight:600;}
+  .fp-search{margin-left:auto;width:170px;height:24px;display:flex;align-items:center;padding:0 9px;box-sizing:border-box;
+             border-radius:6px;border:1px solid #d6d6d6;background:#fff;color:#a0a0a0;font-size:12px;}
+  .fp-main{flex:1;min-height:0;display:flex;}
+  .fp-side{width:150px;flex:none;padding:8px;background:#ececec;border-right:1px solid #e0e0e0;}
+  .fp-side h6{margin:6px 8px 4px;font-size:11px;font-weight:600;color:#9a9a9a;}
+  .fp-side div{padding:4px 8px;border-radius:5px;color:#333;}
+  .fp-side div.on{background:#d9d9d9;}
+  .fp-list{flex:1;overflow:auto;background:#fff;}
+  .fp-row{display:grid;grid-template-columns:34px minmax(0,1fr) 170px 64px;align-items:center;gap:10px;padding:5px 14px;user-select:none;}
+  .fp-row.hd{position:sticky;top:0;z-index:1;background:#fff;border-bottom:1px solid #ececec;font-size:11px;font-weight:600;color:#8a8a8a;}
+  .fp-row:not(.hd):nth-child(odd){background:#f6f6f6;}
+  .fp-row.pick{cursor:pointer;}
+  .fp-row.off{color:#b9b9b9;cursor:default;}
+  .fp-row.sel{background:#176BF5 !important;color:#fff;}
+  .fp-row.sel .fp-meta{color:rgba(255,255,255,.85);}
+  .fp-thumb{width:32px;height:24px;display:grid;place-items:center;}
+  .fp-thumb span{display:block;background-size:100% 100%;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.14);}
+  .fp-thumb .fp-doc{width:17px;height:22px;background:#ebebeb;box-shadow:inset 0 0 0 1px #d3d3d3;}
+  .fp-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .fp-meta{font-size:12px;color:#8a8a8a;white-space:nowrap;}
+  .fp-foot{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f2f2f2;border-top:1px solid #e0e0e0;}
+  .fp-foot .sp{flex:1;}
+  .fp-btn{font-family:inherit;font-size:13px;padding:4px 16px;border-radius:6px;border:1px solid #cdcdcd;background:#fff;color:#1d1d1f;cursor:pointer;}
+  .fp-btn.pri{background:#176BF5;border-color:#176BF5;color:#fff;}
+  .fp-btn[disabled]{opacity:.45;cursor:default;}
+  @media (max-width:600px){ .fp-side,.fp-search,.fp-date{display:none;} .fp-row{grid-template-columns:34px minmax(0,1fr) 64px;} }
+  .nlcard.gone .rd,.nlcard.gone .linline{color:var(--text-3);}
   .nlpv:hover span{transform:scale(1.02);}
   .nlpv span{transition:transform .14s ease;}
   .nlbig{background:var(--surface-3);border:var(--hair) solid var(--border-2);border-radius:var(--r-md);
@@ -365,6 +489,12 @@
   .nlft{display:flex;align-items:center;gap:10px;padding:9px 11px;border-top:var(--hair) solid var(--border);}
   .nlft .rd{font-family:var(--mono);font-size:11.5px;font-weight:600;}
   .nlft .sp{flex:1;}
+  /* two quiet lines: what it is, then what it adds beside what you can do with it */
+  .nlft.two{display:block;padding:8px 11px 9px;}
+  .nlft.two .l1,.nlft.two .l2{display:flex;align-items:center;gap:10px;}
+  .nlft.two .l2{margin-top:3px;min-height:20px;}
+  .nlft .gain{font-size:12px;font-weight:500;color:var(--text-2);font-variant-numeric:tabular-nums;}
+  .nlcard.gone .gain{color:var(--text-3);}
   .aifrom{display:flex;align-items:center;gap:10px;margin-top:11px;padding:9px 11px;background:var(--surface);
           border:var(--hair) solid var(--border);border-radius:var(--r-md);}
   .aifrom .fl{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);}
@@ -426,8 +556,10 @@
   }
   /* modal grids reflow with the modal, which tracks the viewport */
   @media (max-width:900px){ .rgrid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:760px){ .nlgrid{grid-template-columns:1fr 1fr;} }
   @media (max-width:660px){ .rgrid{grid-template-columns:1fr;} .nlgrid{grid-template-columns:1fr;} }
   /* short viewports: let the body breathe rather than clip */
+  .incl .srcline .tn{width:112px;}
   @media (max-height:780px){
     .mdbody{height:auto;min-height:260px;max-height:calc(100vh - 210px);}
     .loadwrap{min-height:240px;}
@@ -577,6 +709,17 @@
   }
   function uri(s){ return "url('data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s)+"')"; }
   var ART = {wide:uri(svgWide()), tall:uri(svgTall())};
+  /* an advertiser's own file, made at the exact sign dimension (a different layout from the AI one, on purpose) */
+  function svgUpload(w,h){
+    var u = Math.min(w,h)/100, cx = w/2, f1 = Math.min(u*14, w/7), f2 = Math.min(u*6, w/21);
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'">'+
+      '<defs><linearGradient id="u" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1c2a40"/><stop offset="1" stop-color="#0b1220"/></linearGradient></defs>'+
+      '<rect width="'+w+'" height="'+h+'" fill="url(#u)"/><rect x="0" y="'+(h-u*4)+'" width="'+w+'" height="'+(u*4)+'" fill="#e8b53a"/>'+
+      '<text x="'+cx+'" y="'+(h*0.44)+'" font-family="Inter,Helvetica,Arial" font-size="'+f1+'" font-weight="600" fill="#ffffff" text-anchor="middle">HALF-PRICE</text>'+
+      '<text x="'+cx+'" y="'+(h*0.44+f1*1.15)+'" font-family="Inter,Helvetica,Arial" font-size="'+f1+'" font-weight="600" fill="#f5c542" text-anchor="middle">OIL CHANGE</text>'+
+      '<text x="'+cx+'" y="'+(h*0.8)+'" font-family="Inter,Helvetica,Arial" font-size="'+f2+'" fill="#c9ccd4" text-anchor="middle">RIDGELINE AUTO CARE · 801-555-0142</text></svg>';
+  }
+  function upArt(d){ var k = 'up'+d[0]+'x'+d[1]; if(!ART[k]) ART[k] = uri(svgUpload(d[0], d[1])); return ART[k]; }
   var FILES = {
     wide:{id:'wide', name:'ridgeline-summer-2800×800.jpg', w:2800, h:800, art:'wide'},
     tall:{id:'tall', name:'ridgeline-story-1080×1920.png', w:1080, h:1920, art:'tall'},
@@ -593,11 +736,11 @@
   var SCEN = [{id:'real', lab:'Campaign', files:['wide'], sizes:REAL}];
 
   var PHRASES = ['Reading your file','Checking dimensions','Matching your sizes','Preparing crops'];
-  var AIPHRASES = ['Reading your layout','Resizing for the shape','Placing your elements','Finishing up'];
 
-  var S = {v:'section', scen:'real', phr:0, cropping:false, ai:'idle', aiPhr:0, showDrag:false,
-           done:{}, sel:null, lab:'mono', zoom:null, zoomFrom:null, regenOne:false, openRow:null,
-           framed:false, folded:true,
+  var S = {v:'section', scen:'real', phr:0, cropping:false, ai:'idle', showDrag:false,
+           done:{}, sel:null, lab:'mono', zoom:null, zoomFrom:null, openRows:{},
+           framed:false, folded:true, cache:{}, editFrom:null, tq:[], building:null, landed:{},
+           signsShown:0, signsTarget:0, removed:{}, uploaded:{}, uploading:{}, uploadErr:{}, picker:null,
            drag:null, dragging:false, frames:{}, editFile:null, editSize:null, aiEditSize:null, t1:null, t2:null};
 
   function sc(){ return SCEN.filter(function(x){return x.id===S.scen;})[0]; }
@@ -660,6 +803,10 @@
            'background-position:-'+(cx*k)+'px -'+(f.y*k)+'px'; }
   function fitBG(i,pw){ /* pure scale, no crop */
     return 'background-image:'+ART[i.f.art]+';background-size:100% 100%'; }
+  /* whatever fills this dimension: the advertiser's own upload, a straight scale, or a crop/layout of the source */
+  function artBG(i,pw){
+    if(S.uploaded[kOf(i.d)]) return 'background-image:'+upArt(i.d)+';background-size:100% 100%';
+    return i.band==='fit' ? fitBG(i,pw) : cropBG(i,pw); }
 
   function curItem(list,key2){
     var p=plan(), all=p.items;
@@ -669,12 +816,16 @@
   /* ================= section ================= */
   function sectionHTML(){
     var applied = S.v==='applied', p = plan(), SZ = sizes(), T = total();
+    /* once every sign has a creative there is nothing left to upload for, and the full meter already says so */
+    var complete = applied && p.items.every(function(i){ return p.aiTask.indexOf(i)<0 || !!S.done[kOf(i.d)]; });
     var h = '<div class="crtitle">Creative <span style="color:var(--text-3)">&#9432;</span></div>'+
-            '<p class="crsub">Upload more sizes to reach more people.</p>';
+            (complete ? '' : '<p class="crsub">Upload more sizes to reach more people.</p>');
     if(!applied){
       var shown = SZ.slice().sort(function(a,b){ return b[2]-a[2]; }), hid = [];
+      S.signsTarget = 0;
       h += '<div class="meterhead"><span class="n">0 of '+T+' signs</span>'+
-        '<span class="why">Each size unlocks more impressions.</span></div><div class="meter"><i style="width:0%"></i></div>'+
+        '<span class="why">Each size unlocks more impressions.</span></div>'+
+        '<div class="meter"><i id="meterfill" style="width:'+(S.signsShown/T*100)+'%"></i></div>'+
         '<div class="dropregion'+(S.showDrag?' dragging':'')+'" id="region">'+
         '<div class="dveil"><span class="vt">Drag file here to upload your creative</span>'+
         '<span class="vs">PNG, JPG, JPEG · up to 10 files per size</span></div><div class="inner">'+
@@ -688,15 +839,22 @@
           (S.folded?'':hid.map(emptyRow).join('')):'')+
         '</div></div></div>';
     } else {
-      var cov = T - signsIn(p.gap), done = p.gap.length===0;
-      h += '<div class="meterhead"><span class="n">'+cov+' of '+T+' signs</span></div>'+
-        '<div class="meter"><i style="width:'+(cov/T*100)+'%"></i></div>'+
+      /* only what was applied is filled: crops, plus AI layouts that were actually made */
+      var has = function(i){ return p.aiTask.indexOf(i)<0 || !!S.done[kOf(i.d)]; };
+      var cov = signsIn(p.items.filter(has));
+      /* the count carries the number, so the confirmation beside it never needs one;
+         the bar is drawn at the last count shown, then animated to the new one after paint */
+      S.signsTarget = cov;
+      h += '<div class="meterhead"><span class="n">'+cov+' of '+T+' signs</span>'+
+        (complete ? '<span class="why good">&#10003; Your creative is ready for every selected sign</span>'
+                  : '<span class="why">Each size unlocks more impressions.</span>')+'</div>'+
+        '<div class="meter"><i id="meterfill" style="width:'+(S.signsShown/T*100)+'%"></i></div>'+
         '<div class="dzmini"><span class="up">&#8593;</span><span class="lbl">Drag more files here</span>'+
         '<span class="sp"></span><a data-a="up">Upload from computer</a><span class="sep">·</span>'+
         '<a data-a="up">My Library</a></div>';
 
       var shownR = p.items.slice().sort(function(a,b){ return b.d[2]-a.d[2]; }), hidR = [];
-      h += '<div class="rows" style="margin-top:0">'+shownR.map(filledRow).join('')+
+      h += '<div class="rows" style="margin-top:0">'+shownR.map(function(i){ return has(i) ? filledRow(i) : emptyRow(i.d); }).join('')+
         (hidR.length ? '<div class="fold" data-a="fold">'+(S.folded?'&#9662;':'&#9652;')+
           ' <span>'+(S.folded?'Show':'Hide')+' '+hidR.length+' size'+(hidR.length>1?'s':'')+'</span>'+
           '<span class="c">'+sg(hidR.reduce(function(a,i){return a+i.d[2];},0))+'</span></div>'+
@@ -718,26 +876,29 @@
       '<span class="sacts"><button class="btn acc" data-a="up">Add creative<i class="cv">&#9662;</i></button></span></div></div>';
   }
   function filledRow(i){
-    var isAI = i.band!=='fit' && i.band!=='adjust';
-    var open = S.openRow===kOf(i.d);
+    var up = S.uploaded[kOf(i.d)];
+    var isAI = i.band!=='fit' && i.band!=='adjust' && !up;
+    var open = !!S.openRows[kOf(i.d)];
     var base = i.f.name.replace(/\.[a-z]+$/,'').replace(/-\d+×\d+$/,'');
-    var fn = base+'_'+i.d[0]+'×'+i.d[1]+'.jpg';
-    var cw = 148, ch = Math.max(10, Math.round(cw/(i.d[0]/i.d[1])));
-    if(ch > 96){ ch = 96; cw = Math.round(ch*(i.d[0]/i.d[1])); }
-    return '<div class="srow"><div class="line head" data-a="togglerow" data-k="'+kOf(i.d)+'">'+
+    var fn = up ? up.name : base+'_'+i.d[0]+'×'+i.d[1]+'.jpg';
+    /* one tile per creative this size holds; this flow adds one, and the selected tile is the one named below */
+    var tb = fitBox(i.d, 262, 138);
+    var chev = open
+      ? '<svg class="chv" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg class="chv" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    return '<div class="srow filled'+(open?' open':'')+'"><div class="line head'+(isAI?'':' solo')+'" data-a="togglerow" data-k="'+kOf(i.d)+'" aria-expanded="'+open+'">'+
       '<span class="swatch"><span class="tn" style="width:'+fitBox(i.d,ROWBOX.w,ROWBOX.h).w+
-        'px;height:'+fitBox(i.d,ROWBOX.w,ROWBOX.h).h+'px;'+
-        (i.band==='fit'?fitBG(i,ROWBOX.w):cropBG(i,ROWBOX.w))+'"></span></span>'+
+        'px;height:'+fitBox(i.d,ROWBOX.w,ROWBOX.h).h+'px;'+artBG(i,ROWBOX.w)+'"></span></span>'+
       '<span class="sdim">'+i.d[0]+' × '+i.d[1]+' px <span>· '+oriName(i.d)+'</span></span>'+
       (isAI?'<span class="smeta">Resized with AI</span>':'')+
-      '<span class="scount done">'+sg(i.d[2])+
-        '<i class="ch">'+(open?'&#9652;':'&#9662;')+'</i></span></div>'+
+      '<span class="scount done">'+sg(i.d[2])+' covered'+chev+'</span></div>'+
       (open ? '<div class="rowbody">'+
-        '<div class="creatives"><div class="cthumb"><span class="ok">&#10003;</span>'+
-          '<span class="img" style="width:'+cw+'px;height:'+ch+'px;'+(i.band==='fit'?fitBG(i,cw):cropBG(i,cw))+'"></span></div>'+
-          '<button class="btn acc sm" data-a="noop">Add more &#9662;</button></div>'+
-        '<div class="cmeta"><span class="fn">'+fn+'</span><span class="sp"></span><a data-a="noop">Remove</a></div>'+
-        '<div class="rdy">&#10003; Ready for review</div>'+
+        '<div class="cstrip"><div class="ctiles">'+
+          '<div class="ctile sel"><span class="ok">&#10003;</span>'+
+            '<span class="img" style="width:'+tb.w+'px;height:'+tb.h+'px;'+artBG(i,tb.w)+'"></span></div>'+
+          '</div><button class="btn acc addmore" data-a="noop">Add more<i class="cv">&#9662;</i></button></div>'+
+        '<div class="cinfo"><div class="cmeta"><span class="fn">'+fn+'</span><span class="sp"></span><a data-a="noop">Remove</a></div>'+
+          '<div class="rdy">&#10003; Ready for review</div></div>'+
       '</div>' : '')+'</div>';
   }
 
@@ -760,8 +921,20 @@
   function wrapMD(t,s,d,body,ft,back){
     return '<div class="veil"><div class="md">'+
       '<div class="mdhd">'+(back?'<button class="back" data-a="back">&#8249;</button>':'')+
-      '<span><p class="t">'+t+'</p><p class="s">'+s+'</p></span><span class="sp"></span>'+d+'</div>'+
-      '<div class="mdbody">'+body+'</div><div class="mdft">'+ft+'</div></div></div>';
+      '<span><p class="t">'+t+'</p>'+(s?'<p class="s">'+s+'</p>':'')+'</span><span class="sp"></span>'+d+
+      '<button class="x" data-a="exit" aria-label="Exit">&#10005;</button></div>'+
+      '<div class="mdbody">'+body+'</div><div class="mdft">'+ft+'</div>'+(S.confirm?confirmHTML():'')+'</div></div>';
+  }
+  /* the scan applies nothing, so only screens after it ask before exiting */
+  function needsConfirm(){ return S.v!=='checking' && S.v!=='scanned'; }
+  function confirmHTML(){
+    var made = plan().aiTask.filter(function(i){ return S.done[kOf(i.d)] && !S.uploaded[kOf(i.d)]; }).length;
+    return '<div class="confirm"><div class="cbox" role="alertdialog" aria-labelledby="ct">'+
+      '<p class="ct" id="ct">Exit without applying?</p>'+
+      '<p class="cs">Nothing will be added to your campaign'+
+        (made ? ', and your '+made+' new layout'+(made===1?'':'s')+' will be discarded.' : '.')+'</p>'+
+      '<div class="cacts"><button class="btn sm" data-a="stay">Keep editing</button>'+
+      '<button class="btn pri sm" data-a="leave">Exit</button></div></div></div>';
   }
   function srcline(){
     return files().map(function(f){
@@ -772,21 +945,23 @@
 
   function mdChecking(){
     var f = files()[0];
-    return wrapMD('Add creative','Step 1 of 3',dotsEl(0),
+    return wrapMD('Add creative','',dotsEl(0),
       '<div class="loadwrap">'+
-      '<span class="loadthumb" style="height:'+Math.round(150/(f.w/f.h))+'px;background-image:'+ART[f.art]+'"></span>'+
+      '<span class="loadthumb" style="aspect-ratio:'+f.w+'/'+f.h+';background-image:'+ART[f.art]+'"></span>'+
       '<span class="loadbar"><i></i></span><p class="loadphr">'+PHRASES[S.phr]+'</p></div>',
-      '<span class="sp"></span><button class="btn sm" data-a="close">Cancel</button>');
+      '');
   }
-
-  function mdAIRun(){
-    var p = plan(), sel = selSet(p);
-    var n = S.regenOne ? 1 : (p.aiTask.filter(function(i){ return sel[kOf(i.d)] && !S.done[kOf(i.d)]; }).length || p.aiTask.length);
-    return wrapMD('Resize with AI','Resizing '+n+' size'+(n>1?'s':''),dotsEl(1),
+  /* step 1 revisited: the scan has already run, so it settles instead of looping */
+  function mdScanned(){
+    var f = files()[0];
+    /* what the advertiser did here was upload a file, so that is what this screen confirms */
+    return wrapMD('Add creative','',dotsEl(0),
       '<div class="loadwrap">'+
-      '<span class="loadthumb" style="height:43px;background-image:'+ART[files()[0].art]+'"></span>'+
-      '<span class="loadbar vio"><i></i></span><p class="loadphr">'+AIPHRASES[S.aiPhr]+'</p></div>',
-      '<span class="sp"></span><button class="btn sm" data-a="cancelai">Cancel</button>');
+      '<span class="loadthumb" style="aspect-ratio:'+f.w+'/'+f.h+';background-image:'+ART[f.art]+'"></span>'+
+      '<div class="loaddone"><p class="loadok"><i>&#10003;</i>File uploaded</p>'+
+      '<p class="loadfile">'+f.name+'</p>'+
+      '<p class="loadfile loadrep"><button class="elink" data-a="up">Replace file</button></p></div></div>',
+      '<span class="sp"></span><button class="btn pri sm" data-a="continue">Continue</button>');
   }
 
   function opLabel(i,p,aiDone){
@@ -812,7 +987,7 @@
     return S.sel;
   }
   function mdChecklist(){
-    var p = plan(), T = total(), running = S.ai==='running';
+    var p = plan(), T = total();
     var sel = selSet(p);
     var missing = p.aiTask.filter(function(i){ return !S.done[kOf(i.d)]; });
     var built   = p.aiTask.filter(function(i){ return  S.done[kOf(i.d)]; });
@@ -821,72 +996,62 @@
     var picked  = missing.filter(function(i){ return sel[kOf(i.d)]; });
 
     function pv(i){
-      var maxW = 208, maxH = 68, r = i.d[0]/i.d[1];
+      var maxW = 262, maxH = 76, r = i.d[0]/i.d[1];
       var w = maxW, h = Math.round(w/r);
       if(h > maxH){ h = maxH; w = Math.round(h*r); }
-      var bg = i.band==='fit' ? fitBG(i,w) : cropBG(i,w);
-      return '<span style="width:'+w+'px;height:'+h+'px;'+bg+'"></span>';
+      return '<span style="width:'+w+'px;height:'+h+'px;'+artBG(i,w)+'"></span>';
     }
 
-    var body = '<div class="rhead"><p class="rt">Your creative, resized</p>'+
-      '<span class="rs">'+shown.length+' size'+(shown.length===1?'':'s')+' ready · '+sg(covered)+'</span></div>';
+    /* crop and AI offer as two matching panels: what the file already fits, then what AI can add */
+    var pickedSigns = signsIn(picked), allAI = signsIn(missing);
+    var isAIi = function(i){ return p.auto.indexOf(i)>-1 ? i.band!=='fit' : built.indexOf(i)>-1; };
+    var body = '';
 
     if(shown.length){
-      body += '<div class="rgrid">'+shown.map(function(i){
-        var isAI = p.auto.indexOf(i)>-1 ? i.band!=='fit' : built.indexOf(i)>-1;
-        var st = isAI ? ['New layout','ai'] : ['Cropped','cr'];
-        var edit = '<button class="elink" data-a="'+(isAI?'aiedit':'adjust')+'" data-k="'+kOf(i.d)+'">Edit</button>';
-        var ft;
-        if(S.lab==='mono'){
-          ft = '<div class="r1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="sp"></span>'+
-               '<span class="cover">'+sg(i.d[2])+'</span></div>'+
-               '<div class="r2"><span class="lmono">'+st[0]+'</span><span class="sp"></span>'+edit+'</div>';
-        } else if(S.lab==='pill'){
-          ft = '<div class="r1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="sp"></span>'+
-               '<span class="cover">'+sg(i.d[2])+'</span></div>'+
-               '<div class="r2"><span class="rst '+st[1]+'">'+st[0]+'</span><span class="sp"></span>'+edit+'</div>';
-        } else if(S.lab==='dot'){
-          ft = '<div class="r1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="sp"></span>'+
-               '<span class="cover">'+sg(i.d[2])+'</span></div>'+
-               '<div class="r2"><span class="ldot '+st[1]+'"><i></i>'+st[0]+'</span><span class="sp"></span>'+edit+'</div>';
-        } else {
-          ft = '<div class="r1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span>'+
-               '<span class="linline '+st[1]+'">· '+st[0]+'</span></div>'+
-               '<div class="r2"><span class="cover">'+sg(i.d[2])+'</span><span class="sp"></span>'+edit+'</div>';
-        }
-        return '<div class="rcard'+(isAI?' ai':'')+'">'+
-          '<div class="rpv zoomable" data-a="zoom" data-k="'+kOf(i.d)+'">'+
-            (running && p.aiTask.indexOf(i)>-1 ? '' : pv(i))+'</div>'+
-          '<div class="rft">'+ft+'</div></div>';
-      }).join('')+'</div>';
+      body += '<div class="ckpanel"><div class="rhead"><p class="rt">Fitted to your sign dimensions</p>'+
+          '<span class="rs">'+shown.length+' dimension'+(shown.length===1?'':'s')+' ready · '+sg(covered)+'</span></div>'+
+        /* a card per dimension, each naming the file it came from, so two files or ten dimensions still read cleanly */
+        '<div class="rgrid">'+shown.map(function(i){
+          return '<div class="rcard'+(isAIi(i)?' ai':'')+'">'+
+            '<div class="rpv zoomable" data-a="zoom" data-k="'+kOf(i.d)+'">'+pv(i)+'</div>'+
+            '<div class="rft"><div class="r1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="sp"></span>'+
+                '<span class="cover">'+sg(i.d[2])+'</span></div>'+
+              '<div class="r2"><span class="lmono">'+(isAIi(i)?'New layout':'Cropped')+'</span><span class="sp"></span>'+
+                '<button class="elink" data-a="'+(isAIi(i)?'aiedit':'adjust')+'" data-k="'+kOf(i.d)+'">Edit</button></div>'+
+              '<p class="fromfile" title="'+i.f.name+'">From '+i.f.name+'</p></div></div>';
+        }).join('')+'</div></div>';
+    } else {
+      body += '<div class="rhead"><p class="rt">Nothing fits your sign dimensions yet</p></div>';
     }
 
     if(missing.length){
-      var pickedSigns = signsIn(picked);
-      body += '<div class="unlockcard">'+
-        '<div class="oh"><p class="ot">Unlock '+sg(signsIn(missing))+' across '+
-          missing.length+' size'+(missing.length===1?'':'s')+'</p></div>'+
-        '<p class="os">These sizes cannot be cropped from your file. Resize with AI to fill them.</p>'+
-        '<p class="disc">AI layouts are reviewed like any creative. Sign owners set their own content rules. '+
-        '<a>Content guidelines</a></p>'+
+      body += '<div class="ckpanel offer"><p class="ot">Unlock '+allAI+' '+(shown.length?'more ':'')+'sign'+(allAI===1?'':'s')+' with AI</p>'+
+        '<p class="os">Use AI to resize your creative for '+(missing.length===1?'this additional sign dimension':'these additional sign dimensions')+'.</p>'+
         missing.map(function(i){
           var on = !!sel[kOf(i.d)];
+          /* just the sign's shape: the outline is the promise of what AI will fill */
+          var gb = fitBox(i.d, 62, 34);
           return '<label class="orow'+(on?'':' off')+'"><input type="checkbox" data-pick="'+kOf(i.d)+'"'+(on?' checked':'')+'>'+
+            '<span class="othumb" aria-hidden="true"><span class="oghost" style="width:'+gb.w+'px;height:'+gb.h+'px"></span></span>'+
             '<span class="od">'+i.d[0]+'×'+i.d[1]+'</span><span class="on">'+fmtName(i.d)+'</span>'+
             '<span class="sp"></span><span class="ov">+'+sg(i.d[2])+'</span></label>';
         }).join('')+
-        '<div class="ofoot"><a data-a="selall">Select all</a><a data-a="selnone">Clear</a>'+
-        '<span class="sp"></span><span class="tot">'+picked.length+' of '+missing.length+' selected · '+sg(pickedSigns)+'</span></div>'+
-        '</div>';
+        '<div class="ofoot"><a data-a="selall">Select all</a><a data-a="selnone">Clear</a><span class="sp"></span>'+
+          /* the ticks are settings for Resize, so the count says so; "Add without resizing" then reads as skipping, not discarding */
+          '<span class="tot">'+(picked.length ? picked.length+' selected to resize · '+sg(pickedSigns) : 'None selected to resize')+'</span></div></div>'+
+        /* the review and content-rules note sits under the offer, not inside it, so the choice reads cleanly */
+        '<p class="disc below">AI layouts are reviewed like any creative. Sign owners set their own content rules. <a>Content guidelines</a></p>';
     }
 
-    var primary = (missing.length && picked.length)
-      ? '<button class="btn pri sm" data-a="runai">Resize</button>'
-      : '<button class="btn pri sm" data-a="apply">Apply to campaign</button>';
-    var task = missing.length && picked.length;
-    return wrapMD('Add creative', task?'Step 2 of 3':'Step 3 of 3', dotsEl(task?1:2), body,
-      '<span class="cover"><b>'+covered+' of '+T+'</b> signs covered</span><span class="sp"></span>'+
-      '<button class="btn sm" data-a="close">Cancel</button>'+primary);
+    /* skipping AI is always one click away, never hidden behind unticking every offer */
+    /* the buttons never swap roles: unticking every offer only disables Resize */
+    var primary = missing.length
+      ? '<button class="btn sm" data-a="apply">Add without resizing</button>'+
+        '<button class="btn pri sm" data-a="runai"'+(picked.length?'':' disabled')+'>Resize</button>'
+      : '<button class="btn pri sm" data-a="apply">Add to campaign</button>';
+    var task = missing.length;
+    return wrapMD('Add creative', '', dotsEl(task?1:2), body,
+      '<span class="cover"><b>'+covered+' of '+T+'</b> signs covered</span><span class="sp"></span>'+primary, true);
   }
 
   function mdEditor(){
@@ -901,7 +1066,7 @@
       '<span class="say">Drag to move · corners to scale</span><span class="sp"></span>'+
       '<button class="reset" data-a="resetcrop">Reset</button></div>'+
       '<p class="noteline">Keep anything that matters inside the frame.</p>',
-      '<span class="note">'+(inAdj>-1 && p.adjust.length>1 ? 'Size '+(inAdj+1)+' of '+p.adjust.length : fmtName(i.d))+'</span><span class="sp"></span>'+
+      '<span class="note">'+(inAdj>-1 && p.adjust.length>1 ? 'Crop '+(inAdj+1)+' of '+p.adjust.length : fmtName(i.d))+'</span><span class="sp"></span>'+
       '<button class="btn sm" data-a="back">Back</button>'+
       '<button class="btn pri sm" data-a="saveadjust">Save crop</button>', true);
   }
@@ -915,43 +1080,109 @@
     var p = plan();
     var i = p.items.filter(function(x){ return kOf(x.d)===S.zoom; })[0];
     if(!i) return null;
-    var isAI = p.aiTask.indexOf(i)>-1 && S.done[kOf(i.d)];
-    var zw=650, zh=Math.round(zw/(i.d[0]/i.d[1]));
-    if(zh>268){ zh=268; zw=Math.round(zh*(i.d[0]/i.d[1])); }
+    var k = kOf(i.d), up = S.uploaded[k];
+    var isAI = p.aiTask.indexOf(i)>-1 && S.done[k] && !up;
+    var zw=840, zh=Math.round(zw/(i.d[0]/i.d[1]));
+    if(zh>350){ zh=350; zw=Math.round(zh*(i.d[0]/i.d[1])); }
     var f=i.f, back = S.zoomFrom==='aiedit' ? 'All layouts' : 'Back';
+    if(up) return wrapMD(i.d[0]+' × '+i.d[1], fmtName(i.d)+' · Your upload', dotsEl(1),
+      '<div class="nlbig" style="height:380px"><span style="width:'+zw+'px;height:'+zh+'px;'+artBG(i,zw)+'"></span></div>'+
+      '<div class="aifrom"><span class="fl">File</span><span class="fn">'+up.name+'</span><span class="sp"></span>'+
+      '<span class="fn">'+sg(i.d[2])+'</span></div>',
+      '<button class="btn sm" data-a="unzoom">'+back+'</button><span class="sp"></span>'+
+      '<button class="elink ftlink" data-a="removeai" data-k="'+k+'">Remove</button>'+
+      '<button class="btn pri sm" data-a="uploadown" data-k="'+k+'">Replace file</button>', true);
     return wrapMD(i.d[0]+' × '+i.d[1], fmtName(i.d)+' · '+(isAI?'Resized with AI':'Cropped'), dotsEl(1),
-      '<div class="nlbig" style="height:296px"><span style="width:'+zw+'px;height:'+zh+'px;'+
-        (i.band==='fit'?fitBG(i,zw):cropBG(i,zw))+'"></span></div>'+
+      '<div class="nlbig" style="height:380px"><span style="width:'+zw+'px;height:'+zh+'px;'+artBG(i,zw)+'"></span></div>'+
       '<div class="aifrom"><span class="fl">From</span>'+
       '<span class="ftn" style="height:'+Math.round(64/(f.w/f.h))+'px;background-image:'+ART[f.art]+'"></span>'+
       '<span class="fn">'+f.name+' · '+ratioName(f)+'</span><span class="sp"></span>'+
       '<span class="fn">'+sg(i.d[2])+'</span></div>',
       '<button class="btn sm" data-a="unzoom">'+back+'</button><span class="sp"></span>'+
-      (isAI?'<button class="btn sm" data-a="regen" data-k="'+kOf(i.d)+'">Regenerate</button>':'')+
+      /* one button; the secondary actions are text so Edit stays the clear next step */
+      (isAI?'<button class="elink ftlink" data-a="removeai" data-k="'+kOf(i.d)+'">Remove</button>'+
+            '<button class="elink ftlink" data-a="regen" data-k="'+kOf(i.d)+'">Regenerate</button>':'')+
       '<button class="btn pri sm" data-a="adjust" data-k="'+kOf(i.d)+'">Edit</button>', true);
   }
 
   function mdAIEdit(){
     var p = plan();
-    var made = p.aiTask.filter(function(i){ return S.done[kOf(i.d)]; });
-    if(!made.length) return mdChecklist();
-    var f = made[0].f;
-    var body = '<div class="srcline"><span class="tn" style="height:'+Math.round(48/(f.w/f.h))+'px;background-image:'+ART[f.art]+'"></span>'+
-      '<span><span class="nm">'+f.name+'</span> <span class="dm">'+ratioName(f)+'</span></span><span class="sp"></span>'+
-      '<span class="dm">'+made.length+' rebuilt</span></div>'+
-      '<div class="nlgrid">'+made.map(function(i){
-        var maxW=316, maxH=100, r=i.d[0]/i.d[1], w=maxW, h=Math.round(w/r);
-        if(h>maxH){ h=maxH; w=Math.round(h*r); }
-        return '<div class="nlcard"><div class="nlpv zoomable" data-a="zoom" data-k="'+kOf(i.d)+'">'+
-          '<span style="width:'+w+'px;height:'+h+'px;'+cropBG(i,w)+'"></span></div>'+
-          '<div class="nlft"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span>'+
-          '<span class="linline">· '+fmtName(i.d)+'</span><span class="sp"></span>'+
-          '<button class="elink" data-a="regen" data-k="'+kOf(i.d)+'">Regenerate</button>'+
-          '<button class="elink" data-a="adjust" data-k="'+kOf(i.d)+'">Edit</button></div></div>';
-      }).join('')+'</div>'+
-      '<p class="noteline">Click a layout to see it larger. Regenerate for a different take, or edit the framing yourself.</p>';
-    return wrapMD('New layouts', made.length+' size'+(made.length===1?'':'s')+' rebuilt', dotsEl(1), body,
-      '<span class="sp"></span><button class="btn pri sm" data-a="keep">Keep these</button>', true);
+    var made = p.aiTask.filter(function(i){ return S.done[kOf(i.d)] || (S.building && S.building[kOf(i.d)]); });
+    if(!made.length && !Object.keys(S.removed).length) return mdChecklist();
+    return mdLayoutsReview(p, made);
+  }
+  function nlCard(i){
+    var maxW=270, maxH=134, r=i.d[0]/i.d[1], w=maxW, h=Math.round(w/r), k=kOf(i.d);
+    if(h>maxH){ h=maxH; w=Math.round(h*r); }
+    var busy = S.building && S.building[k];
+    /* incremental coverage sits under the dimension in regular grey, never as a bold accent */
+    var foot = function(actions, tag, status){
+      return '<div class="nlft two"><div class="l1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span>'+
+        '<span class="linline">· '+fmtName(i.d)+'</span></div>'+
+        '<div class="l2">'+(status || '<span class="gain">+'+sg(i.d[2])+'</span>'+(tag?'<span class="linline">· '+tag+'</span>':''))+
+        '<span class="sp"></span>'+actions+'</div></div>';
+    };
+    var rmBtn = '<button class="rm" data-a="removeai" data-k="'+k+'" aria-label="Remove '+i.d[0]+'×'+i.d[1]+'" title="Remove">&#10005;</button>';
+    if(S.uploading[k])
+      return '<div class="nlcard">'+buildPV(i, maxW, maxH, 'nlpv', 'Uploading')+foot('')+'</div>';
+    /* their own file fills the slot the AI layout left */
+    if(S.uploaded[k])
+      return '<div class="nlcard'+(S.landed[k]?' landed':'')+'">'+
+        '<div class="nlpv zoomable" data-a="zoom" data-k="'+k+'"><span style="width:'+w+'px;height:'+h+'px;'+artBG(i,w)+'"></span>'+rmBtn+'</div>'+
+        foot('<button class="elink" data-a="uploadown" data-k="'+k+'">Replace</button>', 'Your upload')+'</div>';
+    /* a removed layout keeps its place and shape in the grid, and offers the way to fill it themselves */
+    if(S.removed[k]){
+      var err = S.uploadErr[k];
+      var undo = '<button class="elink" data-a="undoremove" data-k="'+k+'">Undo</button>';
+      /* a bad upload: the error where the card's status lives, the fix in the empty slot */
+      if(err)
+        return '<div class="nlcard gone err"><div class="nlpv"><div class="gonebox">'+
+            '<button class="elink" data-a="uploadown" data-k="'+k+'">Upload a different image</button></div></div>'+
+          foot(undo, '', '<span class="errline" role="alert"><svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true">'+
+            '<circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.6"/>'+
+            '<path d="M8 4.6v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="11.2" r="1" fill="currentColor"/></svg>'+
+            'Image must be '+i.d[0]+'×'+i.d[1]+' px</span>')+'</div>';
+      return '<div class="nlcard gone"><div class="nlpv"><div class="gonebox"><em>Layout removed</em>'+
+          '<button class="elink" data-a="uploadown" data-k="'+k+'">Upload your own</button></div></div>'+
+        foot(undo)+'</div>';
+    }
+    return '<div class="nlcard'+(S.landed[k]?' landed':'')+'">'+
+      (busy ? buildPV(i, maxW, maxH, 'nlpv')
+            : '<div class="nlpv zoomable" data-a="zoom" data-k="'+k+'"><span style="width:'+w+'px;height:'+h+'px;'+cropBG(i,w)+'"></span>'+rmBtn+'</div>')+
+      foot(busy ? '' : '<button class="elink" data-a="regen" data-k="'+k+'">Regenerate</button>'+
+                       '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>')+'</div>';
+  }
+  /* skeleton preview: a plain block in the sign's shape; the sweep is fixed to the page, so repaints never restart it */
+  function buildPV(i, maxW, maxH, cls, verb){
+    var r = i.d[0]/i.d[1], w = maxW, h = Math.round(w/r); if(h>maxH){ h=maxH; w=Math.round(h*r); }
+    return '<div class="'+cls+' skel" role="status" aria-label="'+(verb||'Resizing')+' '+i.d[0]+'×'+i.d[1]+'">'+
+      '<span class="sk" style="width:'+w+'px;height:'+h+'px"></span></div>';
+  }
+  /* the new layouts lead (removed ones keep their card and place), the crops ride along underneath, and this screen applies */
+  function mdLayoutsReview(p, made){
+    var crops = p.auto.concat(p.adjust), ready = made.filter(function(i){ return S.done[kOf(i.d)]; });
+    var nr = p.aiTask.filter(function(i){ return S.removed[kOf(i.d)]; }).length;
+    var covered = signsIn(crops.concat(ready));
+    var these = nr===1 ? 'this dimension' : 'these dimensions';
+    var gridItems = p.aiTask.filter(function(i){ return made.indexOf(i)>-1 || S.removed[kOf(i.d)]; });
+    var body = '<div class="rhead"><p class="rt">Fitted to your sign dimensions</p>'+
+      '<span class="rs">'+(crops.length+ready.length)+' dimension'+(crops.length+ready.length===1?'':'s')+' ready · '+sg(covered)+'</span></div>'+
+      (gridItems.length ? '<p class="sublab">New layouts</p><div class="nlgrid">'+gridItems.map(nlCard).join('')+'</div>' : '')+
+      (nr ? '<p class="noteline">'+(made.length
+        ? 'Upload your own creative for '+these+' now, or add it later.'
+        : 'All new layouts removed. You can continue with just your original creative, or upload your own for '+these+' now or later.')+'</p>' : '')+
+      (crops.length ? '<div class="incl"><p class="sublab">'+(made.length?'Also included':'Included')+'</p>'+crops.map(function(i){
+        return '<div class="srcline"><span class="tn" style="height:'+thumbH(i.d,112)+'px;'+
+            (i.band==='fit'?fitBG(i,112):cropBG(i,112))+'"></span>'+
+          '<span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="lm">· Cropped</span><span class="sp"></span>'+
+          '<span class="cover">'+sg(i.d[2])+'</span>'+
+          '<button class="elink" data-a="adjust" data-k="'+kOf(i.d)+'">Edit</button></div>';
+      }).join('')+'</div>' : '');
+    return wrapMD('Add creative', '', dotsEl(2), body,
+      '<span class="cover"><b>'+covered+' of '+total()+'</b> signs covered</span><span class="sp"></span>'+
+      (S.building ? '<button class="btn sm" data-a="stopbuild">Stop</button><button class="btn pri sm" disabled>Add to campaign</button>'
+                  : Object.keys(S.uploading).length ? '<button class="btn pri sm" disabled>Add to campaign</button>'
+                  : '<button class="btn pri sm" data-a="apply">Add to campaign</button>'), true);
   }
 
   function paintCanvas(){
@@ -982,7 +1213,7 @@
 
   /* ================= chrome ================= */
   var STAGES = [['section','Section'],['checking','Checking'],['checklist','Checklist'],
-                ['editor','Adjust'],['airun','Resizing'],['aiedit','New layouts'],
+                ['editor','Adjust'],['aiedit','New layouts'],
                 ['ready','Ready'],['applied','Applied']];
   var COPY = {
     section:{h:'<b>The shipped section, untouched.</b> Hover the drop region to see the drag state without dragging a file.',
@@ -1033,20 +1264,80 @@
     document.getElementById('card').innerHTML = sectionHTML();
     var st = document.getElementById('stage');
     var old = st.querySelector('.veil'); if(old) old.remove();
+    var oldfp = st.querySelector('.fpveil'); if(oldfp) oldfp.remove();
     if(S.zoom){ var z=mdZoom(); if(z){ st.insertAdjacentHTML('beforeend', z); } else { S.zoom=null; } }
     if(!S.zoom){
     if(S.v==='checking')  st.insertAdjacentHTML('beforeend', mdChecking());
+    if(S.v==='scanned')   st.insertAdjacentHTML('beforeend', mdScanned());
     if(S.v==='checklist' || S.v==='ready') st.insertAdjacentHTML('beforeend', mdChecklist());
     if(S.v==='editor'){ st.insertAdjacentHTML('beforeend', mdEditor()); paintCanvas(); }
-    if(S.v==='airun')  st.insertAdjacentHTML('beforeend', mdAIRun());
     if(S.v==='aiedit') st.insertAdjacentHTML('beforeend', mdAIEdit());
     }
+    if(S.picker) st.insertAdjacentHTML('beforeend', pickerHTML());
+    S.landed = {};   /* the landing animation plays once */
+    animateMeter();
+  }
 
+  /* ---- simulated system file picker: a prototype stand-in for the OS "open file" dialog ---- */
+  function pickerFiles(k){
+    var d = k.split('x').map(Number);
+    return [
+      {n:'ridgeline-summer-'+d[0]+'×'+d[1]+'.jpg', d:d, art:upArt(d), when:'Today at 9:41 AM', size:'1.4 MB'},
+      {n:'ridgeline-summer-2800×800.jpg', d:[2800,800], art:ART.wide, when:'Today at 9:12 AM', size:'2.1 MB'},
+      {n:'ridgeline-story-1080×1920.png', d:[1080,1920], art:ART.tall, when:'Yesterday at 4:05 PM', size:'3.3 MB'},
+      {n:'ridgeline-promo-1520×400.jpg', d:[1520,400], art:ART.wide, when:'Sep 2, 2026 at 11:20 AM', size:'980 KB'},
+      {n:'Brand guidelines.pdf', doc:true, when:'Aug 18, 2026 at 2:48 PM', size:'6.8 MB'},
+      {n:'Q3 media plan.pdf', doc:true, when:'Aug 11, 2026 at 10:02 AM', size:'412 KB'}
+    ];
+  }
+  function pickerHTML(){
+    var P = S.picker, files = pickerFiles(P.k), enter = !P.shown; P.shown = true;
+    return '<div class="fpveil"><div class="fp'+(enter?' enter':'')+'" role="dialog" aria-label="Choose a file">'+
+      '<div class="fp-top"><span class="fp-dots"><i></i><i></i><i></i></span><span class="fp-nav">&#8249; &#8250;</span>'+
+        '<span class="fp-loc">Desktop</span><span class="fp-search">Search</span></div>'+
+      '<div class="fp-main"><div class="fp-side"><h6>Favorites</h6><div>Recents</div><div class="on">Desktop</div>'+
+          '<div>Documents</div><div>Downloads</div></div>'+
+        '<div class="fp-list"><div class="fp-row hd"><span></span><span>Name</span><span class="fp-date">Date Modified</span><span>Size</span></div>'+
+        files.map(function(f, n){
+          var th = f.doc ? '<span class="fp-doc"></span>'
+            : (function(){ var b = fitBox(f.d, 30, 22); return '<span style="width:'+b.w+'px;height:'+b.h+'px;background-image:'+f.art+'"></span>'; })();
+          return '<div class="fp-row'+(f.doc?' off':' pick')+(P.sel===n?' sel':'')+'" data-a="fpsel" data-f="'+n+'">'+
+            '<span class="fp-thumb">'+th+'</span><span class="fp-name">'+f.n+'</span>'+
+            '<span class="fp-meta fp-date">'+f.when+'</span><span class="fp-meta">'+f.size+'</span></div>';
+        }).join('')+'</div></div>'+
+      '<div class="fp-foot"><span class="sp"></span>'+
+        '<button class="fp-btn" data-a="fpcancel">Cancel</button>'+
+        '<button class="fp-btn pri" data-a="fpopen"'+(P.sel===null?' disabled':'')+'>Open</button></div>'+
+      '</div></div>';
+  }
+  /* the chosen file uploads into the card; a file at the wrong dimension is caught there, not silently fitted */
+  function openPicked(){
+    var P = S.picker; if(!P || P.sel===null) return;
+    var k = P.k, f = pickerFiles(k)[P.sel], want = k.split('x').map(Number);
+    S.picker = null; delete S.uploadErr[k]; S.uploading[k] = true; paint();
+    S.tq.push(setTimeout(function(){
+      delete S.uploading[k];
+      if(f.d[0]===want[0] && f.d[1]===want[1]){
+        delete S.removed[k]; S.uploaded[k] = {name:f.n}; S.done[k] = true; S.landed = {}; S.landed[k] = true;
+      } else {
+        delete S.uploaded[k]; S.done[k] = false; S.removed[k] = true; S.uploadErr[k] = {name:f.n, d:f.d};
+      }
+      paint();
+    }, 1400));
+  }
+  /* the bar grows whenever the covered sign count changes; the count itself just updates */
+  function animateMeter(){
+    var fill = document.getElementById('meterfill'), to = S.signsTarget;
+    if(!fill || S.signsShown===to) return;
+    S.signsShown = to;
+    var ok = document.querySelector('.meterhead .why.good'); if(ok) ok.classList.add('arrive');
+    void fill.offsetWidth;   /* commit the starting width so the transition runs */
+    fill.style.width = (to/total()*100)+'%';
   }
 
   function stop(){ if(S.t1){clearInterval(S.t1);S.t1=null;} if(S.t2){clearTimeout(S.t2);S.t2=null;} }
   function runCheck(){
-    stop(); S.v='checking'; S.phr=0; S.ai='idle'; S.done={}; S.sel=null; paint();
+    stop(); clearBuild(); S.v='checking'; S.phr=0; S.done={}; S.sel=null; S.cache={}; S.removed={}; S.uploaded={}; S.uploading={}; S.uploadErr={}; S.picker=null; paint();
     S.t1 = setInterval(function(){ S.phr = Math.min(S.phr+1, PHRASES.length-1); paint(); }, 900);
     S.t2 = setTimeout(function(){ stop(); S.v='checklist'; S.cropping=true; paint();
       S.t2 = setTimeout(function(){ S.cropping=false; paint(); }, 800); }, 3400);
@@ -1057,31 +1348,74 @@
       ? p.aiTask.filter(function(i){ return kOf(i.d)===only; })
       : p.aiTask.filter(function(i){ return sel[kOf(i.d)] && !S.done[kOf(i.d)]; });
     if(!picked.length) return;
-    S.regenOne = !!only;
-    stop(); S.v='airun'; S.aiPhr=0; S.ai='running'; paint();
-    S.t1 = setInterval(function(){ S.aiPhr = Math.min(S.aiPhr+1, AIPHRASES.length-1); paint(); }, 850);
-    S.t2 = setTimeout(function(){ stop(); S.ai='idle';
-      picked.forEach(function(i){ S.done[kOf(i.d)] = true; S.frames[key(i)] = null; });
-      S.v='aiedit'; paint(); }, S.regenOne ? 1800 : 3200);
+    picked.forEach(function(i){ delete S.removed[kOf(i.d)]; });
+    /* layouts built before the advertiser stepped back come straight back, no second wait */
+    var cached = only ? [] : picked.filter(function(i){ return S.cache[kOf(i.d)]; });
+    cached.forEach(function(i){ S.done[kOf(i.d)] = true; delete S.cache[kOf(i.d)]; });
+    picked = picked.filter(function(i){ return cached.indexOf(i)<0; });
+    if(!picked.length){ show('aiedit'); return; }
+    stop(); buildInline(picked, only);
+  }
+  /* no loader screen: the review opens straight away, every new layout loads as a skeleton card, and they land together */
+  function buildInline(picked, only){
+    clearBuild();
+    S.ai = 'running'; S.building = {};
+    picked.forEach(function(i){ S.frames[key(i)] = null; S.building[kOf(i.d)] = true; });
+    S.zoom = null; S.v = 'aiedit'; paint();
+    S.tq.push(setTimeout(function(){
+      if(!S.building) return;
+      S.landed = {};
+      picked.forEach(function(i){ S.done[kOf(i.d)] = true; S.landed[kOf(i.d)] = true; });
+      S.building = null; S.ai = 'idle';
+      paint();
+    }, only ? 1800 : 3200));
+  }
+  function clearBuild(){ S.tq.forEach(clearTimeout); S.tq = []; S.building = null; S.uploading = {}; S.ai = 'idle'; }
+  function unbuild(){
+    var p = plan(); selSet(p);
+    p.aiTask.forEach(function(i){ var k=kOf(i.d);
+      if(S.uploaded[k]){ S.done[k]=false; S.sel[k]=false; delete S.uploaded[k]; return; }   /* uploads are not AI output to restore */
+      if(S.done[k]){ S.done[k]=false; S.cache[k]=true; S.sel[k]=true; } });
   }
   function go(v){
     stop();
     S.zoom=null;
     if(v==='checking'){ runCheck(); return; }
-    if(v==='airun'){ runAI(); return; }
     var p = plan();
     if(v==='editor' && !p.adjust.length && !S.editSize) v='checklist';
     if(v==='aiedit'){ if(!p.aiTask.length && !p.relayout.length){ v='checklist'; }
                       else { p.aiTask.forEach(function(i){ S.done[kOf(i.d)]=true; }); } }
-    if(v==='ready' || v==='applied'){ p.aiTask.forEach(function(i){ S.done[kOf(i.d)]=true; }); }
-    if(v==='checklist' && S.v!=='airun') S.cropping=false;
+    if(v==='ready'){ p.aiTask.forEach(function(i){ S.done[kOf(i.d)]=true; }); }
+    /* after adding, every size that just received creative opens, so it's clear what landed where */
+    if(v==='applied'){ S.openRows = {};
+      p.items.forEach(function(i){ if(p.aiTask.indexOf(i)<0 || S.done[kOf(i.d)]) S.openRows[kOf(i.d)] = true; }); }
+    if(v==='checklist') S.cropping=false;
     S.v=v; paint();
   }
+  /* move to a screen without go()'s jump-to-stage side effects */
+  function show(v){ stop(); S.zoom=null; S.v=v; paint(); }
+  function anyBuilt(){ return plan().aiTask.some(function(i){ return S.done[kOf(i.d)]; }); }
+  function leaveEditor(){
+    var from = S.editFrom || {v:'checklist'};
+    S.editFrom = null; stop(); S.v = from.v; S.zoom = from.zoom || null;
+    if(from.zoomFrom) S.zoomFrom = from.zoomFrom;
+    paint();
+  }
+  function stopBuild(){ clearBuild(); if(S.v==='aiedit' && !anyBuilt()) S.v='checklist'; paint(); }
+  /* every screen after step 1 steps back one screen, never jumps */
+  function goBack(){
+    if(S.zoom){ S.zoom=null; paint(); return; }
+    if(S.building){ stopBuild(); return; }
+    if(S.v==='editor'){ leaveEditor(); return; }
+    /* back to the choice that made these: they return to the offer, still ticked */
+    if(S.v==='aiedit'){ clearBuild(); unbuild(); S.removed={}; S.uploadErr={}; show('checklist'); return; }
+    if(S.v==='checklist' || S.v==='ready'){ show(anyBuilt() ? 'aiedit' : 'scanned'); return; }
+  }
   function setScen(id){
-    stop(); S.scen=id; S.frames={}; S.ai='idle'; S.done={}; S.sel=null; S.zoom=null; S.editSize=null; S.aiEditSize=null; S.cropping=false; S.folded=true;
+    stop(); S.scen=id; S.frames={}; S.ai='idle'; S.done={}; S.sel=null; S.cache={}; S.zoom=null; S.editSize=null; S.aiEditSize=null; S.cropping=false; S.folded=true;
     var p=plan();
     if(S.v==='editor' && !p.adjust.length) S.v='checklist';
-    if((S.v==='aiedit'||S.v==='airun') && !p.aiTask.length) S.v='checklist';
+    if(S.v==='aiedit' && !p.aiTask.length) S.v='checklist';
     paint();
   }
 
@@ -1101,23 +1435,48 @@
       var act=a.getAttribute('data-a'), k=a.getAttribute('data-k');
       if(act==='up'){ runCheck(); return; }
       if(act==='fold'){ S.folded=!S.folded; paint(); return; }
-      if(act==='togglerow'){ S.openRow = (S.openRow===k?null:k); paint(); return; }
+      if(act==='togglerow'){ if(S.openRows[k]) delete S.openRows[k]; else S.openRows[k]=true; paint(); return; }
       if(act==='close'){ go('section'); return; }
-      if(act==='adjust'){ if(k) S.editSize=k; S.zoom=null; go('editor'); return; }
+      if(act==='exit'){ if(needsConfirm()){ S.confirm=true; paint(); } else { go('section'); } return; }
+      if(act==='stay'){ S.confirm=false; paint(); return; }
+      if(act==='leave'){ S.confirm=false; clearBuild(); go('section'); return; }
+      if(act==='adjust'){ if(k) S.editSize=k;
+        var from = S.zoom ? {v:S.v, zoom:S.zoom, zoomFrom:S.zoomFrom} : {v:S.v};
+        S.zoom=null; go('editor'); S.editFrom = from; return; }
+      if(act==='continue'){ show('checklist'); return; }
       if(act==='runai'){ runAI(); return; }
       if(act==='selall'){ var pp=plan(); selSet(pp); pp.aiTask.forEach(function(i){S.sel[kOf(i.d)]=true;}); paint(); return; }
       if(act==='selnone'){ var pn=plan(); selSet(pn); pn.aiTask.forEach(function(i){S.sel[kOf(i.d)]=false;}); paint(); return; }
-      if(act==='cancelai'){ stop(); S.ai='idle'; go('checklist'); return; }
-      if(act==='aiedit'){ if(k) S.aiEditSize=k; go('aiedit'); return; }
-      if(act==='regen'){ S.zoom=null; runAI(k || S.zoom); return; }
+      if(act==='aiedit'){ if(k) S.aiEditSize=k; show('aiedit'); return; }
+      if(act==='regen'){ S.zoom=null; runAI(k); return; }
+      if(act==='stopbuild'){ stopBuild(); return; }
+      if(act==='removeai'){
+        /* the layout is set aside, not lost: it stays listed as removed until they undo or leave */
+        selSet(plan()); S.done[k]=false; S.sel[k]=false; delete S.cache[k]; delete S.uploaded[k]; delete S.uploadErr[k]; S.removed[k]=true; S.zoom=null;
+        paint(); return; }
+      if(act==='undoremove'){ S.done[k]=true; S.sel[k]=true; delete S.removed[k]; delete S.uploadErr[k]; paint(); return; }
+      if(act==='uploadown'){ S.zoom=null; S.picker={k:k, sel:null}; paint(); return; }
+      if(act==='fpsel'){ var fi=+a.getAttribute('data-f'); if(pickerFiles(S.picker.k)[fi].doc) return; S.picker.sel=fi; paint(); return; }
+      if(act==='fpcancel'){ S.picker=null; paint(); return; }
+      if(act==='fpopen'){ openPicked(); return; }
       if(act==='handcrop'){ S.editSize = S.aiEditSize; go('editor'); return; }
-      if(act==='saveadjust'){ go('checklist'); return; }
-      if(act==='back'){ go('checklist'); return; }
-      if(act==='keep'){ S.zoom=null; go('checklist'); return; }
+      if(act==='saveadjust'){ leaveEditor(); return; }
+      if(act==='back'){ goBack(); return; }
       if(act==='zoom'){ S.zoom=k; S.zoomFrom=S.v; paint(); return; }
       if(act==='unzoom'){ S.zoom=null; paint(); return; }
       if(act==='resetcrop'){ var c=document.getElementById('canvas'); if(c&&c._i){ S.frames[key(c._i)]=initFrame(c._i); paintCanvas(); } return; }
-      if(act==='apply'){ go('applied'); return; }
+      if(act==='apply'){
+        /* skipping AI: the offer visibly steps back before the modal closes, so it's clear those dimensions weren't added.
+           Nothing is lost; adding creative again brings the offer back. */
+        var offer = document.querySelector('.ckpanel.offer');
+        if(S.v==='checklist' && offer && a.textContent.indexOf('without')>-1){
+          var md = document.querySelector('.md'); if(md) md.classList.add('closing');
+          offer.classList.add('skipped');
+          var note = document.querySelector('.disc.below'); if(note) note.classList.add('skipped');
+          stop(); S.t2 = setTimeout(function(){ S.t2 = null; go('applied'); }, 700);
+          return;
+        }
+        go('applied'); return; }
       return;
     }
     if(S.v==='section' && e.target.closest('#region')) runCheck();
@@ -1148,6 +1507,16 @@
     if(!S.drag) return; S.drag=null; S.dragging=false;
     var c=document.getElementById('canvas'); if(c) c.classList.remove('dragging');
   });
+  /* the picker behaves like the real one: double-click opens, Escape cancels, Enter opens */
+  document.addEventListener('dblclick', function(e){
+    var r = e.target.closest('.fp-row.pick'); if(!r || !S.picker) return;
+    S.picker.sel = +r.getAttribute('data-f'); openPicked();
+  });
+  document.addEventListener('keydown', function(e){
+    if(!S.picker) return;
+    if(e.key==='Escape'){ S.picker=null; paint(); e.preventDefault(); e.stopImmediatePropagation(); }
+    else if(e.key==='Enter'){ openPicked(); e.preventDefault(); e.stopImmediatePropagation(); }
+  }, true);
   document.addEventListener('keydown', function(e){
     if(S.v!=='editor' || ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].indexOf(e.key)<0) return;
     var c=document.getElementById('canvas'); if(!c||!c._i) return;
