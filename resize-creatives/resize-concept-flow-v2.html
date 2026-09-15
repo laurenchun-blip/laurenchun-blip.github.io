@@ -191,13 +191,18 @@
   .srow.filled .scount.done{color:var(--text);font-weight:500;}
   .cstrip{display:flex;align-items:center;gap:12px;padding:14px 16px;}
   .ctiles{display:flex;flex-wrap:wrap;gap:12px;flex:1;min-width:0;}
-  .ctile{position:relative;width:282px;height:158px;border-radius:var(--r-md);background:var(--surface-3);
+  .ctile{position:relative;width:250px;height:140px;border-radius:var(--r-md);background:var(--surface-3);
          display:grid;place-items:center;border:var(--stroke) solid transparent;}
   .ctile.sel{border-color:var(--accent);}
   .ctile .img{display:block;background-size:100% 100%;border-radius:1px;}
   .ctile .ok{position:absolute;top:8px;left:8px;width:22px;height:22px;border-radius:50%;background:var(--success);color:#fff;
              font-size:12px;display:grid;place-items:center;border:2px solid #fff;box-sizing:content-box;margin:-2px;}
   .cstrip .addmore{flex:none;align-self:center;}
+  .ctile[data-a="seltile"]{cursor:pointer;}
+  .orow .ov.covered{color:var(--text-3);font-weight:500;}
+  .nlft .gain.covered{color:var(--text-3);font-weight:500;}
+  .another{margin:14px 2px 0;font-size:12.5px;color:var(--text-2);font-weight:500;}
+  .another .elink{font-size:12.5px;}
   .cinfo{border-top:var(--hair) solid var(--border);padding:12px 16px 14px;}
   .cinfo .cmeta{margin-top:0;}
   .scount.offer{color:var(--text);font-weight:500;}
@@ -394,7 +399,8 @@
   .orow .od{font-family:var(--mono);font-size:11.5px;font-weight:600;min-width:78px;}
   .orow .on{font-size:12.5px;color:var(--text-2);font-weight:500;}
   .orow .sp{flex:1;}
-  .orow .ov{font-size:12.5px;font-weight:600;color:var(--accent-2);white-space:nowrap;}
+  /* every sign count shares one neutral style; the "+" alone marks what AI would add */
+  .orow .ov{font-size:12.5px;font-weight:500;color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums;}
   .orow.off .od,.orow.off .on{color:var(--text-3);} .orow.off .ov{color:var(--text-3);font-weight:500;}
   .ofoot{display:flex;align-items:center;gap:12px;margin-top:9px;padding-top:9px;border-top:var(--hair) solid var(--border);}
   .ofoot a{font-size:12.5px;font-weight:600;color:var(--accent);cursor:pointer;}
@@ -740,11 +746,38 @@
   var S = {v:'section', scen:'real', phr:0, cropping:false, ai:'idle', showDrag:false,
            done:{}, sel:null, lab:'mono', zoom:null, zoomFrom:null, openRows:{},
            framed:false, folded:true, cache:{}, editFrom:null, tq:[], building:null, landed:{},
-           signsShown:0, signsTarget:0, removed:{}, uploaded:{}, uploading:{}, uploadErr:{}, picker:null,
+           signsShown:0, signsTarget:0, removed:{}, uploaded:{}, uploading:{}, uploadErr:{}, picker:null, batches:[], fileId:null, tileSel:{},
            drag:null, dragging:false, frames:{}, editFile:null, editSize:null, aiEditSize:null, t1:null, t2:null};
 
   function sc(){ return SCEN.filter(function(x){return x.id===S.scen;})[0]; }
-  function files(){ return sc().files.map(function(f){return FILES[f];}); }
+  function files(){ return S.fileId ? [FILES[S.fileId]] : sc().files.map(function(f){return FILES[f];}); }
+
+  /* ---- more than one creative in a single visit: each finished creative is kept as a batch ---- */
+  /* scan thumbnails keep the file's shape inside a 400×300 box, so a tall file doesn't blow up the modal */
+  function thumbStyle(f){ var r = f.w/f.h, w = Math.min(400, Math.round(300*r)); return 'width:'+w+'px;height:'+Math.round(w/r)+'px;background-image:'+ART[f.art]; }
+  function batchName(f, d){ return f.name.replace(/\.[a-z]+$/,'').replace(/-\d+×\d+$/,'')+'_'+d[0]+'×'+d[1]+'.jpg'; }
+  /* what the creative in progress would add right now: crops, plus AI layouts and uploads that exist */
+  function currentBatch(){
+    var p = plan(), f = files()[0];
+    return {file:f, items: p.items.filter(function(i){ return p.aiTask.indexOf(i)<0 || S.done[kOf(i.d)]; }).map(function(i){
+      var k = kOf(i.d), up = S.uploaded[k];
+      return {k:k, i:i, up: up ? {name:up.name} : null, ai: p.aiTask.indexOf(i)>-1 && !up, name: up ? up.name : batchName(f, i.d)};
+    })};
+  }
+  function entryBG(e, w){
+    return e.up ? 'background-image:'+upArt(e.i.d)+';background-size:100% 100%' : (e.i.band==='fit' ? fitBG(e.i,w) : cropBG(e.i,w)); }
+  /* every creative this visit adds, earlier batches first, grouped by sign dimension */
+  function entriesByDim(){
+    var by = {};
+    S.batches.concat([currentBatch()]).forEach(function(b){ b.items.forEach(function(e){ (by[e.k] = by[e.k] || []).push(e); }); });
+    return by;
+  }
+  function batchKeys(){ var s = {}; S.batches.forEach(function(b){ b.items.forEach(function(e){ s[e.k] = true; }); }); return s; }
+  /* signs covered once earlier batches are counted alongside the given dimensions */
+  function unionSigns(items){
+    var s = batchKeys(); items.forEach(function(i){ s[kOf(i.d)] = true; });
+    return signsIn(plan().items.filter(function(i){ return s[kOf(i.d)]; }));
+  }
   function sizes(){ return sc().sizes; }
   function total(){ return sizes().reduce(function(a,d){return a+d[2];},0); }
   function orient(r){ return r>1.15?'land':(r<0.87?'port':'sq'); }
@@ -816,8 +849,9 @@
   /* ================= section ================= */
   function sectionHTML(){
     var applied = S.v==='applied', p = plan(), SZ = sizes(), T = total();
+    var byDim = applied ? entriesByDim() : {};
     /* once every sign has a creative there is nothing left to upload for, and the full meter already says so */
-    var complete = applied && p.items.every(function(i){ return p.aiTask.indexOf(i)<0 || !!S.done[kOf(i.d)]; });
+    var complete = applied && p.items.every(function(i){ return !!byDim[kOf(i.d)]; });
     var h = '<div class="crtitle">Creative <span style="color:var(--text-3)">&#9432;</span></div>'+
             (complete ? '' : '<p class="crsub">Upload more sizes to reach more people.</p>');
     if(!applied){
@@ -839,8 +873,8 @@
           (S.folded?'':hid.map(emptyRow).join('')):'')+
         '</div></div></div>';
     } else {
-      /* only what was applied is filled: crops, plus AI layouts that were actually made */
-      var has = function(i){ return p.aiTask.indexOf(i)<0 || !!S.done[kOf(i.d)]; };
+      /* only what was applied is filled: crops, AI layouts that were made, and uploads, from every creative added */
+      var has = function(i){ return !!byDim[kOf(i.d)]; };
       var cov = signsIn(p.items.filter(has));
       /* the count carries the number, so the confirmation beside it never needs one;
          the bar is drawn at the last count shown, then animated to the new one after paint */
@@ -854,7 +888,7 @@
         '<a data-a="up">My Library</a></div>';
 
       var shownR = p.items.slice().sort(function(a,b){ return b.d[2]-a.d[2]; }), hidR = [];
-      h += '<div class="rows" style="margin-top:0">'+shownR.map(function(i){ return has(i) ? filledRow(i) : emptyRow(i.d); }).join('')+
+      h += '<div class="rows" style="margin-top:0">'+shownR.map(function(i){ return has(i) ? filledRow(i, byDim[kOf(i.d)]) : emptyRow(i.d); }).join('')+
         (hidR.length ? '<div class="fold" data-a="fold">'+(S.folded?'&#9662;':'&#9652;')+
           ' <span>'+(S.folded?'Show':'Hide')+' '+hidR.length+' size'+(hidR.length>1?'s':'')+'</span>'+
           '<span class="c">'+sg(hidR.reduce(function(a,i){return a+i.d[2];},0))+'</span></div>'+
@@ -875,27 +909,29 @@
       '<span class="sgrow"></span><span class="scount offer">+'+sg(d[2])+'</span>'+
       '<span class="sacts"><button class="btn acc" data-a="up">Add creative<i class="cv">&#9662;</i></button></span></div></div>';
   }
-  function filledRow(i){
-    var up = S.uploaded[kOf(i.d)];
-    var isAI = i.band!=='fit' && i.band!=='adjust' && !up;
-    var open = !!S.openRows[kOf(i.d)];
-    var base = i.f.name.replace(/\.[a-z]+$/,'').replace(/-\d+×\d+$/,'');
-    var fn = up ? up.name : base+'_'+i.d[0]+'×'+i.d[1]+'.jpg';
-    /* one tile per creative this size holds; this flow adds one, and the selected tile is the one named below */
-    var tb = fitBox(i.d, 262, 138);
+  function filledRow(i, list){
+    var k = kOf(i.d), open = !!S.openRows[k];
+    /* one tile per creative this size holds; the selected tile is the one named below */
+    var si = Math.min(S.tileSel[k] || 0, list.length-1), cur = list[si];
+    var nAI = list.filter(function(e){ return e.ai; }).length, isAI = nAI > 0;
+    var meta = !nAI ? '' : (nAI===list.length ? 'Resized with AI' : nAI+' of '+list.length+' resized with AI');
+    var fn = cur.name;
+    var tb = fitBox(i.d, 232, 122);
     var chev = open
       ? '<svg class="chv" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
       : '<svg class="chv" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    return '<div class="srow filled'+(open?' open':'')+'"><div class="line head'+(isAI?'':' solo')+'" data-a="togglerow" data-k="'+kOf(i.d)+'" aria-expanded="'+open+'">'+
+    return '<div class="srow filled'+(open?' open':'')+'"><div class="line head'+(isAI?'':' solo')+'" data-a="togglerow" data-k="'+k+'" aria-expanded="'+open+'">'+
       '<span class="swatch"><span class="tn" style="width:'+fitBox(i.d,ROWBOX.w,ROWBOX.h).w+
-        'px;height:'+fitBox(i.d,ROWBOX.w,ROWBOX.h).h+'px;'+artBG(i,ROWBOX.w)+'"></span></span>'+
+        'px;height:'+fitBox(i.d,ROWBOX.w,ROWBOX.h).h+'px;'+entryBG(list[0],ROWBOX.w)+'"></span></span>'+
       '<span class="sdim">'+i.d[0]+' × '+i.d[1]+' px <span>· '+oriName(i.d)+'</span></span>'+
-      (isAI?'<span class="smeta">Resized with AI</span>':'')+
+      (meta?'<span class="smeta">'+meta+'</span>':'')+
       '<span class="scount done">'+sg(i.d[2])+' covered'+chev+'</span></div>'+
       (open ? '<div class="rowbody">'+
         '<div class="cstrip"><div class="ctiles">'+
-          '<div class="ctile sel"><span class="ok">&#10003;</span>'+
-            '<span class="img" style="width:'+tb.w+'px;height:'+tb.h+'px;'+artBG(i,tb.w)+'"></span></div>'+
+          list.map(function(e, n){
+            return '<div class="ctile'+(n===si?' sel':'')+'" data-a="seltile" data-k="'+k+'" data-n="'+n+'" title="'+e.name+'"><span class="ok">&#10003;</span>'+
+              '<span class="img" style="width:'+tb.w+'px;height:'+tb.h+'px;'+entryBG(e,tb.w)+'"></span></div>';
+          }).join('')+
           '</div><button class="btn acc addmore" data-a="noop">Add more<i class="cv">&#9662;</i></button></div>'+
         '<div class="cinfo"><div class="cmeta"><span class="fn">'+fn+'</span><span class="sp"></span><a data-a="noop">Remove</a></div>'+
           '<div class="rdy">&#10003; Ready for review</div></div>'+
@@ -947,7 +983,7 @@
     var f = files()[0];
     return wrapMD('Add creative','',dotsEl(0),
       '<div class="loadwrap">'+
-      '<span class="loadthumb" style="aspect-ratio:'+f.w+'/'+f.h+';background-image:'+ART[f.art]+'"></span>'+
+      '<span class="loadthumb" style="'+thumbStyle(f)+'"></span>'+
       '<span class="loadbar"><i></i></span><p class="loadphr">'+PHRASES[S.phr]+'</p></div>',
       '');
   }
@@ -957,7 +993,7 @@
     /* what the advertiser did here was upload a file, so that is what this screen confirms */
     return wrapMD('Add creative','',dotsEl(0),
       '<div class="loadwrap">'+
-      '<span class="loadthumb" style="aspect-ratio:'+f.w+'/'+f.h+';background-image:'+ART[f.art]+'"></span>'+
+      '<span class="loadthumb" style="'+thumbStyle(f)+'"></span>'+
       '<div class="loaddone"><p class="loadok"><i>&#10003;</i>File uploaded</p>'+
       '<p class="loadfile">'+f.name+'</p>'+
       '<p class="loadfile loadrep"><button class="elink" data-a="up">Replace file</button></p></div></div>',
@@ -1003,7 +1039,9 @@
     }
 
     /* crop and AI offer as two matching panels: what the file already fits, then what AI can add */
-    var pickedSigns = signsIn(picked), allAI = signsIn(missing);
+    /* signs an earlier creative already covers aren't new value, so they don't count toward "unlock" */
+    var prior = batchKeys(), isNew = function(i){ return !prior[kOf(i.d)]; };
+    var pickedSigns = signsIn(picked.filter(isNew)), allAI = signsIn(missing.filter(isNew));
     var isAIi = function(i){ return p.auto.indexOf(i)>-1 ? i.band!=='fit' : built.indexOf(i)>-1; };
     var body = '';
 
@@ -1025,7 +1063,7 @@
     }
 
     if(missing.length){
-      body += '<div class="ckpanel offer"><p class="ot">Unlock '+allAI+' '+(shown.length?'more ':'')+'sign'+(allAI===1?'':'s')+' with AI</p>'+
+      body += '<div class="ckpanel offer"><p class="ot">'+(allAI ? 'Unlock '+allAI+' '+(shown.length||S.batches.length?'more ':'')+'sign'+(allAI===1?'':'s')+' with AI' : 'Resize this creative with AI too')+'</p>'+
         '<p class="os">Use AI to resize your creative for '+(missing.length===1?'this additional sign dimension':'these additional sign dimensions')+'.</p>'+
         missing.map(function(i){
           var on = !!sel[kOf(i.d)];
@@ -1034,11 +1072,11 @@
           return '<label class="orow'+(on?'':' off')+'"><input type="checkbox" data-pick="'+kOf(i.d)+'"'+(on?' checked':'')+'>'+
             '<span class="othumb" aria-hidden="true"><span class="oghost" style="width:'+gb.w+'px;height:'+gb.h+'px"></span></span>'+
             '<span class="od">'+i.d[0]+'×'+i.d[1]+'</span><span class="on">'+fmtName(i.d)+'</span>'+
-            '<span class="sp"></span><span class="ov">+'+sg(i.d[2])+'</span></label>';
+            '<span class="sp"></span>'+(isNew(i) ? '<span class="ov">+'+sg(i.d[2])+'</span>' : '<span class="ov covered">Already covered</span>')+'</label>';
         }).join('')+
         '<div class="ofoot"><a data-a="selall">Select all</a><a data-a="selnone">Clear</a><span class="sp"></span>'+
           /* the ticks are settings for Resize, so the count says so; "Add without resizing" then reads as skipping, not discarding */
-          '<span class="tot">'+(picked.length ? picked.length+' selected to resize · '+sg(pickedSigns) : 'None selected to resize')+'</span></div></div>'+
+          '<span class="tot">'+(picked.length ? picked.length+' selected to resize'+(pickedSigns ? ' · '+sg(pickedSigns) : '') : 'None selected to resize')+'</span></div></div>'+
         /* the review and content-rules note sits under the offer, not inside it, so the choice reads cleanly */
         '<p class="disc below">AI layouts are reviewed like any creative. Sign owners set their own content rules. <a>Content guidelines</a></p>';
     }
@@ -1051,7 +1089,10 @@
       : '<button class="btn pri sm" data-a="apply">Add to campaign</button>';
     var task = missing.length;
     return wrapMD('Add creative', '', dotsEl(task?1:2), body,
-      '<span class="cover"><b>'+covered+' of '+T+'</b> signs covered</span><span class="sp"></span>'+primary, true);
+      /* the total follows the ticks, but only claims "covered" for what's already fitted; ticked ones count "with resizing" */
+      '<span class="cover" data-covered="'+unionSigns(shown)+' of '+T+'">'+(picked.length
+        ? '<b>'+unionSigns(shown.concat(picked))+' of '+T+'</b> signs with resizing'
+        : '<b>'+unionSigns(shown)+' of '+T+'</b> signs covered')+'</span><span class="sp"></span>'+primary, true);
   }
 
   function mdEditor(){
@@ -1119,7 +1160,8 @@
     var foot = function(actions, tag, status){
       return '<div class="nlft two"><div class="l1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span>'+
         '<span class="linline">· '+fmtName(i.d)+'</span></div>'+
-        '<div class="l2">'+(status || '<span class="gain">+'+sg(i.d[2])+'</span>'+(tag?'<span class="linline">· '+tag+'</span>':''))+
+        '<div class="l2">'+(status || (batchKeys()[k] ? '<span class="gain covered">Already covered</span>' : '<span class="gain">+'+sg(i.d[2])+'</span>')+
+          (tag?'<span class="linline">· '+tag+'</span>':''))+
         '<span class="sp"></span>'+actions+'</div></div>';
     };
     var rmBtn = '<button class="rm" data-a="removeai" data-k="'+k+'" aria-label="Remove '+i.d[0]+'×'+i.d[1]+'" title="Remove">&#10005;</button>';
@@ -1162,8 +1204,19 @@
   function mdLayoutsReview(p, made){
     var crops = p.auto.concat(p.adjust), ready = made.filter(function(i){ return S.done[kOf(i.d)]; });
     var nr = p.aiTask.filter(function(i){ return S.removed[kOf(i.d)]; }).length;
-    var covered = signsIn(crops.concat(ready));
+    var covered = signsIn(crops.concat(ready)), campaignCovered = unionSigns(crops.concat(ready));
     var these = nr===1 ? 'this dimension' : 'these dimensions';
+    var busy = S.building || Object.keys(S.uploading).length;
+    /* earlier creatives from this visit, so it's clear they're still going in alongside this one */
+    var earlier = S.batches.length ? '<div class="incl"><p class="sublab">Also adding</p>'+S.batches.map(function(b){
+        var f = b.file, bs = signsIn(b.items.map(function(e){ return e.i; }));
+        return '<div class="srcline"><span class="tn" style="width:112px;height:'+Math.round(112/(f.w/f.h) > 40 ? 40 : 112/(f.w/f.h))+'px;'+
+            'background-image:'+ART[f.art]+';background-size:contain;background-repeat:no-repeat;background-position:center"></span>'+
+          '<span class="rd">'+f.name+'</span><span class="sp"></span>'+
+          '<span class="cover">'+b.items.length+' dimension'+(b.items.length===1?'':'s')+' · '+sg(bs)+'</span></div>';
+      }).join('')+'</div>' : '';
+    /* the way to a second creative lives on the last step, once this one is settled */
+    var another = '<p class="another">Have another creative? <button class="elink" data-a="another">Add another</button></p>';
     var gridItems = p.aiTask.filter(function(i){ return made.indexOf(i)>-1 || S.removed[kOf(i.d)]; });
     var body = '<div class="rhead"><p class="rt">Fitted to your sign dimensions</p>'+
       '<span class="rs">'+(crops.length+ready.length)+' dimension'+(crops.length+ready.length===1?'':'s')+' ready · '+sg(covered)+'</span></div>'+
@@ -1172,14 +1225,16 @@
         ? 'Upload your own creative for '+these+' now, or add it later.'
         : 'All new layouts removed. You can continue with just your original creative, or upload your own for '+these+' now or later.')+'</p>' : '')+
       (crops.length ? '<div class="incl"><p class="sublab">'+(made.length?'Also included':'Included')+'</p>'+crops.map(function(i){
-        return '<div class="srcline"><span class="tn" style="height:'+thumbH(i.d,112)+'px;'+
-            (i.band==='fit'?fitBG(i,112):cropBG(i,112))+'"></span>'+
+        return (function(){ var tb = fitBox(i.d, 112, 40); return '<div class="srcline"><span class="tn" style="width:'+tb.w+'px;height:'+tb.h+'px;'+
+            (i.band==='fit'?fitBG(i,tb.w):cropBG(i,tb.w))+'"></span>'; })()+
           '<span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="lm">· Cropped</span><span class="sp"></span>'+
           '<span class="cover">'+sg(i.d[2])+'</span>'+
           '<button class="elink" data-a="adjust" data-k="'+kOf(i.d)+'">Edit</button></div>';
-      }).join('')+'</div>' : '');
+      }).join('')+'</div>' : '')+
+      /* earlier creatives and the way to another only appear once this creative's layouts have landed */
+      (busy ? '' : earlier+another);
     return wrapMD('Add creative', '', dotsEl(2), body,
-      '<span class="cover"><b>'+covered+' of '+total()+'</b> signs covered</span><span class="sp"></span>'+
+      '<span class="cover"><b>'+campaignCovered+' of '+total()+'</b> signs covered</span><span class="sp"></span>'+
       (S.building ? '<button class="btn sm" data-a="stopbuild">Stop</button><button class="btn pri sm" disabled>Add to campaign</button>'
                   : Object.keys(S.uploading).length ? '<button class="btn pri sm" disabled>Add to campaign</button>'
                   : '<button class="btn pri sm" data-a="apply">Add to campaign</button>'), true);
@@ -1280,6 +1335,14 @@
 
   /* ---- simulated system file picker: a prototype stand-in for the OS "open file" dialog ---- */
   function pickerFiles(k){
+    /* a new creative for this visit: any campaign file, not one dimension */
+    if(k==='__new') return [
+      {n:FILES.tall.name, fid:'tall', d:[1080,1920], art:ART.tall, when:'Yesterday at 4:05 PM', size:'3.3 MB'},
+      {n:FILES.near.name, fid:'near', d:[1520,400], art:ART.wide, when:'Sep 2, 2026 at 11:20 AM', size:'980 KB'},
+      {n:FILES.wide.name, fid:'wide', d:[2800,800], art:ART.wide, when:'Today at 9:12 AM', size:'2.1 MB'},
+      {n:'Brand guidelines.pdf', doc:true, when:'Aug 18, 2026 at 2:48 PM', size:'6.8 MB'},
+      {n:'Q3 media plan.pdf', doc:true, when:'Aug 11, 2026 at 10:02 AM', size:'412 KB'}
+    ];
     var d = k.split('x').map(Number);
     return [
       {n:'ridgeline-summer-'+d[0]+'×'+d[1]+'.jpg', d:d, art:upArt(d), when:'Today at 9:41 AM', size:'1.4 MB'},
@@ -1313,6 +1376,13 @@
   /* the chosen file uploads into the card; a file at the wrong dimension is caught there, not silently fitted */
   function openPicked(){
     var P = S.picker; if(!P || P.sel===null) return;
+    if(P.k==='__new'){
+      /* keep what this creative already made, then run the new file through the same scan, checklist and review */
+      var nf = pickerFiles('__new')[P.sel];
+      S.batches.push(currentBatch());
+      S.picker = null; S.fileId = nf.fid; S.editSize = null; S.aiEditSize = null;
+      runCheck(); return;
+    }
     var k = P.k, f = pickerFiles(k)[P.sel], want = k.split('x').map(Number);
     S.picker = null; delete S.uploadErr[k]; S.uploading[k] = true; paint();
     S.tq.push(setTimeout(function(){
@@ -1387,8 +1457,8 @@
                       else { p.aiTask.forEach(function(i){ S.done[kOf(i.d)]=true; }); } }
     if(v==='ready'){ p.aiTask.forEach(function(i){ S.done[kOf(i.d)]=true; }); }
     /* after adding, every size that just received creative opens, so it's clear what landed where */
-    if(v==='applied'){ S.openRows = {};
-      p.items.forEach(function(i){ if(p.aiTask.indexOf(i)<0 || S.done[kOf(i.d)]) S.openRows[kOf(i.d)] = true; }); }
+    if(v==='applied'){ S.openRows = {}; S.tileSel = {};
+      Object.keys(entriesByDim()).forEach(function(k){ S.openRows[k] = true; }); }
     if(v==='checklist') S.cropping=false;
     S.v=v; paint();
   }
@@ -1412,7 +1482,7 @@
     if(S.v==='checklist' || S.v==='ready'){ show(anyBuilt() ? 'aiedit' : 'scanned'); return; }
   }
   function setScen(id){
-    stop(); S.scen=id; S.frames={}; S.ai='idle'; S.done={}; S.sel=null; S.cache={}; S.zoom=null; S.editSize=null; S.aiEditSize=null; S.cropping=false; S.folded=true;
+    stop(); S.scen=id; S.frames={}; S.batches=[]; S.fileId=null; S.tileSel={}; S.ai='idle'; S.done={}; S.sel=null; S.cache={}; S.zoom=null; S.editSize=null; S.aiEditSize=null; S.cropping=false; S.folded=true;
     var p=plan();
     if(S.v==='editor' && !p.adjust.length) S.v='checklist';
     if(S.v==='aiedit' && !p.aiTask.length) S.v='checklist';
@@ -1433,7 +1503,12 @@
     var a=e.target.closest('[data-a]');
     if(a){
       var act=a.getAttribute('data-a'), k=a.getAttribute('data-k');
-      if(act==='up'){ runCheck(); return; }
+      if(act==='up'){
+        /* starting from the page begins a fresh visit; Replace file inside the modal keeps earlier creatives */
+        if(S.v==='section' || S.v==='applied'){ S.batches=[]; S.fileId=null; S.tileSel={}; S.editSize=null; }
+        runCheck(); return; }
+      if(act==='another'){ S.zoom=null; S.picker={k:'__new', sel:null}; paint(); return; }
+      if(act==='seltile'){ S.tileSel[k] = +a.getAttribute('data-n'); paint(); return; }
       if(act==='fold'){ S.folded=!S.folded; paint(); return; }
       if(act==='togglerow'){ if(S.openRows[k]) delete S.openRows[k]; else S.openRows[k]=true; paint(); return; }
       if(act==='close'){ go('section'); return; }
@@ -1472,6 +1547,9 @@
         if(S.v==='checklist' && offer && a.textContent.indexOf('without')>-1){
           var md = document.querySelector('.md'); if(md) md.classList.add('closing');
           offer.classList.add('skipped');
+          /* the total drops back to what's actually being added */
+          var tot = document.querySelector('.mdft .cover[data-covered]');
+          if(tot) tot.innerHTML = '<b>'+tot.getAttribute('data-covered')+'</b> signs covered';
           var note = document.querySelector('.disc.below'); if(note) note.classList.add('skipped');
           stop(); S.t2 = setTimeout(function(){ S.t2 = null; go('applied'); }, 700);
           return;
