@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blip · Add creative</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page:#f2f2f2; --surface:#ffffff; --surface-2:#f7f7f7; --surface-3:#ededed;
+    --text:#161616; --text-2:#5c5c5c; --text-3:#8f8f8f;
+    --border:#e3e3e3; --border-2:#d1d1d1; --dash:#c4c4c4;
+    --accent:#176BF5; --accent-2:#0f4fba; --accent-bg:#eaf1fe; --accent-border:#bcd5fb;
+    --success:#0f7a54; --success-bg:#e6f4ee; --success-border:#b7ddcb;
+    --warn:#8a5a00; --warn-bg:#fdf1dc; --warn-border:#f0d29a;
+    --toast-bg:#232a33; --toast-border:rgba(255,255,255,.09); --toast-text:#fafafa; --toast-action:#cbb7f7;
+    --violet:#5b3fb8; --violet-bg:#efeafe; --violet-border:#cfc2f4;
+    --shadow:0 1px 2px rgba(0,0,0,.05),0 8px 24px rgba(0,0,0,.06);
+    --inter:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --fs-sm:12px; --fs-md:14px; --fs-lg:16px;
+    --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px;
+    --r-sm:4px; --r-md:6px; --r-lg:10px; --r-pill:999px;
+    --stroke:2px; --hair:1px;
+    color-scheme:light;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--page);color:var(--text);font-family:var(--inter);line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .app{min-height:100vh;background:var(--page);}
+  .topnav{display:flex;align-items:center;gap:12px;height:56px;padding:0 20px;background:var(--surface);
+          border-bottom:var(--hair) solid var(--border);}
+  .tn-back{font-size:19px;color:var(--text);width:24px;}
+  .tn-title{flex:1;text-align:center;font-size:16.5px;font-weight:600;letter-spacing:-.01em;}
+  .tn-right{display:flex;align-items:center;gap:14px;}
+  .tn-help{width:26px;height:26px;border-radius:50%;border:1.6px solid var(--text);display:grid;place-items:center;
+           font-size:13px;font-weight:600;}
+  .tn-av{width:30px;height:30px;border-radius:50%;background:#7b4bd6;color:#fff;display:grid;place-items:center;
+         font-size:12px;font-weight:600;letter-spacing:.02em;}
+  .cols{display:grid;grid-template-columns:200px minmax(0,748px) 300px;gap:36px;justify-content:center;padding:24px 20px 60px;}
+
+  .steprail{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-lg);padding:18px 16px;
+            align-self:start;display:flex;flex-direction:column;gap:2px;}
+  .step{display:flex;gap:11px;align-items:flex-start;padding:6px 0;position:relative;}
+  .step:not(:last-child)::after{content:'';position:absolute;left:11px;top:32px;bottom:-2px;width:1.5px;background:var(--border-2);}
+  .step .dot{width:23px;height:23px;border-radius:50%;flex:none;display:grid;place-items:center;
+             font-size:11.5px;font-weight:600;border:1.6px solid var(--border-2);color:var(--text-3);background:var(--surface);z-index:1;}
+  .step.done .dot{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .step.on .dot{border-color:var(--accent);color:var(--accent);}
+  .step b{display:block;font-size:13.5px;font-weight:600;line-height:1.5;}
+  .step i{display:block;font-size:12px;font-style:normal;color:var(--text-3);font-weight:500;line-height:1.4;}
+  .step.on b{color:var(--accent);}
+
+  .maincol{display:flex;flex-direction:column;gap:16px;}
+  .navbtns{display:flex;justify-content:flex-end;gap:10px;}
+  .nb{font-size:13.5px;font-weight:600;padding:9px 20px;border-radius:var(--r-md);border:var(--stroke) solid var(--border-2);
+      background:var(--surface);color:var(--text);}
+  .nb.pri{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+  .reachrail{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-lg);padding:16px 17px;align-self:start;}
+  .rc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:11px;}
+  .rc-lab{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--text-2);}
+  .rc-link{font-size:12px;font-weight:600;color:var(--accent);}
+  .rc-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--text-2);font-weight:500;margin-bottom:5px;}
+  .rc-row b{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.01em;}
+  .rc-bar{height:7px;border-radius:var(--r-pill);background:linear-gradient(90deg,#176BF5 0%,#4d92ff 62%,#cfe0fb 100%);margin:12px 0 5px;}
+  .rc-ticks{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-3);font-weight:500;margin-bottom:12px;}
+  .rc-ticks .on{color:var(--accent);font-weight:600;}
+  .rc-copy{font-size:14px;font-weight:600;line-height:1.45;margin:0 0 9px;letter-spacing:-.008em;}
+  .rc-good{display:flex;gap:7px;font-size:13.5px;font-weight:600;color:var(--success);margin:0 0 11px;}
+  .rc-note{font-size:12.5px;color:var(--text-3);font-weight:500;margin:0;}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 24px 60px;display:flex;flex-direction:column;gap:10px;}
+  .eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.10em;text-transform:uppercase;color:var(--text-3);margin:0 0 8px;}
+  .h1{font-size:26px;font-weight:600;letter-spacing:-.022em;margin:0 0 9px;line-height:1.18;}
+  .lede{font-size:14.5px;color:var(--text-2);margin:0;max-width:80ch;font-weight:500;}
+  .lede b{color:var(--text);font-weight:600;}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--surface-3);padding:1px 5px;border-radius:3px;color:var(--text);}
+
+  .flowbar{display:flex;align-items:center;background:var(--surface);border:var(--hair) solid var(--border);
+           border-radius:var(--r-md);padding:8px;box-shadow:var(--shadow);position:sticky;top:0;z-index:60;flex-wrap:wrap;}
+  .fb{font-family:inherit;font-size:12.5px;font-weight:600;padding:6px 9px;border-radius:var(--r-md);border:0;
+      background:transparent;color:var(--text-3);cursor:pointer;line-height:17px;white-space:nowrap;}
+  .fb:hover{background:var(--surface-2);color:var(--text);}
+  .fb.on{background:var(--accent-bg);color:var(--accent-2);}
+  .fb .n{font-family:var(--mono);font-size:10.5px;opacity:.75;margin-right:4px;}
+  .fbsep{color:var(--border-2);font-size:12px;}
+  .flowbar .sp{flex:1;}
+  .scen{display:flex;align-items:center;gap:7px;background:var(--surface);border:var(--hair) solid var(--border);
+        border-radius:var(--r-md);padding:9px 12px;box-shadow:var(--shadow);flex-wrap:wrap;}
+  .scen .lab{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-right:2px;}
+  .sc{font-family:inherit;font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:var(--r-md);
+      border:var(--hair) solid var(--border-2);background:var(--surface);color:var(--text-2);cursor:pointer;}
+  .sc:hover{background:var(--surface-2);color:var(--text);}
+  .sc.on{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent-2);}
+
+  .restart{margin:0;text-align:right;}
+  .restart a{font-size:12px;color:var(--text-3);font-weight:500;text-decoration:underline;cursor:pointer;}
+  .restart a:hover{color:var(--text-2);}
+  .hintbar{background:var(--surface);border:var(--hair) solid var(--border);border-left:3px solid var(--accent);
+           border-radius:0 var(--r-md) var(--r-md) 0;padding:11px 14px;font-size:13.5px;color:var(--text-2);font-weight:500;line-height:1.55;}
+  .hintbar b{color:var(--text);font-weight:600;}
+
+  .frame{background:transparent;border:0;border-radius:0;box-shadow:none;overflow:visible;}
+  .chrome{display:flex;align-items:center;gap:12px;padding:9px 14px;background:var(--surface-2);border-bottom:var(--hair) solid var(--border);}
+  .dots{display:flex;gap:6px;} .dots i{width:9px;height:9px;border-radius:50%;background:var(--border-2);display:block;}
+  .url{font-family:var(--mono);font-size:11px;color:var(--text-3);background:var(--surface);border:var(--hair) solid var(--border);
+       border-radius:var(--r-pill);padding:3px 12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .stage{padding:0;background:transparent;position:relative;}
+
+  /* shipped section */
+  .pcard{position:relative;width:100%;background:var(--surface-2);border:var(--hair) solid var(--border);border-radius:var(--r-lg);padding:20px 22px 22px;}
+  .crtitle{display:flex;align-items:center;gap:7px;font-size:18px;font-weight:600;letter-spacing:-.012em;margin:0 0 3px;}
+  .crsub{font-size:var(--fs-md);color:var(--text);margin:0 0 var(--sp-5);font-weight:500;}
+  .meterhead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:9px;}
+  .meterhead .n{font-size:var(--fs-lg);font-weight:600;font-variant-numeric:tabular-nums;}
+  .meterhead .why{font-size:13.5px;color:var(--text-2);font-weight:500;}
+  .meterhead .why.good{color:var(--success);font-weight:600;}
+  .meter{height:7px;border-radius:var(--r-pill);background:var(--surface-3);overflow:hidden;margin-bottom:var(--sp-5);}
+  .meter i{display:block;height:100%;background:var(--accent);border-radius:var(--r-pill);transition:width .9s cubic-bezier(.22,.61,.36,1);}
+  .meterhead .why.good.arrive{animation:fadein .35s ease .8s both;}
+  @media (prefers-reduced-motion:reduce){ .meter i{transition:none;} .meterhead .why.good.arrive{animation:none;} }
+  .dropregion{position:relative;cursor:pointer;}
+  .dveil{position:absolute;inset:0;z-index:20;border-radius:var(--r-md);background:var(--accent-bg);
+         border:var(--stroke) dashed var(--border-2);display:none;align-items:center;justify-content:center;
+         flex-direction:column;gap:5px;pointer-events:none;}
+  .dropregion.dragging .dveil{display:flex;}
+  .dropregion.dragging .inner{visibility:hidden;}
+  .dveil .vt{font-size:var(--fs-md);font-weight:600;}
+  .dveil .vs{font-size:var(--fs-sm);font-weight:500;color:var(--text-3);}
+  .dz{border:var(--stroke) dashed var(--dash);border-radius:var(--r-md);background:var(--surface);
+      display:flex;align-items:center;justify-content:center;gap:var(--sp-4);flex-wrap:wrap;padding:16px 18px;}
+  .dz .lbl{font-size:var(--fs-md);font-weight:600;}
+  .dz .hint{font-size:var(--fs-sm);color:var(--text-3);font-weight:500;width:100%;text-align:center;margin-top:-2px;}
+  .dz .hint a{color:var(--accent);font-weight:600;}
+  .rows{margin-top:var(--sp-4);display:flex;flex-direction:column;gap:var(--sp-2);}
+  .srow{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);}
+  .srow .line{display:flex;align-items:center;gap:var(--sp-3);padding:9px 12px;min-height:54px;}
+  .srow .line.head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+       grid-template-areas:'sw dim cnt' 'sw meta cnt';column-gap:12px;row-gap:1px;align-content:center;align-items:center;}
+  .srow .line.head.solo{grid-template-areas:'sw dim cnt';}
+  .line.head .swatch{grid-area:sw;}
+  .line.head .sdim{grid-area:dim;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .line.head .smeta{grid-area:meta;font-size:12.5px;font-weight:500;color:var(--text-2);white-space:nowrap;}
+  .line.head .scount{grid-area:cnt;display:inline-flex;align-items:center;gap:7px;justify-self:end;}
+  .line.head .scount .ch{font-style:normal;font-size:13px;color:var(--text-3);}
+  .swatch{flex:none;width:52px;height:44px;display:grid;place-items:center;}
+  .swatch i{display:block;background:var(--surface-3);border:var(--hair) solid var(--border-2);border-radius:2px;}
+  .swatch .tn{display:block;border-radius:2px;border:var(--hair) solid var(--border-2);background-size:cover;background-position:center;}
+  .sdim{font-size:var(--fs-md);font-weight:600;white-space:nowrap;}
+  .sdim span{color:var(--text-2);font-weight:500;font-size:12.5px;}
+  .sgrow{flex:1;min-width:6px;}
+  .scount{font-size:var(--fs-md);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .scount.offer{color:var(--accent-2);} .scount.done{color:var(--text-2);font-weight:500;}
+  .sacts{display:flex;align-items:center;gap:var(--sp-2);flex:none;}
+  .fold{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:13px;font-weight:600;color:var(--text-2);background:var(--surface);
+        border:var(--hair) solid var(--border);border-radius:var(--r-md);cursor:pointer;}
+  .fold .c{margin-left:auto;color:var(--text-3);font-weight:500;}
+  .needcard{margin-top:var(--sp-4);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--surface);
+            border:var(--hair) solid var(--border);border-radius:var(--r-md);padding:13px 15px;}
+  .needcard h4{margin:0;font-size:var(--fs-md);font-weight:600;}
+  .needcard .lks{display:flex;gap:18px;flex-wrap:wrap;}
+  a.lk{color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;}
+  .foot{margin-top:var(--sp-4);font-size:12px;color:var(--text-3);font-weight:500;line-height:1.55;}
+  .creativehd{display:flex;align-items:center;gap:14px;background:var(--surface);border:var(--hair) solid var(--border);
+              border-radius:var(--r-md);padding:12px 14px;margin-bottom:var(--sp-2);}
+  .creativehd .big{width:96px;height:28px;border-radius:3px;border:var(--hair) solid var(--border-2);background-size:cover;flex:none;}
+  .creativehd .nm{font-size:var(--fs-md);font-weight:600;margin:0;}
+  .creativehd .mt{font-size:12.5px;color:var(--text-2);font-weight:500;margin:1px 0 0;}
+  .creativehd .sp{flex:1;}
+  .modchip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:var(--r-pill);
+           background:var(--success-bg);color:var(--success);border:var(--hair) solid var(--success-border);white-space:nowrap;}
+  .modchip i{font-style:normal;font-size:11px;line-height:1;}
+  .srow.click{cursor:pointer;} .srow.click:hover{background:var(--surface-2);}
+  .ch{color:var(--text-3);font-size:15px;flex:none;}
+  .askchip{display:inline-flex;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:var(--r-pill);
+           background:var(--surface-3);color:var(--text-3);border:var(--hair) solid var(--border-2);white-space:nowrap;}
+  .grouplab{font-size:12px;font-weight:600;color:var(--text-3);margin:var(--sp-3) 0 4px 2px;}
+  .dzmini{display:flex;align-items:center;gap:9px;border:var(--hair) dashed var(--border-2);border-radius:var(--r-md);
+          padding:11px 14px;background:var(--surface);margin-bottom:var(--sp-4);}
+  .dzmini .up{color:var(--text-2);font-size:13px;}
+  .dzmini .lbl{font-size:13.5px;font-weight:600;}
+  .dzmini .sp{flex:1;}
+  .dzmini a{color:var(--accent);font-size:13.5px;font-weight:600;text-decoration:none;cursor:pointer;}
+  .dzmini .sep{color:var(--border-2);font-size:13px;}
+  .srow .line.head{cursor:pointer;}
+  .srow .line.head:hover{background:var(--surface-2);border-radius:var(--r-md);}
+  .rowbody{border-top:var(--hair) solid var(--border);padding:12px;}
+  /* filled size, open: the creative tiles it holds, then the selected file's name and status */
+  .srow.filled .rowbody{padding:0;}
+  .srow.filled .scount .chv{color:var(--text);flex:none;}
+  .srow.filled .scount.done{color:var(--text);font-weight:500;}
+  .cstrip{display:flex;align-items:center;gap:12px;padding:14px 16px;}
+  .ctiles{display:flex;flex-wrap:wrap;gap:12px;flex:1;min-width:0;}
+  .ctile{position:relative;width:250px;height:140px;border-radius:var(--r-md);background:var(--surface-3);
+         display:grid;place-items:center;border:var(--stroke) solid transparent;}
+  .ctile.sel{border-color:var(--accent);}
+  .ctile .img{display:block;background-size:100% 100%;border-radius:1px;}
+  .ctile .ok{position:absolute;top:8px;left:8px;width:22px;height:22px;border-radius:50%;background:var(--success);color:#fff;
+             font-size:12px;display:grid;place-items:center;border:2px solid #fff;box-sizing:content-box;margin:-2px;}
+  .cstrip .addmore{flex:none;align-self:center;}
+  .ctile[data-a="seltile"]{cursor:pointer;}
+  .orow .ov.covered{color:var(--text-3);font-weight:500;}
+  .nlft .gain.covered{color:var(--text-3);font-weight:500;}
+  .another{margin:14px 2px 0;font-size:12.5px;color:var(--text-2);font-weight:500;}
+  .another .elink{font-size:12.5px;}
+  .cinfo{border-top:var(--hair) solid var(--border);padding:12px 16px 14px;}
+  .cinfo .cmeta{margin-top:0;}
+  .scount.offer{color:var(--text);font-weight:500;}
+  .srow .line .sori{min-width:0;flex-shrink:1;overflow:hidden;text-overflow:ellipsis;}
+  .creatives{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .cthumb{position:relative;border:var(--stroke) solid var(--accent);border-radius:var(--r-sm);background:var(--surface-3);
+          padding:12px 0;display:grid;place-items:center;width:172px;}
+  .cthumb .img{display:block;background-size:100% 100%;border-radius:1px;}
+  .cthumb .ok{position:absolute;top:6px;left:6px;width:19px;height:19px;border-radius:50%;background:var(--success);
+              color:#fff;font-size:11px;display:grid;place-items:center;}
+  .cmeta{display:flex;align-items:center;gap:10px;margin-top:12px;}
+  .cmeta .fn{font-size:13.5px;font-weight:600;}
+  .cmeta .sp{flex:1;}
+  .cmeta a{color:var(--accent);font-size:13px;font-weight:600;text-decoration:underline;cursor:pointer;}
+  .rdy{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--success);margin-top:7px;}
+
+  .btn{font-family:inherit;font-size:13px;font-weight:600;padding:7px 13px;border-radius:var(--r-md);border:var(--stroke) solid var(--border-2);
+       background:var(--surface);color:var(--text);cursor:pointer;line-height:18px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
+  .btn:hover{background:var(--surface-2);}
+  .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;} .btn.pri:hover{background:var(--accent-2);border-color:var(--accent-2);}
+  .btn.acc{border-color:var(--accent-border);color:var(--accent-2);} .btn.acc:hover{background:var(--accent-bg);}
+  .btn.vio{border-color:var(--violet-border);color:var(--violet);background:var(--violet-bg);} .btn.vio:hover{background:#e6dffb;}
+  .btn.sm{font-size:12px;padding:5px 10px;}
+  .btn[disabled]{opacity:.45;cursor:default;}
+
+  /* modal */
+  .veil{position:fixed;inset:0;background:rgba(22,22,22,.44);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;overflow:auto;}
+  .md{background:var(--surface);border-radius:var(--r-lg);box-shadow:0 14px 44px rgba(0,0,0,.26);width:100%;max-width:960px;overflow:hidden;display:flex;flex-direction:column;max-height:100%;}
+  .mdhd{padding:14px 20px 12px;border-bottom:var(--hair) solid var(--border);display:flex;align-items:center;gap:12px;}
+  .mdhd .t{font-size:15.5px;font-weight:600;margin:0;} .mdhd .s{font-size:12.5px;color:var(--text-2);font-weight:500;margin:2px 0 0;}
+  .mdhd .sp{flex:1;}
+  .mdhd .back{background:transparent;border:0;color:var(--text-2);cursor:pointer;font-size:17px;padding:2px 6px 2px 0;}
+  .mdhd .x{background:transparent;border:0;color:var(--text-2);cursor:pointer;font-size:15px;line-height:1;width:28px;height:28px;
+           border-radius:var(--r-sm);display:grid;place-items:center;margin:-4px -8px -4px 0;padding:0;}
+  .mdhd .x:hover{background:var(--surface-2);color:var(--text);}
+  .md{position:relative;}
+  .mdft{min-height:57px;box-sizing:border-box;}
+  /* exit confirmation, over the modal it would discard */
+  .confirm{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:16px;background:rgba(22,22,22,.32);}
+  .cbox{width:100%;max-width:360px;background:var(--surface);border-radius:var(--r-lg);box-shadow:0 10px 32px rgba(0,0,0,.24);padding:18px 20px 16px;}
+  .cbox .ct{font-size:15px;font-weight:600;margin:0 0 4px;}
+  .cbox .cs{font-size:13px;line-height:1.45;color:var(--text-2);font-weight:500;margin:0 0 16px;}
+  .cbox .cacts{display:flex;justify-content:flex-end;gap:var(--sp-2);}
+  .nlcard.landed{animation:land .55s cubic-bezier(.2,.7,.2,1);}
+  /* skeleton loading: neutral blocks in the sign's shape, one sweep shared by every card */
+  .skel{background:var(--surface-2);cursor:default;}
+  .skel .sk{display:block;border-radius:3px;box-shadow:none;
+    background-color:#e6e6e6;background-image:linear-gradient(90deg,#e6e6e6 0,#f4f4f4 160px,#e6e6e6 320px);
+    background-size:640px 100%;background-repeat:repeat-x;background-attachment:fixed;animation:sweep 1.5s linear infinite;}
+  @keyframes sweep{from{background-position:-640px 0}to{background-position:0 0}}
+  @media (prefers-reduced-motion:reduce){ .skel .sk{animation:none;} }
+  @keyframes land{from{opacity:.25;transform:scale(.96)}to{opacity:1;transform:none}}
+  /* B: the layouts screen carries the rest of the results */
+  .sublab{font-size:12px;font-weight:600;color:var(--text-3);margin:14px 0 6px;}
+  .rhead + .sublab{margin-top:0;}
+  .incl .srcline{margin-bottom:6px;}
+  .incl .rd{font-family:var(--mono);font-size:11.5px;font-weight:600;}
+  .incl .lm{font-size:12px;color:var(--text-3);font-weight:500;}
+  .incl .cover{margin-right:6px;}
+  .steps{display:flex;gap:6px;} .steps i{width:6px;height:6px;border-radius:50%;background:var(--border-2);display:block;}
+  .steps i.on{background:var(--accent);} .steps i.past{background:var(--accent-border);}
+  .mdbody{padding:18px 20px;background:var(--surface-2);overflow:auto;height:560px;}
+  .mdft{display:flex;align-items:center;gap:var(--sp-2);padding:12px 20px;border-top:var(--hair) solid var(--border);background:var(--surface);}
+  .mdft .sp{flex:1;} .mdft .note{font-size:12.5px;color:var(--text-3);font-weight:500;}
+
+  .loadwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;min-height:524px;}
+  .loadthumb{width:400px;max-width:100%;border-radius:var(--r-md);border:var(--hair) solid var(--border-2);background-size:cover;background-position:center;}
+  .loadbar{width:190px;height:3px;border-radius:var(--r-pill);background:var(--surface-3);overflow:hidden;position:relative;}
+  .loadbar i{position:absolute;left:0;top:0;height:100%;width:40%;background:var(--accent);border-radius:var(--r-pill);animation:slide 1.25s cubic-bezier(.5,0,.5,1) infinite;}
+  .loadbar.vio i{background:var(--violet);}
+  @keyframes slide{0%{left:-42%}100%{left:102%}}
+  .loadphr{font-size:14px;font-weight:600;color:var(--text);min-height:21px;text-align:center;animation:fadein .35s ease;}
+  .loaddone{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;}
+  .loadok{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:var(--text);margin:0;}
+  .loadok i{width:17px;height:17px;border-radius:50%;background:var(--success);color:#fff;display:grid;place-items:center;
+            font-size:10px;font-style:normal;line-height:1;}
+  .loadfile{font-size:12.5px;color:var(--text-2);font-weight:500;margin:0;}
+  .loadrep{margin-top:-2px;}
+  @keyframes fadein{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+  .headline{font-size:19px;font-weight:600;letter-spacing:-.014em;margin:0 0 2px;}
+  .subline{font-size:13.5px;color:var(--text-2);font-weight:500;margin:0 0 15px;}
+  .srcline{display:flex;align-items:center;gap:11px;padding:8px 11px;background:var(--surface);border:var(--hair) solid var(--border);
+           border-radius:var(--r-md);margin-bottom:var(--sp-3);}
+  .srcline .tn{width:48px;border-radius:2px;border:var(--hair) solid var(--border-2);background-size:cover;flex:none;}
+  .srcline .nm{font-size:12.5px;font-weight:600;} .srcline .dm{font-family:var(--mono);font-size:11px;color:var(--text-2);font-weight:500;}
+  .srcline .sp{flex:1;}
+
+  /* groups */
+  .grp{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);padding:11px 12px;margin-bottom:var(--sp-2);}
+  .grp.task{border-color:var(--accent-border);}
+  .grp.ai{border-color:var(--violet-border);}
+  .grp.gap{border-style:dashed;border-color:var(--border-2);background:var(--surface-2);}
+  .grph{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .grph .gt{font-size:13.5px;font-weight:600;}
+  .grph .gs{font-size:12.5px;color:var(--text-2);font-weight:500;}
+  .grph .sp{flex:1;}
+  .grph .gn{font-size:12.5px;font-weight:600;color:var(--text-2);font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .tiles{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px;}
+  .tile{position:relative;}
+  .tile .tpv{display:block;border-radius:3px;border:var(--hair) solid var(--border-2);background-size:cover;background-position:center;background-color:var(--surface-3);}
+  .tile.ghost .tpv{opacity:.32;border-style:dashed;}
+  .tile.busy .tpv{filter:grayscale(.5) brightness(1.05);}
+  .tile .busylab{position:absolute;inset:0;display:grid;place-items:center;border-radius:3px;background:rgba(255,255,255,.6);
+                 font-size:10px;font-weight:600;color:var(--violet);}
+  .tile .edit{position:absolute;top:4px;right:4px;width:21px;height:21px;border-radius:50%;background:rgba(255,255,255,.94);
+              border:var(--hair) solid rgba(0,0,0,.16);color:var(--text);cursor:pointer;display:grid;place-items:center;
+              font-size:10.5px;line-height:1;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.22);}
+  .tile .edit:hover{background:#fff;}
+  .tile .tlab{display:block;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text-2);margin-top:4px;text-align:center;}
+  .tile .top{display:block;font-size:10px;font-weight:600;text-align:center;margin-top:1px;color:var(--text-3);}
+  .tile .top.sc{color:var(--success);} .tile .top.cr{color:var(--accent-2);} .tile .top.ai{color:var(--violet);}
+  .tile.aidone .tpv{border-color:var(--violet-border);box-shadow:0 0 0 2px var(--violet-bg);}
+  .noteline{font-size:12px;color:var(--text-3);font-weight:500;margin:12px 0 0;}
+
+  /* results grid */
+  .rhead{display:flex;align-items:baseline;gap:9px;margin:0 0 12px;flex-wrap:wrap;}
+  .rhead .rt{font-size:15px;font-weight:600;margin:0;}
+  .rhead .rs{font-size:12.5px;color:var(--text-3);font-weight:500;}
+  .rgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;}
+  .rcard{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);overflow:hidden;}
+  .rcard.act{border-color:var(--accent-border);}
+  .rcard.ai{border-color:var(--border);}
+  .rcard.wait{border-style:dashed;border-color:var(--border-2);}
+  .rpv{height:110px;background:var(--surface-3);display:grid;place-items:center;overflow:hidden;position:relative;}
+  .rpv.zoomable{cursor:zoom-in;}
+  .rpv.zoomable span{transition:transform .14s ease;}
+  .rpv.zoomable:hover span{transform:scale(1.03);}
+  .rpv span{display:block;background-size:100% 100%;background-repeat:no-repeat;border-radius:1px;box-shadow:0 1px 4px rgba(0,0,0,.22);}
+  .rpv.empty span{background:var(--surface);border:var(--hair) dashed var(--border-2);box-shadow:none;}
+  .rpv .ov{position:absolute;inset:0;display:grid;place-items:center;background:rgba(247,247,247,.72);
+           font-size:11.5px;font-weight:600;color:var(--violet);}
+  .rpv .todo{position:absolute;inset:0;display:grid;place-items:center;font-size:11.5px;font-weight:500;color:var(--text-3);}
+  .rft{padding:8px 11px 9px;border-top:var(--hair) solid var(--border);}
+  .rft .r1,.rft .r2{display:flex;align-items:center;gap:8px;}
+  .rft .r2{margin-top:6px;min-height:24px;}
+  .rft .rd{font-family:var(--mono);font-size:11.5px;font-weight:600;}
+  .rft .sp{flex:1;}
+  .rst{display:inline-flex;font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--r-pill);border:var(--hair) solid transparent;white-space:nowrap;}
+  .rst.sc{background:var(--success-bg);color:var(--success);border-color:var(--success-border);}
+  .rst.cr{background:var(--accent-bg);color:var(--accent-2);border-color:var(--accent-border);}
+  .rst.ai{background:var(--violet-bg);color:var(--violet);border-color:var(--violet-border);}
+  .rst.mt{background:var(--surface-3);color:var(--text-3);border-color:var(--border-2);}
+  .rft .btn{padding:4px 9px;font-size:11.5px;}
+  .elink{font-family:inherit;font-size:12px;font-weight:600;color:var(--accent);background:transparent;
+         border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+  .elink:hover{color:var(--accent-2);}
+  /* label style B: dot and text */
+  .ldot{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;white-space:nowrap;}
+  .ldot i{width:6px;height:6px;border-radius:50%;display:block;flex:none;}
+  .ldot.cr{color:var(--text-3);} .ldot.cr i{background:var(--border-2);}
+  .ldot.ai{color:var(--violet);} .ldot.ai i{background:var(--violet);}
+  .ldot.mt{color:var(--text-3);} .ldot.mt i{background:var(--border-2);}
+  /* label style C: inline with the dimension */
+  .linline{font-size:12px;font-weight:500;color:var(--text-3);}
+  .linline.cr{color:var(--text-3);} .linline.ai{color:var(--violet);} .linline.mt{color:var(--text-3);}
+  .lmono{font-size:12px;font-weight:500;color:var(--text-3);white-space:nowrap;}
+  .cover{font-size:12.5px;color:var(--text-2);font-weight:500;}
+  .cover b{color:var(--text);font-weight:600;}
+  .unlock{font-size:12.5px;font-weight:600;color:var(--accent-2);white-space:nowrap;}
+
+  /* opt-in offer */
+  .unlockcard{margin-top:14px;background:var(--surface);border:var(--stroke) solid var(--accent-border);border-radius:var(--r-md);padding:13px 14px;}
+  .unlockcard .oh{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:2px;}
+  .unlockcard .ot{font-size:15px;font-weight:600;margin:0;}
+  .unlockcard .os{font-size:12.5px;color:var(--text-2);font-weight:500;margin:0 0 3px;}
+  .disc{font-size:11.5px;color:var(--text-3);font-weight:500;line-height:1.5;margin:0 0 13px;}
+  .disc.below{margin:10px 2px 0;}
+
+  /* checklist: two matching neutral panels, the crop (with its source file) then the AI offer */
+  .ckpanel{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);padding:12px 14px;}
+  .ckpanel + .ckpanel{margin-top:12px;}
+  .ckpanel.offer,.disc.below{transition:opacity .35s ease, filter .35s ease, background-color .35s ease;}
+  .ckpanel.offer.skipped{opacity:.45;filter:grayscale(1);background-color:var(--surface-2);}
+  .disc.below.skipped{opacity:.45;}
+  .md.closing{pointer-events:none;}
+  @media (prefers-reduced-motion:reduce){ .ckpanel.offer,.disc.below{transition:none;} }
+  .ckpanel .rhead{margin-bottom:10px;}
+  .ckpanel.offer .ot{font-size:15px;font-weight:600;margin:0 0 2px;}
+  .ckpanel.offer .os{font-size:12.5px;color:var(--text-2);font-weight:500;margin:0 0 10px;}
+  .ckpanel .rgrid{gap:10px;}
+  .ckpanel .rpv{height:92px;}
+  .ckpanel .rft .r2{margin-top:4px;min-height:20px;}
+  .rft .fromfile{font-size:11.5px;color:var(--text-3);font-weight:500;margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .unlockcard .os{margin-bottom:10px;}
+  .disc a{color:var(--accent);font-weight:600;text-decoration:underline;cursor:pointer;white-space:nowrap;}
+  .aitag{font-size:12.5px;font-weight:500;color:var(--text-2);white-space:nowrap;}
+  .orow{display:flex;align-items:center;gap:10px;padding:6px 2px;cursor:pointer;border-top:var(--hair) solid var(--border);}
+  .orow .othumb{width:66px;height:34px;flex:none;display:grid;place-items:center;margin:-2px 0;}
+  .orow .oghost{display:block;border:1.5px dashed #a9a9a9;border-radius:2px;background:var(--surface-2);box-sizing:border-box;}
+  .orow.off .oghost{opacity:.5;}
+  .orow:first-of-type{border-top:0;}
+  .orow input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex:none;margin:0;}
+  .orow .od{font-family:var(--mono);font-size:11.5px;font-weight:600;min-width:78px;}
+  .orow .on{font-size:12.5px;color:var(--text-2);font-weight:500;}
+  .orow .sp{flex:1;}
+  /* every sign count shares one neutral style; the "+" alone marks what AI would add */
+  .orow .ov{font-size:12.5px;font-weight:500;color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .orow.off .od,.orow.off .on{color:var(--text-3);} .orow.off .ov{color:var(--text-3);font-weight:500;}
+  .ofoot{display:flex;align-items:center;gap:12px;margin-top:9px;padding-top:9px;border-top:var(--hair) solid var(--border);}
+  .ofoot a{font-size:12.5px;font-weight:600;color:var(--accent);cursor:pointer;}
+  .ofoot .sp{flex:1;}
+  .ofoot .tot{font-size:12.5px;color:var(--text-2);font-weight:500;}
+
+  /* editor + ai options */
+  .canvas{position:relative;height:424px;background:var(--surface-2);border:var(--hair) solid var(--border);border-radius:var(--r-md);
+          display:grid;place-items:center;overflow:hidden;user-select:none;touch-action:none;}
+  .imgwrap{position:relative;line-height:0;}
+  .lay{position:absolute;top:0;left:0;background-size:100% 100%;background-repeat:no-repeat;}
+  .lay.out{opacity:.16;}
+  .clip{position:absolute;overflow:hidden;}
+  .cframe{position:absolute;border:2px solid var(--accent);box-shadow:0 0 0 1px rgba(255,255,255,.85);cursor:move;}
+  .g{position:absolute;background:rgba(255,255,255,.38);pointer-events:none;opacity:0;transition:opacity .12s;}
+  .canvas.dragging .g{opacity:1;}
+  .hnd{position:absolute;width:13px;height:13px;background:#fff;border:1px solid rgba(0,0,0,.22);border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.28);}
+  .hnd.nw{cursor:nwse-resize;} .hnd.ne{cursor:nesw-resize;} .hnd.sw{cursor:nesw-resize;} .hnd.se{cursor:nwse-resize;}
+  .edcap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .pill{display:inline-flex;font-size:12.5px;font-weight:600;padding:3px 11px;border-radius:var(--r-pill);border:var(--hair) solid transparent;}
+  .pill.ok{background:var(--success-bg);color:var(--success);border-color:var(--success-border);}
+  .pill.vio{background:var(--violet-bg);color:var(--violet);border-color:var(--violet-border);}
+  .edcap .say{font-size:12.5px;color:var(--text-3);font-weight:500;}
+  .edcap .sp{flex:1;}
+  .edcap .reset{font-family:inherit;font-size:12.5px;font-weight:600;color:var(--accent);background:transparent;border:0;cursor:pointer;}
+
+  .aiprev{height:196px;background:var(--surface-3);border:var(--hair) solid var(--border-2);border-radius:var(--r-md);
+          display:grid;place-items:center;overflow:hidden;}
+  .aiprev span{display:block;background-size:cover;background-position:center;border-radius:2px;}
+  .airesult{background:var(--surface-3);border:var(--hair) solid var(--border-2);border-radius:var(--r-md);
+            display:grid;place-items:center;overflow:hidden;padding:14px;}
+  .airesult span{display:block;background-size:100% 100%;background-repeat:no-repeat;border-radius:2px;box-shadow:0 2px 8px rgba(0,0,0,.24);}
+  .nlgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .nlcard{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);overflow:hidden;}
+  .nlpv{height:150px;background:var(--surface-3);display:grid;place-items:center;overflow:hidden;cursor:zoom-in;position:relative;}
+  /* remove sits on the preview, apart from the refine links, because it discards rather than refines */
+  .nlpv .rm{position:absolute;top:6px;right:6px;z-index:2;width:24px;height:24px;padding:0;border-radius:50%;cursor:pointer;
+            display:grid;place-items:center;font-size:12px;line-height:1;color:var(--text);
+            background:rgba(255,255,255,.94);border:var(--hair) solid rgba(0,0,0,.16);box-shadow:0 1px 3px rgba(0,0,0,.22);}
+  .nlpv .rm:hover{background:#fff;}
+  .mdft .ftlink{font-size:12.5px;margin-right:10px;}
+  /* removed layout, card style */
+  .nlcard.gone .nlpv{cursor:default;background:var(--surface-2);}
+  .nlcard.gone .nlpv em{font-style:normal;font-size:12px;font-weight:500;color:var(--text-3);}
+  .nlcard.gone .gonebox{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:0 10px;}
+  .nlcard .errline{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#b42318;white-space:nowrap;}
+  .nlcard .errline svg{flex:none;}
+
+  /* simulated system file picker (prototype stand-in for the OS dialog, deliberately generic) */
+  .fpveil{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.16);}
+  .fp{width:100%;max-width:700px;height:440px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;
+      background:#fbfbfb;color:#1d1d1f;font-size:13px;border-radius:12px;border:1px solid rgba(0,0,0,.2);box-shadow:0 24px 64px rgba(0,0,0,.36);}
+  .fp.enter{animation:fpin .18s ease-out;}
+  @keyframes fpin{from{opacity:0;transform:translateY(-10px) scale(.98)}to{opacity:1;transform:none}}
+  .fp-top{display:flex;align-items:center;gap:14px;padding:9px 12px;background:#f2f2f2;border-bottom:1px solid #e0e0e0;}
+  .fp-dots{display:flex;gap:7px;} .fp-dots i{display:block;width:11px;height:11px;border-radius:50%;background:#d2d2d2;}
+  .fp-nav{color:#9a9a9a;font-size:16px;word-spacing:6px;}
+  .fp-loc{font-weight:600;}
+  .fp-search{margin-left:auto;width:170px;height:24px;display:flex;align-items:center;padding:0 9px;box-sizing:border-box;
+             border-radius:6px;border:1px solid #d6d6d6;background:#fff;color:#a0a0a0;font-size:12px;}
+  .fp-main{flex:1;min-height:0;display:flex;}
+  .fp-side{width:150px;flex:none;padding:8px;background:#ececec;border-right:1px solid #e0e0e0;}
+  .fp-side h6{margin:6px 8px 4px;font-size:11px;font-weight:600;color:#9a9a9a;}
+  .fp-side div{padding:4px 8px;border-radius:5px;color:#333;}
+  .fp-side div.on{background:#d9d9d9;}
+  .fp-list{flex:1;overflow:auto;background:#fff;}
+  .fp-row{display:grid;grid-template-columns:34px minmax(0,1fr) 170px 64px;align-items:center;gap:10px;padding:5px 14px;user-select:none;}
+  .fp-row.hd{position:sticky;top:0;z-index:1;background:#fff;border-bottom:1px solid #ececec;font-size:11px;font-weight:600;color:#8a8a8a;}
+  .fp-row:not(.hd):nth-child(odd){background:#f6f6f6;}
+  .fp-row.pick{cursor:pointer;}
+  .fp-row.off{color:#b9b9b9;cursor:default;}
+  .fp-row.sel{background:#176BF5 !important;color:#fff;}
+  .fp-row.sel .fp-meta{color:rgba(255,255,255,.85);}
+  .fp-thumb{width:32px;height:24px;display:grid;place-items:center;}
+  .fp-thumb span{display:block;background-size:100% 100%;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.14);}
+  .fp-thumb .fp-doc{width:17px;height:22px;background:#ebebeb;box-shadow:inset 0 0 0 1px #d3d3d3;}
+  .fp-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .fp-meta{font-size:12px;color:#8a8a8a;white-space:nowrap;}
+  .fp-foot{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f2f2f2;border-top:1px solid #e0e0e0;}
+  .fp-foot .sp{flex:1;}
+  .fp-btn{font-family:inherit;font-size:13px;padding:4px 16px;border-radius:6px;border:1px solid #cdcdcd;background:#fff;color:#1d1d1f;cursor:pointer;}
+  .fp-btn.pri{background:#176BF5;border-color:#176BF5;color:#fff;}
+  .fp-btn[disabled]{opacity:.45;cursor:default;}
+  @media (max-width:600px){ .fp-side,.fp-search,.fp-date{display:none;} .fp-row{grid-template-columns:34px minmax(0,1fr) 64px;} }
+  .nlcard.gone .rd,.nlcard.gone .linline{color:var(--text-3);}
+  .nlpv:hover span{transform:scale(1.02);}
+  .nlpv span{transition:transform .14s ease;}
+  .nlbig{background:var(--surface-3);border:var(--hair) solid var(--border-2);border-radius:var(--r-md);
+         display:grid;place-items:center;overflow:hidden;padding:14px;}
+  .nlbig span{display:block;background-size:100% 100%;background-repeat:no-repeat;border-radius:2px;box-shadow:0 2px 10px rgba(0,0,0,.26);}
+  .nlpv span{display:block;background-size:100% 100%;background-repeat:no-repeat;border-radius:2px;box-shadow:0 1px 5px rgba(0,0,0,.22);}
+  .nlft{display:flex;align-items:center;gap:10px;padding:9px 11px;border-top:var(--hair) solid var(--border);}
+  .nlft .rd{font-family:var(--mono);font-size:11.5px;font-weight:600;}
+  .nlft .sp{flex:1;}
+  /* two quiet lines: what it is, then what it adds beside what you can do with it */
+  .nlft.two{display:block;padding:8px 11px 9px;}
+  .nlft.two .l1,.nlft.two .l2{display:flex;align-items:center;gap:10px;}
+  .nlft.two .l2{margin-top:3px;min-height:20px;}
+  .nlft .gain{font-size:12px;font-weight:500;color:var(--text-2);font-variant-numeric:tabular-nums;}
+  .nlcard.gone .gain{color:var(--text-3);}
+  .aifrom{display:flex;align-items:center;gap:10px;margin-top:11px;padding:9px 11px;background:var(--surface);
+          border:var(--hair) solid var(--border);border-radius:var(--r-md);}
+  .aifrom .fl{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);}
+  .aifrom .ftn{width:64px;border-radius:2px;border:var(--hair) solid var(--border-2);background-size:cover;background-position:center;flex:none;}
+  .aifrom .fn{font-size:12px;color:var(--text-2);font-weight:500;}
+  .aifrom .sp{flex:1;}
+  .optrow{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .optrow .ol{font-size:12.5px;font-weight:600;color:var(--text-2);min-width:78px;}
+  .seg{display:inline-flex;border:var(--hair) solid var(--border-2);border-radius:var(--r-md);overflow:hidden;}
+  .seg button{font-family:inherit;font-size:12.5px;font-weight:600;padding:5px 11px;border:0;background:var(--surface);
+              color:var(--text-2);cursor:pointer;border-right:var(--hair) solid var(--border-2);}
+  .seg button:last-child{border-right:0;}
+  .seg button.on{background:var(--violet-bg);color:var(--violet);}
+
+  .notes{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);padding:16px 18px;box-shadow:var(--shadow);}
+  .notes h3{font-size:13px;font-weight:600;margin:0 0 8px;}
+  .notes ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;}
+  .notes li{font-size:13.5px;color:var(--text-2);font-weight:500;line-height:1.55;}
+  .notes li b{color:var(--text);font-weight:600;}
+  .tbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}
+  .tbl th{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);
+          text-align:left;padding:0 12px 7px 0;border-bottom:var(--hair) solid var(--border-2);}
+  .tbl td{padding:6px 12px 6px 0;border-bottom:var(--hair) solid var(--border);color:var(--text-2);font-weight:500;}
+  .tbl td:first-child{color:var(--text);font-family:var(--mono);font-size:12px;}
+  .tn-close,.tn-mhelp{display:none;}
+  .sori{font-size:var(--fs-md);color:var(--text-2);font-weight:500;white-space:nowrap;}
+  .sori::before{content:'· ';}
+  .btn .sm{display:none;}
+  .prog{display:none;}
+  .foot2::before{content:' ';}
+
+
+  /* ---------- My Library picker: choose a design, nothing else ---------- */
+  .lpsearch{display:flex;align-items:center;gap:7px;background:var(--surface);border:var(--hair) solid var(--border-2);
+            border-radius:var(--r-md);padding:7px 11px;margin-bottom:var(--sp-3);}
+  .lpsearch span{color:var(--text-3);font-size:13px;}
+  .lpsearch input{border:0;outline:0;font-family:inherit;font-size:13.5px;background:transparent;width:100%;color:var(--text);}
+  .lpgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .lpk{background:var(--surface);border:var(--stroke) solid var(--border);border-radius:var(--r-md);padding:9px;cursor:pointer;
+       display:flex;flex-direction:column;gap:7px;text-align:left;font-family:inherit;color:var(--text);}
+  .lpk:hover{border-color:var(--accent-border);background:var(--accent-bg);}
+  .lpk .pv{height:110px;background:var(--surface-3);border-radius:var(--r-sm);display:grid;place-items:center;overflow:hidden;}
+  .lpk .pv i{display:block;background-size:100% 100%;border-radius:1px;box-shadow:0 1px 4px rgba(0,0,0,.22);}
+  .lpk .nm{font-size:13px;font-weight:600;line-height:1.35;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lpk .dm{font-family:var(--mono);font-size:11px;color:var(--text-2);font-weight:500;margin:-4px 0 0;}
+  .lpempty{background:var(--surface);border:var(--hair) dashed var(--border-2);border-radius:var(--r-md);padding:56px 24px;text-align:center;}
+  .lpempty h3{font-size:var(--fs-lg);font-weight:600;margin:0 0 5px;}
+  .lpempty p{font-size:13.5px;color:var(--text-2);font-weight:500;margin:0 auto 16px;max-width:44ch;}
+  @media (max-width:760px){ .lpgrid{grid-template-columns:1fr 1fr;} }
+
+  /* a stretched card the advertiser chose to regenerate: selected, not yet made */
+  .rcard.regen{border-color:var(--accent-border);box-shadow:0 0 0 1px var(--accent-border);}
+  .rft .lmono.picked{color:var(--accent-2);font-weight:600;}
+
+  /* library picker: search, dimension filter and sort in one row at the top */
+  .lptools{display:flex;align-items:center;gap:8px;margin-bottom:var(--sp-3);flex-wrap:wrap;}
+  .lptools .lpsearch{flex:1;min-width:200px;margin-bottom:0;}
+  .lpsel{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-3);}
+  .lpsel select{font-family:inherit;font-size:13px;font-weight:500;color:var(--text);background:var(--surface);
+                border:var(--hair) solid var(--border-2);border-radius:var(--r-md);padding:6px 8px;cursor:pointer;}
+  .lpk .pv{position:relative;}
+  .lpk.added{cursor:default;}
+  .lpk.added:hover{border-color:var(--border);background:var(--surface);}
+  .lpadded{position:absolute;top:6px;left:6px;display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;
+           padding:2px 8px;border-radius:var(--r-pill);background:var(--success-bg);color:var(--success);border:var(--hair) solid var(--success-border);}
+  .lpnone{grid-column:1/-1;margin:14px 2px;font-size:13px;color:var(--text-2);font-weight:500;}
+  /* names can be long generated strings (Ad_12_17_2025_f0k9pj…), so nothing that shows one may wrap or push its row wider */
+  .cmeta .fn,.srcline .nm,.srcline .rd,.aifrom .fn,.mdhd .s,.loadfile{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .mdhd > span{min-width:0;}
+  .loadfile{max-width:420px;}
+  .srcline .cover,.srcline .elink,.srcline .lm,.cmeta a{flex:none;}
+  /* toast with Undo, from the Campaign Creation Figma (Toast · action=removal) */
+  .toast{position:fixed;left:50%;bottom:24px;z-index:80;transform:translateX(-50%);
+         display:flex;align-items:center;gap:32px;padding:8px 16px;border-radius:12px;
+         background:var(--toast-bg);border:var(--hair) solid var(--toast-border);box-shadow:0 6px 20px rgba(0,0,0,.18);
+         font-size:14px;line-height:20px;font-weight:500;color:var(--toast-text);white-space:nowrap;animation:toastin .2s ease-out;}
+  .toast{max-width:calc(100% - 32px);}
+  .toast > span{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+  .toast .undo{flex:none;font:inherit;color:var(--toast-action);background:transparent;border:0;padding:0;cursor:pointer;}
+  .toast .undo:hover{text-decoration:underline;text-underline-offset:2px;}
+  @keyframes toastin{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+  @media (prefers-reduced-motion:reduce){ .toast{animation:none;} }
+  @media (max-width:699px){ .toast{bottom:92px;width:calc(100% - 32px);max-width:343px;justify-content:space-between;gap:12px;} }
+  /* the compact drop strip is a click and drag target too */
+  #dropmini{cursor:pointer;}
+  #dropmini.dragging{background:var(--accent-bg);border-color:var(--accent);border-style:dashed;}
+  /* Add creative and Add another: the library picker's first tile uploads from the computer */
+  .lpk.lpup .pv{background:var(--surface);border:var(--stroke) dashed var(--dash);}
+  .lpk.lpup .upi{width:40px;height:40px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:grid;place-items:center;font-size:18px;font-weight:600;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:1300px){
+    .cols{grid-template-columns:190px minmax(0,1fr) 280px;gap:24px;padding:20px 16px 52px;}
+  }
+  /* reach panel drops under the main column */
+  @media (max-width:1080px){
+    .cols{grid-template-columns:190px minmax(0,1fr);gap:22px;}
+    .reachrail{grid-column:2;}
+  }
+  /* single column: steps become a horizontal strip */
+  @media (max-width:880px){
+    .cols{grid-template-columns:minmax(0,1fr);gap:16px;padding:16px 14px 44px;}
+    .reachrail{grid-column:1;}
+    .steprail{flex-direction:row;gap:10px;}
+    .steprail .step{flex:1;padding:2px 0;}
+    .step:not(:last-child)::after{display:none;}
+    .navbtns{justify-content:stretch;}
+    .nb{flex:1;text-align:center;}
+  }
+  @media (max-width:640px){
+    .topnav{padding:0 12px;gap:8px;}
+    .tn-title{font-size:14px;}
+    .step i{display:none;}
+    .pcard{padding:16px 14px 18px;}
+    .dz{gap:10px;padding:14px 12px;}
+    .srow .line{flex-wrap:wrap;}
+    .needcard{gap:10px;}
+  }
+  /* modal grids reflow with the modal, which tracks the viewport */
+  @media (max-width:900px){ .rgrid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:760px){ .nlgrid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:660px){ .rgrid{grid-template-columns:1fr;} .nlgrid{grid-template-columns:1fr;} }
+  /* short viewports: let the body breathe rather than clip */
+  .incl .srcline .tn{width:112px;}
+  @media (max-height:780px){
+    .mdbody{height:auto;min-height:260px;max-height:calc(100vh - 210px);}
+    .loadwrap{min-height:240px;}
+    .canvas{height:250px;}
+  }
+
+  /* ---------- mobile: the shipped small-screen design ---------- */
+  @media (max-width:699px){
+    .cols{grid-template-columns:minmax(0,1fr);gap:0;padding:0 0 78px;}
+    .steprail,.reachrail{display:none;}
+    .topnav{justify-content:space-between;height:52px;padding:0 16px;background:var(--surface-2);}
+    .tn-back,.tn-title,.tn-right{display:none;}
+    .tn-close{display:block;font-size:19px;line-height:1;}
+    .tn-mhelp{display:block;font-size:15px;font-weight:600;color:var(--accent);}
+
+    .pcard{border:0;border-radius:0;background:var(--surface-2);padding:18px 16px 22px;}
+    .meterhead{flex-wrap:wrap;gap:4px 14px;}
+
+    .dz{flex-direction:column;align-items:stretch;gap:10px;padding:16px 14px;}
+    .dz .lbl{display:none;}
+    .dz .btn{width:100%;justify-content:center;padding:12px 14px;font-size:15px;border-radius:8px;}
+    .btn .lg{display:none;} .btn .sm{display:inline;}
+    .dz .hint{margin-top:2px;line-height:1.7;}
+
+    .srow .line{display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+                grid-template-areas:'sw dim cnt' 'sw ori act';column-gap:12px;row-gap:2px;align-items:center;padding:11px 12px;}
+    .swatch{grid-area:sw;}
+    .sdim{grid-area:dim;font-size:15px;}
+    .sori{grid-area:ori;font-size:14px;}
+    .sori::before{content:none;}
+    .scount{grid-area:cnt;justify-self:end;}
+    .sacts{grid-area:act;justify-self:end;}
+    .sgrow{display:none;}
+    .sacts .btn{border:0;background:transparent;color:var(--accent);text-decoration:underline;
+                padding:0;font-size:14px;font-weight:600;}
+    .sacts .btn .cv{display:none;}
+
+    .needcard{flex-direction:column;align-items:flex-start;gap:8px;}
+    .needcard .lks{flex-direction:column;gap:9px;}
+    .foot2{display:block;margin-top:9px;}
+
+    .navbtns{position:sticky;bottom:0;justify-content:space-between;align-items:center;
+             background:var(--surface-2);border-top:var(--hair) solid var(--border);
+             padding:12px 16px;margin:0;position:fixed;left:0;right:0;bottom:0;z-index:30;}
+    .prog{display:block;position:absolute;top:0;left:0;right:0;height:3px;background:var(--surface-3);}
+    .prog b{display:block;height:100%;width:50%;background:var(--accent);}
+    .nb{flex:0 0 auto;text-align:left;border:0;background:transparent;color:var(--accent);
+        font-size:16px;font-weight:600;padding:6px 2px;}
+    .nb.pri{background:#6ea8fb;border:0;color:#fff;padding:12px 34px;border-radius:8px;font-size:16px;}
+
+    /* the modal is a full-screen overlay, not a card */
+    .veil{padding:0;background:var(--surface);overflow:hidden;align-items:stretch;justify-content:stretch;}
+    .md{max-width:none;width:100%;height:100%;max-height:none;border-radius:0;box-shadow:none;}
+    .mdhd{padding:14px 16px 12px;}
+    .mdbody{height:auto;flex:1;min-height:0;padding:16px;display:flex;flex-direction:column;}
+    .mdft{padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom));}
+    .loadwrap{min-height:0;flex:1;justify-content:center;}
+    .canvas{height:auto;flex:1;min-height:220px;}
+    .nlbig{height:auto !important;min-height:200px;}
+    .unlockcard{padding:12px;}
+    /* an open row stacks its creatives full width, with Add more underneath, so nothing overlaps at phone width */
+    .cstrip{flex-direction:column;align-items:stretch;padding:12px;}
+    .ctile{width:100%;}
+    .cstrip .addmore{align-self:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="topnav">
+    <span class="tn-back">&#8592;</span>
+    <span class="tn-close">&#10005;</span>
+    <span class="tn-title">2026-01-18 Blip Airlines Campaign</span>
+    <span class="tn-right">
+      <span class="tn-help">?</span>
+      <span class="tn-av">JD</span>
+    </span>
+    <span class="tn-mhelp">Need Help?</span>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="cols">
+
+      <aside class="steprail">
+        <div class="step done"><span class="dot">&#10003;</span>
+          <span><b>Set up</b><i>Goal &amp; location</i></span></div>
+        <div class="step on"><span class="dot">2</span>
+          <span><b>Strategy</b><i>Budget &amp; Targeting</i></span></div>
+        <div class="step"><span class="dot">3</span>
+          <span><b>Review</b><i>Confirm &amp; Launch</i></span></div>
+      </aside>
+
+      <main class="maincol">
+        <div class="pcard" id="card"></div>
+        <div class="navbtns">
+          <i class="prog"><b></b></i>
+          <span class="nb">Back</span><span class="nb pri">Next</span>
+        </div>
+      </main>
+
+      <aside class="reachrail">
+        <div class="rc-head"><span class="rc-lab">Estimated reach</span><span class="rc-link">ongoing, per month</span></div>
+        <div class="rc-row"><span>Impressions</span><b>685K - 986K</b></div>
+        <div class="rc-row"><span>Blips</span><b>up to 3.3M</b></div>
+        <div class="rc-bar"><i></i></div>
+        <div class="rc-ticks"><span>1 mo</span><span>2 mo</span><span class="on">3 mo</span></div>
+        <p class="rc-copy">About 23K to 33K every 3 months, and counting</p>
+        <p class="rc-good">&#10003; Long enough to stick with people.</p>
+        <p class="rc-note">Estimates shift with board availability.</p>
+      </aside>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- artwork: the same generator library-page.html uses, so a design looks identical on both ---------------- */
+  function art(o){
+    var w=o.w,h=o.h,land=w>=h;
+    var s='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'">'+
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">'+
+      '<stop offset="0" stop-color="'+o.c1+'"/><stop offset=".55" stop-color="'+o.c2+'"/>'+
+      '<stop offset="1" stop-color="'+o.c1+'"/></linearGradient></defs>'+
+      '<rect width="'+w+'" height="'+h+'" fill="url(#g)"/>';
+    if(land) s+='<rect x="0" y="0" width="'+Math.round(w*0.009)+'" height="'+h+'" fill="'+o.accent+'"/>';
+    else s+='<rect x="0" y="0" width="'+w+'" height="'+Math.round(h*0.012)+'" fill="'+o.accent+'"/>';
+    var f=Math.min(w,h);
+    var cx=w*0.5, cy=land?h*0.47:h*0.5;
+    s+='<text x="'+cx+'" y="'+(cy-f*0.02)+'" font-family="Inter,Helvetica,Arial" font-size="'+(f*0.155)+
+       '" font-weight="600" fill="#ffffff" text-anchor="middle">'+o.l1+'</text>';
+    s+='<text x="'+cx+'" y="'+(cy+f*0.135)+'" font-family="Inter,Helvetica,Arial" font-size="'+(f*0.155)+
+       '" font-weight="600" fill="'+o.accent+'" text-anchor="middle">'+o.l2+'</text>';
+    s+='<text x="'+(land?w*0.055:w*0.5)+'" y="'+(land?h*0.24:h*0.19)+'" font-family="Inter,Helvetica,Arial" font-size="'+(f*0.062)+
+       '" font-weight="600" fill="#cfd3dc" letter-spacing="'+(f*0.006)+'" text-anchor="'+(land?'start':'middle')+'">'+o.brand+'</text>';
+    s+='<text x="'+(land?w*0.945:w*0.5)+'" y="'+(land?h*0.82:h*0.86)+'" font-family="Inter,Helvetica,Arial" font-size="'+(f*0.055)+
+       '" font-weight="500" fill="#9aa0ac" text-anchor="'+(land?'end':'middle')+'">'+o.foot+'</text>';
+    return uri(s+'</svg>');
+  }
+  var BRAND = {
+    ridge:{c1:'#111a2e',c2:'#16324f',accent:'#f5c542',brand:'RIDGELINE AUTO CARE',l1:'HALF-PRICE',l2:'OIL CHANGE',foot:'EXIT 12 · 2 MILES'},
+    vera :{c1:'#0d2b2b',c2:'#14514c',accent:'#5fe0c0',brand:'VERA DENTAL',l1:'NEW PATIENTS',l2:'WELCOME',foot:'BOOK ONLINE TODAY'},
+    pike :{c1:'#2b1d14',c2:'#5a3a22',accent:'#f0b775',brand:'PIKE &amp; CO COFFEE',l1:'OPEN AT',l2:'6 AM',foot:'MAIN &amp; 3RD'},
+    hall :{c1:'#1c1630',c2:'#3a2a63',accent:'#c9a6ff',brand:'HALLOW FITNESS',l1:'FIRST MONTH',l2:'FREE',foot:'JOIN THIS WEEK'}
+  };
+  function uri(s){ return "url('data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s)+"')"; }
+  var ART = {};
+  /* artwork laid out for a given shape: stands in for an AI layout */
+  function bg(brand,w,h){
+    var k=brand+'|'+w+'x'+h;
+    if(!ART[k]) ART[k]=art(Object.assign({w:w,h:h},BRAND[brand]));
+    return ART[k];
+  }
+  /* an advertiser's own file, made at the exact sign dimension (a different layout from the AI one, on purpose) */
+  function svgUpload(w,h,b){
+    var o = BRAND[b], u = Math.min(w,h)/100, cx = w/2, f1 = Math.min(u*14, w/7), f2 = Math.min(u*6, w/21);
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'">'+
+      '<defs><linearGradient id="u" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+o.c2+'"/><stop offset="1" stop-color="'+o.c1+'"/></linearGradient></defs>'+
+      '<rect width="'+w+'" height="'+h+'" fill="url(#u)"/><rect x="0" y="'+(h-u*4)+'" width="'+w+'" height="'+(u*4)+'" fill="'+o.accent+'"/>'+
+      '<text x="'+cx+'" y="'+(h*0.44)+'" font-family="Inter,Helvetica,Arial" font-size="'+f1+'" font-weight="600" fill="#ffffff" text-anchor="middle">'+o.l1+'</text>'+
+      '<text x="'+cx+'" y="'+(h*0.44+f1*1.15)+'" font-family="Inter,Helvetica,Arial" font-size="'+f1+'" font-weight="600" fill="'+o.accent+'" text-anchor="middle">'+o.l2+'</text>'+
+      '<text x="'+cx+'" y="'+(h*0.8)+'" font-family="Inter,Helvetica,Arial" font-size="'+f2+'" fill="#c9ccd4" text-anchor="middle">'+o.brand+'</text></svg>';
+  }
+  function upArt(d, b){ b = b || files()[0].brand; var k = 'up|'+b+'|'+d[0]+'x'+d[1]; if(!ART[k]) ART[k] = uri(svgUpload(d[0], d[1], b)); return ART[k]; }
+
+  /* ---------------- My Library: the same designs, images and tags as library-page.html ----------------
+     prov: original · crop (Cropped) · ai (Resized with AI) · stretch (Stretched: made by Blip's earlier resize,
+     which stretched the original to the sign dimension). Stretched images are kept and stay usable. */
+  var DESIGNS = {
+    ridge:{id:'ridge', brand:'ridge', name:'Ridgeline · Summer Promo', created:'Mar 4, 2026',
+      images:[
+        {w:2800, h:800,  prov:'original', file:'ridgeline-summer-2800×800.jpg'},
+        {w:1400, h:400,  prov:'crop',    signs:40},
+        {w:840,  h:400,  prov:'stretch', signs:12},
+        {w:1080, h:1920, prov:'ai',      signs:5}
+      ]},
+    vera:{id:'vera', brand:'vera', name:'Vera Dental · New Patients', created:'Feb 19, 2026',
+      images:[
+        {w:2400, h:600,  prov:'original', file:'vera-newpatients-2400×600.png'},
+        {w:1400, h:400,  prov:'stretch', signs:22},
+        {w:1920, h:1080, prov:'stretch', signs:7}
+      ]},
+    hall:{id:'hall', brand:'hall', name:'Hallow Fitness · First Month Free', created:'Dec 2, 2025',
+      images:[
+        {w:3000, h:900,  prov:'original', file:'hallow-firstmonth-3000×900.jpg'},
+        {w:1400, h:400,  prov:'crop',    signs:31},
+        {w:840,  h:400,  prov:'stretch', signs:9, pend:{prov:'ai'}}
+      ]},
+    pike:{id:'pike', brand:'pike', name:'Pike & Co · Open at 6', created:'Jan 8, 2026',
+      images:[
+        {w:1600, h:900,  prov:'original', file:'pike-open6-1600×900.jpg'}
+      ]}
+  };
+  var LIB_ORDER = ['ridge','vera','hall','pike'];
+  var DESIGN = 'ridge';
+
+  /* ---------------- files uploaded from the computer: concept-flow-v2's artwork, unchanged ---------------- */
+  function svgWide(){
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2800 800">'+
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">'+
+      '<stop offset="0" stop-color="#111a2e"/><stop offset=".52" stop-color="#16324f"/><stop offset="1" stop-color="#0e1626"/>'+
+      '</linearGradient></defs><rect width="2800" height="800" fill="url(#g)"/>'+
+      '<rect x="0" y="0" width="26" height="800" fill="#e8b53a"/>'+
+      '<rect x="150" y="352" width="66" height="66" rx="9" fill="#7d6a3a"/>'+
+      '<text x="183" y="396" font-family="Inter,Helvetica,Arial" font-size="38" font-weight="600" fill="#efe4c6" text-anchor="middle">R</text>'+
+      '<text x="244" y="382" font-family="Inter,Helvetica,Arial" font-size="34" font-weight="600" fill="#c9ccd4" letter-spacing="3">RIDGELINE</text>'+
+      '<text x="244" y="416" font-family="Inter,Helvetica,Arial" font-size="24" fill="#8b90a0" letter-spacing="3">AUTO CARE</text>'+
+      '<text x="1400" y="378" font-family="Inter,Helvetica,Arial" font-size="96" font-weight="600" fill="#ffffff" text-anchor="middle">HALF-PRICE</text>'+
+      '<text x="1400" y="474" font-family="Inter,Helvetica,Arial" font-size="96" font-weight="600" fill="#f5c542" text-anchor="middle">OIL CHANGE</text>'+
+      '<text x="2650" y="386" font-family="Inter,Helvetica,Arial" font-size="54" font-weight="600" fill="#c9ccd4" text-anchor="end">801-555-0142</text>'+
+      '<text x="2650" y="424" font-family="Inter,Helvetica,Arial" font-size="26" fill="#8b90a0" text-anchor="end">EXIT 12 · 2 MILES</text></svg>';
+  }
+  function svgTall(){
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920">'+
+      '<defs><linearGradient id="p" x1="0" y1="0" x2="1" y2="1">'+
+      '<stop offset="0" stop-color="#111a2e"/><stop offset=".55" stop-color="#16324f"/><stop offset="1" stop-color="#0e1626"/>'+
+      '</linearGradient></defs><rect width="1080" height="1920" fill="url(#p)"/>'+
+      '<rect x="0" y="0" width="1080" height="22" fill="#e8b53a"/>'+
+      '<rect x="462" y="300" width="96" height="96" rx="13" fill="#7d6a3a"/>'+
+      '<text x="510" y="366" font-family="Inter,Helvetica,Arial" font-size="56" font-weight="600" fill="#efe4c6" text-anchor="middle">R</text>'+
+      '<text x="540" y="470" font-family="Inter,Helvetica,Arial" font-size="42" font-weight="600" fill="#c9ccd4" text-anchor="middle" letter-spacing="4">RIDGELINE</text>'+
+      '<text x="540" y="516" font-family="Inter,Helvetica,Arial" font-size="28" fill="#8b90a0" text-anchor="middle" letter-spacing="4">AUTO CARE</text>'+
+      '<text x="540" y="930" font-family="Inter,Helvetica,Arial" font-size="112" font-weight="600" fill="#ffffff" text-anchor="middle">HALF-PRICE</text>'+
+      '<text x="540" y="1052" font-family="Inter,Helvetica,Arial" font-size="112" font-weight="600" fill="#f5c542" text-anchor="middle">OIL CHANGE</text>'+
+      '<text x="540" y="1560" font-family="Inter,Helvetica,Arial" font-size="60" font-weight="600" fill="#c9ccd4" text-anchor="middle">801-555-0142</text>'+
+      '<text x="540" y="1614" font-family="Inter,Helvetica,Arial" font-size="30" fill="#8b90a0" text-anchor="middle">EXIT 12 · 2 MILES</text></svg>';
+  }
+  ART.wide = uri(svgWide()); ART.tall = uri(svgTall());
+  var FILES = {
+    wide:{id:'wide', name:'ridgeline-summer-2800×800.jpg', w:2800, h:800, art:'wide', brand:'ridge'},
+    tall:{id:'tall', name:'ridgeline-story-1080×1920.png', w:1080, h:1920, art:'tall', brand:'ridge'},
+    near:{id:'near', name:'ridgeline-promo-1520×400.jpg', w:1520, h:400, art:'wide', brand:'ridge'}
+  };
+
+  function origOf(d){ return d.images.filter(function(x){ return x.prov==='original'; })[0]; }
+  /* the design's original, shaped like v2's file record so the rest of v2 runs on it unchanged */
+  function fileOf(id){ var d = DESIGNS[id], o = origOf(d);
+    return {id:id, name:o.file, design:d.name, brand:d.brand, w:o.w, h:o.h, art:id}; }
+  LIB_ORDER.forEach(function(id){ var d = DESIGNS[id], o = origOf(d); ART[id] = bg(d.brand, o.w, o.h); });
+
+  /* ---- the four bands ---- */
+  var B = {FIT:0.03, ADJ:0.07, RELAY:0.12};
+  function bandOf(c){ return c<=B.FIT?'fit':(c<=B.ADJ?'adjust':(c<=B.RELAY?'relayout':'genfam')); }
+
+  /* [w,h,signs] */
+  /* a real campaign: three or four required sizes */
+  var REAL = [[1400,400,40],[840,400,12],[1920,1080,10],[1080,1920,5]];
+  var SCEN = [{id:'real', lab:'Campaign', files:['wide'], sizes:REAL}];
+
+  var PHRASES = ['Reading your file','Checking dimensions','Matching your sizes','Preparing crops'];
+
+  var S = {v:'section', src:{kind:'upload', id:'wide'}, applied:[], scen:'real', phr:0, cropping:false, ai:'idle', showDrag:false,
+           done:{}, sel:null, lab:'mono', zoom:null, zoomFrom:null, openRows:{},
+           framed:false, folded:true, cache:{}, editFrom:null, tq:[], building:null, landed:{},
+           signsShown:0, signsTarget:0, removed:{}, uploaded:{}, uploading:{}, uploadErr:{}, picker:null, batches:[], fileId:null, tileSel:{},
+           drag:null, dragging:false, frames:{}, editFile:null, editSize:null, aiEditSize:null, t1:null, t2:null};
+
+  function sc(){ return SCEN.filter(function(x){return x.id===S.scen;})[0]; }
+  /* the creative in progress comes from one of two sources: a file from the computer, or a design from My Library */
+  function files(){ var s = S.src || {kind:'upload', id:'wide'}; return [s.kind==='lib' ? fileOf(s.id) : FILES[s.id]]; }
+
+
+
+  /* ---- more than one creative in a single visit: each finished creative is kept as a batch ---- */
+  /* scan thumbnails keep the file's shape inside a 400×300 box, so a tall file doesn't blow up the modal */
+  function thumbStyle(f){ var r = f.w/f.h, w = Math.min(400, Math.round(300*r)); return 'width:'+w+'px;height:'+Math.round(w/r)+'px;background-image:'+ART[f.art]; }
+  /* how a creative's source is named on screen: a library design by its design name (its stored file name is a
+     generated string that means nothing to the advertiser), an upload by the file they chose */
+  function srcLabel(f){ return f.design ? f.design.replace('&','&amp;') : f.name; }
+  function batchName(f, d){ return f.name.replace(/\.[a-z]+$/,'').replace(/-\d+×\d+$/,'')+'_'+d[0]+'×'+d[1]+'.jpg'; }
+  /* what the creative in progress would add right now: saved dimensions and crops, plus AI layouts and uploads that exist */
+  function currentBatch(){
+    var p = plan(), f = files()[0], all = aiAll(p);
+    /* a removed dimension adds nothing, including a stretched one whose regenerated layout was removed */
+    return {file:f, items: p.items.filter(function(i){ var k = kOf(i.d);
+        return S.done[k] || (p.aiTask.indexOf(i)<0 && !S.removed[k]); }).map(function(i){
+      var k = kOf(i.d), up = S.uploaded[k], made = all.indexOf(i)>-1 && !!S.done[k] && !up;
+      return {k:k, i:i, up: up ? {name:up.name} : null, made:made,
+              ai: made || (!up && !!i.saved && i.saved.prov==='ai'),
+              stretch: !up && !made && isRegen(i),
+              /* a library creative is named by its design, an upload by its file */
+              name: up ? up.name : (f.design ? srcLabel(f) : batchName(f, i.d))};
+    })};
+  }
+  function entryBG(e, w){
+    if(e.up) return 'background-image:'+upArt(e.i.d, e.i.f.brand)+';background-size:100% 100%';
+    if(e.made) return aiBG(e.i, w);
+    if(e.i.saved) return savedBG(e.i, w);
+    return e.i.band==='fit' ? fitBG(e.i,w) : cropBG(e.i,w); }
+  /* every creative this visit adds, earlier batches first, grouped by sign dimension */
+  /* every creative on the campaign, grouped by sign dimension: what was already added, then this visit's earlier creatives,
+     then (while the modal is open) the one in progress. Both sources add to the same campaign */
+  function entriesByDim(withCurrent){
+    var by = {}, list = S.applied.concat(S.batches);
+    if(withCurrent) list = list.concat([currentBatch()]);
+    list.forEach(function(b){ b.items.forEach(function(e){ (by[e.k] = by[e.k] || []).push(e); }); });
+    return by;
+  }
+  function batchKeys(){ var s = {}; S.applied.concat(S.batches).forEach(function(b){ b.items.forEach(function(e){ s[e.k] = true; }); }); return s; }
+  /* signs covered once earlier batches are counted alongside the given dimensions */
+  function unionSigns(items){
+    var s = batchKeys(); items.forEach(function(i){ s[kOf(i.d)] = true; });
+    return signsIn(plan().items.filter(function(i){ return s[kOf(i.d)]; }));
+  }
+  function sizes(){ return sc().sizes; }
+  function total(){ return sizes().reduce(function(a,d){return a+d[2];},0); }
+  function orient(r){ return r>1.15?'land':(r<0.87?'port':'sq'); }
+  function ratioName(f){ var o=orient(f.w/f.h);
+    return (o==='land'?'Horizontal':(o==='port'?'Vertical':'Square'))+' ('+(Math.round(f.w/f.h*100)/100)+':1)'; }
+  function sg(n){ return n+' sign'+(n===1?'':'s'); }
+  /* dimensions are described by orientation only: Landscape, Portrait or Square, never a format name */
+  function fmtName(d){ return oriName(d); }
+  var SPARK = '<svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">'+
+    '<path d="M6 0 L7.1 4.9 L12 6 L7.1 7.1 L6 12 L4.9 7.1 L0 6 L4.9 4.9 Z"/></svg>';
+  function kOf(d){ return d[0]+'x'+d[1]; }
+  function oriName(d){ var o=orient(d[0]/d[1]); return o==='land'?'Landscape':(o==='port'?'Portrait':'Square'); }
+  function thumbH(d,w){ return Math.max(9, Math.round(w/(d[0]/d[1]))); }
+  /* fit any ratio inside a fixed box so rows share a height */
+  function fitBox(d,bw,bh){
+    var r=d[0]/d[1], w=bw, h=w/r;
+    if(h>bh){ h=bh; w=h*r; }
+    return {w:Math.max(10,Math.round(w), 0), h:Math.max(9,Math.round(h))};
+  }
+  var ROWBOX={w:52,h:44};
+
+  /* each sign dimension takes an image the design already carries when there is one; otherwise it is measured against the original */
+  function plan(){
+    var f = files()[0], D = DESIGNS[f.id], items = [], gap = [];
+    sizes().forEach(function(d){
+      /* an uploaded file carries nothing saved; a library design may already have this dimension */
+      var saved = D ? D.images.filter(function(x){ return x.prov!=='original' && x.w===d[0] && x.h===d[1]; })[0] : null;
+      if(saved){ items.push({d:d, f:f, saved:saved, band:'saved', cost:0}); return; }
+      var r = d[0]/d[1], sr = f.w/f.h, c = 1 - Math.min(r,sr)/Math.max(r,sr);
+      items.push({d:d, f:f, cost:c, band:bandOf(c)});
+    });
+    var of_ = function(b){ return items.filter(function(i){return i.band===b;}); };
+    var fit = of_('fit'), adj = of_('adjust'), rel = of_('relayout'), gen = of_('genfam'), saved = of_('saved');
+    /* crops happen without asking; every AI layout is opt-in, and so is regenerating a stretched image */
+    return {items:items, gap:gap, fit:fit, adjust:adj, relayout:rel, genfam:gen,
+            saved:saved, stretched:saved.filter(isRegen),
+            auto: fit,
+            aiTask: rel.concat(gen)};
+  }
+  /* a saved image made by Blip's earlier stretch resize: kept, and offered Regenerate per card */
+  function isRegen(i){ return !!(i && i.saved && i.saved.prov==='stretch'); }
+  /* everything AI can make in this visit: missing dimensions, plus stretched ones picked to regenerate */
+  function aiAll(p){ return p.aiTask.concat(p.stretched); }
+  function itemOf(k){ return plan().items.filter(function(i){ return kOf(i.d)===k; })[0]; }
+  function signsIn(list){ return list.reduce(function(a,i){return a+(i.d?i.d[2]:i[2]);},0); }
+
+  /* frames, keyed by file + size */
+  function key(i){ return i.f.id+'|'+i.d[0]+'x'+i.d[1]; }
+  function maxFrame(i){ var f=i.f, r=i.d[0]/i.d[1], w=f.w, h=w/r; if(h>f.h){h=f.h;w=h*r;} return {w:w,h:h}; }
+  function initFrame(i){ var mx=maxFrame(i);
+    var j = (NUDGE++ % 3) - 1;
+    return {w:mx.w,h:mx.h,x:Math.max(0,Math.min(i.f.w-mx.w,(i.f.w-mx.w)/2 + j*(i.f.w-mx.w)*0.35)),y:(i.f.h-mx.h)/2}; }
+  function FR(i){ var k=key(i); if(!S.frames[k]) S.frames[k]=initFrame(i); return S.frames[k]; }
+  var NUDGE = 0;
+  function clampF(i,f){ var mx=maxFrame(i), r=i.d[0]/i.d[1], minW=mx.w*0.34;
+    f.w=Math.max(minW,Math.min(mx.w,f.w)); f.h=f.w/r;
+    f.x=Math.max(0,Math.min(i.f.w-f.w,f.x)); f.y=Math.max(0,Math.min(i.f.h-f.h,f.y)); return f; }
+  function cropBG(i,pw){
+    var f=FR(i), src=i.f, r=i.d[0]/i.d[1], cw=f.h*r, cx=f.x+(f.w-cw)/2, k=pw/cw;
+    return 'background-image:'+ART[src.art]+';background-size:'+(src.w*k)+'px '+(src.h*k)+'px;'+
+           'background-position:-'+(cx*k)+'px -'+(f.y*k)+'px'; }
+  function fitBG(i,pw){ /* pure scale, no crop */
+    return 'background-image:'+ART[i.f.art]+';background-size:100% 100%'; }
+  /* a new AI layout, drawn for the sign's own shape */
+  /* a new AI layout: a library design shows the layout drawn for the shape; an uploaded file keeps concept-flow-v2's look */
+  function aiBG(i,pw){ return DESIGNS[i.f.id] ? 'background-image:'+bg(i.f.brand, i.d[0], i.d[1])+';background-size:100% 100%' : cropBG(i, pw || 270); }
+
+  /* a saved image as it is stored: a stretched one is the original squeezed into the sign's shape */
+  function savedBG(i,pw){
+    var s = i.saved;
+    if(s.prov==='stretch') return 'background-image:'+ART[i.f.art]+';background-size:100% 100%';
+    if(s.prov==='ai') return aiBG(i);
+    return cropBG(i,pw); }
+  function aiCapable(i){ return i.band==='relayout' || i.band==='genfam' || isRegen(i); }
+  /* whatever fills this dimension: their own upload, a new AI layout, a saved image, a straight scale, or a crop */
+  function artBG(i,pw){
+    var k = kOf(i.d);
+    if(S.uploaded[k]) return 'background-image:'+upArt(i.d, i.f.brand)+';background-size:100% 100%';
+    if(S.done[k] && aiCapable(i)) return aiBG(i,pw);
+    if(i.saved) return savedBG(i,pw);
+    return i.band==='fit' ? fitBG(i,pw) : cropBG(i,pw); }
+
+  function curItem(list,key2){
+    var p=plan(), all=p.items;
+    return all.filter(function(i){ return i.d[0]+'x'+i.d[1]===key2; })[0];
+  }
+
+  /* ================= section ================= */
+  function sectionHTML(){
+    /* the step shows everything already added to the campaign, whichever source it came from */
+    var applied = S.applied.length>0, p = plan(), SZ = sizes(), T = total();
+    var byDim = applied ? entriesByDim(false) : {};
+    /* once every sign has a creative there is nothing left to upload for, and the full meter already says so */
+    var complete = applied && p.items.every(function(i){ return !!byDim[kOf(i.d)]; });
+    var h = '<div class="crtitle">Creative <span style="color:var(--text-3)">&#9432;</span></div>'+
+            (complete ? '' : '<p class="crsub">Upload more sizes to reach more people.</p>');
+    if(!applied){
+      var shown = SZ.slice().sort(function(a,b){ return b[2]-a[2]; }), hid = [];
+      S.signsTarget = 0;
+      h += '<div class="meterhead"><span class="n">0 of '+T+' signs</span>'+
+        '<span class="why">Each size unlocks more impressions.</span></div>'+
+        '<div class="meter"><i id="meterfill" style="width:'+(S.signsShown/T*100)+'%"></i></div>'+
+        '<div class="dropregion'+(S.showDrag?' dragging':'')+'" id="region">'+
+        '<div class="dveil"><span class="vt">Drag file here to upload your creative</span>'+
+        '<span class="vs">PNG, JPG, JPEG · up to 10 files per size</span></div><div class="inner">'+
+        '<div class="dz"><span class="lbl">Drag file here to upload your creative</span>'+
+        '<button class="btn pri" data-a="up"><span class="lg">Upload from computer</span><span class="sm">Upload</span></button>'+
+        '<button class="btn acc" data-a="lib">My Library</button>'+
+        '<span class="hint">PNG, JPG, JPEG&nbsp; · &nbsp;up to 10 files per size&nbsp;&nbsp; Need more? <a data-a="noop">Contact support</a></span></div>'+
+        '<div class="rows">'+shown.map(emptyRow).join('')+
+        (hid.length?'<div class="fold" data-a="fold">&#9662; <span>Show '+hid.length+' size'+(hid.length>1?'s':'')+'</span>'+
+          '<span class="c">'+sg(hid.reduce(function(a,d){return a+d[2];},0))+'</span></div>'+
+          (S.folded?'':hid.map(emptyRow).join('')):'')+
+        '</div></div></div>';
+    } else {
+      /* only what was applied is filled: crops, AI layouts that were made, and uploads, from every creative added */
+      var has = function(i){ return !!byDim[kOf(i.d)]; };
+      var cov = signsIn(p.items.filter(has));
+      /* the count carries the number, so the confirmation beside it never needs one;
+         the bar is drawn at the last count shown, then animated to the new one after paint */
+      S.signsTarget = cov;
+      h += '<div class="meterhead"><span class="n">'+cov+' of '+T+' signs</span>'+
+        (complete ? '<span class="why good">&#10003; Your creative is ready for every selected sign</span>'
+                  : '<span class="why">Each size unlocks more impressions.</span>')+'</div>'+
+        '<div class="meter"><i id="meterfill" style="width:'+(S.signsShown/T*100)+'%"></i></div>'+
+        '<div class="dzmini" id="dropmini"><span class="up">&#8593;</span><span class="lbl">Drag more files here</span>'+
+        '<span class="sp"></span><a data-a="up">Upload from computer</a><span class="sep">·</span>'+
+        '<a data-a="lib">My Library</a></div>';
+
+      var shownR = p.items.slice().sort(function(a,b){ return b.d[2]-a.d[2]; }), hidR = [];
+      h += '<div class="rows" style="margin-top:0">'+shownR.map(function(i){ return has(i) ? filledRow(i, byDim[kOf(i.d)]) : emptyRow(i.d); }).join('')+
+        (hidR.length ? '<div class="fold" data-a="fold">'+(S.folded?'&#9662;':'&#9652;')+
+          ' <span>'+(S.folded?'Show':'Hide')+' '+hidR.length+' size'+(hidR.length>1?'s':'')+'</span>'+
+          '<span class="c">'+sg(hidR.reduce(function(a,i){return a+i.d[2];},0))+'</span></div>'+
+          (S.folded?'':hidR.map(filledRow).join('')) : '')+
+        '</div>';
+    }
+    h += '<div class="needcard"><h4>Need a creative?</h4><div class="lks">'+
+      '<a class="lk">Canva templates &#8599;</a><a class="lk">Blip\'s design team ($99/design) &#8599;</a></div></div>'+
+      '<p class="foot">Your creative is reviewed within 48 hours. Once approved your campaign goes live at scheduled time and you will '+
+      'receive a confirmation email. <span class="foot2">Sign owners set their own content exclusions, so some placements may not be available.</span></p>';
+    return h;
+  }
+  function emptyRow(d){
+    var bx=fitBox(d,ROWBOX.w,ROWBOX.h);
+    return '<div class="srow"><div class="line"><span class="swatch"><i style="width:'+bx.w+
+      'px;height:'+bx.h+'px"></i></span>'+
+      '<span class="sdim">'+d[0]+' × '+d[1]+' px</span><span class="sori">'+oriName(d)+'</span>'+
+      '<span class="sgrow"></span><span class="scount offer">+'+sg(d[2])+'</span>'+
+      /* opens the one picker that holds both sources, so the button carries no menu caret */
+      '<span class="sacts"><button class="btn acc" data-a="addcreative">Add creative</button>'+
+      '</span></div></div>';
+  }
+  function filledRow(i, list){
+    var k = kOf(i.d), open = !!S.openRows[k];
+    /* one tile per creative this size holds; the selected tile is the one named below */
+    var si = Math.min(S.tileSel[k] || 0, list.length-1), cur = list[si];
+    /* v2 labels only AI rows; a stretched image kept from the library says so too */
+    var nAI = list.filter(function(e){ return e.ai; }).length, nSt = list.filter(function(e){ return e.stretch; }).length;
+    var meta = nAI ? (nAI===list.length ? 'Resized with AI' : nAI+' of '+list.length+' resized with AI'+(nSt ? ' · '+nSt+' stretched' : ''))
+             : nSt ? (nSt===list.length ? 'Stretched' : nSt+' of '+list.length+' stretched') : '';
+    var isAI = !!meta;
+    var fn = cur.name;
+    var tb = fitBox(i.d, 232, 122);
+    var chev = open
+      ? '<svg class="chv" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg class="chv" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    return '<div class="srow filled'+(open?' open':'')+'"><div class="line head'+(isAI?'':' solo')+'" data-a="togglerow" data-k="'+k+'" aria-expanded="'+open+'">'+
+      '<span class="swatch"><span class="tn" style="width:'+fitBox(i.d,ROWBOX.w,ROWBOX.h).w+
+        'px;height:'+fitBox(i.d,ROWBOX.w,ROWBOX.h).h+'px;'+entryBG(list[0],ROWBOX.w)+'"></span></span>'+
+      '<span class="sdim">'+i.d[0]+' × '+i.d[1]+' px <span>· '+oriName(i.d)+'</span></span>'+
+      (meta?'<span class="smeta">'+meta+'</span>':'')+
+      '<span class="scount done">'+sg(i.d[2])+' covered'+chev+'</span></div>'+
+      (open ? '<div class="rowbody">'+
+        '<div class="cstrip"><div class="ctiles">'+
+          list.map(function(e, n){
+            return '<div class="ctile'+(n===si?' sel':'')+'" data-a="seltile" data-k="'+k+'" data-n="'+n+'" title="'+e.name+'"><span class="ok">&#10003;</span>'+
+              '<span class="img" style="width:'+tb.w+'px;height:'+tb.h+'px;'+entryBG(e,tb.w)+'"></span></div>';
+          }).join('')+
+          /* Add more opens the same picker as Add creative; whatever is added lands on every dimension it fits, this one included */
+          '</div><button class="btn acc addmore" data-a="addcreative">Add more</button></div>'+
+        '<div class="cinfo"><div class="cmeta"><span class="fn">'+fn+'</span><span class="sp"></span><a data-a="removecreative" data-k="'+k+'" data-n="'+si+'">Remove</a></div>'+
+          '<div class="rdy">&#10003; Ready for review</div></div>'+
+      '</div>' : '')+'</div>';
+  }
+
+  function doneRow(i,open){
+    var d=i.d, r=d[0]/d[1];
+    var sw = open ? '<i style="width:'+Math.round(26*r)+'px;height:26px"></i>'
+      : '<span class="tn" style="height:'+thumbH(d,44)+'px;'+(i.band==='fit'?fitBG(i,44):cropBG(i,44))+'"></span>';
+    return '<div class="srow click"><div class="line"><span class="swatch">'+sw+'</span>'+
+      '<span class="sdim">'+d[0]+' × '+d[1]+' px <span>· '+oriName(d)+'</span></span>'+
+
+      (open?'<span class="askchip">Add a '+oriName(d).toLowerCase()+' file</span>':'')+
+      '<span class="sgrow"></span>'+
+      (open?'<span class="scount offer">+'+sg(d[2])+'</span>':'<span class="scount done">'+sg(d[2])+'</span>')+
+      '<span class="ch">&#8250;</span></div></div>';
+  }
+
+  /* ================= modal ================= */
+  function dotsEl(i){ return '<div class="steps">'+[0,1,2].map(function(k){
+    return '<i class="'+(k===i?'on':(k<i?'past':''))+'"></i>';}).join('')+'</div>'; }
+  function wrapMD(t,s,d,body,ft,back){
+    return '<div class="veil"><div class="md">'+
+      '<div class="mdhd">'+(back?'<button class="back" data-a="back">&#8249;</button>':'')+
+      '<span><p class="t">'+t+'</p>'+(s?'<p class="s">'+s+'</p>':'')+'</span><span class="sp"></span>'+d+
+      '<button class="x" data-a="exit" aria-label="Exit">&#10005;</button></div>'+
+      '<div class="mdbody">'+body+'</div><div class="mdft">'+ft+'</div>'+(S.confirm?confirmHTML():'')+'</div></div>';
+  }
+  /* the scan applies nothing, so only screens after it ask before exiting */
+  function needsConfirm(){ return S.v!=='checking' && S.v!=='scanned'; }
+  function confirmHTML(){
+    var made = aiAll(plan()).filter(function(i){ return S.done[kOf(i.d)] && !S.uploaded[kOf(i.d)]; }).length;
+    return '<div class="confirm"><div class="cbox" role="alertdialog" aria-labelledby="ct">'+
+      '<p class="ct" id="ct">Exit without applying?</p>'+
+      '<p class="cs">Nothing will be added to your campaign'+
+        (made ? ', and your '+made+' new layout'+(made===1?'':'s')+' will be discarded.' : '.')+'</p>'+
+      '<div class="cacts"><button class="btn sm" data-a="stay">Keep editing</button>'+
+      '<button class="btn pri sm" data-a="leave">Exit</button></div></div></div>';
+  }
+  function srcline(){
+    return files().map(function(f){
+      return '<div class="srcline"><span class="tn" style="height:'+Math.round(48/(f.w/f.h))+'px;background-image:'+ART[f.art]+'"></span>'+
+        '<span><span class="nm">'+srcLabel(f)+'</span> <span class="dm">'+ratioName(f)+'</span></span><span class="sp"></span></div>';
+    }).join('');
+  }
+
+  function mdChecking(){
+    var f = files()[0];
+    return wrapMD('Add creative','',dotsEl(0),
+      '<div class="loadwrap">'+
+      '<span class="loadthumb" style="'+thumbStyle(f)+'"></span>'+
+      '<span class="loadbar"><i></i></span><p class="loadphr">'+PHRASES[S.phr]+'</p></div>',
+      '');
+  }
+  /* step 1 revisited: the scan has already run, so it settles instead of looping */
+  function mdScanned(){
+    var f = files()[0];
+    /* this screen confirms what the advertiser did: uploaded a file, or chose a design from My Library */
+    return wrapMD('Add creative','',dotsEl(0),
+      '<div class="loadwrap">'+
+      '<span class="loadthumb" style="'+thumbStyle(f)+'"></span>'+
+      (DESIGNS[f.id]
+        ? '<div class="loaddone"><p class="loadok"><i>&#10003;</i>Added from My Library</p>'+
+          '<p class="loadfile">'+srcLabel(f)+'</p>'+
+          '<p class="loadfile loadrep"><button class="elink" data-a="libreplace">Choose a different design</button></p></div></div>'
+        : '<div class="loaddone"><p class="loadok"><i>&#10003;</i>File uploaded</p>'+
+          '<p class="loadfile">'+f.name+'</p>'+
+          '<p class="loadfile loadrep"><button class="elink" data-a="up">Replace file</button></p></div></div>'),
+      '<span class="sp"></span><button class="btn pri sm" data-a="continue">Continue</button>');
+  }
+
+  function opLabel(i,p,aiDone){
+    if(p.auto.indexOf(i)>-1) return i.band==='fit' ? ['Scaled','sc'] : ['Regenerated','ai'];
+    if(p.adjust.indexOf(i)>-1) return ['Cropped','cr'];
+    return aiDone ? ['AI resized','ai'] : ['Waiting',''];
+  }
+  function tileHTML(i,opts){
+    opts = opts||{};
+    var pw = 68, ph = thumbH(i.d,pw);
+    if(ph>68){ ph=68; pw=Math.max(18,Math.round(ph*(i.d[0]/i.d[1]))); }
+    var bg = opts.ghost ? '' : (i.band==='fit' ? fitBG(i,pw) : cropBG(i,pw));
+    return '<div class="tile'+(opts.ghost?' ghost':'')+(opts.busy?' busy':'')+(opts.aidone?' aidone':'')+'">'+
+      '<span class="tpv" style="width:'+pw+'px;height:'+ph+'px;'+bg+'"></span>'+
+      (opts.busy?'<span class="busylab">Resizing…</span>':'')+
+      (opts.edit&&!opts.busy?'<button class="edit" data-a="'+opts.edit+'" data-k="'+i.d[0]+'x'+i.d[1]+'" aria-label="Edit">&#9998;</button>':'')+
+      '<span class="tlab">'+i.d[0]+'×'+i.d[1]+'</span>'+
+      (opts.op?'<span class="top '+opts.op[1]+'">'+opts.op[0]+'</span>':'')+'</div>';
+  }
+
+  function selSet(p){
+    if(!S.sel){ S.sel = {}; p.aiTask.forEach(function(i){ S.sel[kOf(i.d)] = true; }); }
+    return S.sel;
+  }
+  /* regenerating a stretched image is the advertiser's call, card by card, so nothing starts selected */
+  function regenSet(){ if(!S.regen) S.regen = {}; return S.regen; }
+  function mdChecklist(){
+    var p = plan(), T = total();
+    var sel = selSet(p), rg = regenSet();
+    var missing = p.aiTask.filter(function(i){ return !S.done[kOf(i.d)]; });
+    var built   = p.aiTask.filter(function(i){ return  S.done[kOf(i.d)]; });
+    var shown   = p.saved.concat(p.auto).concat(p.adjust).concat(built).sort(function(a,b){ return b.d[2]-a.d[2]; });
+    var covered = signsIn(shown);
+    var picked  = missing.filter(function(i){ return sel[kOf(i.d)]; });
+    var stretchedOpen = p.stretched.filter(function(i){ return !S.done[kOf(i.d)]; });
+    var regenPicked   = stretchedOpen.filter(function(i){ return rg[kOf(i.d)]; });
+
+    function pv(i){
+      var maxW = 262, maxH = 76, r = i.d[0]/i.d[1];
+      var w = maxW, h = Math.round(w/r);
+      if(h > maxH){ h = maxH; w = Math.round(h*r); }
+      return '<span style="width:'+w+'px;height:'+h+'px;'+artBG(i,w)+'"></span>';
+    }
+    /* one card per dimension. Saved ones came with the design; a stretched one carries Regenerate where a crop carries Edit */
+    function ckCard(i){
+      var k = kOf(i.d), lab, act = '', cls = '';
+      if(i.saved && !S.done[k]){
+        if(isRegen(i) && rg[k]){
+          cls = ' regen'; lab = '<span class="lmono picked">Selected to regenerate</span>';
+          act = '<button class="elink" data-a="regenmark" data-k="'+k+'">Undo</button>';
+        } else if(isRegen(i)){
+          lab = '<span class="lmono">Saved · Stretched</span>';
+          act = '<button class="elink" data-a="regenmark" data-k="'+k+'">Regenerate</button>';
+        } else lab = '<span class="lmono">Saved</span>';
+      } else if(S.done[k]){
+        lab = '<span class="lmono">New layout</span>';
+        act = '<button class="elink" data-a="aiedit" data-k="'+k+'">Edit</button>';
+      } else {
+        lab = '<span class="lmono">Cropped</span>';
+        act = '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>';
+      }
+      return '<div class="rcard'+cls+'">'+
+        '<div class="rpv zoomable" data-a="zoom" data-k="'+k+'">'+pv(i)+'</div>'+
+        '<div class="rft"><div class="r1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="sp"></span>'+
+            '<span class="cover">'+sg(i.d[2])+'</span></div>'+
+          '<div class="r2">'+lab+'<span class="sp"></span>'+act+'</div>'+
+          '<p class="fromfile">From '+srcLabel(i.f)+'</p></div></div>';
+    }
+
+    /* signs an earlier creative already covers aren't new value, so they don't count toward "unlock" */
+    var prior = batchKeys(), isNew = function(i){ return !prior[kOf(i.d)]; };
+    var pickedSigns = signsIn(picked.filter(isNew)), allAI = signsIn(missing.filter(isNew));
+    var body = '';
+
+    if(shown.length){
+      body += '<div class="ckpanel"><div class="rhead"><p class="rt">Fitted to your sign dimensions</p>'+
+          '<span class="rs">'+shown.length+' dimension'+(shown.length===1?'':'s')+' ready · '+sg(covered)+'</span></div>'+
+        '<div class="rgrid">'+shown.map(ckCard).join('')+'</div></div>';
+    } else {
+      body += '<div class="rhead"><p class="rt">Nothing fits your sign dimensions yet</p></div>';
+    }
+
+    if(missing.length){
+      body += '<div class="ckpanel offer"><p class="ot">'+(allAI ? 'Unlock '+allAI+' '+(shown.length||S.batches.length?'more ':'')+'sign'+(allAI===1?'':'s')+' with AI' : 'Resize this creative with AI too')+'</p>'+
+        '<p class="os">Use AI to resize your creative for '+(missing.length===1?'this additional sign dimension':'these additional sign dimensions')+'.</p>'+
+        missing.map(function(i){
+          var on = !!sel[kOf(i.d)];
+          var gb = fitBox(i.d, 62, 34);
+          return '<label class="orow'+(on?'':' off')+'"><input type="checkbox" data-pick="'+kOf(i.d)+'"'+(on?' checked':'')+'>'+
+            '<span class="othumb" aria-hidden="true"><span class="oghost" style="width:'+gb.w+'px;height:'+gb.h+'px"></span></span>'+
+            '<span class="od">'+i.d[0]+'×'+i.d[1]+'</span><span class="on">'+fmtName(i.d)+'</span>'+
+            '<span class="sp"></span>'+(isNew(i) ? '<span class="ov">+'+sg(i.d[2])+'</span>' : '<span class="ov covered">Already covered</span>')+'</label>';
+        }).join('')+
+        '<div class="ofoot"><a data-a="selall">Select all</a><a data-a="selnone">Clear</a><span class="sp"></span>'+
+          '<span class="tot">'+(picked.length ? picked.length+' selected to resize'+(pickedSigns ? ' · '+sg(pickedSigns) : '') : 'None selected to resize')+'</span></div></div>'+
+        '<p class="disc below">AI layouts are reviewed like any creative. Sign owners set their own content rules. <a>Content guidelines</a></p>';
+    }
+
+    /* the buttons never swap roles: with nothing ticked or picked, Resize only disables.
+       Regenerate picks run with the ticked dimensions, so any stretched card keeps the two-button footer */
+    var anyOffer = missing.length || stretchedOpen.length;
+    var nPicked = picked.length + regenPicked.length;
+    var primary = anyOffer
+      ? '<button class="btn sm" data-a="apply">Add without resizing</button>'+
+        '<button class="btn pri sm" data-a="runai"'+(nPicked?'':' disabled')+'>Resize</button>'
+      : '<button class="btn pri sm" data-a="apply">Add to campaign</button>';
+    return wrapMD('Add creative', '', dotsEl(anyOffer?1:2), body,
+      /* regenerating adds no signs, so only ticked AI dimensions move the total */
+      '<span class="cover" data-covered="'+unionSigns(shown)+' of '+T+'">'+(picked.length
+        ? '<b>'+unionSigns(shown.concat(picked))+' of '+T+'</b> signs with resizing'
+        : '<b>'+unionSigns(shown)+' of '+T+'</b> signs covered')+'</span><span class="sp"></span>'+primary, true);
+  }
+
+  function mdEditor(){
+    var p = plan();
+    var i = p.items.filter(function(x){return x.d[0]+'x'+x.d[1]===S.editSize;})[0] || p.adjust[0];
+    if(!i) return mdChecklist();
+    S.editSize = i.d[0]+'x'+i.d[1];
+    var inAdj = p.adjust.map(function(x){return x.d[0]+'x'+x.d[1];}).indexOf(S.editSize);
+    return wrapMD(i.d[0]+' × '+i.d[1], srcLabel(i.f), dotsEl(1),
+      '<div class="canvas" id="canvas"></div>'+
+      '<div class="edcap"><span class="pill ok">'+sg(i.d[2])+' from this crop</span>'+
+      '<span class="say">Drag to move · corners to scale</span><span class="sp"></span>'+
+      '<button class="reset" data-a="resetcrop">Reset</button></div>'+
+      '<p class="noteline">Keep anything that matters inside the frame.</p>',
+      '<span class="note">'+(inAdj>-1 && p.adjust.length>1 ? 'Crop '+(inAdj+1)+' of '+p.adjust.length : fmtName(i.d))+'</span><span class="sp"></span>'+
+      '<button class="btn sm" data-a="back">Back</button>'+
+      '<button class="btn pri sm" data-a="saveadjust">Save crop</button>', true);
+  }
+
+  function aiPool(){
+    var p = plan();
+    return p.auto.filter(function(i){return i.band!=='fit';})
+            .concat(p.aiTask.filter(function(i){ return S.done[kOf(i.d)]; }));
+  }
+  function mdZoom(){
+    var p = plan();
+    var i = p.items.filter(function(x){ return kOf(x.d)===S.zoom; })[0];
+    if(!i) return null;
+    var k = kOf(i.d), up = S.uploaded[k];
+    var isAI = aiCapable(i) && S.done[k] && !up;
+    var zw=840, zh=Math.round(zw/(i.d[0]/i.d[1]));
+    if(zh>350){ zh=350; zw=Math.round(zh*(i.d[0]/i.d[1])); }
+    var f=i.f, back = S.zoomFrom==='aiedit' ? 'All layouts' : 'Back';
+    var big = '<div class="nlbig" style="height:380px"><span style="width:'+zw+'px;height:'+zh+'px;'+artBG(i,zw)+'"></span></div>';
+    var from = '<div class="aifrom"><span class="fl">From</span>'+
+      '<span class="ftn" style="height:'+Math.round(64/(f.w/f.h))+'px;background-image:'+ART[f.art]+'"></span>'+
+      '<span class="fn">'+srcLabel(f)+' · '+ratioName(f)+'</span><span class="sp"></span>'+
+      '<span class="fn">'+sg(i.d[2])+'</span></div>';
+    if(up) return wrapMD(i.d[0]+' × '+i.d[1], fmtName(i.d)+' · Your upload', dotsEl(1),
+      big+'<div class="aifrom"><span class="fl">File</span><span class="fn">'+up.name+'</span><span class="sp"></span>'+
+      '<span class="fn">'+sg(i.d[2])+'</span></div>',
+      '<button class="btn sm" data-a="unzoom">'+back+'</button><span class="sp"></span>'+
+      '<button class="elink ftlink" data-a="removeai" data-k="'+k+'">Remove</button>'+
+      '<button class="btn pri sm" data-a="uploadown" data-k="'+k+'">Replace file</button>', true);
+    /* a saved image, shown as stored. Only a stretched one offers anything: a pick on the checklist, a run on the review */
+    if(i.saved && !isAI){
+      var st = isRegen(i), tag = st ? 'Stretched' : (i.saved.prov==='ai' ? 'Resized with AI' : 'Cropped');
+      var marked = st && S.regen && S.regen[k];
+      return wrapMD(i.d[0]+' × '+i.d[1], fmtName(i.d)+' · Saved · '+tag, dotsEl(1), big+from,
+        '<button class="btn sm" data-a="unzoom">'+back+'</button><span class="sp"></span>'+
+        /* picking a stretched image to regenerate happens on the checklist only, never on the review */
+        (!st || S.zoomFrom==='aiedit' ? ''
+          : '<button class="btn pri sm" data-a="regenmark" data-k="'+k+'">'+(marked?'Undo regenerate':'Regenerate')+'</button>'), true);
+    }
+    return wrapMD(i.d[0]+' × '+i.d[1], fmtName(i.d)+' · '+(isAI?'Resized with AI':'Cropped'), dotsEl(1),
+      big+from,
+      '<button class="btn sm" data-a="unzoom">'+back+'</button><span class="sp"></span>'+
+      /* one button; the secondary actions are text so Edit stays the clear next step */
+      (isAI?'<button class="elink ftlink" data-a="removeai" data-k="'+k+'">Remove</button>'+
+            '<button class="elink ftlink" data-a="regen" data-k="'+k+'">Regenerate</button>':'')+
+      '<button class="btn pri sm" data-a="adjust" data-k="'+k+'">Edit</button>', true);
+  }
+
+  function mdAIEdit(){
+    var p = plan();
+    var made = aiAll(p).filter(function(i){ return S.done[kOf(i.d)] || (S.building && S.building[kOf(i.d)]); });
+    if(!made.length && !Object.keys(S.removed).length) return mdChecklist();
+    return mdLayoutsReview(p, made);
+  }
+  function nlCard(i){
+    var maxW=270, maxH=134, r=i.d[0]/i.d[1], w=maxW, h=Math.round(w/r), k=kOf(i.d), st=isRegen(i);
+    if(h>maxH){ h=maxH; w=Math.round(h*r); }
+    var busy = S.building && S.building[k];
+    /* incremental coverage sits under the dimension in regular grey, never as a bold accent;
+       a regenerated dimension was already covered, so its count carries no plus until it is removed */
+    var foot = function(actions, tag, status){
+      var gain = (st && !S.removed[k]) ? '<span class="gain">'+sg(i.d[2])+'</span>'
+               : (batchKeys()[k] ? '<span class="gain covered">Already covered</span>' : '<span class="gain">+'+sg(i.d[2])+'</span>');
+      return '<div class="nlft two"><div class="l1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span>'+
+        '<span class="linline">· '+fmtName(i.d)+'</span></div>'+
+        '<div class="l2">'+(status || (gain+(tag?'<span class="linline">· '+tag+'</span>':'')))+
+        '<span class="sp"></span>'+actions+'</div></div>';
+    };
+    var rmBtn = '<button class="rm" data-a="removeai" data-k="'+k+'" aria-label="Remove '+i.d[0]+'×'+i.d[1]+'" title="Remove">&#10005;</button>';
+    if(S.uploading[k])
+      return '<div class="nlcard">'+buildPV(i, maxW, maxH, 'nlpv', 'Uploading')+foot('')+'</div>';
+    /* their own file fills the slot the AI layout left */
+    if(S.uploaded[k])
+      return '<div class="nlcard'+(S.landed[k]?' landed':'')+'">'+
+        '<div class="nlpv zoomable" data-a="zoom" data-k="'+k+'"><span style="width:'+w+'px;height:'+h+'px;'+artBG(i,w)+'"></span>'+rmBtn+'</div>'+
+        foot('<button class="elink" data-a="uploadown" data-k="'+k+'">Replace</button>', 'Your upload')+'</div>';
+    /* a removed layout keeps its place and shape in the grid, and offers the way to fill it themselves.
+       A removed regenerated layout removes the whole dimension; the stretched version is not put back */
+    if(S.removed[k]){
+      var err = S.uploadErr[k];
+      var undo = '<button class="elink" data-a="undoremove" data-k="'+k+'">Undo</button>';
+      if(err)
+        return '<div class="nlcard gone err"><div class="nlpv"><div class="gonebox">'+
+            '<button class="elink" data-a="uploadown" data-k="'+k+'">Upload a different image</button></div></div>'+
+          foot(undo, '', '<span class="errline" role="alert"><svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true">'+
+            '<circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.6"/>'+
+            '<path d="M8 4.6v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="11.2" r="1" fill="currentColor"/></svg>'+
+            'Image must be '+i.d[0]+'×'+i.d[1]+' px</span>')+'</div>';
+      return '<div class="nlcard gone"><div class="nlpv"><div class="gonebox"><em>Layout removed</em>'+
+          '<button class="elink" data-a="uploadown" data-k="'+k+'">Upload your own</button></div></div>'+
+        foot(undo)+'</div>';
+    }
+    return '<div class="nlcard'+(S.landed[k]?' landed':'')+'">'+
+      (busy ? buildPV(i, maxW, maxH, 'nlpv', st ? 'Regenerating' : '')
+            : '<div class="nlpv zoomable" data-a="zoom" data-k="'+k+'"><span style="width:'+w+'px;height:'+h+'px;'+aiBG(i,w)+'"></span>'+rmBtn+'</div>')+
+      foot(busy ? '' : '<button class="elink" data-a="regen" data-k="'+k+'">Regenerate</button>'+
+                       '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>',
+           (!busy && st) ? 'Regenerated' : '')+'</div>';
+  }
+  /* skeleton preview: a plain block in the sign's shape; the sweep is fixed to the page, so repaints never restart it */
+  function buildPV(i, maxW, maxH, cls, verb){
+    var r = i.d[0]/i.d[1], w = maxW, h = Math.round(w/r); if(h>maxH){ h=maxH; w=Math.round(h*r); }
+    return '<div class="'+cls+' skel" role="status" aria-label="'+(verb||'Resizing')+' '+i.d[0]+'×'+i.d[1]+'">'+
+      '<span class="sk" style="width:'+w+'px;height:'+h+'px"></span></div>';
+  }
+  /* the new layouts lead (removed ones keep their card and place), crops and saved images ride along underneath, and this screen applies */
+  /* the new layouts lead (removed ones keep their card and place), crops and saved images ride along underneath, and this screen applies.
+     Stretched images are picked to regenerate on the checklist only, so this screen is settled when it opens and nothing moves between sections */
+  function mdLayoutsReview(p, made){
+    var crops = p.auto.concat(p.adjust), ready = made.filter(function(i){ return S.done[kOf(i.d)]; });
+    var bldg = function(k){ return !!(S.building && S.building[k]); };
+    var kept = p.saved.filter(function(i){ var k = kOf(i.d); return !S.done[k] && !S.removed[k] && !bldg(k); });
+    var nr = aiAll(p).filter(function(i){ return S.removed[kOf(i.d)]; }).length;
+    var coveredItems = crops.concat(p.saved.filter(function(i){ return !S.removed[kOf(i.d)]; }))
+      .concat(ready.filter(function(i){ return !i.saved; }));
+    var covered = signsIn(coveredItems), campaignCovered = unionSigns(coveredItems);
+    var these = nr===1 ? 'this dimension' : 'these dimensions';
+    var busy = S.building || Object.keys(S.uploading).length;
+    var bySigns = function(a,b){ return b.d[2]-a.d[2]; };
+    /* earlier creatives from this visit, so it's clear they're still going in alongside this one */
+    var earlier = S.batches.length ? '<div class="incl"><p class="sublab">Also adding</p>'+S.batches.map(function(b){
+        var f = b.file, bs = signsIn(b.items.map(function(e){ return e.i; }));
+        return '<div class="srcline"><span class="tn" style="width:112px;height:'+Math.round(112/(f.w/f.h) > 40 ? 40 : 112/(f.w/f.h))+'px;'+
+            'background-image:'+ART[f.art]+';background-size:contain;background-repeat:no-repeat;background-position:center"></span>'+
+          '<span class="rd">'+srcLabel(f)+'</span><span class="sp"></span>'+
+          '<span class="cover">'+b.items.length+' dimension'+(b.items.length===1?'':'s')+' · '+sg(bs)+'</span></div>';
+      }).join('')+'</div>' : '';
+    /* the way to a second creative lives on the last step: one picker holds both sources, upload first, then saved designs */
+    var another = '<p class="another">Have another creative? <button class="elink" data-a="another">Add another</button></p>';
+    /* new layouts, including stretched images picked to regenerate, in the same order as the checklist */
+    var gridItems = aiAll(p).filter(function(i){ return made.indexOf(i)>-1 || S.removed[kOf(i.d)]; }).sort(bySigns);
+    var cropRow = function(i){
+      var tb = fitBox(i.d, 112, 40);
+      return '<div class="srcline"><span class="tn" style="width:'+tb.w+'px;height:'+tb.h+'px;'+
+          (i.band==='fit'?fitBG(i,tb.w):cropBG(i,tb.w))+'"></span>'+
+        '<span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="lm">· Cropped</span><span class="sp"></span>'+
+        '<span class="cover">'+sg(i.d[2])+'</span>'+
+        '<button class="elink" data-a="adjust" data-k="'+kOf(i.d)+'">Edit</button></div>';
+    };
+    /* a saved image rides along as it is; nothing to decide here */
+    var savedRow = function(i){
+      var k = kOf(i.d), tb = fitBox(i.d, 112, 40), st = isRegen(i);
+      return '<div class="srcline"><span class="tn zoomable" data-a="zoom" data-k="'+k+'" style="cursor:zoom-in;width:'+tb.w+'px;height:'+tb.h+'px;'+savedBG(i,tb.w)+'"></span>'+
+        '<span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="lm">· Saved'+(st?' · Stretched':'')+'</span><span class="sp"></span>'+
+        '<span class="cover">'+sg(i.d[2])+'</span></div>';
+    };
+    var inclRows = crops.concat(kept).sort(bySigns)
+      .map(function(i){ return i.saved ? savedRow(i) : cropRow(i); }).join('');
+    var body = '<div class="rhead"><p class="rt">Fitted to your sign dimensions</p>'+
+      '<span class="rs">'+coveredItems.length+' dimension'+(coveredItems.length===1?'':'s')+' ready · '+sg(covered)+'</span></div>'+
+      (gridItems.length ? '<p class="sublab">New layouts</p><div class="nlgrid">'+gridItems.map(nlCard).join('')+'</div>' : '')+
+      (nr ? '<p class="noteline">'+(made.length
+        ? 'Upload your own creative for '+these+' now, or add it later.'
+        : 'All new layouts removed. You can continue with just your original creative, or upload your own for '+these+' now or later.')+'</p>' : '')+
+      (inclRows ? '<div class="incl"><p class="sublab">'+(made.length?'Also included':'Included')+'</p>'+inclRows+'</div>' : '')+
+      /* earlier creatives and the way to another only appear once this creative's layouts have landed */
+      (busy ? '' : earlier+another);
+    return wrapMD('Add creative', '', dotsEl(2), body,
+      '<span class="cover"><b>'+campaignCovered+' of '+total()+'</b> signs covered</span><span class="sp"></span>'+
+      (S.building ? '<button class="btn sm" data-a="stopbuild">Stop</button><button class="btn pri sm" disabled>Add to campaign</button>'
+                  : Object.keys(S.uploading).length ? '<button class="btn pri sm" disabled>Add to campaign</button>'
+                  : '<button class="btn pri sm" data-a="apply">Add to campaign</button>'), true);
+  }
+
+  function paintCanvas(){
+    var c = document.getElementById('canvas'); if(!c) return;
+    var p = plan();
+    var i = p.items.filter(function(x){return x.d[0]+'x'+x.d[1]===S.editSize;})[0] || p.adjust[0] || p.items[0];
+    if(!i) return;
+    var src = i.f, bw = Math.max(200, c.clientWidth-40), bh = c.clientHeight-40;
+    var k = Math.min(bw/src.w, bh/src.h), W = src.w*k, H = src.h*k;
+    var f = clampF(i, FR(i)), fx=f.x*k, fy=f.y*k, fw=f.w*k, fh=f.h*k;
+    var img = 'width:'+W+'px;height:'+H+'px;background-image:'+ART[src.art];
+    c.innerHTML = '<div class="imgwrap" style="width:'+W+'px;height:'+H+'px">'+
+      '<div class="lay out" style="'+img+'"></div>'+
+      '<div class="clip" style="left:'+fx+'px;top:'+fy+'px;width:'+fw+'px;height:'+fh+'px">'+
+        '<div class="lay" style="'+img+';left:-'+fx+'px;top:-'+fy+'px"></div></div>'+
+      '<div class="cframe" id="cframe" style="left:'+fx+'px;top:'+fy+'px;width:'+fw+'px;height:'+fh+'px">'+
+        '<div class="g" style="left:33.33%;top:0;width:1px;height:100%"></div>'+
+        '<div class="g" style="left:66.66%;top:0;width:1px;height:100%"></div>'+
+        '<div class="g" style="top:33.33%;left:0;height:1px;width:100%"></div>'+
+        '<div class="g" style="top:66.66%;left:0;height:1px;width:100%"></div>'+
+        '<span class="hnd nw" data-h="nw" style="left:-7px;top:-7px"></span>'+
+        '<span class="hnd ne" data-h="ne" style="right:-7px;top:-7px"></span>'+
+        '<span class="hnd sw" data-h="sw" style="left:-7px;bottom:-7px"></span>'+
+        '<span class="hnd se" data-h="se" style="right:-7px;bottom:-7px"></span></div></div>';
+    c.classList.toggle('dragging', S.dragging);
+    c._k = k; c._i = i;
+  }
+
+  /* ---- Add another: choose where the next creative comes from, inside the same modal ---- */
+  /* ---- My Library picker: recognise and choose, no fit information ----
+     Like the shipped picker it can be searched and narrowed to a sign dimension, and sorted. Designs already on the
+     campaign (or being added in this visit) carry an Added tag on their thumbnail */
+  var LIBQ = {q:'', dim:'all', sort:'new'};
+  function addedBatches(){
+    var L = S.lib || {}, list = S.applied.slice();
+    if(L.mode==='another' || L.mode==='replace') list = list.concat(S.batches);
+    if(L.mode==='another') list = list.concat([currentBatch()]);
+    /* one line per creative, however many times it was added */
+    var seen = {}, out = [];
+    list.forEach(function(b){
+      var id = b.file.id;
+      if(!seen[id]){ seen[id] = {file:b.file, keys:{}}; out.push(seen[id]); }
+      b.items.forEach(function(e){ seen[id].keys[e.k] = e.i.d[2]; });
+    });
+    return out;
+  }
+  function libGrid(){
+    var L = S.lib, added = {};
+    addedBatches().forEach(function(a){ added[a.file.id] = true; });
+    var q = LIBQ.q.trim().toLowerCase();
+    var ids = LIB_ORDER.filter(function(id){
+      var d = DESIGNS[id];
+      if(q && d.name.toLowerCase().indexOf(q)<0) return false;
+      if(LIBQ.dim!=='all') return d.images.some(function(x){ return x.w+'x'+x.h===LIBQ.dim; });
+      return true;
+    }).sort(function(a,b){
+      var A = DESIGNS[a], B = DESIGNS[b];
+      if(LIBQ.sort==='name') return A.name.localeCompare(B.name);
+      var d = Date.parse(B.created) - Date.parse(A.created);
+      return LIBQ.sort==='old' ? -d : d;
+    });
+    var tiles = (L.upload ? '<button class="lpk lpup" data-a="srcupload"><span class="pv"><span class="upi">&#8593;</span></span>'+
+        '<p class="nm">Upload from computer</p><p class="dm">PNG, JPG, JPEG</p></button>' : '')+
+      ids.map(function(id){
+        var d = DESIGNS[id], o = origOf(d), b = fitBox([o.w,o.h], 220, 96), on = added[id];
+        /* already on the campaign: still shown, marked, and not picked a second time */
+        return '<button class="lpk'+(on?' added':'')+'"'+(on?' disabled aria-disabled="true"':' data-a="pickdesign" data-id="'+id+'"')+'>'+
+          '<span class="pv"><i style="width:'+b.w+'px;height:'+b.h+'px;background-image:'+ART[id]+'"></i>'+
+            (on?'<span class="lpadded">&#10003; Added</span>':'')+'</span>'+
+          '<p class="nm">'+d.name.replace('&','&amp;')+'</p><p class="dm">'+o.w+' × '+o.h+' px</p></button>';
+      }).join('');
+    if(!ids.length) tiles += '<p class="lpnone">'+(q ? 'No designs match that search.' : 'No saved designs at this dimension yet. Any design can be fitted to your sign dimensions.')+'</p>';
+    return tiles;
+  }
+  function libHTML(){
+    var L = S.lib;
+    var dimOpts = '<option value="all">All dimensions</option>'+sizes().map(function(d){
+      var k = d[0]+'x'+d[1]; return '<option value="'+k+'"'+(LIBQ.dim===k?' selected':'')+'>'+d[0]+'×'+d[1]+' · '+oriName(d)+'</option>'; }).join('');
+    var sortOpts = [['new','Newest first'],['old','Oldest first'],['name','Name A–Z']].map(function(o){
+      return '<option value="'+o[0]+'"'+(LIBQ.sort===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
+    var body = L.empty
+      ? '<div class="lpempty"><h3>Nothing in your library yet</h3>'+
+        '<p>Uploaded designs stay here, ready for the next campaign.</p>'+
+        '<button class="btn pri" data-a="up">Upload from computer</button></div>'
+      : '<div class="lptools"><div class="lpsearch"><span>&#9906;</span><input id="libq" placeholder="Search designs" value="'+LIBQ.q.replace(/"/g,'&quot;')+'" /></div>'+
+          '<label class="lpsel"><span>Dimension</span><select data-libf="dim">'+dimOpts+'</select></label>'+
+          '<label class="lpsel"><span>Sort</span><select data-libf="sort">'+sortOpts+'</select></label></div>'+
+        '<div class="lpgrid" id="lpgrid">'+libGrid()+'</div>';
+    /* one picker screen, one header wherever it opens. Inside the Add creative modal (Add another, Choose a different design)
+       it replaces the current screen, so it carries the modal's back arrow, and the X exits the whole modal like every other screen */
+    var inFlow = L.mode==='another' || L.mode==='replace';
+    return '<div class="veil"><div class="md">'+
+      '<div class="mdhd">'+(inFlow ? '<button class="back" data-a="libclose" aria-label="Back">&#8249;</button>' : '')+
+        '<span><p class="t">Add creative</p><p class="s">'+(L.upload ? 'Upload a file or choose a saved design' : 'Choose a saved design')+'</p></span>'+
+        '<span class="sp"></span>'+
+        '<button class="x" data-a="'+(inFlow ? 'exit' : 'libclose')+'" aria-label="Close">&#10005;</button></div>'+
+      '<div class="mdbody">'+body+'</div>'+
+      '<div class="mdft"><span class="note">Any design can be fitted to your sign dimensions.</span></div>'+
+      (S.confirm ? confirmHTML() : '')+'</div></div>';
+  }
+  /* search, filter and sort redraw only the grid, so typing keeps its focus */
+  document.addEventListener('input', function(e){
+    if(e.target.id!=='libq') return;
+    LIBQ.q = e.target.value; var g = document.getElementById('lpgrid'); if(g) g.innerHTML = libGrid();
+  });
+  document.addEventListener('change', function(e){
+    var f = e.target.getAttribute && e.target.getAttribute('data-libf'); if(!f) return;
+    LIBQ[f] = e.target.value; var g = document.getElementById('lpgrid'); if(g) g.innerHTML = libGrid();
+  });
+
+  /* ---- toast: one at a time, gone after a few seconds or on Undo ---- */
+  var TOAST = null;
+  function showToast(msg, undo){
+    hideToast();
+    TOAST = {msg:msg, undo:undo, t:setTimeout(hideToast, 6000)};
+    var el = document.createElement('div');
+    el.className = 'toast'; el.id = 'toast'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite');
+    el.innerHTML = '<span>'+msg+'</span>'+(undo ? '<button class="undo" data-a="toastundo">Undo</button>' : '');
+    document.body.appendChild(el);
+  }
+  function hideToast(){
+    if(TOAST){ clearTimeout(TOAST.t); TOAST = null; }
+    var el = document.getElementById('toast'); if(el) el.remove();
+  }
+
+  var paintedKey = null;
+  function paint(){
+    document.getElementById('card').innerHTML = sectionHTML();
+    var st = document.getElementById('stage');
+    /* ticking a box repaints the modal, so hold the reader's place in it */
+    var key = S.v+'|'+S.zoom+'|'+(S.lib?S.lib.mode:''), prev = st.querySelector('.veil .mdbody');
+    var keep = (prev && key===paintedKey) ? prev.scrollTop : 0;
+    st.querySelectorAll('.veil,.fpveil').forEach(function(n){ n.remove(); });
+    if(S.zoom){ var z=mdZoom(); if(z){ st.insertAdjacentHTML('beforeend', z); } else { S.zoom=null; } }
+    /* the picker opened from inside the modal is a screen of that modal, not a second layer on top of it */
+    if(!S.zoom && !(S.lib && S.lib.mode!=='new')){
+    if(S.v==='checking')  st.insertAdjacentHTML('beforeend', mdChecking());
+    if(S.v==='scanned')   st.insertAdjacentHTML('beforeend', mdScanned());
+    if(S.v==='checklist' || S.v==='ready') st.insertAdjacentHTML('beforeend', mdChecklist());
+    if(S.v==='editor'){ st.insertAdjacentHTML('beforeend', mdEditor()); paintCanvas(); }
+    if(S.v==='aiedit') st.insertAdjacentHTML('beforeend', mdAIEdit());
+    }
+    if(S.lib) st.insertAdjacentHTML('beforeend', libHTML());
+    if(S.picker) st.insertAdjacentHTML('beforeend', pickerHTML());
+    if(keep){ var now = st.querySelector('.veil .mdbody'); if(now) now.scrollTop = keep; }
+    paintedKey = key;
+    S.landed = {};   /* the landing animation plays once */
+    animateMeter();
+  }
+
+  /* ---- simulated system file picker: a prototype stand-in for the OS "open file" dialog ---- */
+  function pickerFiles(k){
+    /* a new creative for this visit: any campaign file, not one dimension */
+    if(k==='__new') return [
+      {n:FILES.tall.name, fid:'tall', d:[1080,1920], art:ART.tall, when:'Yesterday at 4:05 PM', size:'3.3 MB'},
+      {n:FILES.near.name, fid:'near', d:[1520,400], art:ART.wide, when:'Sep 2, 2026 at 11:20 AM', size:'980 KB'},
+      {n:FILES.wide.name, fid:'wide', d:[2800,800], art:ART.wide, when:'Today at 9:12 AM', size:'2.1 MB'},
+      {n:'Brand guidelines.pdf', doc:true, when:'Aug 18, 2026 at 2:48 PM', size:'6.8 MB'},
+      {n:'Q3 media plan.pdf', doc:true, when:'Aug 11, 2026 at 10:02 AM', size:'412 KB'}
+    ];
+    /* upload your own for one dimension: a file at that dimension, the design's original, and some documents */
+    var d = k.split('x').map(Number), f = files()[0], base = f.name.replace(/-\d+×\d+\.[a-z]+$/,'');
+    return [
+      {n:base+'-'+d[0]+'×'+d[1]+'.jpg', d:d, art:upArt(d, f.brand), when:'Today at 9:41 AM', size:'1.4 MB'},
+      {n:f.name, d:[f.w,f.h], art:ART[f.art], when:'Today at 9:12 AM', size:'2.1 MB'},
+      {n:'Brand guidelines.pdf', doc:true, when:'Aug 18, 2026 at 2:48 PM', size:'6.8 MB'},
+      {n:'Q3 media plan.pdf', doc:true, when:'Aug 11, 2026 at 10:02 AM', size:'412 KB'}
+    ];
+  }
+  function pickerHTML(){
+    var P = S.picker, files = pickerFiles(P.k), enter = !P.shown; P.shown = true;
+    return '<div class="fpveil"><div class="fp'+(enter?' enter':'')+'" role="dialog" aria-label="Choose a file">'+
+      '<div class="fp-top"><span class="fp-dots"><i></i><i></i><i></i></span><span class="fp-nav">&#8249; &#8250;</span>'+
+        '<span class="fp-loc">Desktop</span><span class="fp-search">Search</span></div>'+
+      '<div class="fp-main"><div class="fp-side"><h6>Favorites</h6><div>Recents</div><div class="on">Desktop</div>'+
+          '<div>Documents</div><div>Downloads</div></div>'+
+        '<div class="fp-list"><div class="fp-row hd"><span></span><span>Name</span><span class="fp-date">Date Modified</span><span>Size</span></div>'+
+        files.map(function(f, n){
+          var th = f.doc ? '<span class="fp-doc"></span>'
+            : (function(){ var b = fitBox(f.d, 30, 22); return '<span style="width:'+b.w+'px;height:'+b.h+'px;background-image:'+f.art+'"></span>'; })();
+          return '<div class="fp-row'+(f.doc?' off':' pick')+(P.sel===n?' sel':'')+'" data-a="fpsel" data-f="'+n+'">'+
+            '<span class="fp-thumb">'+th+'</span><span class="fp-name">'+f.n+'</span>'+
+            '<span class="fp-meta fp-date">'+f.when+'</span><span class="fp-meta">'+f.size+'</span></div>';
+        }).join('')+'</div></div>'+
+      '<div class="fp-foot"><span class="sp"></span>'+
+        '<button class="fp-btn" data-a="fpcancel">Cancel</button>'+
+        '<button class="fp-btn pri" data-a="fpopen"'+(P.sel===null?' disabled':'')+'>Open</button></div>'+
+      '</div></div>';
+  }
+  /* the chosen file uploads into the card; a file at the wrong dimension is caught there, not silently fitted */
+  function openPicked(){
+    var P = S.picker; if(!P || P.sel===null) return;
+    if(P.k==='__new'){
+      /* from the page this starts a new visit; inside one, keep what this creative already made, then scan the new file */
+      var nf = pickerFiles('__new')[P.sel];
+      if(S.v==='section' || S.v==='applied'){ S.batches=[]; S.tileSel={}; S.lib=null; }
+      else S.batches.push(currentBatch());
+      S.picker = null; S.src = {kind:'upload', id:nf.fid}; S.editSize = null; S.aiEditSize = null;
+      runCheck(); return;
+    }
+    var k = P.k, f = pickerFiles(k)[P.sel], want = k.split('x').map(Number);
+    S.picker = null; delete S.uploadErr[k]; S.uploading[k] = true; paint();
+    S.tq.push(setTimeout(function(){
+      delete S.uploading[k];
+      if(f.d[0]===want[0] && f.d[1]===want[1]){
+        delete S.removed[k]; S.uploaded[k] = {name:f.n}; S.done[k] = true; S.landed = {}; S.landed[k] = true;
+      } else {
+        delete S.uploaded[k]; S.done[k] = false; S.removed[k] = true; S.uploadErr[k] = {name:f.n, d:f.d};
+      }
+      paint();
+    }, 1400));
+  }
+  /* the bar grows whenever the covered sign count changes; the count itself just updates */
+  function animateMeter(){
+    var fill = document.getElementById('meterfill'), to = S.signsTarget;
+    if(!fill || S.signsShown===to) return;
+    S.signsShown = to;
+    var ok = document.querySelector('.meterhead .why.good'); if(ok) ok.classList.add('arrive');
+    void fill.offsetWidth;   /* commit the starting width so the transition runs */
+    fill.style.width = (to/total()*100)+'%';
+  }
+
+  function stop(){ if(S.t1){clearInterval(S.t1);S.t1=null;} if(S.t2){clearTimeout(S.t2);S.t2=null;} }
+  function runCheck(){
+    stop(); clearBuild(); S.v='checking'; S.phr=0; S.done={}; S.sel=null; S.regen=null; S.cache={}; S.removed={}; S.uploaded={}; S.uploading={}; S.uploadErr={};
+    S.picker=null; S.lib=null; S.zoom=null; S.confirm=false; paint();
+    S.t1 = setInterval(function(){ S.phr = Math.min(S.phr+1, PHRASES.length-1); paint(); }, 900);
+    S.t2 = setTimeout(function(){ stop(); S.v='checklist'; S.cropping=true; paint();
+      S.t2 = setTimeout(function(){ S.cropping=false; paint(); }, 800); }, 3400);
+  }
+  function runAI(only){
+    var p = plan(), sel = selSet(p), rg = regenSet();
+    var picked = only
+      ? aiAll(p).filter(function(i){ return kOf(i.d)===only; })
+      : p.aiTask.filter(function(i){ return sel[kOf(i.d)] && !S.done[kOf(i.d)]; })
+          .concat(p.stretched.filter(function(i){ return rg[kOf(i.d)] && !S.done[kOf(i.d)]; }));
+    if(!picked.length) return;
+    picked.forEach(function(i){ delete S.removed[kOf(i.d)]; if(isRegen(i)) rg[kOf(i.d)] = true; });
+    /* layouts built before the advertiser stepped back come straight back, no second wait */
+    var cached = only ? [] : picked.filter(function(i){ return S.cache[kOf(i.d)]; });
+    cached.forEach(function(i){ S.done[kOf(i.d)] = true; delete S.cache[kOf(i.d)]; });
+    picked = picked.filter(function(i){ return cached.indexOf(i)<0; });
+    if(!picked.length){ show('aiedit'); return; }
+    stop(); buildInline(picked, only);
+  }
+  /* no loader screen: the review opens straight away, every new layout loads as a skeleton card, and they land together */
+  function buildInline(picked, only, hold){
+    clearBuild();
+    S.ai = 'running'; S.building = {};
+    picked.forEach(function(i){ S.frames[key(i)] = null; S.building[kOf(i.d)] = true; });
+    S.zoom = null; S.v = 'aiedit'; paint();
+    if(hold) return;   /* the harness can hold the loading state */
+    S.tq.push(setTimeout(function(){
+      if(!S.building) return;
+      S.landed = {};
+      picked.forEach(function(i){ S.done[kOf(i.d)] = true; S.landed[kOf(i.d)] = true; });
+      S.building = null; S.ai = 'idle';
+      paint();
+    }, only ? 1800 : 3200));
+  }
+  function clearBuild(){ S.tq.forEach(clearTimeout); S.tq = []; S.building = null; S.uploading = {}; S.ai = 'idle'; }
+  function unbuild(){
+    var p = plan(); selSet(p); regenSet();
+    aiAll(p).forEach(function(i){ var k=kOf(i.d), picks = isRegen(i) ? S.regen : S.sel;
+      if(S.uploaded[k]){ S.done[k]=false; picks[k]=false; delete S.uploaded[k]; return; }   /* uploads are not AI output to restore */
+      if(S.done[k]){ S.done[k]=false; S.cache[k]=true; picks[k]=true; } });
+  }
+  function go(v){
+    stop();
+    S.zoom=null;
+    if(v==='checking'){ runCheck(); return; }
+    var p = plan();
+    if(v==='editor' && !p.adjust.length && !S.editSize) v='checklist';
+    /* after adding, every size that just received creative opens, so it's clear what landed where */
+    if(v==='applied'){
+      /* what this visit added joins the campaign, next to anything added before from either source */
+      var added = S.batches.concat([currentBatch()]);
+      S.applied = S.applied.concat(added); S.batches = [];
+      S.openRows = {}; S.tileSel = {};
+      added.forEach(function(b){ b.items.forEach(function(e){ S.openRows[e.k] = true; }); }); }
+    if(v==='checklist') S.cropping=false;
+    S.v=v; paint();
+  }
+  /* move to a screen without go()'s jump-to-stage side effects */
+  function show(v){ stop(); S.zoom=null; S.v=v; paint(); }
+  function anyBuilt(){ return aiAll(plan()).some(function(i){ return S.done[kOf(i.d)]; }); }
+  function leaveEditor(){
+    var from = S.editFrom || {v:'checklist'};
+    S.editFrom = null; stop(); S.v = from.v; S.zoom = from.zoom || null;
+    if(from.zoomFrom) S.zoomFrom = from.zoomFrom;
+    paint();
+  }
+  function stopBuild(){ clearBuild(); if(S.v==='aiedit' && !anyBuilt()) S.v='checklist'; paint(); }
+  /* every screen after step 1 steps back one screen, never jumps */
+  function goBack(){
+    if(S.zoom){ S.zoom=null; paint(); return; }
+    if(S.building){ stopBuild(); return; }
+    if(S.v==='editor'){ leaveEditor(); return; }
+    /* back to the choice that made these: they return to the offer, still ticked */
+    if(S.v==='aiedit'){ clearBuild(); unbuild(); S.removed={}; S.uploadErr={}; show('checklist'); return; }
+    if(S.v==='checklist' || S.v==='ready'){ show(anyBuilt() ? 'aiedit' : 'scanned'); return; }
+  }
+
+
+  document.addEventListener('click', function(e){
+    /* the row menu closes on any click outside it */
+    var pk=e.target.closest('[data-pick]');
+    if(pk){ var k=pk.getAttribute('data-pick'); selSet(plan()); S.sel[k]=pk.checked; paint(); return; }
+    var a=e.target.closest('[data-a]');
+    if(a){
+      var act=a.getAttribute('data-a'), k=a.getAttribute('data-k');
+      if(act==='noop') return;
+      /* Upload from computer: from the page it starts a new visit with the file; inside the modal, Replace file rescans it */
+      if(act==='up'){
+        if(S.v==='section' || S.v==='applied'){ S.batches=[]; S.tileSel={}; S.src={kind:'upload', id:'wide'}; S.editSize=null; }
+        runCheck(); return; }
+      /* Add creative on a dimension row: the same picker as Add another, upload tile first */
+      /* Remove takes the selected creative off this dimension only; its other dimensions keep it. With nothing left,
+         the row goes back to an empty Add creative row and the meter drops */
+      if(act==='removecreative'){
+        var list = entriesByDim(false)[k] || [], gone = list[+a.getAttribute('data-n')];
+        if(gone){
+          showToast('Removed '+gone.name, {applied:S.applied.map(function(b){ return {file:b.file, items:b.items.slice()}; }),
+                    k:k, n:+a.getAttribute('data-n'), open:!!S.openRows[k]});
+          S.applied.forEach(function(b){ b.items = b.items.filter(function(x){ return x!==gone; }); });
+          S.applied = S.applied.filter(function(b){ return b.items.length; });
+          S.tileSel[k] = 0;
+          if(list.length===1) delete S.openRows[k];
+        }
+        paint(); return; }
+      /* Undo puts the creative back exactly where it was, on its row, selected */
+      if(act==='toastundo'){
+        var u = TOAST && TOAST.undo; hideToast();
+        if(u){ S.applied = u.applied; S.openRows[u.k] = true; S.tileSel[u.k] = u.n; }
+        paint(); return; }
+      if(act==='addcreative'){ S.lib={mode:'new', upload:true}; paint(); return; }
+      /* My Library: from the page it starts a new visit; from the scanned step it swaps the design */
+      /* My Library opens the same picker as Add creative, upload tile first, so a mis-click on it is never a dead end */
+      if(act==='lib'){ S.lib = (S.v==='section'||S.v==='applied') ? {mode:'new', upload:true} : {mode:'replace'}; paint(); return; }
+      /* Add another: My Library with an Upload from computer tile first; the tile opens the file dialog over it */
+      if(act==='another'){ S.zoom=null; S.lib={mode:'another', upload:true}; paint(); return; }
+      if(act==='srcupload'){ S.picker={k:'__new', sel:null}; paint(); return; }
+      if(act==='libreplace'){ S.lib={mode:'replace'}; paint(); return; }
+      if(act==='libclose'){ S.lib=null; paint(); return; }
+      if(act==='pickdesign'){
+        var id=a.getAttribute('data-id'), mode=S.lib ? S.lib.mode : 'new';
+        if(mode==='another') S.batches.push(currentBatch());
+        else if(mode==='new'){ S.batches=[]; S.tileSel={}; S.openRows={}; }
+        S.lib=null; S.src={kind:'lib', id:id}; S.editSize=null; S.aiEditSize=null; runCheck(); return; }
+      /* a stretched card: pick it to regenerate with the rest, or undo the pick */
+      if(act==='regenmark'){ var rg=regenSet(); rg[k]=!rg[k]; S.zoom=null; paint(); return; }
+      if(act==='seltile'){ S.tileSel[k] = +a.getAttribute('data-n'); paint(); return; }
+      if(act==='fold'){ S.folded=!S.folded; paint(); return; }
+      if(act==='togglerow'){ if(S.openRows[k]) delete S.openRows[k]; else S.openRows[k]=true; paint(); return; }
+      if(act==='close'){ go('section'); return; }
+      if(act==='exit'){ if(needsConfirm()){ S.confirm=true; paint(); } else { go('section'); } return; }
+      if(act==='stay'){ S.confirm=false; paint(); return; }
+      if(act==='leave'){ S.confirm=false; S.lib=null; clearBuild(); go('section'); return; }
+      if(act==='adjust'){ if(k) S.editSize=k;
+        var from = S.zoom ? {v:S.v, zoom:S.zoom, zoomFrom:S.zoomFrom} : {v:S.v};
+        S.zoom=null; go('editor'); S.editFrom = from; return; }
+      if(act==='continue'){ show('checklist'); return; }
+      if(act==='runai'){ runAI(); return; }
+      if(act==='selall'){ var pp=plan(); selSet(pp); pp.aiTask.forEach(function(i){S.sel[kOf(i.d)]=true;}); paint(); return; }
+      if(act==='selnone'){ var pn=plan(); selSet(pn); pn.aiTask.forEach(function(i){S.sel[kOf(i.d)]=false;}); paint(); return; }
+      if(act==='aiedit'){ if(k) S.aiEditSize=k; show('aiedit'); return; }
+      if(act==='regen'){ S.zoom=null; runAI(k); return; }
+      if(act==='stopbuild'){ stopBuild(); return; }
+      if(act==='removeai'){
+        /* the layout is set aside, not lost: it stays listed as removed until they undo or leave */
+        selSet(plan()); regenSet(); S.done[k]=false; S.sel[k]=false; S.regen[k]=false; delete S.cache[k]; delete S.uploaded[k]; delete S.uploadErr[k]; S.removed[k]=true; S.zoom=null;
+        paint(); return; }
+      if(act==='undoremove'){ S.done[k]=true; if(isRegen(itemOf(k))) regenSet()[k]=true; else S.sel[k]=true; delete S.removed[k]; delete S.uploadErr[k]; paint(); return; }
+      if(act==='uploadown'){ S.zoom=null; S.picker={k:k, sel:null}; paint(); return; }
+      if(act==='fpsel'){ var fi=+a.getAttribute('data-f'); if(pickerFiles(S.picker.k)[fi].doc) return; S.picker.sel=fi; paint(); return; }
+      if(act==='fpcancel'){ S.picker=null; paint(); return; }
+      if(act==='fpopen'){ openPicked(); return; }
+      if(act==='saveadjust'){ leaveEditor(); return; }
+      if(act==='back'){ goBack(); return; }
+      if(act==='zoom'){ S.zoom=k; S.zoomFrom=S.v; paint(); return; }
+      if(act==='unzoom'){ S.zoom=null; paint(); return; }
+      if(act==='resetcrop'){ var c=document.getElementById('canvas'); if(c&&c._i){ S.frames[key(c._i)]=initFrame(c._i); paintCanvas(); } return; }
+      if(act==='apply'){
+        /* skipping AI: the offer visibly steps back before the modal closes, so it's clear those dimensions weren't added.
+           Nothing is lost; adding creative again brings the offer back. */
+        var offer = document.querySelector('.ckpanel.offer'), picks = document.querySelectorAll('.rcard.regen');
+        if(S.v==='checklist' && (offer || picks.length) && a.textContent.indexOf('without')>-1){
+          var md = document.querySelector('.md'); if(md) md.classList.add('closing');
+          if(offer) offer.classList.add('skipped');
+          picks.forEach(function(n){ n.classList.remove('regen'); });
+          /* the total drops back to what's actually being added */
+          var tot = document.querySelector('.mdft .cover[data-covered]');
+          if(tot) tot.innerHTML = '<b>'+tot.getAttribute('data-covered')+'</b> signs covered';
+          var note = document.querySelector('.disc.below'); if(note) note.classList.add('skipped');
+          stop(); S.t2 = setTimeout(function(){ S.t2 = null; if(S.regen) S.regen = {}; go('applied'); }, 700);
+          return;
+        }
+        go('applied'); return; }
+      return;
+    }
+    /* clicking the drop area anywhere outside its buttons opens the picker that holds both sources */
+    if((S.v==='section' || S.v==='applied') && e.target.closest('#region, #dropmini')){ S.lib={mode:'new', upload:true}; paint(); }
+  });
+
+  document.addEventListener('pointerdown', function(e){
+    var hd=e.target.closest('.hnd'), fr=e.target.closest('#cframe');
+    if(!hd && !fr) return;
+    var c=document.getElementById('canvas'); if(!c||!c._i) return;
+    var f=FR(c._i);
+    S.drag={mode:hd?'scale':'move',h:hd?hd.getAttribute('data-h'):null,
+            sx:e.clientX,sy:e.clientY,f:{x:f.x,y:f.y,w:f.w,h:f.h},k:c._k,i:c._i};
+    S.dragging=true; c.classList.add('dragging'); e.preventDefault();
+  });
+  document.addEventListener('pointermove', function(e){
+    if(!S.drag) return;
+    var i=S.drag.i, f=FR(i), o=S.drag.f, r=i.d[0]/i.d[1];
+    var dx=(e.clientX-S.drag.sx)/S.drag.k, dy=(e.clientY-S.drag.sy)/S.drag.k;
+    if(S.drag.mode==='move'){ f.x=o.x+dx; f.y=o.y+dy; }
+    else { var sgn=(S.drag.h==='ne'||S.drag.h==='se')?1:-1, mx=maxFrame(i), minW=mx.w*0.34;
+      var nw=Math.max(minW,Math.min(mx.w,o.w+dx*sgn)), nh=nw/r;
+      f.x=(S.drag.h==='nw'||S.drag.h==='sw')?o.x+(o.w-nw):o.x;
+      f.y=(S.drag.h==='nw'||S.drag.h==='ne')?o.y+(o.h-nh):o.y;
+      f.w=nw; f.h=nh; }
+    clampF(i,f); paintCanvas();
+  });
+  document.addEventListener('pointerup', function(){
+    if(!S.drag) return; S.drag=null; S.dragging=false;
+    var c=document.getElementById('canvas'); if(c) c.classList.remove('dragging');
+  });
+  /* the picker behaves like the real one: double-click opens, Escape cancels, Enter opens */
+  document.addEventListener('dblclick', function(e){
+    var r = e.target.closest('.fp-row.pick'); if(!r || !S.picker) return;
+    S.picker.sel = +r.getAttribute('data-f'); openPicked();
+  });
+  document.addEventListener('keydown', function(e){
+    if(S.lib && !S.picker && e.key==='Escape'){ S.lib=null; paint(); e.preventDefault(); e.stopImmediatePropagation(); return; }
+    if(!S.picker) return;
+    if(e.key==='Escape'){ S.picker=null; paint(); e.preventDefault(); e.stopImmediatePropagation(); }
+    else if(e.key==='Enter'){ openPicked(); e.preventDefault(); e.stopImmediatePropagation(); }
+  }, true);
+  document.addEventListener('keydown', function(e){
+    if(S.v!=='editor' || ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].indexOf(e.key)<0) return;
+    var c=document.getElementById('canvas'); if(!c||!c._i) return;
+    var f=FR(c._i), step=e.shiftKey?40:8;
+    if(e.key==='ArrowLeft') f.x-=step; if(e.key==='ArrowRight') f.x+=step;
+    if(e.key==='ArrowUp') f.y-=step; if(e.key==='ArrowDown') f.y+=step;
+    clampF(c._i,f); paintCanvas(); e.preventDefault();
+  });
+  window.addEventListener('resize', function(){ if(S.v==='editor') paintCanvas(); });
+
+  /* dragging a file onto the drop area skips every choice: the drop is the upload, so scanning starts straight away */
+  var onPage = function(){ return (S.v==='section' || S.v==='applied') && !S.lib && !S.picker; };
+  ['dragenter','dragover'].forEach(function(ev){
+    document.addEventListener(ev, function(e){
+      var r=e.target.closest && e.target.closest('#region, #dropmini');
+      if(r && onPage()){ e.preventDefault(); r.classList.add('dragging'); }
+    });
+  });
+  document.addEventListener('dragleave', function(e){
+    var r=e.target.closest && e.target.closest('#region, #dropmini');
+    if(r && !(e.relatedTarget && r.contains(e.relatedTarget))) r.classList.remove('dragging');
+  });
+  document.addEventListener('drop', function(e){
+    var r=e.target.closest && e.target.closest('#region, #dropmini');
+    if(!r || !onPage()) return;
+    e.preventDefault(); r.classList.remove('dragging');
+    S.batches=[]; S.tileSel={}; S.src={kind:'upload', id:'wide'}; S.editSize=null; S.aiEditSize=null;
+    runCheck();
+  });
+  /* dropping a file anywhere else on the page shouldn't open it in the browser */
+  document.addEventListener('dragover', function(e){ e.preventDefault(); });
+  document.addEventListener('drop', function(e){ e.preventDefault(); });
+
+  paint();
+})();
+</script>
+</body>
+</html>
