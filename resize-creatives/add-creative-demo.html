@@ -546,7 +546,7 @@
   .lpk .pv{height:110px;background:var(--surface-3);border-radius:var(--r-sm);display:grid;place-items:center;overflow:hidden;}
   .lpk .pv i{display:block;background-size:100% 100%;border-radius:1px;box-shadow:0 1px 4px rgba(0,0,0,.22);}
   .lpk .nm{font-size:13px;font-weight:600;line-height:1.35;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .lpk .dm{font-family:var(--mono);font-size:11px;color:var(--text-2);font-weight:500;margin:-4px 0 0;}
+  .lpk .dm{font-size:12px;color:var(--text-2);font-weight:500;margin:-4px 0 0;}
   .lpempty{background:var(--surface);border:var(--hair) dashed var(--border-2);border-radius:var(--r-md);padding:56px 24px;text-align:center;}
   .lpempty h3{font-size:var(--fs-lg);font-weight:600;margin:0 0 5px;}
   .lpempty p{font-size:13.5px;color:var(--text-2);font-weight:500;margin:0 auto 16px;max-width:44ch;}
@@ -1180,7 +1180,7 @@
       (DESIGNS[f.id]
         ? '<div class="loaddone"><p class="loadok"><i>&#10003;</i>Added from My Library</p>'+
           '<p class="loadfile">'+srcLabel(f)+'</p>'+
-          '<p class="loadfile loadrep"><button class="elink" data-a="libreplace">Choose a different design</button></p></div></div>'
+          '<p class="loadfile loadrep"><button class="elink" data-a="libreplace">Choose a different creative</button></p></div></div>'
         : '<div class="loaddone"><p class="loadok"><i>&#10003;</i>File uploaded</p>'+
           '<p class="loadfile">'+f.name+'</p>'+
           '<p class="loadfile loadrep"><button class="elink" data-a="up">Replace file</button></p></div></div>'),
@@ -1519,6 +1519,8 @@
     });
     return out;
   }
+  /* the picker card matches the library card: the original as the thumbnail, and the dimension count */
+  function dimsOf(d){ var s = {}; d.images.forEach(function(v){ s[v.w+'x'+v.h] = 1; }); var n = Object.keys(s).length; return n===1 ? '1 dimension' : n+' dimensions'; }
   function libGrid(){
     var L = S.lib, added = {};
     addedBatches().forEach(function(a){ added[a.file.id] = true; });
@@ -1542,9 +1544,9 @@
         return '<button class="lpk'+(on?' added':'')+'"'+(on?' disabled aria-disabled="true"':' data-a="pickdesign" data-id="'+id+'"')+'>'+
           '<span class="pv"><i style="width:'+b.w+'px;height:'+b.h+'px;background-image:'+ART[id]+'"></i>'+
             (on?'<span class="lpadded">&#10003; Added</span>':'')+'</span>'+
-          '<p class="nm">'+d.name.replace('&','&amp;')+'</p><p class="dm">'+o.w+' × '+o.h+' px</p></button>';
+          '<p class="nm">'+d.name.replace('&','&amp;')+'</p><p class="dm">'+dimsOf(d)+'</p></button>';
       }).join('');
-    if(!ids.length) tiles += '<p class="lpnone">'+(q ? 'No designs match that search.' : 'No saved designs at this dimension yet. Any design can be fitted to your sign dimensions.')+'</p>';
+    if(!ids.length) tiles += '<p class="lpnone">'+(q ? 'No creatives match that search.' : 'No saved creatives at this dimension yet. Any creative can be fitted to your sign dimensions.')+'</p>';
     return tiles;
   }
   function libHTML(){
@@ -1555,9 +1557,9 @@
       return '<option value="'+o[0]+'"'+(LIBQ.sort===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
     var body = L.empty
       ? '<div class="lpempty"><h3>Nothing in your library yet</h3>'+
-        '<p>Uploaded designs stay here, ready for the next campaign.</p>'+
+        '<p>Uploaded creatives stay here, ready for the next campaign.</p>'+
         '<button class="btn pri" data-a="up">Upload from computer</button></div>'
-      : '<div class="lptools"><div class="lpsearch"><span>&#9906;</span><input id="libq" placeholder="Search designs" value="'+LIBQ.q.replace(/"/g,'&quot;')+'" /></div>'+
+      : '<div class="lptools"><div class="lpsearch"><span>&#9906;</span><input id="libq" placeholder="Search creatives" value="'+LIBQ.q.replace(/"/g,'&quot;')+'" /></div>'+
           '<label class="lpsel"><span>Dimension</span><select data-libf="dim">'+dimOpts+'</select></label>'+
           '<label class="lpsel"><span>Sort</span><select data-libf="sort">'+sortOpts+'</select></label></div>'+
         '<div class="lpgrid" id="lpgrid">'+libGrid()+'</div>';
@@ -1566,11 +1568,11 @@
     var inFlow = L.mode==='another' || L.mode==='replace';
     return '<div class="veil"><div class="md">'+
       '<div class="mdhd">'+(inFlow ? '<button class="back" data-a="libclose" aria-label="Back">&#8249;</button>' : '')+
-        '<span><p class="t">Add creative</p><p class="s">'+(L.upload ? 'Upload a file or choose a saved design' : 'Choose a saved design')+'</p></span>'+
+        '<span><p class="t">Add creative</p><p class="s">'+(L.upload ? 'Upload a file or choose a saved creative' : 'Choose a saved creative')+'</p></span>'+
         '<span class="sp"></span>'+
         '<button class="x" data-a="'+(inFlow ? 'exit' : 'libclose')+'" aria-label="Close">&#10005;</button></div>'+
       '<div class="mdbody">'+body+'</div>'+
-      '<div class="mdft"><span class="note">Any design can be fitted to your sign dimensions.</span></div>'+
+      '<div class="mdft"><span class="note">Any creative can be fitted to your sign dimensions.</span></div>'+
       (S.confirm ? confirmHTML() : '')+'</div></div>';
   }
   /* search, filter and sort redraw only the grid, so typing keeps its focus */
