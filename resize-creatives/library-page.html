@@ -334,7 +334,7 @@
   <div>
     <p class="eyebrow">Prototype · My Library, unified with the Add creative flow</p>
     <h1 class="h1">My Library</h1>
-    <p class="lede">The designs page inside the <b>product's own chrome</b>, which stays as shipped. The Verifications tab is gone, uploading takes a <b>drag and drop</b>, and designs show as a <b>list or cards</b>. Every size says how it was made: <b>Original, Cropped, Resized with AI, Stretched</b>. Same designs, tags and toasts as <code>add-creative-demo.html</code>.</p>
+    <p class="lede">The designs page inside the <b>product's own chrome</b>, which stays as shipped. The Verifications tab is gone, uploading takes a <b>drag and drop</b>, and designs show as a <b>list or cards</b>. Every size says how it was made: <b>Uploaded, Cropped, Resized with AI, Stretched</b>. Same designs, tags and toasts as <code>add-creative-demo.html</code>.</p>
   </div>
 
   <div class="flowbar" id="flowbar"></div>
@@ -489,9 +489,9 @@
     return [orig(d)].concat(vers(d).slice().sort(function(a,b){ return rankOf(a)-rankOf(b) || (human(b)?1:0)-(human(a)?1:0); }));
   }
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
-  function tagName(p){ return p==='ai'?'Resized with AI':p==='stretch'?'Stretched':p==='crop'?'Cropped':p==='upload'?'Uploaded':'Original'; }
+  function tagName(p){ return p==='ai'?'Resized with AI':p==='stretch'?'Stretched':p==='crop'?'Cropped':'Uploaded'; }   /* the first upload and any added later both read Uploaded */
   function tagOf(p){
-    return p==='original'?'<span class="tag orig">Original</span>'
+    return p==='original'?'<span class="tag upl">Uploaded</span>'
          : p==='ai'      ?'<span class="tag auto">Resized with AI</span>'
          : p==='stretch' ?'<span class="tag stretch">Stretched</span>'
          : p==='upload'  ?'<span class="tag upl">Uploaded</span>'
@@ -696,7 +696,7 @@
           '<button class="elink" data-a="rename" data-id="'+d.id+'">Rename</button></div></div>';
     var sw = function(v){ var b = fit(v.w,v.h,52,38); return '<span class="vsw"><i style="width:'+b.w+'px;height:'+b.h+'px;'+imgBG(d,v)+'"></i></span>'; };
 
-    /* a row per image: dimension and how it was made. The advertiser's own files (Original, Uploaded) also name the file */
+    /* a row per image: dimension and how it was made. The advertiser's own files (Uploaded) also name the file */
     var dimRow = function(v, i){
       var fname = v.prov==='original' ? (d.file||d.name) : v.prov==='upload' ? v.file : '';
       var h = '<div class="vrow irow'+(i===n?' on':'')+(v.pend?' pend':'')+'" data-a="selimg" data-n="'+i+'">'+sw(v)+
@@ -768,9 +768,9 @@
     var nMade = Object.keys(made).length, hasUp = d.images.some(function(x){ return x.prov==='upload'; });
     var title = isOrig ? 'Replace '+esc(d.name) : 'Replace '+v.w+' × '+v.h+' px';
     var msg = isOrig
-      ? 'You\'re about to replace the original file of this creative. '+
+      ? 'You\'re about to replace the uploaded file this creative started from. '+
         (nMade ? 'All '+dims(nMade)+' made from it will be deleted and any attached campaigns will be impacted.' : 'Any attached campaigns will be impacted.')+
-        (hasUp ? ' Uploaded dimensions are kept.' : '')
+        (hasUp ? ' Other uploaded dimensions are kept.' : '')
       : 'You\'re about to replace this dimension with a new file. The current '+tagName(v.prov).toLowerCase()+' image will be deleted and any attached campaigns will be impacted. '+
         'The new file must be '+v.w+' × '+v.h+' px.';
     return '<div class="cdveil" data-a="repcancel"><div class="cdbox" data-a="repcard" role="alertdialog" aria-modal="true" aria-labelledby="cdt" aria-describedby="cds">'+
@@ -784,24 +784,21 @@
   function specView(){
     return '<div class="dhead"><h2>The tag system</h2></div>'+
     '<div class="spec">'+
-      '<div class="speccard"><h4>'+tagOf('original')+' How it was made</h4>'+
-        '<p>The file uploaded to create the creative, and the source of every dimension Blip makes. Replacing it removes what was made from the old file.</p>'+
-        '<p class="rule">parent_image = null · first upload</p></div>'+
       '<div class="speccard"><h4>'+tagOf('upload')+' How it was made</h4>'+
-        '<p>The advertiser\'s own file for a dimension, added later with <b>Add dimension</b>. An original too: nothing was made from anything.</p>'+
-        '<p class="rule">parent_image = null · added to an existing creative</p></div>'+
+        '<p>The advertiser\'s own file: the one uploaded to create the creative, and any added later with <b>Add dimension</b>. The first upload is the source of every dimension Blip makes; replacing it removes what was made from it.</p>'+
+        '<p class="rule">parent_image = null</p></div>'+
       '<div class="speccard"><h4>'+tagOf('crop')+' How it was made</h4>'+
-        '<p>Framed from the original, either without asking (within 7%) or in the crop editor. Proportions kept, nothing generated.</p>'+
-        '<p class="rule">parent_image = original · crop frame stored</p></div>'+
+        '<p>Framed from the first upload, either without asking (within 7%) or in the crop editor. Proportions kept, nothing generated.</p>'+
+        '<p class="rule">parent_image = first upload · crop frame stored</p></div>'+
       '<div class="speccard"><h4>'+tagOf('ai')+' How it was made</h4>'+
-        '<p>Built by AI from the original for a sign dimension it cannot be cropped to. Always opted in on the Creative step, per dimension.</p>'+
-        '<p class="rule">parent_image = original · made by AI resize</p></div>'+
+        '<p>Built by AI from the first upload for a sign dimension it cannot be cropped to. Always opted in on the Creative step, per dimension.</p>'+
+        '<p class="rule">parent_image = first upload · made by AI resize</p></div>'+
       '<div class="speccard"><h4>'+tagOf('stretch')+' How it was made</h4>'+
-        '<p>Made by Blip\'s earlier resize, which stretched the original to the sign dimension. Kept and still usable. When the creative is added to a campaign, each stretched card offers <b>Regenerate</b>, one card at a time.</p>'+
-        '<p class="rule">parent_image = original · aspect not preserved</p></div>'+
+        '<p>Made by Blip\'s earlier resize, which stretched the first upload to the sign dimension. Kept and still usable. When the creative is added to a campaign, each stretched card offers <b>Regenerate</b>, one card at a time.</p>'+
+        '<p class="rule">parent_image = first upload · aspect not preserved</p></div>'+
       '<div class="specnote"><b>Four rules the tags follow.</b> '+
         'Every tag is a <b>statement about the file</b>, never a sentence with a person in it. '+
-        'Every tag says <b>what was done</b>: Original and Uploaded are the advertiser\'s files, Cropped keeps its proportions, Resized with AI is a new layout, Stretched did not keep its proportions. '+
+        'Every tag says <b>what was done</b>: Uploaded is the advertiser\'s own file, Cropped keeps its proportions, Resized with AI is a new layout, Stretched did not keep its proportions. '+
         '<b>Tags are grey, except Stretched</b>, which is amber: a tag names how an image was made, not how good it is. '+
         'Nothing in the library acts on a tag. <b>Regenerate lives on the Creative step</b>, because resizing only happens when a creative is added to a campaign.</div>'+
     '</div>';
@@ -810,7 +807,7 @@
   /* ---------------- harness ---------------- */
   var VIEWS = [
     {id:'cards4', grp:0, lab:'Cards',
-     hint:'<b>Cards are the default view.</b> The page is titled <b>My Library</b>, with search and an icon grid/list toggle beside the title, and Upload, the filters and sort on the row below. <b>The top bar and side navigation are the product\'s</b> and stay as shipped. The page loses the <b>Verifications</b> tab, and with one tab left, the tab bar goes too. Each card shows four facts: preview, name, dimensions, date added. <b>The preview is the original</b>, the file uploaded to create the creative. The shipped card\'s <b>"Viewing size 1/1" carousel is gone</b>: sizes live in the details panel, where each says how it was made.'},
+     hint:'<b>Cards are the default view.</b> The page is titled <b>My Library</b>, with search and an icon grid/list toggle beside the title, and Upload, the filters and sort on the row below. <b>The top bar and side navigation are the product\'s</b> and stay as shipped. The page loses the <b>Verifications</b> tab, and with one tab left, the tab bar goes too. Each card shows four facts: preview, name, dimensions, date added. <b>The preview is the first upload</b>, the file uploaded to create the creative. The shipped card\'s <b>"Viewing size 1/1" carousel is gone</b>: sizes live in the details panel, where each says how it was made.'},
     {id:'list4',  grp:0, lab:'List',
      hint:'The same four facts as a table, for scanning many creatives. The icon toggle beside search shows both views and marks the current one, instead of naming only the other view.'},
     {id:'filter', grp:0, lab:'Filters',
@@ -824,17 +821,17 @@
     {id:'drag',   grp:1, lab:'Upload · dragging',
      hint:'<b>Google Drive style.</b> Drag a file anywhere over the page: the library area takes a blue outline and a dark pill says where it will go. <b>Drop a real JPG or PNG from your computer</b> to try it. It loads as a skeleton, lands as <b>1 dimension</b>, and a toast confirms it.'},
     {id:'detail', grp:2, lab:'Panel',
-     hint:'The panel opens on the <b>original</b>, the same image the card shows. <b>Dimensions</b> (open by default) lists every image, the original first, each with how it was made; its count is the <b>same number the card shows</b>, counting each dimension once. The advertiser\'s own files (<b>Original</b>, <b>Uploaded</b>) also name the file. <b>Details</b> (closed by default), like a file in Google Drive: the campaigns using it, last used, type, file size, added, updated and a description. The menu is <b>Rename · View details · Delete</b>; the footer is <b>Delete · Replace file · Add dimension</b>. <b>Delete asks first</b>, like the shipped page. <b>Replace file asks first</b> and acts on the selected row: on the original it is <b>Replace &lt;creative name&gt;</b> and warns that every dimension made from it is deleted (Uploaded files stay); on a dimension it is <b>Replace 1400 × 400 px</b>, and the new file must be that exact size.'},
+     hint:'The panel opens on the <b>first upload</b>, the same image the card shows. <b>Dimensions</b> (open by default) lists every image, the first upload first, each with how it was made; its count is the <b>same number the card shows</b>, counting each dimension once. The advertiser\'s own files (<b>Uploaded</b>) also name the file. <b>Details</b> (closed by default), like a file in Google Drive: the campaigns using it, last used, type, file size, added, updated and a description. The menu is <b>Rename · View details · Delete</b>; the footer is <b>Delete · Replace file · Add dimension</b>. <b>Delete asks first</b>, like the shipped page. <b>Replace file asks first</b> and acts on the selected row: on the first upload it is <b>Replace &lt;creative name&gt;</b> and warns that every dimension made from it is deleted (Uploaded files stay); on a dimension it is <b>Replace 1400 × 400 px</b>, and the new file must be that exact size.'},
     {id:'rename', grp:2, lab:'Panel · renaming',
      hint:'<b>Rename</b> from the ⋮ menu opens the panel with the name ready to edit. The field, its 100-character counter, Cancel and Save only appear while renaming, instead of always sitting at the top. Enter saves, Esc cancels.'},
-    {id:'onlyorig', grp:2, lab:'Panel · original only',
-     hint:'A creative that has never been used: one dimension, the original. A line under it states the rule instead of showing an empty shelf: <b>other dimensions are made when this creative is added to a campaign.</b>'},
+    {id:'onlyorig', grp:2, lab:'Panel · never used',
+     hint:'A creative that has never been used: one dimension, the file it was uploaded as. A line under it states the rule instead of showing an empty shelf: <b>other dimensions are made when this creative is added to a campaign.</b>'},
     {id:'flagged',  grp:2, lab:'Panel · stretched',
      hint:'<b>Stretched</b> names what Blip did, not a defect in the artwork. The only tag in colour, amber, and no action here. When Vera is added to a campaign, each stretched card on the checklist offers <b>Regenerate</b>.'},
     {id:'swap',     grp:2, lab:'Panel · swap',
      hint:'One sign dimension holding two images: the stretched one on the signs now, and the regenerated <b>Resized with AI</b> image waiting on review. <b>No sign goes dark.</b>'},
     {id:'spec',     grp:3, lab:'Tag system',
-     hint:'The whole vocabulary on one screen. <b>Original · Uploaded · Cropped · Resized with AI · Stretched</b>, and the four rules they follow.'}
+     hint:'The whole vocabulary on one screen. <b>Uploaded · Cropped · Resized with AI · Stretched</b>, and the four rules they follow.'}
   ];
   var CAPS = {
     cards4:'Cards wrap to fit the page. Each ⋮ menu: Rename, View details, Delete. Clicking a card also opens details. Delete asks for confirmation and is permanent: the toast after it has no Undo.',
