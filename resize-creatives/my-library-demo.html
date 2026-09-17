@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blip · My Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page:#f2f2f2; --surface:#ffffff; --surface-2:#f7f7f7; --surface-3:#ededed;
+    --text:#161616; --text-2:#5c5c5c; --text-3:#8f8f8f;
+    --border:#e3e3e3; --border-2:#d1d1d1; --dash:#c4c4c4;
+    --accent:#176BF5; --accent-2:#0f4fba; --accent-bg:#eaf1fe; --accent-border:#bcd5fb;
+    --success:#0f7a54; --success-bg:#e6f4ee; --success-border:#b7ddcb;
+    --warn:#8a5a00; --warn-bg:#fdf1dc; --warn-border:#f0d29a;
+    --toast-bg:#232a33; --toast-border:rgba(255,255,255,.09); --toast-text:#fafafa; --toast-action:#cbb7f7;
+    --brand-red:#e3122b; --org:#7b4bd6;
+    --shadow:0 1px 2px rgba(0,0,0,.05),0 8px 24px rgba(0,0,0,.06);
+    --inter:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --fs-sm:12px; --fs-md:14px; --fs-lg:16px;
+    --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px;
+    --r-sm:4px; --r-md:6px; --r-lg:10px; --r-pill:999px;
+    --stroke:2px; --hair:1px;
+    color-scheme:light;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--page);color:var(--text);font-family:var(--inter);line-height:1.5;-webkit-font-smoothing:antialiased;}
+
+  /* ---------- product chrome: top bar and side navigation, as shipped (not ours to change) ---------- */
+  .appwin{background:var(--surface);min-height:100vh;}
+  .ptop{display:flex;align-items:center;gap:16px;height:60px;padding:0 20px 0 14px;background:var(--surface);border-bottom:var(--hair) solid var(--border);}
+  .plogo{display:inline-flex;align-items:center;height:36px;padding:0 9px 2px;border-radius:4px;background:var(--brand-red);color:#fff;
+         font-size:27px;font-weight:600;letter-spacing:-.05em;line-height:1;}
+  .ptop .sp{flex:1;}
+  .phelp{width:30px;height:30px;display:grid;place-items:center;color:var(--text);}
+  .pav{width:36px;height:36px;border-radius:50%;background:var(--org);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:600;}
+  .pbody{display:grid;grid-template-columns:68px minmax(0,1fr);min-height:calc(100vh - 61px);}
+  .prail{display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 0;background:var(--surface);border-right:var(--hair) solid var(--border);}
+  .porg{width:40px;height:40px;border-radius:8px;background:var(--org);color:#fff;display:grid;place-items:center;font-size:15px;font-weight:600;margin-bottom:6px;}
+  .pnav{width:44px;height:44px;border-radius:8px;display:grid;place-items:center;color:var(--text);border:var(--stroke) solid transparent;}
+  .pnav.on{border-color:var(--accent);background:var(--surface-2);}
+  .pmain{background:var(--surface);padding:28px 32px 40px;min-width:0;}
+
+  /* ---------- designs page ---------- */
+  .dhead{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+  .dhead h2{font-size:26px;font-weight:500;letter-spacing:-.015em;margin:0;}
+  .dhead .sp{flex:1;}
+  /* under the title: Upload on the left (where Create campaign sits on the campaign overview), view and search on the right */
+  .dtools{display:flex;align-items:center;gap:10px;margin:0 0 18px;flex-wrap:wrap;}
+  .dtools .sp{flex:1;}
+  .dhead{margin-bottom:14px;}
+  .dhead .search{width:240px;}
+  .seg.icons button{padding:8px 9px;}
+  .fselect{font-family:inherit;font-size:13px;font-weight:500;color:var(--text);background:var(--surface);max-width:210px;
+               border:var(--hair) solid var(--border-2);border-radius:var(--r-md);padding:7px 8px;cursor:pointer;}
+  /* sort reads as text, not a box: icon and field as a quiet text button, the direction as a round icon button */
+  .sortctl{display:inline-flex;align-items:center;gap:2px;margin-left:4px;}
+  .sortctl select{-webkit-appearance:none;appearance:none;border:0;border-radius:var(--r-md);background:transparent;max-width:none;
+                 font-family:inherit;font-size:13px;font-weight:600;color:var(--text);padding:6px 8px 6px 30px;margin-left:-26px;cursor:pointer;}
+  .sortctl select:hover{background:var(--surface-2);}
+  .sortctl select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .sorticon{position:relative;z-index:1;display:grid;place-items:center;width:26px;color:var(--text-2);pointer-events:none;}
+  .sortdir{display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:50%;background:transparent;color:var(--text-2);cursor:pointer;}
+  .sortdir:hover{background:var(--surface-3);color:var(--text);}
+  .sortdir:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .fsel{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-3);}
+  .fsel select{font-family:inherit;font-size:13px;font-weight:500;color:var(--text);background:var(--surface);max-width:220px;
+               border:var(--hair) solid var(--border-2);border-radius:var(--r-md);padding:6px 8px;cursor:pointer;}
+  .dcount{font-size:13px;color:var(--text-2);font-weight:500;white-space:nowrap;}
+  .dresult{display:inline-flex;align-items:center;gap:10px;margin-left:6px;padding-left:14px;border-left:var(--hair) solid var(--border);min-height:24px;}
+  .seg{display:inline-flex;border:var(--hair) solid var(--border-2);border-radius:var(--r-md);overflow:hidden;background:var(--surface);}
+  .seg button{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:13px;font-weight:600;padding:7px 12px;border:0;
+              background:transparent;color:var(--text-2);cursor:pointer;}
+  .seg button + button{border-left:var(--hair) solid var(--border-2);}
+  .seg button.on{background:var(--surface-3);color:var(--text);}
+  .search{display:flex;align-items:center;gap:7px;background:var(--surface);border:var(--hair) solid var(--border-2);
+          border-radius:var(--r-md);padding:7px 11px;width:260px;color:var(--text-3);}
+  .search input{border:0;outline:0;font-family:inherit;font-size:13.5px;background:transparent;width:100%;color:var(--text);}
+
+  /* upload: a real drop target and a real file picker */
+  .updz{position:relative;border:var(--stroke) dashed var(--dash);border-radius:var(--r-md);background:var(--surface);
+        display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 20px;margin-bottom:24px;cursor:pointer;}
+  .updz:hover{border-color:var(--border-2);background:var(--surface-2);}
+  .updz .idle{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .updz .ui{color:var(--text-3);line-height:0;}
+  .updz .ut{font-size:var(--fs-lg);font-weight:600;margin:0;}
+  .updz .us{font-size:13px;color:var(--text-3);font-weight:500;margin:0 0 8px;}
+  .updz.dragging{border-color:var(--accent);background:var(--accent-bg);}
+  .updz.dragging .idle{visibility:hidden;}
+  .updz .dropmsg{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:var(--fs-lg);font-weight:600;color:var(--accent-2);}
+  .updz.dragging .dropmsg{display:flex;}
+
+
+  /* drop anywhere, Google Drive style: the designs area takes a blue outline and tint,
+     and a dark pill (the Figma toast's look) says where the files will go */
+  .pmain{position:relative;}
+  .pdrop{position:absolute;inset:10px;z-index:20;display:none;pointer-events:none;
+         border:var(--stroke) solid var(--accent);border-radius:var(--r-lg);background:rgba(23,107,245,.06);}
+  .pmain.dropping .pdrop{display:block;}
+  .droppill{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;
+            padding:10px 18px;border-radius:12px;background:var(--toast-bg);border:var(--hair) solid var(--toast-border);
+            box-shadow:0 8px 24px rgba(0,0,0,.22);color:var(--toast-text);font-size:14px;line-height:20px;font-weight:500;white-space:nowrap;}
+  .droppill .ic{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none;}
+  .droppill b{font-weight:600;}
+
+
+  /* list view */
+  .ltable{border-top:var(--hair) solid var(--border);}
+  .lhead,.lrow{display:grid;grid-template-columns:132px minmax(0,1fr) 170px 130px 40px;align-items:center;column-gap:16px;padding:0 8px;}
+  .lhead{height:42px;font-size:12.5px;font-weight:600;color:var(--text-2);border-bottom:var(--hair) solid var(--border);}
+  .lrow{min-height:76px;border-bottom:var(--hair) solid var(--border);cursor:pointer;position:relative;}
+  .lrow:hover{background:var(--surface-2);}
+  .thumb{width:116px;height:60px;display:grid;place-items:center;background:var(--surface-3);border-radius:var(--r-sm);overflow:hidden;}
+  .thumb i{display:block;background-size:100% 100%;border-radius:1px;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+  .dname{font-size:var(--fs-md);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .dcell{font-size:13px;color:var(--text-2);font-weight:500;white-space:nowrap;}
+
+  /* card view */
+  .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+  .dcard{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);cursor:pointer;position:relative;}
+  .dcard:hover{border-color:var(--border-2);box-shadow:var(--shadow);}
+  .dcard .cpv{height:140px;background:var(--surface-3);display:grid;place-items:center;border-radius:var(--r-md) var(--r-md) 0 0;overflow:hidden;}
+  .dcard .cpv i{display:block;background-size:100% 100%;border-radius:1px;box-shadow:0 1px 4px rgba(0,0,0,.22);}
+  .dcard .cbody{display:flex;align-items:flex-start;gap:6px;padding:10px 8px 12px 12px;}
+  .dcard .cinfo{min-width:0;flex:1;}
+  .dcard .cmeta{font-size:12.5px;color:var(--text-2);font-weight:500;margin:1px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* overflow menu */
+  .kebab{width:32px;height:32px;border-radius:var(--r-md);border:0;background:transparent;color:var(--text-2);cursor:pointer;display:grid;place-items:center;flex:none;}
+  .kebab:hover,.kebab.on{background:var(--surface-3);color:var(--text);}
+  .kwrap{position:relative;justify-self:end;}
+  .kmenu{position:absolute;top:calc(100% + 4px);right:0;z-index:30;min-width:150px;padding:4px;display:flex;flex-direction:column;
+         background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);box-shadow:0 8px 24px rgba(0,0,0,.12);}
+  .kmenu button{font-family:inherit;font-size:13.5px;font-weight:500;text-align:left;padding:8px 10px;border:0;border-radius:var(--r-sm);background:transparent;color:var(--text);cursor:pointer;}
+  .kmenu button:hover{background:var(--surface-2);}
+  .kmenu button.danger{color:#b42318;}
+
+  .rename{font-family:inherit;font-size:var(--fs-md);font-weight:600;color:var(--text);width:100%;padding:5px 8px;
+          border:var(--stroke) solid var(--accent);border-radius:var(--r-sm);outline:0;background:var(--surface);}
+
+  /* uploading: skeleton in the design's shape, then it lands */
+  .sk{display:block;background-color:#e6e6e6;background-image:linear-gradient(90deg,#e6e6e6 0,#f4f4f4 160px,#e6e6e6 320px);
+      background-size:640px 100%;background-attachment:fixed;animation:sweep 1.5s linear infinite;border-radius:2px;}
+  @keyframes sweep{from{background-position:-640px 0}to{background-position:0 0}}
+  .landed{animation:land .55s cubic-bezier(.2,.7,.2,1);}
+  @keyframes land{from{opacity:.25;transform:scale(.98)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){ .sk,.landed{animation:none;} }
+
+  .nothing{padding:36px 12px;text-align:center;font-size:13.5px;color:var(--text-2);font-weight:500;}
+  .nothing b{display:block;color:var(--text);font-size:var(--fs-md);font-weight:600;margin-bottom:3px;}
+
+  /* ---------- details side panel: the shipped panel, streamlined ---------- */
+  .pbody{position:relative;}
+  .spveil{position:absolute;top:0;right:0;bottom:0;left:68px;z-index:40;display:flex;justify-content:flex-end;background:rgba(22,22,22,.42);}
+  /* the panel slides in from the right when it opens, and back out when it closes; the dim fades with it */
+  .spveil.enter{animation:veilin .22s ease-out;}
+  .spveil.enter .spanel{animation:panelin .3s cubic-bezier(.2,.8,.2,1);}
+  .spveil.leave{animation:veilout .2s ease-in forwards;pointer-events:none;}
+  .spveil.leave .spanel{animation:panelout .2s ease-in forwards;}
+  @keyframes veilin{from{opacity:0}to{opacity:1}}
+  @keyframes veilout{from{opacity:1}to{opacity:0}}
+  @keyframes panelin{from{transform:translateX(100%)}to{transform:none}}
+  @keyframes panelout{from{transform:none}to{transform:translateX(100%)}}
+  @media (prefers-reduced-motion:reduce){ .spveil.enter,.spveil.enter .spanel,.spveil.leave,.spveil.leave .spanel{animation:none;} }
+  .spanel{position:sticky;top:0;align-self:flex-start;width:480px;max-width:100%;height:100vh;max-height:100%;
+          display:flex;flex-direction:column;background:var(--surface);box-shadow:-8px 0 28px rgba(0,0,0,.14);cursor:default;}
+  .sphead{display:flex;align-items:flex-start;gap:10px;padding:18px 16px 14px 20px;border-bottom:var(--hair) solid var(--border);}
+  .sphead .tt{min-width:0;flex:1;}
+  .spname{display:flex;align-items:baseline;gap:10px;min-width:0;}
+  .spname h3{font-size:18px;font-weight:600;letter-spacing:-.01em;margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .spmeta{font-size:12.5px;color:var(--text-2);font-weight:500;margin:3px 0 0;}
+  .sprow{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  .sprow .sp{flex:1;}
+  .spcount{font-size:11.5px;color:var(--text-3);font-weight:500;}
+  .spx{width:32px;height:32px;flex:none;border:0;border-radius:var(--r-md);background:transparent;color:var(--text-2);cursor:pointer;font-size:15px;display:grid;place-items:center;}
+  .spx:hover{background:var(--surface-2);color:var(--text);}
+  .spbody{flex:1;min-height:0;overflow:auto;padding:16px 20px 20px;}
+  .sppv{height:210px;background:var(--surface-3);border-radius:var(--r-md);display:grid;place-items:center;overflow:hidden;}
+  .sppv i{display:block;border-radius:2px;box-shadow:0 2px 8px rgba(0,0,0,.22);}
+  .sppvcap{font-size:12.5px;color:var(--text-2);font-weight:500;margin:7px 0 18px;}
+  .spfoot{display:flex;align-items:center;gap:8px;padding:12px 16px 12px 20px;border-top:var(--hair) solid var(--border);background:var(--surface);}
+  .spfoot .sp{flex:1;}
+  .btn.dangertext{border-color:transparent;background:transparent;color:#b42318;padding-left:4px;padding-right:4px;}
+  .btn.dangertext:hover{background:#fdecea;}
+  .elink{font-family:inherit;font-size:12.5px;font-weight:600;color:var(--accent);background:transparent;border:0;padding:0;cursor:pointer;
+         text-decoration:underline;text-underline-offset:2px;white-space:nowrap;flex:none;}
+  .seclab{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);
+          margin:0 0 8px;display:flex;align-items:baseline;gap:9px;}
+  .seclab .n{font-family:var(--mono);letter-spacing:0;text-transform:none;font-size:11.5px;color:var(--text-2);font-weight:500;}
+  .vrow.irow{cursor:pointer;}
+  .vrow.irow:hover{border-color:var(--border-2);}
+  .vrow.irow.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+  .vrow.primary{margin-bottom:14px;}
+  .pinfo{min-width:0;flex:1;}
+  .pfile{font-size:13.5px;font-weight:600;margin:0 0 1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .spsec{border-top:var(--hair) solid var(--border);}
+  .spsech{display:flex;align-items:center;gap:8px;width:100%;padding:12px 2px;border:0;background:transparent;cursor:pointer;font-family:inherit;color:var(--text);text-align:left;}
+  .spsech .t{font-size:14px;font-weight:600;}
+  .spsech .n{font-size:12px;font-weight:600;color:var(--text-2);background:var(--surface-3);border-radius:var(--r-pill);padding:0 7px;line-height:18px;}
+  .spsech .sp{flex:1;}
+  .spsech .chev{color:var(--text-2);transition:transform .15s ease;}
+  .spsech .chev.up{transform:rotate(180deg);}
+  .spsech:hover .t{text-decoration:underline;text-underline-offset:3px;}
+  .spsecb{padding:0 0 16px;}
+  .fld{margin:0 0 12px;}
+  .fld .fl{font-size:12px;font-weight:600;color:var(--text-2);margin:0 0 2px;}
+  .fld .fv{font-size:13.5px;color:var(--text);font-weight:500;}
+  .camps{margin:0;padding:0 0 0 16px;}
+  .camps li{margin:0 0 2px;}
+  .desc{width:100%;min-height:64px;resize:vertical;font-family:inherit;font-size:13.5px;color:var(--text);border:var(--hair) solid var(--border-2);border-radius:var(--r-md);padding:8px 10px;}
+  .desc:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent;}
+  .desccount{font-size:11.5px;color:var(--text-3);text-align:right;margin:3px 0 0;}
+  .vlist{display:flex;flex-direction:column;gap:var(--sp-2);}
+  .vrow{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);padding:11px 13px;
+        display:flex;align-items:center;gap:13px;flex-wrap:wrap;}
+  .vrow.pend{border-style:dashed;border-color:var(--border-2);}
+  .vsw{flex:none;width:60px;height:44px;display:grid;place-items:center;}
+  .vsw i{display:block;border:var(--hair) solid var(--border-2);border-radius:2px;}
+  .vdim{font-family:var(--mono);font-size:12.5px;font-weight:600;margin:0 0 2px;}
+  .vuse{font-size:12.5px;color:var(--text-2);font-weight:500;margin:0;}
+  .vfile{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .dimnote{font-size:12.5px;color:var(--text-2);font-weight:500;margin:10px 0 0;}
+  .vrow .sp{flex:1;min-width:8px;}
+  .tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:2px 9px;
+       border-radius:var(--r-pill);border:var(--hair) solid transparent;white-space:nowrap;}
+  /* tags say how an image was made, not how good it is: all grey, except Stretched, which is amber */
+  .tag.orig,.tag.upl,.tag.crop,.tag.auto{background:var(--surface-3);color:var(--text-2);border-color:var(--border);}
+  .tag.stretch{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-border);}
+  .swapbox{width:100%;margin-top:10px;padding-top:11px;border-top:var(--hair) solid var(--border);display:flex;gap:12px;flex-wrap:wrap;}
+  .swapcell{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:var(--hair) solid var(--border);
+            border-radius:var(--r-sm);padding:8px 10px;flex:1;min-width:210px;}
+  .swapcell i.pv{display:block;border:var(--hair) solid var(--border-2);border-radius:2px;flex:none;}
+  .swapcell .lb{font-size:11.5px;font-weight:600;margin:0 0 1px;}
+  .swapcell .sb{font-size:11.5px;color:var(--text-2);font-weight:500;margin:0;}
+  .swapnote{width:100%;font-size:12px;color:var(--text-3);font-weight:500;margin:8px 0 0;}
+  .nonecard{background:var(--surface);border:var(--hair) dashed var(--border-2);border-radius:var(--r-md);
+            padding:22px;text-align:center;font-size:13.5px;color:var(--text-2);font-weight:500;}
+  .nonecard b{color:var(--text);font-weight:600;display:block;margin-bottom:3px;font-size:var(--fs-md);}
+
+  .btn{font-family:inherit;font-size:13px;font-weight:600;padding:7px 13px;border-radius:var(--r-md);
+       border:var(--stroke) solid var(--border-2);background:var(--surface);color:var(--text);cursor:pointer;
+       line-height:18px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
+  .btn:hover{background:var(--surface-2);}
+  .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .btn.pri:hover{background:var(--accent-2);border-color:var(--accent-2);}
+  .btn.sm{font-size:12px;padding:5px 10px;}
+
+  /* delete confirmation, as the shipped designs page has it */
+  .cdveil{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:16px;background:rgba(22,22,22,.42);animation:veilin .15s ease-out;}
+  .cdbox{width:372px;max-width:100%;background:var(--surface);border-radius:var(--r-md);padding:22px 24px 20px;box-shadow:0 12px 40px rgba(0,0,0,.2);cursor:default;}
+  .cdt{font-size:20px;font-weight:500;margin:0 0 12px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .cds{font-size:15px;color:var(--text-2);font-weight:400;margin:0 0 26px;line-height:1.5;}
+  .cds b{color:var(--text);font-weight:600;}
+  .cdacts{display:flex;justify-content:flex-end;gap:8px;}
+  .cdbtn{font-family:inherit;font-size:15px;font-weight:500;padding:9px 14px;border-radius:var(--r-md);cursor:pointer;line-height:20px;}
+  .cdcancel{background:var(--surface-3);color:var(--text);border:var(--hair) solid var(--text);}
+  .cdcancel:hover{background:#e0e0e0;}
+  .cddel{background:#000;color:#fff;border:var(--hair) solid #000;}
+  .cddel:hover{background:#2b2b2b;}
+  .cdbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){ .cdveil{animation:none;} }
+
+  /* toast, from the Campaign Creation Figma (Toast · removal and confirmation) */
+  .toast{position:fixed;left:50%;bottom:24px;z-index:80;transform:translateX(-50%);max-width:calc(100% - 32px);
+         display:flex;align-items:center;gap:32px;padding:8px 16px;border-radius:12px;
+         background:var(--toast-bg);border:var(--hair) solid var(--toast-border);box-shadow:0 6px 20px rgba(0,0,0,.18);
+         font-size:14px;line-height:20px;font-weight:500;color:var(--toast-text);white-space:nowrap;animation:toastin .2s ease-out;}
+  .toast > span{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+  .toast .ok{flex:none;margin-right:-24px;}
+  @keyframes toastin{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+  @media (prefers-reduced-motion:reduce){ .toast{animation:none;} }
+
+  @media (max-width:900px){
+    .lhead,.lrow{grid-template-columns:100px minmax(0,1fr) 40px;}
+    .lhead .c3,.lhead .c4,.lrow .c3,.lrow .c4{display:none;}
+    .thumb{width:92px;height:52px;}
+    .search{width:100%;order:3;}
+  }
+  @media (max-width:640px){
+    .spveil{left:0;}
+    .spanel{width:100%;}
+    .pbody{grid-template-columns:56px minmax(0,1fr);}
+    .pmain{padding:20px 14px 32px;}
+    .pnav{width:40px;height:40px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="appwin">
+  <div class="ptop">
+    <span class="plogo" aria-label="Blip">blip</span>
+    <span class="sp"></span>
+    <span class="phelp" aria-label="Help"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.3-2.7 4"/><circle cx="12" cy="17.4" r=".6" fill="currentColor"/></svg></span>
+    <span class="pav">LC</span>
+  </div>
+  <div class="pbody">
+    <nav class="prail" aria-label="Main">
+      <span class="porg">BI</span>
+      <span class="pnav" aria-label="Home"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></svg></span>
+      <span class="pnav" aria-label="Campaigns"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="13" r="8"/><circle cx="11" cy="13" r="4.5"/><circle cx="11" cy="13" r="1.2" fill="currentColor"/><path d="m11 13 8-8m-3 0h3v3"/></svg></span>
+      <span class="pnav on" aria-label="My Library" title="My Library" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="4" y="3.5" width="14" height="5" rx="1"/><path d="M18 6h2v5h-8v3"/><rect x="10.5" y="14" width="3" height="7" rx=".8"/></svg></span>
+      <span class="pnav" aria-label="Reports"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21v-5M9.5 21v-8M14 21v-6M18.5 21v-9"/><path d="m4 11 5-5 4 3 7-6m-3 0h3v3"/></svg></span>
+      <span class="pnav" aria-label="Media"><svg width="24" height="24" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5" fill="currentColor"/><path d="m6.5 17 4-5 3 3.5 2-2.5 2.5 4z" fill="#fff"/></svg></span>
+    </nav>
+    <main class="pmain" id="stage"></main>
+    <div id="panel"></div>
+  </div>
+</div>
+
+<div id="modal"></div>
+<input type="file" id="fileinput" accept="image/png,image/jpeg" hidden>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- artwork: the same generator the Add creative demo uses ---------------- */
+  function uri(s){ return "url('data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s)+"')"; }
+  function art(o){
+    var w=o.w,h=o.h,land=w>=h;
+    var s='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'">'+
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">'+
+      '<stop offset="0" stop-color="'+o.c1+'"/><stop offset=".55" stop-color="'+o.c2+'"/>'+
+      '<stop offset="1" stop-color="'+o.c1+'"/></linearGradient></defs>'+
+      '<rect width="'+w+'" height="'+h+'" fill="url(#g)"/>';
+    if(land) s+='<rect x="0" y="0" width="'+Math.round(w*0.009)+'" height="'+h+'" fill="'+o.accent+'"/>';
+    else s+='<rect x="0" y="0" width="'+w+'" height="'+Math.round(h*0.012)+'" fill="'+o.accent+'"/>';
+    var f=Math.min(w,h), cx=w*0.5, cy=land?h*0.47:h*0.5;
+    s+='<text x="'+cx+'" y="'+(cy-f*0.02)+'" font-family="Inter,Helvetica,Arial" font-size="'+(f*0.155)+
+       '" font-weight="600" fill="#ffffff" text-anchor="middle">'+o.l1+'</text>';
+    s+='<text x="'+cx+'" y="'+(cy+f*0.135)+'" font-family="Inter,Helvetica,Arial" font-size="'+(f*0.155)+
+       '" font-weight="600" fill="'+o.accent+'" text-anchor="middle">'+o.l2+'</text>';
+    s+='<text x="'+(land?w*0.055:w*0.5)+'" y="'+(land?h*0.24:h*0.19)+'" font-family="Inter,Helvetica,Arial" font-size="'+(f*0.062)+
+       '" font-weight="600" fill="#cfd3dc" letter-spacing="'+(f*0.006)+'" text-anchor="'+(land?'start':'middle')+'">'+o.brand+'</text>';
+    s+='<text x="'+(land?w*0.945:w*0.5)+'" y="'+(land?h*0.82:h*0.86)+'" font-family="Inter,Helvetica,Arial" font-size="'+(f*0.055)+
+       '" font-weight="500" fill="#9aa0ac" text-anchor="'+(land?'end':'middle')+'">'+o.foot+'</text>';
+    return uri(s+'</svg>');
+  }
+  var BRAND = {
+    ridge:{c1:'#111a2e',c2:'#16324f',accent:'#f5c542',brand:'RIDGELINE AUTO CARE',l1:'HALF-PRICE',l2:'OIL CHANGE',foot:'EXIT 12 · 2 MILES'},
+    vera :{c1:'#0d2b2b',c2:'#14514c',accent:'#5fe0c0',brand:'VERA DENTAL',l1:'NEW PATIENTS',l2:'WELCOME',foot:'BOOK ONLINE TODAY'},
+    pike :{c1:'#2b1d14',c2:'#5a3a22',accent:'#f0b775',brand:'PIKE &amp; CO COFFEE',l1:'OPEN AT',l2:'6 AM',foot:'MAIN &amp; 3RD'},
+    hall :{c1:'#1c1630',c2:'#3a2a63',accent:'#c9a6ff',brand:'HALLOW FITNESS',l1:'FIRST MONTH',l2:'FREE',foot:'JOIN THIS WEEK'}
+  };
+  var cache = {};
+  function bg(brand,w,h){ var k=brand+w+'x'+h; if(!cache[k]) cache[k]=art(Object.assign({w:w,h:h},BRAND[brand])); return cache[k]; }
+
+  /* ---------------- My Library: the same designs, images and tags as the Add creative demo ----------------
+     prov: original · crop (Cropped) · ai (Resized with AI) · stretch (Stretched: made by Blip's earlier resize).
+     pend: a new image waiting on review for a dimension that is already running */
+  var DESIGNS = {
+    ridge:{id:'ridge', brand:'ridge', name:'Ridgeline · Summer Promo', file:'ridgeline-summer-2800×800.jpg', size:'2.1 MB', lastUsed:'Sep 12, 2026', created:'Mar 4, 2026', modified:'Sep 3, 2026', campaigns:['Summer Oil Change','Exit 12 Always-On'],
+      images:[
+        {w:2800, h:800,  prov:'original'},
+        {w:1400, h:400,  prov:'crop',    signs:40},
+        {w:840,  h:400,  prov:'stretch', signs:12},
+        {w:1080, h:1920, prov:'ai',      signs:5}
+      ]},
+    vera:{id:'vera', brand:'vera', name:'Vera Dental · New Patients', file:'vera-newpatients-2400×600.png', size:'1.6 MB', lastUsed:'Aug 30, 2026', created:'Feb 19, 2026', modified:'Mar 2, 2026', campaigns:['New Patient Drive'],
+      images:[
+        {w:2400, h:600,  prov:'original'},
+        {w:1400, h:400,  prov:'stretch', signs:22},
+        {w:1920, h:1080, prov:'stretch', signs:7}
+      ]},
+    hall:{id:'hall', brand:'hall', name:'Hallow Fitness · First Month Free', file:'hallow-firstmonth-3000×900.jpg', size:'2.4 MB', lastUsed:'Jan 31, 2026', created:'Dec 2, 2025', modified:'Aug 20, 2026', campaigns:['January Sign-ups'],
+      images:[
+        {w:3000, h:900,  prov:'original'},
+        {w:1400, h:400,  prov:'crop',    signs:31},
+        {w:840,  h:400,  prov:'stretch', signs:9, pend:{prov:'ai'}}
+      ]},
+    pike:{id:'pike', brand:'pike', name:'Pike & Co · Open at 6', file:'pike-open6-1600×900.jpg', size:'840 KB', created:'Jan 8, 2026', modified:'Jan 8, 2026', campaigns:[],
+      images:[
+        {w:1600, h:900,  prov:'original'}
+      ]}
+  };
+  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  function byNewest(a,b){ return Date.parse(b.created)-Date.parse(a.created); }
+  function libFour(){ return ['ridge','vera','hall','pike'].map(function(id){ return clone(DESIGNS[id]); }).sort(byNewest); }
+
+  /* ---------------- helpers ---------------- */
+  function fit(w,h,bw,bh){ var s=Math.min(bw/w,bh/h); return {w:Math.max(4,Math.round(w*s)),h:Math.max(3,Math.round(h*s))}; }
+  function orig(d){ return d.images.filter(function(i){return i.prov==='original';})[0]; }
+  function vers(d){ return d.images.filter(function(i){return i.prov!=='original';}); }
+  function sg(n){ return n===1?'1 sign':n+' signs'; }
+  /* the short count on cards, rows and the panel; section headings still say "Sign dimensions" for context */
+  function dims(n){ return n===1?'1 dimension':n+' dimensions'; }
+  /* the distinct dimensions a creative holds, the original included: two images at the same dimension count once.
+     Cards, rows and the panel all use this one number */
+  function dimCount(d){ var s = {}; d.images.forEach(function(v){ s[v.w+'x'+v.h] = 1; }); return Object.keys(s).length; }
+  function dimsOf(d){ return dims(dimCount(d)); }
+  /* how common a dimension is: 1400×400 first. Orders the panel's rows */
+  var COMMON = ['1400x400','840x400','1200x400','1600x400','1000x400','1920x1080','558x378','600x600','1080x1440','1080x1920'];
+  function rankOf(v){ var r = COMMON.indexOf(v.w+'x'+v.h); return r<0 ? COMMON.length : r; }
+  function human(v){ return v.prov==='original' || v.prov==='upload'; }
+  /* the thumbnail is the original: the file uploaded to create the creative */
+  function thumbOf(d){ return orig(d); }
+  /* the panel's rows: the original first, then every other image by how common its dimension is */
+  function rowsOf(d){
+    return [orig(d)].concat(vers(d).slice().sort(function(a,b){ return rankOf(a)-rankOf(b) || (human(b)?1:0)-(human(a)?1:0); }));
+  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+  function tagName(p){ return p==='ai'?'Resized with AI':p==='stretch'?'Stretched':p==='crop'?'Cropped':'Uploaded'; }   /* the first upload and any added later both read Uploaded */
+  function tagOf(p){
+    return p==='original'?'<span class="tag upl">Uploaded</span>'
+         : p==='ai'      ?'<span class="tag auto">Resized with AI</span>'
+         : p==='stretch' ?'<span class="tag stretch">Stretched</span>'
+         : p==='upload'  ?'<span class="tag upl">Uploaded</span>'
+         :                '<span class="tag crop">Cropped</span>';
+  }
+  /* the original's picture: an uploaded file shows itself, a demo design its generated artwork */
+  function origBG(d){ var o=orig(d); return d.src ? "url('"+d.src+"')" : bg(d.brand,o.w,o.h); }
+  /* each image drawn the way it was made: a crop frames the original, an AI layout is built for the shape,
+     and a stretched one is the original squeezed into the sign's shape */
+  function imgBG(d,v,prov){
+    prov = prov||v.prov;
+    if(v.src && prov===v.prov) return "background-image:url('"+v.src+"');background-size:100% 100%;";
+    if(prov==='stretch') return 'background-image:'+origBG(d)+';background-size:100% 100%;';
+    if(prov==='crop')    return 'background-image:'+origBG(d)+';background-size:cover;background-position:center;';
+    return 'background-image:'+(d.src ? origBG(d) : bg(d.brand,v.w,v.h))+';background-size:100% 100%;';
+  }
+
+  /* ---------------- state ---------------- */
+  var S = {view:'cards', lib:libFour(), q:'', fdim:'all', fcamp:'all', sortBy:'uploaded', dir:'desc', menu:null, renaming:null, detail:null, dragging:false, uploading:null, landed:null};
+  function find(id){ return S.lib.filter(function(d){ return d.id===id; })[0]; }
+
+  /* ---------------- toast (one at a time) ---------------- */
+  var TOAST = null;
+  function showToast(msg, ok){
+    hideToast();
+    TOAST = {t:setTimeout(hideToast, 6000)};
+    var el = document.createElement('div');
+    el.className='toast'; el.id='toast'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite');
+    el.innerHTML = (ok ? '<span class="ok">&#10003;</span>' : '')+'<span>'+msg+'</span>';
+    document.body.appendChild(el);
+  }
+  function hideToast(){ if(TOAST){ clearTimeout(TOAST.t); TOAST=null; } var el=document.getElementById('toast'); if(el) el.remove(); }
+
+  /* ---------------- designs page ---------------- */
+  var ICON = {
+    search:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>',
+    list:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></svg>',
+    grid:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>',
+    kebab:'<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>',
+    upload:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>'
+  };
+
+  /* Uploading, two ways:
+     - an Upload button under the page title, left-aligned, the same spot as Create campaign on the campaign overview page;
+     - drop a file anywhere on the page (Google Drive style).
+     An empty library keeps the big drop area, since uploading is the only thing to do there */
+  function pageDrop(){ return S.lib.length>0 || !!S.uploading; }
+  function bigDZ(){
+    return '<div class="updz'+(S.dragging?' dragging':'')+'" id="updz" data-a="choose">'+
+      '<div class="idle">'+
+        '<span class="ui">'+ICON.upload+'</span>'+
+        '<p class="ut">Upload a creative</p>'+
+        '<p class="us">Drag a JPG or PNG here, or</p>'+
+        '<button class="btn pri" data-a="choose">Choose file</button></div>'+
+      '<span class="dropmsg">Drop to upload</span></div>';
+  }
+  function pageView(){
+    var empty = !S.lib.length && !S.uploading;
+    var up16 = ICON.upload.replace('width="28" height="28"','width="16" height="16"');
+    return (pageDrop() ? '<div class="pdrop" aria-hidden="true"><div class="droppill"><span class="ic">'+up16+'</span>'+
+          '<span>Drop files to upload them to <b>My Library</b></span></div></div>' : '')+
+      /* row 1: the title, with search and the view toggle beside it. Row 2: Upload, then filters and sort */
+      '<div class="dhead"><h2>My Library</h2><span class="sp"></span>'+
+        (empty ? '' : '<label class="search">'+ICON.search+'<input id="q" placeholder="Search creatives" value="'+esc(S.q)+'"></label>'+
+          '<span class="seg icons" role="group" aria-label="View">'+
+            '<button class="'+(S.view==='cards'?'on':'')+'" data-a="view" data-view="cards" aria-pressed="'+(S.view==='cards')+'" aria-label="Grid view" title="Grid view">'+ICON.grid+'</button>'+
+            '<button class="'+(S.view==='list'?'on':'')+'" data-a="view" data-view="list" aria-pressed="'+(S.view==='list')+'" aria-label="List view" title="List view">'+ICON.list+'</button></span>')+
+      '</div>'+
+      (empty ? '' : '<div class="dtools" id="dfilters">'+filtersHTML()+'</div>')+
+      (empty ? bigDZ() : '')+
+      '<div id="items">'+itemsHTML()+'</div>';
+  }
+
+  /* ---- filters: sign dimension, campaign, and sort, like the shipped picker's dimension filter plus what the page needs ---- */
+  function allDims(){
+    var seen = {}, out = [];
+    S.lib.forEach(function(d){ d.images.forEach(function(v){ var k = v.w+'x'+v.h; if(!seen[k]){ seen[k]=1; out.push([v.w,v.h]); } }); });
+    return out.sort(function(a,b){ return (b[0]/b[1])-(a[0]/a[1]) || b[0]-a[0]; });
+  }
+  function allCampaigns(){
+    var seen = {}, out = [];
+    S.lib.forEach(function(d){ (d.campaigns||[]).forEach(function(c){ if(!seen[c]){ seen[c]=1; out.push(c); } }); });
+    return out.sort();
+  }
+  function oriName(w,h){ return w>h*1.15 ? 'Landscape' : (h>w*1.15 ? 'Portrait' : 'Square'); }
+  function filtering(){ return S.q.trim() || S.fdim!=='all' || S.fcamp!=='all'; }
+  /* sort: pick what to sort by, and flip the direction with the arrow. The arrow's label says what the order means */
+  var SORTBY = [['uploaded','Date added'],['modified','Date updated'],['name','Name']];
+  function orderLabel(){ return S.sortBy==='name' ? (S.dir==='asc' ? 'A to Z' : 'Z to A') : (S.dir==='desc' ? 'Newest first' : 'Oldest first'); }
+  function filtersHTML(){
+    var opt = function(v,label,on){ return '<option value="'+esc(v)+'"'+(on?' selected':'')+'>'+label+'</option>'; };
+    var dims = opt('all','All dimensions',S.fdim==='all')+allDims().map(function(d){ var k=d[0]+'x'+d[1]; return opt(k, d[0]+'×'+d[1]+' · '+oriName(d[0],d[1]), S.fdim===k); }).join('');
+    var camps = opt('all','All campaigns',S.fcamp==='all')+allCampaigns().map(function(c){ return opt(c, esc(c), S.fcamp===c); }).join('')+opt('none','Not in a campaign',S.fcamp==='none');
+    var by = SORTBY.map(function(o){ return opt(o[0],o[1],S.sortBy===o[0]); }).join('');
+    var n = visible().length, up16 = ICON.upload.replace('width="28" height="28"','width="16" height="16"');
+    var arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+
+      (S.dir==='asc' ? '<path d="M12 19V5"/><path d="m6 11 6-6 6 6"/>' : '<path d="M12 5v14"/><path d="m6 13 6 6 6-6"/>')+'</svg>';
+    return '<button class="btn pri" data-a="choose">'+up16+'Upload</button>'+
+      '<span class="sp"></span>'+
+
+      '<select class="fselect" data-f="fdim" aria-label="Dimension">'+dims+'</select>'+
+      '<select class="fselect" data-f="fcamp" aria-label="Campaign">'+camps+'</select>'+
+      '<span class="sortctl"><span class="sorticon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span>'+
+        '<select data-f="sortBy" aria-label="Sort by">'+by+'</select>'+
+        '<button class="sortdir" data-a="sortdir" aria-label="'+orderLabel()+'" title="'+orderLabel()+'">'+arrow+'</button></span>'+
+      /* the result of the controls, last on the row: how many creatives are showing, and the way back to all of them */
+      '<span class="dresult">'+(filtering() ? '<button class="elink" data-a="clearfilters">Clear filters</button>' : '')+
+        '<span class="dcount">'+(filtering() ? n+' of '+S.lib.length+' creatives' : n+' creative'+(n===1?'':'s'))+'</span></span>';
+  }
+  function visible(){
+    var q = S.q.trim().toLowerCase();
+    var key = S.sortBy==='modified' ? 'modified' : 'created';
+    return S.lib.filter(function(d){
+      if(q && d.name.toLowerCase().indexOf(q)<0) return false;
+      if(S.fdim!=='all' && !d.images.some(function(v){ return v.w+'x'+v.h===S.fdim; })) return false;
+      if(S.fcamp==='none' && (d.campaigns||[]).length) return false;
+      if(S.fcamp!=='all' && S.fcamp!=='none' && (d.campaigns||[]).indexOf(S.fcamp)<0) return false;
+      return true;
+    }).sort(function(a,b){
+      var c = S.sortBy==='name' ? a.name.localeCompare(b.name) : Date.parse(a[key])-Date.parse(b[key]);
+      return S.dir==='asc' ? c : -c;
+    });
+  }
+  /* the date a card or row shows follows the sort: modified when sorting by it, uploaded otherwise */
+  function dateOf(d){ return S.sortBy==='modified' ? 'Updated '+d.modified : d.created; }
+  function itemsHTML(){
+    if(!S.lib.length && !S.uploading)
+      return '<div class="nothing"><b>No creatives yet</b>Uploaded creatives stay here. Sign dimensions are made when a creative is added to a campaign.</div>';
+    var items = visible();
+    if(!items.length && !S.uploading) return '<div class="nothing"><b>No creatives match</b>Try a different search or filter. <button class="elink" data-a="clearfilters">Clear filters</button></div>';
+    return S.view==='cards' ? cardsHTML(items) : listHTML(items);
+  }
+  function nameHTML(d){
+    return '<div class="dname" title="'+esc(d.name)+'">'+esc(d.name)+'</div>';
+  }
+  function menuHTML(d){
+    return '<div class="kwrap"><button class="kebab'+(S.menu===d.id?' on':'')+'" data-a="menu" data-id="'+d.id+'" aria-label="More actions" aria-expanded="'+(S.menu===d.id)+'">'+ICON.kebab+'</button>'+
+      (S.menu===d.id ? '<div class="kmenu" role="menu"><button data-a="rename" data-id="'+d.id+'">Rename</button><button data-a="details" data-id="'+d.id+'">View details</button><button class="danger" data-a="delete" data-id="'+d.id+'">Delete</button></div>' : '')+
+      '</div>';
+  }
+  function uploadingItem(){
+    var u = S.uploading;
+    if(S.view==='cards'){
+      var c = fit(u.w,u.h,200,112);
+      return '<div class="dcard" style="cursor:default"><div class="cpv"><span class="sk" style="width:'+c.w+'px;height:'+c.h+'px"></span></div>'+
+        '<div class="cbody"><div class="cinfo"><div class="dname">'+esc(u.name)+'</div><p class="cmeta">Uploading…</p></div></div></div>';
+    }
+    var t = fit(u.w,u.h,104,52);
+    return '<div class="lrow" style="cursor:default"><span class="thumb"><span class="sk" style="width:'+t.w+'px;height:'+t.h+'px"></span></span>'+
+      '<div class="dname">'+esc(u.name)+'</div><span class="dcell c3">Uploading…</span><span class="dcell c4"></span><span></span></div>';
+  }
+  function listHTML(items){
+    return '<div class="ltable"><div class="lhead"><span>Preview</span><span>Name</span><span class="c3">Dimensions</span><span class="c4">'+(S.sortBy==='modified'?'Updated':'Added')+'</span><span></span></div>'+
+      (S.uploading ? uploadingItem() : '')+
+      items.map(function(d){
+        var o = thumbOf(d), t = fit(o.w,o.h,104,52);
+        return '<div class="lrow'+(S.landed===d.id?' landed':'')+'" data-go="detail" data-id="'+d.id+'">'+
+          '<span class="thumb"><i style="width:'+t.w+'px;height:'+t.h+'px;'+imgBG(d,o)+'"></i></span>'+
+          nameHTML(d)+
+          '<span class="dcell c3">'+dimsOf(d)+'</span>'+
+          '<span class="dcell c4">'+(S.sortBy==='modified' ? d.modified : d.created)+'</span>'+
+          menuHTML(d)+'</div>';
+      }).join('')+'</div>';
+  }
+  function cardsHTML(items){
+    return '<div class="cgrid">'+(S.uploading ? uploadingItem() : '')+
+      items.map(function(d){
+        var o = thumbOf(d), t = fit(o.w,o.h,200,112);
+        return '<div class="dcard'+(S.landed===d.id?' landed':'')+'" data-go="detail" data-id="'+d.id+'">'+
+          '<div class="cpv"><i style="width:'+t.w+'px;height:'+t.h+'px;'+imgBG(d,o)+'"></i></div>'+
+          '<div class="cbody"><div class="cinfo">'+nameHTML(d)+
+            '<p class="cmeta">'+dimsOf(d)+' · '+dateOf(d)+'</p></div>'+menuHTML(d)+'</div></div>';
+      }).join('')+'</div>';
+  }
+
+  /* ---------------- details side panel ----------------
+     Shipped: the ⋮ menu's "Edit Design" (which only renamed) and "Add Sizes" both open a side panel with an always-on name
+     field and counter, Cancel and Save, wrapping size tabs, and a row of four buttons. Streamlined: the name reads as a title
+     with a Rename link (the field, counter, Cancel and Save only while renaming), one preview of the selected image,
+     images as rows, and one footer: Delete · Replace file · Add size. ✕, Esc or a click outside closes it */
+  /* sections of the panel that open and close; Dimensions starts open, Details closed, each time a panel opens */
+  var OPEN = {dims:true, details:false};
+  function section(key, title, count, body){
+    var on = OPEN[key];
+    return '<div class="spsec">'+
+      '<button class="spsech" data-a="togglesec" data-k="'+key+'" aria-expanded="'+on+'">'+
+        '<span class="t">'+title+'</span>'+(count!=null ? '<span class="n">'+count+'</span>' : '')+'<span class="sp"></span>'+
+        '<svg class="chev'+(on?' up':'')+'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>'+
+      '</button>'+(on ? '<div class="spsecb">'+body+'</div>' : '')+'</div>';
+  }
+  function panelView(d){
+    if(S.enter) OPEN = {dims:true, details:false};
+    /* every image as one list: the original first, then the rest by how common the dimension is.
+       The panel opens on the image the card shows, so the two always match */
+    var all = rowsOf(d), n = S.sel==null ? all.indexOf(thumbOf(d)) : Math.min(S.sel, all.length-1), cur = all[n];
+    var pv = fit(cur.w, cur.h, 430, 186);
+    var head = S.renaming===d.id
+      ? '<div class="tt"><input class="rename" id="renameinput" data-id="'+d.id+'" maxlength="100" value="'+esc(d.name)+'" aria-label="Creative name">'+
+          '<div class="sprow"><span class="spcount" id="renamecount">'+d.name.length+' / 100</span><span class="sp"></span>'+
+          '<button class="btn sm" data-a="renamecancel">Cancel</button><button class="btn pri sm" data-a="renamesave">Save</button></div></div>'
+      : '<div class="tt"><div class="spname"><h3 title="'+esc(d.name)+'">'+esc(d.name)+'</h3>'+
+          '<button class="elink" data-a="rename" data-id="'+d.id+'">Rename</button></div></div>';
+    var sw = function(v){ var b = fit(v.w,v.h,52,38); return '<span class="vsw"><i style="width:'+b.w+'px;height:'+b.h+'px;'+imgBG(d,v)+'"></i></span>'; };
+
+    /* a row per image: dimension and how it was made. The advertiser's own files (Uploaded) also name the file */
+    var dimRow = function(v, i){
+      var fname = v.prov==='original' ? (d.file||d.name) : v.prov==='upload' ? v.file : '';
+      var h = '<div class="vrow irow'+(i===n?' on':'')+(v.pend?' pend':'')+'" data-a="selimg" data-n="'+i+'">'+sw(v)+
+        '<span class="pinfo"><p class="vdim">'+v.w+' × '+v.h+' px</p>'+(fname ? '<p class="vuse vfile" title="'+esc(fname)+'">'+esc(fname)+'</p>' : '')+'</span>'+
+        tagOf(v.prov);
+      if(v.pend){
+        var a = fit(v.w,v.h,44,32);
+        h += '<div class="swapbox">'+
+          '<span class="swapcell"><i class="pv" style="width:'+a.w+'px;height:'+a.h+'px;'+imgBG(d,v)+'"></i>'+
+            '<span><p class="lb">On the signs now</p><p class="sb">'+tagName(v.prov)+' · approved</p></span></span>'+
+          '<span class="swapcell"><i class="pv" style="width:'+a.w+'px;height:'+a.h+'px;'+imgBG(d,v,v.pend.prov)+'"></i>'+
+            '<span><p class="lb">'+tagName(v.pend.prov)+'</p><p class="sb">In review · usually under 48 hours</p></span></span>'+
+          '<p class="swapnote">Signs keep showing the approved image until the new one clears review. No sign goes dark.</p>'+
+        '</div>';
+      }
+      return h+'</div>';
+    };
+    var dimsBody = '<div class="vlist">'+all.map(dimRow).join('')+'</div>'+
+      (all.length===1 ? '<p class="dimnote">Other dimensions are made when this creative is added to a campaign, only for the signs selected.</p>' : '');
+
+    /* file details, like a file's details in Google Drive, plus where the creative is used */
+    var type = (/\.png$/i.test(d.file||'') ? 'PNG' : 'JPG')+' image';
+    var camps = d.campaigns||[];
+    var field = function(label, value){ return '<div class="fld"><p class="fl">'+label+'</p><div class="fv">'+value+'</div></div>'; };
+    var detailsBody =
+      field('Campaigns', camps.length ? '<ul class="camps">'+camps.map(function(c){ return '<li>'+esc(c)+'</li>'; }).join('')+'</ul>' : 'Not in a campaign')+
+      field('Last used in a campaign', d.lastUsed || 'Never')+
+      field('Type', type)+
+      field('File size', d.size || '—')+
+      field('Added', d.created)+
+      field('Updated', d.modified)+
+      '<div class="fld"><p class="fl">Description</p><textarea class="desc" id="descinput" data-id="'+d.id+'" maxlength="500" placeholder="Add a description">'+esc(d.description||'')+'</textarea>'+
+        '<p class="desccount" id="desccount">'+(d.description||'').length+' / 500</p></div>';
+
+    return '<div class="spveil'+(S.enter?' enter':'')+'" data-a="closepanel"><aside class="spanel" data-a="panel" role="dialog" aria-label="Creative details">'+
+      '<div class="sphead">'+head+'<button class="spx" data-a="closepanel" aria-label="Close">&#10005;</button></div>'+
+      '<div class="spbody">'+
+        '<div class="sppv"><i style="width:'+pv.w+'px;height:'+pv.h+'px;'+imgBG(d,cur)+'"></i></div>'+
+        '<p class="sppvcap">'+cur.w+' × '+cur.h+' px · '+tagName(cur.prov)+'</p>'+
+        section('dims', 'Dimensions', dimCount(d), dimsBody)+
+        section('details', 'Details', null, detailsBody)+
+      '</div>'+
+      '<div class="spfoot"><button class="btn sm dangertext" data-a="delete" data-id="'+d.id+'">Delete</button><span class="sp"></span>'+
+        '<button class="btn sm" data-a="replace" data-id="'+d.id+'">Replace file</button>'+
+        '<button class="btn sm" data-a="addsize" data-id="'+d.id+'">Add dimension</button></div>'+
+      '</aside></div>';
+  }
+
+  /* ---------------- delete confirmation: the shipped product's modal ---------------- */
+  function confirmView(d){
+    var camps = d.campaigns||[];
+    return '<div class="cdveil" data-a="delcancel"><div class="cdbox" data-a="delcard" role="alertdialog" aria-modal="true" aria-labelledby="cdt" aria-describedby="cds">'+
+      /* the name stays on one line and cuts off, since real names are long generated strings */
+      '<p class="cdt" id="cdt" title="Delete '+esc(d.name)+'">Delete '+esc(d.name)+'</p>'+
+      '<p class="cds" id="cds">You\'re about to permanently delete this creative. All dimensions will be deleted and any attached campaigns will be impacted.'+
+        campsLine(d)+'</p>'+
+      '<div class="cdacts"><button class="cdbtn cdcancel" data-a="delcancel">Cancel</button>'+
+        '<button class="cdbtn cddel" data-a="delconfirm">Delete</button></div></div></div>';
+  }
+
+  function campsLine(d){
+    var camps = d.campaigns||[];
+    return camps.length ? ' It is in '+(camps.length===1 ? 'the campaign ' : camps.length+' campaigns: ')+camps.map(function(c){ return '<b>'+esc(c)+'</b>'; }).join(', ')+'.' : '';
+  }
+  /* replace confirmation: names what is replaced (the creative's original, or one dimension) and what goes with it */
+  function replaceView(d, n){
+    var v = rowsOf(d)[n], isOrig = n===0;
+    var made = {}; d.images.forEach(function(x){ if(!human(x)) made[x.w+'x'+x.h] = 1; });
+    var nMade = Object.keys(made).length, hasUp = d.images.some(function(x){ return x.prov==='upload'; });
+    var title = isOrig ? 'Replace '+esc(d.name) : 'Replace '+v.w+' × '+v.h+' px';
+    var msg = isOrig
+      ? 'You\'re about to replace the uploaded file this creative started from. '+
+        (nMade ? 'All '+dims(nMade)+' made from it will be deleted and any attached campaigns will be impacted.' : 'Any attached campaigns will be impacted.')+
+        (hasUp ? ' Other uploaded dimensions are kept.' : '')
+      : 'You\'re about to replace this dimension with a new file. The current '+tagName(v.prov).toLowerCase()+' image will be deleted and any attached campaigns will be impacted. '+
+        'The new file must be '+v.w+' × '+v.h+' px.';
+    return '<div class="cdveil" data-a="repcancel"><div class="cdbox" data-a="repcard" role="alertdialog" aria-modal="true" aria-labelledby="cdt" aria-describedby="cds">'+
+      '<p class="cdt" id="cdt" title="'+title+'">'+title+'</p>'+
+      '<p class="cds" id="cds">'+msg+campsLine(d)+'</p>'+
+      '<div class="cdacts"><button class="cdbtn cdcancel" data-a="repcancel">Cancel</button>'+
+        '<button class="cdbtn cddel" data-a="repconfirm">Replace</button></div></div></div>';
+  }
+
+  function paint(){
+    var st = document.getElementById('stage'), d = S.detail && find(S.detail);
+    st.classList.remove('dropping');
+    if(!d) S.detail = null;
+    st.innerHTML = pageView();
+    document.getElementById('panel').innerHTML = d ? panelView(d) : '';
+    var cd = S.confirmDel && find(S.confirmDel), cr = S.confirmRep && find(S.confirmRep.id);
+    document.getElementById('modal').innerHTML = cd ? confirmView(cd) : cr ? replaceView(cr, S.confirmRep.n) : '';
+    S.enter = false;   /* only the opening render slides in; selecting a row or renaming inside it does not replay it */
+    S.landed = null;
+    var ri = document.getElementById('renameinput'); if(ri && document.activeElement!==ri){ ri.focus(); ri.select(); }
+  }
+  function paintItems(){
+    var el = document.getElementById('items'); if(el) el.innerHTML = itemsHTML();
+    var fr = document.getElementById('dfilters'); if(fr) fr.innerHTML = filtersHTML();
+  }
+
+  /* ---------------- actions ---------------- */
+  function saveRename(cancel){
+    var input = document.getElementById('renameinput'); if(!input) return;
+    var d = find(input.getAttribute('data-id'));
+    if(d && !cancel && input.value.trim() && input.value.trim()!==d.name){ d.name = input.value.trim(); }   /* a rename is not an update */
+    S.renaming = null; paint();
+  }
+  function closePanel(){
+    var v = document.querySelector('.spveil');
+    var done = function(){ S.detail=null; S.renaming=null; S.sel=null; paint(); };
+    if(!v || v.classList.contains('leave') || matchMedia('(prefers-reduced-motion: reduce)').matches){ if(!v || !v.classList.contains('leave')) done(); return; }
+    v.classList.add('leave'); setTimeout(done, 200);
+  }
+  /* read a real image file: its data and its natural size */
+  function readImage(file, done){
+    if(!file) return;
+    if(!/^image\/(png|jpeg)$/.test(file.type)){ showToast('Only JPG and PNG files can be uploaded'); return; }
+    var reader = new FileReader();
+    reader.onload = function(){
+      var img = new Image();
+      img.onload = function(){ done(reader.result, img.naturalWidth, img.naturalHeight, file); };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+  var FILEMODE = 'design', FILEFOR = null, FILEN = 0;
+  function remove(id){
+    var i = -1; S.lib.forEach(function(x,n){ if(x.id===id) i=n; });
+    if(i<0) return;
+    var gone = S.lib.splice(i,1)[0];
+    S.menu=null; S.detail=null; S.renaming=null; S.sel=null;
+    showToast('Deleted '+esc(gone.name), true);   /* permanent, so no Undo */
+    paint();
+  }
+  /* a real file from the computer: show it loading, then land it as a new design, original only */
+  function upload(file){
+    readImage(file, function(src, w, h){
+      var name = file.name.replace(/\.[^.]+$/,'');
+      S.detail=null; S.q=''; S.dragging=false;
+      S.uploading = {name:name, w:w, h:h};
+      paint();
+      setTimeout(function(){
+        var d = {id:'u'+Date.now(), name:name, file:file.name, size: file.size>1e6 ? (file.size/1e6).toFixed(1)+' MB' : Math.max(1,Math.round(file.size/1e3))+' KB',
+                 created:'Sep 16, 2026', modified:'Sep 16, 2026', campaigns:[], src:src, images:[{w:w, h:h, prov:'original'}]};
+        S.uploading=null; S.lib.unshift(d); S.landed=d.id;
+        paint(); showToast('Uploaded '+esc(name), true);
+      }, 1400);
+    });
+  }
+  function sizeOf(file){ return file.size>1e6 ? (file.size/1e6).toFixed(1)+' MB' : Math.max(1,Math.round(file.size/1e3))+' KB'; }
+  /* from the panel: replace the original file. Everything Blip made from the old file (Cropped, Resized with AI, Stretched)
+     goes with it, so nothing left on the creative comes from the old artwork. Files the advertiser added themselves (Uploaded)
+     stay. New dimensions are made from the new file when the creative is next added to a campaign */
+  function replaceFile(d, file){
+    readImage(file, function(src, w, h, file){
+      var made = d.images.filter(function(v){ return !human(v); });
+      var gone = {}; made.forEach(function(v){ gone[v.w+'x'+v.h] = 1; });
+      d.images = d.images.filter(human);
+      d.src = src; var o = orig(d); o.w = w; o.h = h; d.file = file.name; d.size = sizeOf(file); d.modified = 'Sep 16, 2026';
+      S.sel = 0;
+      paint();
+      showToast('Replaced the file'+(made.length ? ' · '+dims(Object.keys(gone).length)+' made from the old file removed' : ''), true);   /* permanent, so no Undo */
+    });
+  }
+  /* from the panel: replace one dimension with the advertiser's own file, at exactly that dimension. It becomes Uploaded */
+  function replaceDim(d, n, file){
+    var v = rowsOf(d)[n]; if(!v) return;
+    readImage(file, function(src, w, h, file){
+      if(w!==v.w || h!==v.h){ showToast('Image must be '+v.w+' × '+v.h+' px'); return; }
+      var i = d.images.indexOf(v);
+      var nv = {w:w, h:h, prov:'upload', src:src, file:file.name};
+      d.images[i] = nv; d.modified = 'Sep 16, 2026';
+      S.sel = rowsOf(d).indexOf(nv);
+      paint();
+      showToast('Replaced '+w+' × '+h+' px', true);   /* permanent, so no Undo */
+    });
+  }
+  /* from the panel: the advertiser's own file for a dimension, tagged Uploaded */
+  function addSize(d, file){
+    readImage(file, function(src, w, h, file){
+      var v = {w:w, h:h, prov:'upload', src:src, file:file.name};
+      d.images.push(v); S.sel = rowsOf(d).indexOf(v); d.modified = 'Sep 16, 2026';
+      paint(); showToast('Added '+w+' × '+h+' px', true);
+    });
+  }
+
+  document.addEventListener('click', function(e){
+    if(e.target.closest('#renameinput') || e.target.closest('#descinput')) return;
+    var a = e.target.closest('[data-a]'), act = a && a.getAttribute('data-a'), id = a && a.getAttribute('data-id');
+    /* an open menu closes on any click outside it, and that click does nothing else */
+    if(S.menu && !e.target.closest('.kwrap')){ S.menu=null; paint(); return; }
+    if(a){
+      if(act==='menu'){ S.menu = S.menu===id ? null : id; paint(); return; }
+      if(act==='panel') return;
+      if(act==='rename'){ S.menu=null; if(!S.detail) S.sel=null; S.enter = !S.detail; S.detail=id; S.renaming=id; paint(); return; }
+      if(act==='details'){ S.menu=null; S.enter=true; S.detail=id; S.renaming=null; S.sel=null; paint(); return; }
+      if(act==='renamesave'){ saveRename(false); return; }
+      if(act==='renamecancel'){ saveRename(true); return; }
+      if(act==='togglesec'){ var sk = a.getAttribute('data-k'); OPEN[sk] = !OPEN[sk]; paint(); return; }
+      if(act==='selimg'){ S.sel = +a.getAttribute('data-n'); paint(); return; }
+      if(act==='closepanel'){ closePanel(); return; }
+      if(act==='replace'){ var rd=find(id), rr=rowsOf(rd), rn=S.sel==null ? rr.indexOf(thumbOf(rd)) : Math.min(S.sel, rr.length-1);
+        S.confirmRep={id:id, n:rn}; paint(); var rb=document.querySelector('.cdcancel'); if(rb) rb.focus(); return; }
+      if(act==='repcancel'){ S.confirmRep=null; paint(); return; }
+      if(act==='repconfirm'){ var cr=S.confirmRep; S.confirmRep=null; paint();
+        FILEMODE = cr.n===0 ? 'replace' : 'replacedim'; FILEFOR=cr.id; FILEN=cr.n; document.getElementById('fileinput').click(); return; }
+      if(act==='addsize'){ FILEMODE='addsize'; FILEFOR=id; document.getElementById('fileinput').click(); return; }
+      if(act==='delete'){ S.menu=null; S.confirmDel=id; paint(); var cb=document.querySelector('.cdcancel'); if(cb) cb.focus(); return; }
+      if(act==='delcard' || act==='repcard') return;
+      if(act==='delcancel'){ S.confirmDel=null; paint(); return; }
+      if(act==='delconfirm'){ var did=S.confirmDel; S.confirmDel=null; remove(did); return; }
+      if(act==='sortdir'){ S.dir = S.dir==='asc' ? 'desc' : 'asc'; paintItems(); return; }
+      if(act==='clearfilters'){ S.q=''; S.fdim='all'; S.fcamp='all'; var qi=document.getElementById('q'); if(qi) qi.value=''; paintItems(); return; }
+      if(act==='view'){ S.view = a.getAttribute('data-view'); paint(); return; }
+      if(act==='choose'){ FILEMODE='design'; document.getElementById('fileinput').click(); return; }
+      return;
+    }
+    var row = e.target.closest('[data-go="detail"]');
+    if(row){ S.enter=true; S.detail = row.getAttribute('data-id'); S.renaming=null; S.sel=null; paint(); }
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.target.id==='renameinput'){
+      if(e.key==='Enter'){ e.preventDefault(); saveRename(false); }
+      if(e.key==='Escape'){ e.preventDefault(); saveRename(true); }
+      return;
+    }
+    if(e.key==='Escape' && S.confirmDel){ S.confirmDel=null; paint(); return; }
+    if(e.key==='Escape' && S.confirmRep){ S.confirmRep=null; paint(); return; }
+    if(e.key==='Escape' && S.menu){ S.menu=null; paint(); return; }
+    if(e.key==='Escape' && S.detail){ closePanel(); }
+  });
+  /* filter and sort changes redraw the results and the filter row */
+  document.addEventListener('change', function(e){
+    var f = e.target.getAttribute && e.target.getAttribute('data-f'); if(!f) return;
+    S[f] = e.target.value;
+    if(f==='sortBy') S.dir = S.sortBy==='name' ? 'asc' : 'desc';   /* each field starts in its natural order */
+    paintItems();
+  });
+  document.addEventListener('input', function(e){
+    if(e.target.id==='q'){ S.q = e.target.value; paintItems(); }
+    if(e.target.id==='descinput'){ var dd = find(e.target.getAttribute('data-id')); if(dd) dd.description = e.target.value;
+      var dc = document.getElementById('desccount'); if(dc) dc.textContent = e.target.value.length+' / 500'; }
+    if(e.target.id==='renameinput'){ var c = document.getElementById('renamecount'); if(c) c.textContent = e.target.value.length+' / 100'; }
+  });
+  document.getElementById('fileinput').addEventListener('change', function(e){
+    var f = e.target.files[0], d = FILEFOR && find(FILEFOR);
+    if(FILEMODE==='replace' && d) replaceFile(d, f);
+    else if(FILEMODE==='replacedim' && d) replaceDim(d, FILEN, f);
+    else if(FILEMODE==='addsize' && d) addSize(d, f);
+    else upload(f);
+    FILEMODE='design'; FILEFOR=null; e.target.value='';
+  });
+
+  /* drag and drop: anywhere on the designs page (or onto the big area when the library is empty).
+     Dropping anywhere else never opens the file in the browser */
+  function dropTarget(t){
+    if(!t.closest || S.detail) return null;
+    if(!pageDrop()) return t.closest('#updz');
+    return t.closest('#stage') ? document.getElementById('stage') : null;
+  }
+  function markDrag(on){
+    var st = document.getElementById('stage'), z = document.getElementById('updz');
+    if(pageDrop()){ st.classList.toggle('dropping', on); }
+    else if(z){ z.classList.toggle('dragging', on); }
+  }
+  document.addEventListener('dragover', function(e){ e.preventDefault(); });
+  document.addEventListener('dragenter', function(e){ if(dropTarget(e.target)) markDrag(true); });
+  document.addEventListener('dragleave', function(e){
+    var t = dropTarget(e.target); if(!t) return;
+    if(!(e.relatedTarget && t.contains(e.relatedTarget))){ markDrag(false); S.dragging=false; }
+  });
+  document.addEventListener('drop', function(e){
+    e.preventDefault();
+    var t = dropTarget(e.target); if(!t) return;
+    markDrag(false); S.dragging=false;
+    upload(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
+  });
+
+  paint();
+})();
+</script>
+</body>
+</html>
