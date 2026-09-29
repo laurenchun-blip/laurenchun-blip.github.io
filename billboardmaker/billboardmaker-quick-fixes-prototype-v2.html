@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Billboard Maker Prototype</title>
+<title>Billboard Maker v2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -21,6 +21,7 @@
     --pinksf:  rgba(255,12,104,.06);
     --open:    #856013;
     --open-bg: #FAF1DB;
+    --danger:  #C62839;
     --card:    #FFFFFF;
     --sans: "Inter", system-ui, sans-serif;
     --head: "Lexend", "Inter", system-ui, sans-serif;
@@ -152,15 +153,50 @@
 
   /* ---------- run ---------- */
 
-  .run { padding: 40px 20px; text-align: center; }
-  .run .now { font-family: var(--head); font-weight: 500; font-size: 17px; margin: 0 0 16px; min-height: 26px; }
-  .track { height: 3px; background: var(--rule); border-radius: 999px; max-width: 380px; margin: 0 auto; overflow: hidden; }
+  /* one centred column: a placeholder board, the step, then every step as a checklist */
+  .run { padding: 36px 20px 30px; display: flex; flex-direction: column; align-items: center; }
+  .run-col { width: 100%; max-width: 420px; }
+
+  .run-art {
+    aspect-ratio: 3.5/1; max-width: 100%; border-radius: 8px; overflow: hidden; position: relative;
+    background: linear-gradient(180deg, #E4EEF0, #D8E7EA); border: 1px solid rgba(47,143,162,.22);
+    display: grid; grid-template-columns: 1.25fr 1fr; align-items: center; gap: 6%; padding: 6% 7%;
+  }
+  .run-art .ra-copy { display: flex; flex-direction: column; gap: 9%; height: 70%; justify-content: center; }
+  .run-art .ra-copy i { display: block; height: 14%; min-height: 7px; border-radius: 3px; background: rgba(48,64,106,.16); }
+  .run-art .ra-copy i:nth-child(1) { width: 78%; }
+  .run-art .ra-copy i:nth-child(2) { width: 58%; height: 18%; background: rgba(255,12,104,.28); }
+  .run-art .ra-copy i:nth-child(3) { width: 44%; height: 8%; min-height: 4px; }
+  .run-art .ra-img { justify-self: center; width: 58%; aspect-ratio: 1; border-radius: 50%; background: rgba(48,64,106,.12); }
+  .run-art::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(100deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.55) 50%, rgba(255,255,255,0) 70%);
+    transform: translateX(-100%); animation: shimmer 1.8s ease-in-out infinite;
+  }
+  @keyframes shimmer { to { transform: translateX(100%); } }
+  @media (prefers-reduced-motion: reduce) { .run-art::after { animation: none; display: none; } }
+
+  .run-k { margin: 22px 0 2px; font-family: var(--head); font-weight: 600; font-size: 20px; line-height: 1.3; color: var(--ink); text-align: center; }
+  .run .now { margin: 0 0 14px; font-size: 13px; color: var(--ink-70); text-align: center; min-height: 21px; }
+  .track { height: 6px; background: rgba(48,64,106,.1); border-radius: 999px; overflow: hidden; }
   .track i { display: block; height: 100%; width: 0%; background: var(--pink); border-radius: 999px; transition: width .6s ease; }
-  .queue { margin-top: 18px; display: flex; flex-direction: column; gap: 5px; align-items: center; }
-  .queue span { font-size: 13px; color: var(--ink-32); }
-  .queue span.done { color: var(--ink-50); }
-  .queue span.done::before { content: "✓ "; color: var(--teal); }
-  .nofix { font-family: var(--mono); font-size: 11px; color: var(--ink-32); margin-top: 18px; }
+
+  .queue { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .queue li { display: flex; align-items: flex-start; gap: 11px; font-size: 14px; line-height: 1.4; color: var(--ink-70); }
+  .queue .qi {
+    width: 18px; height: 18px; border-radius: 999px; flex: none; margin-top: 1px;
+    border: 2px solid rgba(48,64,106,.25); display: inline-flex; align-items: center; justify-content: center;
+  }
+  .queue li.now-step { color: var(--ink); font-weight: 500; }
+  .queue li.now-step .qi { border-color: var(--rule); border-top-color: var(--pink); animation: sp .7s linear infinite; }
+  .queue li.done .qi { border: 0; background: var(--teal); color: #fff; font-size: 10px; }
+  .queue li.done .qi::before { content: "\2713"; }
+  @media (prefers-reduced-motion: reduce) { .queue li.now-step .qi { animation: none; border-color: var(--pink); } }
+
+  .run-notes { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--rule); text-align: center; }
+  .nofix { font-size: 12px; line-height: 1.5; color: var(--ink-50); margin: 0; }
+  .nofix.proto { font-family: var(--mono); font-size: 11px; margin-top: 6px; }
+  .run-notes .btn { margin-top: 14px; }
 
   /* ---------- creative ---------- */
 
@@ -352,7 +388,7 @@
     display: flex; align-items: center; justify-content: space-between;
     gap: 16px; flex-wrap: wrap; margin-top: 14px;
   }
-  .payoff-foot p { margin: 0; font-size: 12px; color: var(--ink-50); max-width: 46ch; }
+  .payoff-foot p { margin: 0; font-size: 12px; color: var(--ink-50); white-space: nowrap; }
 
   .iconbtn {
     width: 36px; height: 36px; border-radius: 999px; flex: none;
@@ -378,6 +414,15 @@
   .modal-head .t { font-family: var(--head); font-weight: 600; font-size: 17px; }
   .modal-head .x { font-size: 20px; line-height: 1; color: var(--ink-32); padding: 0 4px; }
   .modal-head .x:hover { color: var(--pink); }
+
+  /* start over: says exactly what goes, safe choice first */
+  .modal.confirm { max-width: 440px; }
+  .confirm-body { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink-70); }
+  .confirm-list { margin: 10px 0 0; padding: 0 0 0 18px; font-size: 14px; line-height: 1.55; color: var(--ink); }
+  .confirm-list li + li { margin-top: 3px; }
+  .confirm-keep { margin: 12px 0 0; font-size: 13px; color: var(--ink-50); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+  .btn.danger { background: var(--danger); }
   .modal .scene { padding: 6% 8% 0; }
   .modal .board { max-width: 340px; }
   .modal .board .legs span { height: 26px; }
@@ -666,9 +711,26 @@
     .br-t { font-family: var(--head); font-weight: 600; font-size: 14px; line-height: 1.3; }
     .br-s { font-size: 12px; color: var(--ink-50); }
     .br-go { font-size: 22px; line-height: 1; color: var(--ink-32); }
-    .share-note { display: block; margin-top: 10px; }
+    /* the short line, kept to one row down to a 320px screen */
+    .share-note { display: block; margin-top: 10px; white-space: nowrap; }
+    @media (max-width: 360px) { .share-note { font-size: 11px; } }
     .overlay { padding: 12px; }
     .modal { padding: 16px; }
+    .modal-actions { flex-direction: column-reverse; }
+    .modal-actions .btn { width: 100%; padding: 11px 20px; }
+
+    /* loading fills the screen below the header, content centred in it */
+    .app:has(> #s-run:not([hidden])) {
+      display: flex; flex-direction: column; padding-bottom: 16px;
+      min-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    }
+    #s-run:not([hidden]) { flex: 1; display: flex; }
+    #s-run > .card {
+      flex: 1; margin: 0; display: flex; align-items: center; justify-content: center;
+      background: none; border: 0; box-shadow: none; padding: 0;
+    }
+    .run { padding: 0 0 12px; width: 100%; }
+    .run-k { font-size: 20px; margin-top: 24px; }
   }
 
 
@@ -766,12 +828,21 @@
   <div id="s-run" hidden>
     <div class="card current">
       <div class="run">
-        <p class="now" id="now">Reading brooklyncraftcompany.com</p>
-        <div class="track"><i id="bar"></i></div>
-        <div class="queue" id="queue"></div>
-        <p class="nofix">No time estimate shown. Runs vary too much to promise one.</p>
-        <p class="nofix" style="margin-top:6px;opacity:.7">Prototype: compressed to about 8 seconds. Real runs take 5 to 20 minutes.</p>
-        <div style="margin-top:18px"><button class="btn sec sm" id="skip">Skip ahead</button></div>
+        <div class="run-col">
+          <div class="run-art" aria-hidden="true">
+            <span class="ra-copy"><i></i><i></i><i></i></span>
+            <span class="ra-img"></span>
+          </div>
+          <p class="run-k">Making your billboard</p>
+          <p class="now" id="now" aria-live="polite">Step 1 of 4</p>
+          <div class="track" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="track"><i id="bar"></i></div>
+          <ol class="queue" id="queue"></ol>
+          <div class="run-notes">
+            <p class="nofix">No time estimate shown. Runs vary too much to promise one.</p>
+            <p class="nofix proto">Prototype: compressed to about 8 seconds. Real runs take 5 to 20 minutes.</p>
+            <button class="btn sec sm" id="skip">Skip ahead</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -964,6 +1035,23 @@
   </div>
 </div>
 
+<!-- ============ START OVER CONFIRM ============ -->
+<div class="overlay" id="resetoverlay" hidden>
+  <div class="modal confirm" role="alertdialog" aria-modal="true" aria-labelledby="resettitle" aria-describedby="resettext">
+    <div class="modal-head">
+      <span class="t" id="resettitle">Start over?</span>
+      <button class="x" type="button" id="resetx" aria-label="Close">×</button>
+    </div>
+    <p class="confirm-body" id="resettext"></p>
+    <ul class="confirm-list" id="resetlist"></ul>
+    <p class="confirm-keep">This can’t be undone.</p>
+    <div class="modal-actions">
+      <button class="btn sec" type="button" id="resetcancel">Keep working</button>
+      <button class="btn danger" type="button" id="resetgo">Delete and start over</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ SHARE MODAL ============ -->
 <div class="overlay" id="shareoverlay" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sharetitle">
@@ -973,7 +1061,7 @@
     </div>
 
     <div id="sharepreview"></div>
-    <p class="note share-note">Illustration only. Not a specific board, and the art is AI-generated.</p>
+    <p class="note share-note">Illustration only. AI-generated art, not a real board.</p>
 
     <div class="share-row">
       <div class="lbl">Post the picture</div>
@@ -1062,23 +1150,31 @@
   let timers = [];
   function clearTimers() { timers.forEach(clearTimeout); timers = []; }
 
+  /* every step is listed from the start: done, in progress, or still to come */
+  function paintRun(step) {
+    const items = $("queue").children;
+    [...items].forEach((li, i) => {
+      li.className = i < step ? "done" : i === step ? "now-step" : "";
+    });
+    const pct = Math.round(step / STAGES.length * 100);
+    $("bar").style.width = pct + "%";
+    $("track").setAttribute("aria-valuenow", pct);
+    $("now").textContent = step < STAGES.length
+      ? "Step " + (step + 1) + " of " + STAGES.length
+      : "Finishing your artwork";
+  }
+
   function runFlow() {
     show("run");
-    $("queue").innerHTML = "";
-    $("bar").style.width = "0%";
     const site = ($("url").value || "your site").replace(/^https?:\/\//, "");
     STAGES[0] = "Reading " + site;
-    $("now").textContent = STAGES[0];
+    $("queue").innerHTML = STAGES.map(s => '<li><span class="qi" aria-hidden="true"></span><span>' + s + '</span></li>').join("");
+    paintRun(0);
 
     STAGES.forEach((_, i) => {
       timers.push(setTimeout(() => {
-        $("bar").style.width = ((i + 1) / STAGES.length * 100) + "%";
-        const d = document.createElement("span");
-        d.className = "done";
-        d.textContent = STAGES[i];
-        $("queue").appendChild(d);
-        if (STAGES[i + 1]) $("now").textContent = STAGES[i + 1];
-        else { $("now").textContent = "Finishing your artwork"; timers.push(setTimeout(finish, 900)); }
+        paintRun(i + 1);
+        if (!STAGES[i + 1]) timers.push(setTimeout(finish, 900));
       }, (i + 1) * 1800));
     });
   }
@@ -1383,7 +1479,34 @@
   /* ---------- wiring ---------- */
   $("go").onclick = runFlow;
   $("skip").onclick = finish;
-  $("startover").onclick = () => {
+  /* start over asks first, and names exactly what it deletes */
+  function openReset() {
+    const running = !$("s-run").hidden;
+    const n = versions.length;
+    if (running) {
+      $("resettext").textContent = "This stops making your billboard and clears:";
+      $("resetlist").innerHTML = "<li>The billboard in progress</li><li>The promotion details, logo, photo and colors you added</li>";
+      $("resetgo").textContent = "Stop and start over";
+    } else {
+      $("resettext").textContent = "This permanently deletes:";
+      $("resetlist").innerHTML =
+        "<li>" + (n > 1 ? "Your billboard and all " + n + " versions" : "Your billboard") + "</li>" +
+        "<li>Your changes to the brand, message and layout</li>" +
+        "<li>The promotion details, logo, photo and colors you added</li>";
+      $("resetgo").textContent = "Delete and start over";
+    }
+    $("resetoverlay").hidden = false;
+    $("resetcancel").focus();
+  }
+  function closeReset() { $("resetoverlay").hidden = true; $("startover").focus(); }
+
+  $("startover").onclick = openReset;
+  $("resetcancel").onclick = closeReset;
+  $("resetx").onclick = closeReset;
+  $("resetoverlay").onclick = e => { if (e.target === $("resetoverlay")) closeReset(); };
+  $("resetgo").onclick = () => { $("resetoverlay").hidden = true; startOver(); toast("Started over"); };
+
+  function startOver() {
     clearTimers(); headIdx = 0; layIdx = 0; tweak = 0;
     versions = []; activeV = 0; drawVersions();
     applyHeadline(); applyLayout(); buildHeadlines(); buildLayouts();
@@ -1404,7 +1527,7 @@
     $("refine").classList.remove("has");
     syncEditing();
     show("start");
-  };
+  }
 
   /* ---------- start screen: optional detail ---------- */
 
@@ -1554,7 +1677,8 @@
   $("shareoverlay").onclick = e => { if (e.target === $("shareoverlay")) closeShare(); };
   document.addEventListener("keydown", e => {
     if (e.key !== "Escape") return;
-    if (!$("zoomoverlay").hidden) closeZoom();
+    if (!$("resetoverlay").hidden) closeReset();
+    else if (!$("zoomoverlay").hidden) closeZoom();
     else if (!$("shareoverlay").hidden) closeShare();
   });
 
