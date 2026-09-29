@@ -6,7 +6,7 @@
 <title>Billboard Maker v2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&display=swap">
 
 <style>
   :root {
@@ -24,8 +24,8 @@
     --danger:  #C62839;
     --card:    #FFFFFF;
     --sans: "Inter", system-ui, sans-serif;
-    --head: "Lexend", "Inter", system-ui, sans-serif;
-    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    /* one interface face; Lexend is only the lettering inside the billboard art */
+    --art: "Lexend", "Inter", system-ui, sans-serif;
   }
 
   * { box-sizing: border-box; }
@@ -54,7 +54,7 @@
   .app { max-width: 1060px; margin: 0 auto; padding: 22px 18px 80px; }
 
   .bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-  .logo { font-family: var(--head); font-weight: 600; font-size: 17px; letter-spacing: -.01em; }
+  .logo { font-weight: 600; font-size: 17px; letter-spacing: -.01em; }
   .logo .blip {
     background: var(--pink); color: #fff; font-size: 11px; padding: 2px 5px;
     border-radius: 3px; margin-right: 7px; vertical-align: 2px; letter-spacing: .02em;
@@ -74,7 +74,7 @@
   .card.pending { opacity: .5; }
 
   .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-  .card-name { font-family: var(--head); font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .card-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
   .tick {
     width: 15px; height: 15px; border-radius: 999px; background: var(--teal); color: #fff;
     font-size: 9px; display: inline-flex; align-items: center; justify-content: center; flex: none;
@@ -114,6 +114,12 @@
   .opt[aria-pressed="true"] { border-color: var(--pink); background: var(--pinksf); }
   .opt .o-txt { font-size: 13px; font-weight: 500; line-height: 1.3; }
   .opt .o-meta { font-size: 11px; color: var(--ink-50); }
+  /* layouts: what the layout is good for, then what the picture would be */
+  .o-img { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; font-size: 12px; line-height: 1.4; color: var(--ink-70); }
+  .o-img-k {
+    flex: none; font-size: 9px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--teal); background: var(--soft); border-radius: 3px; padding: 1px 5px;
+  }
 
   .wf { width: 76px; height: 22px; border-radius: 3px; background: var(--soft); border: 1px solid var(--rule); display: flex; gap: 2px; padding: 3px; flex: none; }
   .wf i { display: block; background: var(--ink-32); border-radius: 1px; height: 100%; }
@@ -142,7 +148,7 @@
   }
   .found .tick { margin-top: 2px; }
   .found .who { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-  .found b { font-family: var(--head); font-weight: 600; font-size: 14px; color: var(--ink); }
+  .found b { font-weight: 600; font-size: 14px; color: var(--ink); }
   .found span { font-size: 12px; color: var(--ink-70); }
   .gist p { border-left: 2px solid rgba(47,143,162,.3); padding-left: 11px; }
 
@@ -176,7 +182,7 @@
   @keyframes shimmer { to { transform: translateX(100%); } }
   @media (prefers-reduced-motion: reduce) { .run-art::after { animation: none; display: none; } }
 
-  .run-k { margin: 22px 0 2px; font-family: var(--head); font-weight: 600; font-size: 20px; line-height: 1.3; color: var(--ink); text-align: center; }
+  .run-k { margin: 22px 0 2px; font-weight: 600; font-size: 20px; line-height: 1.3; color: var(--ink); text-align: center; }
   .run .now { margin: 0 0 14px; font-size: 13px; color: var(--ink-70); text-align: center; min-height: 21px; }
   .track { height: 6px; background: rgba(48,64,106,.1); border-radius: 999px; overflow: hidden; }
   .track i { display: block; height: 100%; width: 0%; background: var(--pink); border-radius: 999px; transition: width .6s ease; }
@@ -195,7 +201,7 @@
 
   .run-notes { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--rule); text-align: center; }
   .nofix { font-size: 12px; line-height: 1.5; color: var(--ink-50); margin: 0; }
-  .nofix.proto { font-family: var(--mono); font-size: 11px; margin-top: 6px; }
+  .nofix.proto { font-size: 11px; margin-top: 6px; color: var(--ink-50); }
   .run-notes .btn { margin-top: 14px; }
 
   /* ---------- creative ---------- */
@@ -206,8 +212,8 @@
     overflow: hidden; display: grid; align-items: center; gap: 4%; padding: 5% 6%;
   }
   .creative .c-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .creative .c1 { font-family: var(--head); font-weight: 600; font-size: clamp(13px,2.5vw,26px); line-height: 1.02; color: #2C4230; }
-  .creative .c2 { font-family: var(--head); font-weight: 600; font-size: clamp(15px,3.1vw,31px); line-height: 1.02; color: #D6302B; }
+  .creative .c1 { font-family: var(--art); font-weight: 600; font-size: clamp(13px,2.5vw,26px); line-height: 1.02; color: #2C4230; }
+  .creative .c2 { font-family: var(--art); font-weight: 600; font-size: clamp(15px,3.1vw,31px); line-height: 1.02; color: #D6302B; }
   .creative .c3 { font-size: clamp(8px,1.2vw,12px); color: #46613F; margin-top: 4%; }
   .creative .c-art { display: flex; align-items: center; justify-content: center; }
   .apple { width: 62%; aspect-ratio: 1; border-radius: 50% 50% 46% 46%; background: #E0352C; position: relative; }
@@ -224,7 +230,7 @@
   .creative.centred .c3 { background: #2C4230; color: #DFEAD9; padding: .4% 1.4%; border-radius: 3px; }
 
   .art-meta { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
-  .dims { font-family: var(--mono); font-size: 11px; color: var(--ink-50); }
+  .dims { font-size: 12px; color: var(--ink-50); font-variant-numeric: tabular-nums; }
   .actions { display: flex; gap: 7px; }
 
   /* room to actually describe a change, the same shape as the promo field */
@@ -269,7 +275,7 @@
 
   .optblock { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--rule); }
   .opthead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
-  .opthead .t { font-family: var(--head); font-weight: 600; font-size: 14px; }
+  .opthead .t { font-weight: 600; font-size: 14px; }
   .opthead .s { font-size: 13px; color: var(--ink-50); }
 
   .optgrid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 24px; align-items: start; }
@@ -301,7 +307,7 @@
     display: block; font-size: 13px; line-height: 1.3; color: var(--ink);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .filedone .meta { display: block; font-family: var(--mono); font-size: 10px; line-height: 1.4; color: var(--ink-32); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .filedone .meta { display: block; font-size: 11px; font-variant-numeric: tabular-nums; line-height: 1.4; color: var(--ink-32); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .filedone button { font-size: 12px; color: var(--pink); font-weight: 500; flex: none; }
 
   .thumb {
@@ -318,7 +324,7 @@
     background-size: 8px 8px;
     background-position: 0 0, 4px 4px;
   }
-  .thumb .mark { font-family: var(--head); font-weight: 600; font-size: 9px; color: #19202B; }
+  .thumb .mark { font-family: var(--art); font-weight: 600; font-size: 9px; color: #19202B; }
   .thumb.sm .mark { font-size: 7px; }
   .thumb.photo { background: linear-gradient(170deg, #DFEAD9, #C6D9BE); }
   .thumb.photo b { width: 15px; height: 15px; border-radius: 50%; background: #E0352C; display: block; }
@@ -338,17 +344,17 @@
   }
   .hexfield input {
     flex: 1; min-width: 0; border: 0; outline: 0; background: none; padding: 0;
-    font-family: var(--mono); font-size: 13px; text-transform: uppercase; color: var(--ink);
+    font-family: inherit; font-size: 13px; text-transform: uppercase; color: var(--ink); font-variant-numeric: tabular-nums;
   }
 
   .swatchlist { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
   .swrow {
     display: flex; align-items: center; gap: 9px;
     border: 1px solid var(--rule); border-radius: 8px; padding: 6px 8px 6px 7px;
-    background: #fff; font-family: var(--mono); font-size: 12px; color: var(--ink-70);
+    background: #fff; font-size: 12px; color: var(--ink-70);
   }
   .swrow i { width: 20px; height: 20px; border-radius: 5px; border: 1px solid rgba(0,0,0,.09); display: block; flex: none; }
-  .swrow .role { margin-left: auto; font-family: var(--mono); font-size: 9px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-32); }
+  .swrow .role { margin-left: auto; font-size: 9px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-32); }
   .swrow button {
     margin-left: 5px; font-size: 15px; line-height: 1; color: var(--ink-32);
     width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; flex: none;
@@ -411,7 +417,7 @@
     box-shadow: 0 24px 60px rgba(20,32,44,.32);
   }
   .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-  .modal-head .t { font-family: var(--head); font-weight: 600; font-size: 17px; }
+  .modal-head .t { font-weight: 600; font-size: 17px; }
   .modal-head .x { font-size: 20px; line-height: 1; color: var(--ink-32); padding: 0 4px; }
   .modal-head .x:hover { color: var(--pink); }
 
@@ -438,15 +444,16 @@
 
   .platbtn {
     width: 36px; height: 36px; border-radius: 999px; border: 0; flex: none; color: #fff;
-    font-family: var(--head); font-weight: 600; font-size: 13px;
+    font-weight: 600; font-size: 13px;
     display: inline-flex; align-items: center; justify-content: center;
   }
   .platbtn:hover { filter: brightness(1.14); }
+  .platbtn.ig { background: linear-gradient(45deg, #F58529, #DD2A7B 45%, #8134AF 75%, #515BD4); }
 
   .tagline { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); }
   .tagline span { font-size: 12px; color: var(--ink-50); }
   .tagchip {
-    font-family: var(--mono); font-size: 12px; color: var(--pink);
+    font-size: 12px; color: var(--pink);
     background: var(--pinksf); border: 1px solid rgba(255,12,104,.28);
     border-radius: 999px; padding: 5px 11px;
   }
@@ -474,19 +481,19 @@
   .vkind { font-size: 11px; font-weight: 500; color: var(--ink-70); }
   .vitem[aria-pressed="true"] .vkind { color: var(--ink); }
   .vlatest {
-    font-family: var(--mono); font-size: 8px; letter-spacing: .07em; text-transform: uppercase;
+    font-size: 9px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
     color: var(--pink); background: var(--pinksf); border-radius: 3px; padding: 1px 4px;
   }
   .vdetail {
     display: block; font-size: 11px; line-height: 1.3; color: var(--ink-50);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .vtime { display: block; font-family: var(--mono); font-size: 9px; color: var(--ink-32); }
+  .vtime { display: block; font-size: 10px; color: var(--ink-50); font-variant-numeric: tabular-nums; }
 
   .toast {
     position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
     background: #1B2440; color: #fff; font-size: 13px; padding: 10px 16px;
-    border-radius: 999px; z-index: 30; box-shadow: 0 6px 24px rgba(0,0,0,.18);
+    border-radius: 999px; z-index: 50; box-shadow: 0 6px 24px rgba(0,0,0,.18);
   }
 
   /* ---------- result layout: creative first, ingredients under ---------- */
@@ -514,7 +521,7 @@
   .ingchip .chev { margin-left: auto; font-size: 11px; color: var(--ink-50); flex: none; transition: transform .15s ease; }
   .ingchip[aria-expanded="true"] .chev { transform: rotate(180deg); color: var(--pink); }
   .ingchip .willtag {
-    font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: .07em;
+    font-size: 9px; font-weight: 600; letter-spacing: .07em;
     text-transform: uppercase; color: var(--open); background: var(--open-bg);
     border-radius: 3px; padding: 2px 5px; margin-left: auto; flex: none;
   }
@@ -528,7 +535,7 @@
   }
 
   .listing { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: var(--ink-70); }
-  .listing b { font-size: 14px; color: var(--ink); font-family: var(--head); font-weight: 600; }
+  .listing b { font-size: 14px; color: var(--ink); font-weight: 600; }
   .listing .links { margin-top: 5px; display: flex; gap: 9px; align-items: center; }
   .linkbtn { font-size: 12px; color: var(--pink); font-weight: 500; }
   .linkbtn:hover { text-decoration: underline; }
@@ -538,7 +545,7 @@
 
   .tags { display: flex; gap: 3px; flex-wrap: wrap; }
   .tags s {
-    text-decoration: none; font-family: var(--mono); font-size: 9px; color: var(--ink-50);
+    text-decoration: none; font-size: 9px; color: var(--ink-50);
     background: rgba(48,64,106,.06); border-radius: 3px; padding: 1px 5px;
   }
 
@@ -655,6 +662,8 @@
     .opt .tags { display: none; }
     .opt .wf { width: 52px; height: 18px; }
     .opt[aria-pressed="true"] .o-why { display: block; font-size: 12px; line-height: 1.4; color: var(--ink-70); margin-top: 4px; }
+    /* layouts already say what they're for and what the image is */
+    #opt-lay .opt[aria-pressed="true"] .o-why { display: none; }
     .vl-long { display: none; }
     .vl-short { display: inline; }
     .valueline { margin-top: 8px; }
@@ -708,7 +717,7 @@
     }
     .mscene .scene { position: absolute; top: 0; left: 0; width: 343px; transform: scale(.268); transform-origin: 0 0; pointer-events: none; }
     .br-txt { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-    .br-t { font-family: var(--head); font-weight: 600; font-size: 14px; line-height: 1.3; }
+    .br-t { font-weight: 600; font-size: 14px; line-height: 1.3; }
     .br-s { font-size: 12px; color: var(--ink-50); }
     .br-go { font-size: 22px; line-height: 1; color: var(--ink-32); }
     /* the short line, kept to one row down to a 320px screen */
@@ -1071,7 +1080,12 @@
             <path d="M8 2v8"/><path d="M4.6 7 8 10.4 11.4 7"/><path d="M2.6 13.2h10.8"/>
           </svg>
         </button>
-        <span>Download, then upload. The only way for Instagram.</span>
+        <button class="platbtn ig" type="button" id="ig" title="Instagram" aria-label="Save the picture for Instagram">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="2.2" y="2.2" width="11.6" height="11.6" rx="3.4"/><circle cx="8" cy="8" r="2.7"/><circle cx="11.5" cy="4.5" r=".5" fill="currentColor" stroke="none"/>
+          </svg>
+        </button>
+        <span>Instagram needs the picture itself. Save it, then post.</span>
       </div>
     </div>
 
@@ -1087,7 +1101,7 @@
             <path d="M9.4 6.6a2.9 2.9 0 0 0-4.1 0l-2 2a2.9 2.9 0 0 0 4.1 4.1l1-1"/>
           </svg>
         </button>
-        <span>Opens this billboard on Blip.</span>
+        <span>Shares a link to Billboard Maker so others can make their own.</span>
       </div>
     </div>
 
@@ -1122,10 +1136,13 @@
 
   const LAYOUTS = [
     { cls: "split", name: "Split image", meta: "Copy left, product right. Reads in one pass at speed.", wf: [46, 54],
+      desc: "An oversized yarn ball over the skyline, headline beside it.",
       why: "Picked because a four word headline leaves room for a product shot beside it." },
     { cls: "photo", name: "Photo-led", meta: "Product dominant, copy on a panel. Strongest at distance.", wf: [34, 66],
+      desc: "A hand-cut Manhattan silhouette takes the board.",
       why: "Works when the product is recognizable from far away, so the image does the selling." },
     { cls: "centred", name: "Logo-led", meta: "Centered copy, no product shot. Best when the name is the message.", wf: [100],
+      desc: "Stitched lettering carries it, no image.",
       why: "Best when the name itself is the message and there is no product worth showing." }
   ];
 
@@ -1210,6 +1227,7 @@
       b.innerHTML = '<span class="wf">' + l.wf.map(w => '<i style="width:' + w + '%"></i>').join("") +
                     '</span><span class="o-main"><span class="o-txt">' + l.name + '</span>' +
                     '<span class="o-sub"><span class="o-meta">' + l.meta + '</span></span>' +
+                    '<span class="o-img"><span class="o-img-k">Imagery</span><span>' + l.desc + '</span></span>' +
                     '<span class="o-why">' + l.why + '</span></span>';
       b.onclick = () => { if (i === layIdx) clearPending(); else stage("lay", i); };
       $("opt-lay").appendChild(b);
@@ -1683,6 +1701,7 @@
   });
 
   $("dl3").onclick = () => toast("Downloaded the picture, ready to post");
+  $("ig").onclick = () => toast("Picture saved. Open Instagram to post it.");
   document.querySelectorAll("[data-share]").forEach(b => {
     b.onclick = () => {
       if (b.dataset.share === "link") toast("Link copied");
