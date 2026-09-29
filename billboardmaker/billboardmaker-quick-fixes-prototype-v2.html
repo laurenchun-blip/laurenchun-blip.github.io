@@ -50,11 +50,8 @@
   .app { max-width: 1060px; margin: 0 auto; padding: 22px 18px 80px; }
 
   .bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-  .logo { font-weight: 600; font-size: 17px; letter-spacing: -.01em; }
-  .logo .blip {
-    background: var(--pink); color: #fff; font-size: 11px; padding: 2px 5px;
-    border-radius: 3px; margin-right: 7px; vertical-align: 2px; letter-spacing: .02em;
-  }
+  .logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; letter-spacing: -.01em; }
+  .logo svg { display: block; height: 22px; width: auto; flex: none; }
   .ghost {
     font-size: 12px; color: var(--ink-70); border: 1px solid var(--rule);
     border-radius: 999px; padding: 4px 11px; background: #fff;
@@ -750,7 +747,7 @@
 <div class="app">
 
   <div class="bar">
-    <span class="logo"><span class="blip">blip</span>Billboard Maker</span>
+    <span class="logo"><svg viewBox="0 0 97 46" fill="none" role="img" aria-label="Blip"><path d="M58.6674 8.73141C58.6674 9.42073 58.1504 9.88028 57.5185 9.88028H53.038C52.4061 9.88028 51.8891 9.42073 51.8891 8.73141V6.77833C51.8891 6.14645 52.4061 5.68691 53.038 5.68691H57.5185C58.1504 5.68691 58.6674 6.14645 58.6674 6.77833V8.73141ZM58.6674 30.1578C58.6674 30.7323 58.1504 31.1918 57.5185 31.1918H53.038C52.4061 31.1918 51.8891 30.7323 51.8891 30.1578V14.8779C51.8891 14.3034 52.4061 13.7864 53.038 13.7864H57.5185C58.1504 13.7864 58.6674 14.3034 58.6674 14.8779V30.1578ZM45.4555 0V29.9281C45.4555 30.6174 44.8236 30.9046 44.1917 30.9046H39.7686C39.1942 30.9046 38.6772 30.6174 38.6772 29.9281V0H16.3892V10.1675H26.7864C30.0032 10.1675 31.8989 11.9482 31.8989 15.1076V25.9645C31.8989 29.1813 30.0032 30.9046 26.7864 30.9046H11.3342C10.4151 30.9046 9.61089 30.3302 9.61089 29.4111V0H0.879517V40.2104H65.1011V11.661C65.1011 10.7994 65.6755 10.1675 66.5946 10.1675H82.1617C85.3785 10.1675 87.389 11.9482 87.389 15.1076V25.9645C87.389 29.1813 85.3785 30.9046 82.1617 30.9046H71.8793V45.7825H78.313V40.2104H96.1204V0H45.4555ZM80.6107 15.797H71.8793V25.3326H80.6107V15.797ZM25.1206 15.797H16.3892V25.3326H25.1206V15.797Z" fill="#FF0C68"/></svg>Billboard Maker</span>
     <button class="ghost" id="startover" hidden>Start over</button>
   </div>
 
