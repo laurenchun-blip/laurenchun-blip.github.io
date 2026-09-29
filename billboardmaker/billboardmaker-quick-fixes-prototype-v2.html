@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Billboard Maker v2</title>
+<title>Billboard Maker v3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&display=swap">
@@ -11,16 +11,16 @@
 <style>
   :root {
     --pink:    #FF0C68;
-    --teal:    #2F8FA2;
     --ink:     #30406A;
     --ink-70:  rgba(48,64,106,.7);
     --ink-50:  rgba(48,64,106,.5);
     --ink-32:  rgba(48,64,106,.32);
     --rule:    rgba(48,64,106,.12);
-    --soft:    rgba(47,143,162,.08);
-    --pinksf:  rgba(255,12,104,.06);
-    --open:    #856013;
-    --open-bg: #FAF1DB;
+    /* the creative brings its own colour, so the chrome stays neutral:
+       navy ink for type and selection, one grey wash for info,
+       pink only for the logo, the forward CTA and progress */
+    --wash:    #F3F4F6;
+    --sel:     var(--ink);
     --danger:  #C62839;
     --card:    #FFFFFF;
     --sans: "Inter", system-ui, sans-serif;
@@ -33,11 +33,7 @@
 
   body {
     margin: 0;
-    background:
-      radial-gradient(70% 45% at 0% -2%, rgba(47,143,162,.14), rgba(0,0,0,0) 55%),
-      radial-gradient(55% 40% at 100% 0%, rgba(255,12,104,.08), rgba(0,0,0,0) 55%),
-      #FBFCFD;
-    background-attachment: fixed;
+    background: #F7F8FA;
     color: var(--ink);
     font-family: var(--sans);
     font-size: 15px;
@@ -70,25 +66,25 @@
     background: var(--card); border: 1px solid var(--rule);
     border-radius: 12px; padding: 16px 18px; margin-bottom: 10px;
   }
-  .card.current { border-color: rgba(255,12,104,.35); box-shadow: 0 1px 12px rgba(255,12,104,.06); }
+  .card.current { box-shadow: 0 1px 3px rgba(20,32,44,.05); }
   .card.pending { opacity: .5; }
 
   .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
   .card-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
   .tick {
-    width: 15px; height: 15px; border-radius: 999px; background: var(--teal); color: #fff;
+    width: 15px; height: 15px; border-radius: 999px; background: var(--ink); color: #fff;
     font-size: 9px; display: inline-flex; align-items: center; justify-content: center; flex: none;
   }
   .spin {
     width: 14px; height: 14px; border-radius: 999px; flex: none;
-    border: 2px solid var(--rule); border-top-color: var(--pink);
+    border: 2px solid var(--rule); border-top-color: var(--ink);
     animation: sp .7s linear infinite;
   }
   @keyframes sp { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
 
   .card-sub { font-size: 13px; color: var(--ink-50); margin-top: 1px; }
-  .link { font-size: 12px; color: var(--pink); font-weight: 500; flex: none; }
+  .link { font-size: 12px; color: var(--ink); font-weight: 500; flex: none; }
 
   .result { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--rule); display: flex; gap: 12px; align-items: center; }
   .result .txt { font-size: 14px; font-weight: 500; }
@@ -97,7 +93,7 @@
   .swatchset { display: flex; gap: 4px; flex: none; }
   .sw { width: 15px; height: 15px; border-radius: 4px; border: 1px solid rgba(0,0,0,.08); }
 
-  .valueline { font-size: 12px; color: var(--teal); background: var(--soft); border-radius: 6px; padding: 6px 10px; margin-top: 9px; }
+  .valueline { font-size: 12px; color: var(--ink-70); background: var(--wash); border-radius: 6px; padding: 6px 10px; margin-top: 9px; }
 
   .lbl { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-50); margin-bottom: 7px; }
 
@@ -110,18 +106,18 @@
   }
   .o-main { min-width: 0; }
   .o-sub { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-top: 1px; }
-  .opt:hover { border-color: rgba(255,12,104,.35); background: var(--pinksf); }
-  .opt[aria-pressed="true"] { border-color: var(--pink); background: var(--pinksf); }
+  .opt:hover { border-color: var(--ink-32); }
+  .opt[aria-pressed="true"] { border-color: var(--sel); box-shadow: inset 0 0 0 1px var(--sel); }
   .opt .o-txt { font-size: 13px; font-weight: 500; line-height: 1.3; }
   .opt .o-meta { font-size: 11px; color: var(--ink-50); }
   /* layouts: what the layout is good for, then what the picture would be */
   .o-img { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; font-size: 12px; line-height: 1.4; color: var(--ink-70); }
   .o-img-k {
     flex: none; font-size: 9px; letter-spacing: .06em; text-transform: uppercase;
-    color: var(--teal); background: var(--soft); border-radius: 3px; padding: 1px 5px;
+    color: var(--ink-70); background: var(--wash); border-radius: 3px; padding: 1px 5px;
   }
 
-  .wf { width: 76px; height: 22px; border-radius: 3px; background: var(--soft); border: 1px solid var(--rule); display: flex; gap: 2px; padding: 3px; flex: none; }
+  .wf { width: 76px; height: 22px; border-radius: 3px; background: var(--wash); border: 1px solid var(--rule); display: flex; gap: 2px; padding: 3px; flex: none; }
   .wf i { display: block; background: var(--ink-32); border-radius: 1px; height: 100%; }
 
   /* ---------- start screen ---------- */
@@ -133,27 +129,29 @@
     border: 1px solid var(--rule); border-radius: 9px; padding: 10px 12px; background: #fff;
   }
   .field textarea { resize: vertical; min-height: 62px; }
-  .field input:focus, .field textarea:focus { outline: 2px solid var(--pink); outline-offset: -1px; }
+  .field input:focus, .field textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
   .hint { font-size: 12px; line-height: 1.5; color: var(--ink-50); margin: 10px 0 0; }
   .tip {
     display: flex; gap: 7px; align-items: flex-start; font-size: 12px; line-height: 1.5;
-    color: var(--teal); background: var(--soft); border-radius: 7px; padding: 8px 10px; margin: 9px 0 0;
+    color: var(--ink-70); background: var(--wash); border-radius: 7px; padding: 8px 10px; margin: 9px 0 0;
   }
   .tip .i { flex: none; display: inline-flex; margin-top: 1px; }
 
   /* scraped results should look returned, not typed */
   .found {
     display: flex; gap: 9px; align-items: flex-start;
-    background: var(--soft); border-radius: 9px; padding: 10px 11px; margin-bottom: 8px;
+    background: var(--wash); border-radius: 9px; padding: 10px 11px; margin-bottom: 8px;
   }
   .found .tick { margin-top: 2px; }
   .found .who { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
   .found b { font-weight: 600; font-size: 14px; color: var(--ink); }
   .found span { font-size: 12px; color: var(--ink-70); }
-  .gist p { border-left: 2px solid rgba(47,143,162,.3); padding-left: 11px; }
+  .gist p { border-left: 2px solid var(--rule); padding-left: 11px; }
 
   .btn { font-size: 14px; font-weight: 500; border-radius: 999px; padding: 9px 20px; background: var(--pink); color: #fff; }
   .btn.sec { background: #fff; color: var(--ink-70); border: 1px solid var(--rule); }
+  /* acting on the creative is navy; pink is kept for moving forward */
+  .btn.ink { background: var(--ink); }
   .btn.sm { font-size: 13px; padding: 7px 15px; }
   .btn:hover { filter: brightness(1.06); }
 
@@ -165,13 +163,13 @@
 
   .run-art {
     aspect-ratio: 3.5/1; max-width: 100%; border-radius: 8px; overflow: hidden; position: relative;
-    background: linear-gradient(180deg, #E4EEF0, #D8E7EA); border: 1px solid rgba(47,143,162,.22);
+    background: var(--wash); border: 1px solid var(--rule);
     display: grid; grid-template-columns: 1.25fr 1fr; align-items: center; gap: 6%; padding: 6% 7%;
   }
   .run-art .ra-copy { display: flex; flex-direction: column; gap: 9%; height: 70%; justify-content: center; }
   .run-art .ra-copy i { display: block; height: 14%; min-height: 7px; border-radius: 3px; background: rgba(48,64,106,.16); }
   .run-art .ra-copy i:nth-child(1) { width: 78%; }
-  .run-art .ra-copy i:nth-child(2) { width: 58%; height: 18%; background: rgba(255,12,104,.28); }
+  .run-art .ra-copy i:nth-child(2) { width: 58%; height: 18%; background: rgba(48,64,106,.24); }
   .run-art .ra-copy i:nth-child(3) { width: 44%; height: 8%; min-height: 4px; }
   .run-art .ra-img { justify-self: center; width: 58%; aspect-ratio: 1; border-radius: 50%; background: rgba(48,64,106,.12); }
   .run-art::after {
@@ -194,10 +192,10 @@
     border: 2px solid rgba(48,64,106,.25); display: inline-flex; align-items: center; justify-content: center;
   }
   .queue li.now-step { color: var(--ink); font-weight: 500; }
-  .queue li.now-step .qi { border-color: var(--rule); border-top-color: var(--pink); animation: sp .7s linear infinite; }
-  .queue li.done .qi { border: 0; background: var(--teal); color: #fff; font-size: 10px; }
+  .queue li.now-step .qi { border-color: var(--rule); border-top-color: var(--ink); animation: sp .7s linear infinite; }
+  .queue li.done .qi { border: 0; background: var(--ink); color: #fff; font-size: 10px; }
   .queue li.done .qi::before { content: "\2713"; }
-  @media (prefers-reduced-motion: reduce) { .queue li.now-step .qi { animation: none; border-color: var(--pink); } }
+  @media (prefers-reduced-motion: reduce) { .queue li.now-step .qi { animation: none; border-color: var(--ink); } }
 
   .run-notes { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--rule); text-align: center; }
   .nofix { font-size: 12px; line-height: 1.5; color: var(--ink-50); margin: 0; }
@@ -239,7 +237,7 @@
     border: 1px solid var(--rule); border-radius: 9px; padding: 11px 14px;
     background: #fff; resize: vertical; min-height: 78px;
   }
-  .adjust textarea:focus { outline: 2px solid var(--pink); outline-offset: -1px; }
+  .adjust textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
   .adjust { display: flex; gap: 10px; align-items: flex-end; }
   .adjust textarea { flex: 1; }
   .adjust-foot { flex: none; display: flex; }
@@ -248,14 +246,14 @@
     border: 1px solid var(--rule); border-radius: 999px; padding: 10px 14px;
     font-size: 13px; color: var(--ink-70); background: #fff;
   }
-  .attach:hover { border-color: rgba(255,12,104,.35); color: var(--pink); }
+  .attach:hover { border-color: var(--ink-32); color: var(--ink); }
   .attach .plus { font-size: 15px; line-height: 1; }
   .attached {
     display: flex; gap: 10px; align-items: center; margin-top: 8px;
     font-size: 13px; color: var(--ink-70);
-    background: var(--soft); border-radius: 8px; padding: 8px 12px;
+    background: var(--wash); border-radius: 8px; padding: 8px 12px;
   }
-  .attached button { font-size: 12px; color: var(--pink); font-weight: 500; margin-left: auto; }
+  .attached button { font-size: 12px; color: var(--ink); font-weight: 500; margin-left: auto; }
 
   /* ---------- start screen: tier 1, the minimum ---------- */
 
@@ -264,7 +262,7 @@
     flex: 1; min-width: 0; font: inherit; font-size: 14px; color: var(--ink);
     border: 1px solid var(--rule); border-radius: 9px; padding: 10px 14px; background: #fff;
   }
-  .hero input:focus { outline: 2px solid var(--pink); outline-offset: -1px; }
+  .hero input:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
   @media (max-width: 560px) {
     .hero { flex-wrap: wrap; }
     .hero input { width: 100%; flex: none; }
@@ -286,21 +284,21 @@
     border: 1px solid var(--rule); border-radius: 9px; padding: 9px 11px;
     background: #fff; resize: vertical; min-height: 72px;
   }
-  .optgrid textarea:focus { outline: 2px solid var(--pink); outline-offset: -1px; }
+  .optgrid textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
 
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .chip { border: 1px solid var(--rule); border-radius: 999px; padding: 5px 11px; font-size: 12px; color: var(--ink-70); background: #fff; }
-  .chip:hover { border-color: rgba(255,12,104,.35); color: var(--pink); }
+  .chip:hover { border-color: var(--ink-32); color: var(--ink); }
 
   .filebtn {
     display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;
     border: 1px dashed rgba(48,64,106,.25); border-radius: 9px; padding: 10px 13px;
     font-size: 13px; color: var(--ink-70); background: #fff;
   }
-  .filebtn:hover { border-color: rgba(255,12,104,.45); color: var(--pink); }
+  .filebtn:hover { border-color: var(--ink-50); color: var(--ink); }
   .filedone {
     display: flex; align-items: center; gap: 10px; color: var(--ink-70);
-    background: var(--soft); border-radius: 9px; padding: 8px 10px;
+    background: var(--wash); border-radius: 9px; padding: 8px 10px;
   }
   .filedone .txt { min-width: 0; flex: 1; }
   .filedone .name {
@@ -308,7 +306,7 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .filedone .meta { display: block; font-size: 11px; font-variant-numeric: tabular-nums; line-height: 1.4; color: var(--ink-32); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .filedone button { font-size: 12px; color: var(--pink); font-weight: 500; flex: none; }
+  .filedone button { font-size: 12px; color: var(--ink); font-weight: 500; flex: none; }
 
   .thumb {
     width: 36px; height: 36px; border-radius: 6px; flex: none; overflow: hidden;
@@ -335,7 +333,7 @@
     display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0;
     border: 1px solid var(--rule); border-radius: 9px; padding: 6px 10px; background: #fff;
   }
-  .hexfield:focus-within { outline: 2px solid var(--pink); outline-offset: -1px; }
+  .hexfield:focus-within { outline: 2px solid var(--ink); outline-offset: -1px; }
   .hexfield.off { opacity: .45; }
   .btn[disabled] { opacity: .45; cursor: default; filter: none; }
   .hexfield .prev {
@@ -359,7 +357,7 @@
     margin-left: 5px; font-size: 15px; line-height: 1; color: var(--ink-32);
     width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; flex: none;
   }
-  .swrow button:hover { color: var(--pink); }
+  .swrow button:hover { color: var(--ink); }
 
   .note { font-size: 12px; color: var(--ink-32); margin: 8px 0 0; }
 
@@ -401,7 +399,7 @@
     border: 1px solid var(--rule); background: #fff; color: var(--ink-70);
     display: inline-flex; align-items: center; justify-content: center;
   }
-  .iconbtn:hover { border-color: rgba(255,12,104,.4); color: var(--pink); }
+  .iconbtn:hover { border-color: var(--ink-32); color: var(--ink); }
   .payoff-foot .actions { align-items: center; }
 
   /* ---------- share modal ---------- */
@@ -419,7 +417,7 @@
   .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
   .modal-head .t { font-weight: 600; font-size: 17px; }
   .modal-head .x { font-size: 20px; line-height: 1; color: var(--ink-32); padding: 0 4px; }
-  .modal-head .x:hover { color: var(--pink); }
+  .modal-head .x:hover { color: var(--ink); }
 
   /* start over: says exactly what goes, safe choice first */
   .modal.confirm { max-width: 440px; }
@@ -442,22 +440,23 @@
   .share-line { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
   .share-line span { font-size: 12px; color: var(--ink-50); }
 
+  /* platform colours would out-shout the picture being shared */
   .platbtn {
-    width: 36px; height: 36px; border-radius: 999px; border: 0; flex: none; color: #fff;
+    width: 36px; height: 36px; border-radius: 999px; flex: none;
+    border: 1px solid var(--rule); background: #fff; color: var(--ink-70);
     font-weight: 600; font-size: 13px;
     display: inline-flex; align-items: center; justify-content: center;
   }
-  .platbtn:hover { filter: brightness(1.14); }
-  .platbtn.ig { background: linear-gradient(45deg, #F58529, #DD2A7B 45%, #8134AF 75%, #515BD4); }
+  .platbtn:hover { border-color: var(--ink-32); color: var(--ink); }
 
   .tagline { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); }
   .tagline span { font-size: 12px; color: var(--ink-50); }
   .tagchip {
-    font-size: 12px; color: var(--pink);
-    background: var(--pinksf); border: 1px solid rgba(255,12,104,.28);
+    font-size: 12px; color: var(--ink-70);
+    background: #fff; border: 1px solid var(--rule);
     border-radius: 999px; padding: 5px 11px;
   }
-  .tagchip:hover { background: rgba(255,12,104,.12); }
+  .tagchip:hover { border-color: var(--ink-32); color: var(--ink); }
 
   /* ---------- version strip ---------- */
 
@@ -482,7 +481,7 @@
   .vitem[aria-pressed="true"] .vkind { color: var(--ink); }
   .vlatest {
     font-size: 9px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
-    color: var(--pink); background: var(--pinksf); border-radius: 3px; padding: 1px 4px;
+    color: var(--ink-70); background: var(--wash); border-radius: 3px; padding: 1px 4px;
   }
   .vdetail {
     display: block; font-size: 11px; line-height: 1.3; color: var(--ink-50);
@@ -512,32 +511,32 @@
     border: 1px solid var(--rule); border-radius: 10px; padding: 8px 12px 8px 9px;
     background: #fff; min-width: 0; flex: 1 1 210px;
   }
-  .ingchip:hover { border-color: rgba(255,12,104,.4); }
-  .ingchip[aria-expanded="true"] { border-color: var(--pink); background: var(--pinksf); }
+  .ingchip:hover { border-color: var(--ink-32); }
+  .ingchip[aria-expanded="true"] { border-color: var(--sel); box-shadow: inset 0 0 0 1px var(--sel); }
   .ic-txt { min-width: 0; }
   .ic-k { display: block; font-size: 10px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-50); }
   .ic-v { display: block; font-size: 13px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   .ingchip .chev { margin-left: auto; font-size: 11px; color: var(--ink-50); flex: none; transition: transform .15s ease; }
-  .ingchip[aria-expanded="true"] .chev { transform: rotate(180deg); color: var(--pink); }
+  .ingchip[aria-expanded="true"] .chev { transform: rotate(180deg); color: var(--ink); }
   .ingchip .willtag {
     font-size: 9px; font-weight: 600; letter-spacing: .07em;
-    text-transform: uppercase; color: var(--open); background: var(--open-bg);
+    text-transform: uppercase; color: var(--ink-70); background: var(--wash);
     border-radius: 3px; padding: 2px 5px; margin-left: auto; flex: none;
   }
-  .ingchip.willupdate { border-color: rgba(133,96,19,.4); background: rgba(250,241,219,.5); }
+  .ingchip.willupdate { border-style: dashed; border-color: var(--ink-32); }
   .ingchip.willupdate .chev { display: none; }
 
   /* what a change downstream costs, said before you make it */
   .cascade {
-    font-size: 11px; color: var(--open); background: var(--open-bg);
+    font-size: 11px; color: var(--ink-70); background: var(--wash);
     border-radius: 6px; padding: 6px 10px; margin: 0 0 9px;
   }
 
   .listing { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: var(--ink-70); }
   .listing b { font-size: 14px; color: var(--ink); font-weight: 600; }
   .listing .links { margin-top: 5px; display: flex; gap: 9px; align-items: center; }
-  .linkbtn { font-size: 12px; color: var(--pink); font-weight: 500; }
+  .linkbtn { font-size: 12px; color: var(--ink); font-weight: 500; }
   .linkbtn:hover { text-decoration: underline; }
 
   .gist { margin-top: 15px; padding-top: 13px; border-top: 1px solid var(--rule); }
@@ -552,13 +551,14 @@
   .confirmbar {
     display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
     margin-top: 14px; padding: 12px 14px; border-radius: 10px;
-    background: var(--pinksf); border: 1px solid rgba(255,12,104,.28);
+    background: #fff; border: 1px solid var(--ink-32);
+    box-shadow: 0 2px 10px rgba(20,32,44,.06);
   }
   .confirmbar p { margin: 0; font-size: 13px; color: var(--ink-70); }
   .confirmbar b { font-weight: 600; color: var(--ink); }
 
   .creative.redrawing { opacity: .35; }
-  .redrawnote { font-size: 12px; color: var(--pink); margin: 9px 0 0; display: flex; align-items: center; gap: 7px; }
+  .redrawnote { font-size: 12px; color: var(--ink-70); margin: 9px 0 0; display: flex; align-items: center; gap: 7px; }
 
   .panel { margin-top: 11px; padding-top: 12px; border-top: 1px solid var(--rule); }
   .pgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: start; }
@@ -607,7 +607,7 @@
       font-size: 12px; color: var(--ink-70); border: 1px solid var(--rule);
       border-radius: 999px; padding: 0 12px; height: 32px; background: #fff;
     }
-    .vtoggle[aria-expanded="true"] { border-color: var(--pink); color: var(--pink); }
+    .vtoggle[aria-expanded="true"] { border-color: var(--ink); color: var(--ink); }
     .versions:not(.open) { display: none; }
     .versions { margin-top: 10px; padding-top: 10px; }
     .versions .lbl { display: none; }
@@ -648,9 +648,9 @@
       color: var(--ink-70); text-align: center;
     }
     .ingchip[aria-expanded="true"] { background: #fff; box-shadow: 0 1px 3px rgba(20,32,44,.14); }
-    .ingchip[aria-expanded="true"] .ic-k { color: var(--pink); }
-    .ingchip.willupdate { border: 0; background: var(--open-bg); }
-    .ingchip.willupdate .ic-k { color: var(--open); }
+    .ingchip[aria-expanded="true"] .ic-k { color: var(--ink); font-weight: 600; }
+    .ingchip.willupdate { border: 0; box-shadow: none; }
+    .ingchip.willupdate .ic-k { color: var(--ink-70); }
     .ingchip.willupdate .ic-k::after { content: " \2022"; }
 
     /* panels: one consequence line, the why lives on the picked option */
@@ -692,8 +692,8 @@
     /* commit bar: pinned to the bottom, over the campaign bar */
     .confirmbar {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; margin: 0;
-      flex-wrap: nowrap; gap: 12px; border: 0; border-top: 1px solid rgba(255,12,104,.28);
-      border-radius: 14px 14px 0 0; background: #FFF3F8;
+      flex-wrap: nowrap; gap: 12px; border: 0; border-top: 1px solid var(--rule);
+      border-radius: 14px 14px 0 0; background: #fff;
       padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
       box-shadow: 0 -8px 24px rgba(20,32,44,.1);
     }
@@ -898,7 +898,7 @@
     <div class="card editcard">
       <div class="adjust">
         <textarea id="refine" placeholder="Describe a change, or ask for a different look"></textarea>
-        <div class="adjust-foot"><button class="btn" id="do-refine">Refine</button></div>
+        <div class="adjust-foot"><button class="btn ink" id="do-refine">Refine</button></div>
       </div>
 
       <div class="lbl" style="margin-top:17px">Made from</div>
@@ -985,7 +985,7 @@
         <p id="confirmtext"></p>
         <span class="actions">
           <button class="btn sec sm" type="button" id="cancelchange">Cancel</button>
-          <button class="btn sm" type="button" id="applychange">Apply</button>
+          <button class="btn ink sm" type="button" id="applychange">Apply</button>
         </span>
       </div>
     </div>
@@ -1092,9 +1092,9 @@
     <div class="share-row">
       <div class="lbl">Share a link</div>
       <div class="share-line">
-        <button class="platbtn" type="button" data-share="Facebook" style="background:#1877F2" title="Facebook" aria-label="Share on Facebook">f</button>
-        <button class="platbtn" type="button" data-share="LinkedIn" style="background:#0A66C2" title="LinkedIn" aria-label="Share on LinkedIn">in</button>
-        <button class="platbtn" type="button" data-share="X" style="background:#14171A" title="X" aria-label="Share on X">X</button>
+        <button class="platbtn" type="button" data-share="Facebook" title="Facebook" aria-label="Share on Facebook">f</button>
+        <button class="platbtn" type="button" data-share="LinkedIn" title="LinkedIn" aria-label="Share on LinkedIn">in</button>
+        <button class="platbtn" type="button" data-share="X" title="X" aria-label="Share on X">X</button>
         <button class="iconbtn" type="button" data-share="link" title="Copy link" aria-label="Copy link">
           <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M6.6 9.4a2.9 2.9 0 0 0 4.1 0l2-2a2.9 2.9 0 0 0-4.1-4.1l-1 1"/>
