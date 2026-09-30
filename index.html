@@ -120,7 +120,10 @@
           <div class="header-line">
             <h2>Billboard Maker Marketing Updates</h2>
           </div>
-          <p class="bodycopy">not actually making a billboard</p>
+          <p class="bodycopy">
+            not actually making a billboard, to swap between views and states
+            add ?view=library, ?site=none, ?run=fail
+          </p>
         </div>
         <div class="button-container">
           <button
@@ -131,6 +134,22 @@
             class="button"
           >
             Revisions for MARCOM
+          </button>
+          <button
+            onclick="
+              window.location.href = 'billboardmaker/creative-hub-demo.html'
+            "
+            class="button"
+          >
+            Product Integration - Desktop
+          </button>
+          <button
+            onclick="
+              window.location.href = 'billboardmaker/creative-hub-states.html'
+            "
+            class="button"
+          >
+            Product Integration - Click through
           </button>
         </div>
       </section>
