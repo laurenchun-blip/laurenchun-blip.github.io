@@ -759,6 +759,16 @@
   .htabrow .htab{min-width:180px;justify-content:center;padding:11px 16px;}
   .htabrow .htab:hover{background:var(--surface-2);}
   .htabrow .hdiv{width:1px;background:var(--border-2);margin:9px 0;flex:none;}
+  .htabrow .sp{flex:1;}
+  .hmore{position:relative;align-self:center;margin-right:10px;}
+  .hmorebtn{display:grid;place-items:center;width:30px;height:30px;border-radius:var(--r-md);border:0;background:transparent;color:var(--text-2);cursor:pointer;}
+  .hmorebtn:hover,.hmorebtn[aria-expanded="true"]{background:var(--surface-2);color:var(--text);}
+  .hmenu{position:absolute;right:0;top:calc(100% + 4px);z-index:20;min-width:220px;background:var(--surface);border:var(--hair) solid var(--border);
+         border-radius:var(--r-lg);box-shadow:0 8px 24px rgba(0,0,0,.12);padding:4px;display:flex;flex-direction:column;}
+  .hmenu button{font-family:inherit;font-size:13px;font-weight:500;text-align:left;padding:8px 12px;border:0;border-radius:var(--r-md);background:transparent;color:var(--text);cursor:pointer;white-space:nowrap;}
+  .hmenu button:hover{background:var(--surface-2);}
+  .bmalt{font-size:12.5px;color:var(--text-2);font-weight:500;margin:2px 2px 0;}
+  .bmalt .elink.ext{font-size:12.5px;text-decoration:underline;text-underline-offset:2px;}
   .hubhd1 .hctx{font-size:13px;font-weight:500;color:var(--text-3);margin-left:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
   @media (max-width:699px){ .htabrow{padding:0;} .htabrow .htab{min-width:0;flex:1;} }
   @media (max-width:699px){ .hubhd1 .hcopy{display:none;} }
@@ -1760,9 +1770,7 @@
           (S.folded?'':hidR.map(filledRow).join('')) : '')+
         '</div>';
     }
-    h += '<div class="needcard"><h4>Need a creative?</h4><div class="lks">'+
-      '<a class="lk">Canva templates &#8599;</a><a class="lk">Blip\'s design team ($99/design) &#8599;</a></div></div>'+
-      '<p class="foot">Blip and sign owners approve creatives within 48 hours. Once approved, the campaign goes live at the scheduled time and a '+
+    h += '<p class="foot">Blip and sign owners approve creatives within 48 hours. Once approved, the campaign goes live at the scheduled time and a '+
       'confirmation email is sent. <span class="foot2">Sign owners set their own content exclusions, so some placements may not be available.</span></p>';
     return h;
   }
@@ -2357,7 +2365,14 @@
     /* the tabs say what the choices are, so the header only names the task; a rule sets it apart from the tabs */
     return '<div class="hubhd1">'+back+'<span class="htitle">'+(ed ? edTitle : 'Add creative')+'</span>'+x+'</div>'+
       '<div class="htabrow" role="tablist">'+
-        t('lib', 'Library')+'<span class="hdiv" aria-hidden="true"></span>'+t('ai', 'Billboard Maker'+BETA)+'</div>';
+        t('lib', 'Library')+'<span class="hdiv" aria-hidden="true"></span>'+t('ai', 'Billboard Maker'+BETA)+
+        /* other ways to get a creative, out of the way: closed until asked for */
+        '<span class="sp"></span><span class="hmore"><button class="hmorebtn" data-a="hubmore" aria-haspopup="menu" aria-expanded="'+!!S.hubMore+'" aria-label="More ways to get a creative" title="More">'+
+          '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="8" r="1.4" fill="currentColor"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/><circle cx="12.5" cy="8" r="1.4" fill="currentColor"/></svg></button>'+
+          (S.hubMore ? '<span class="hmenu" role="menu">'+
+            '<button role="menuitem" data-a="hubmorego">Canva templates &#8599;</button>'+
+            '<button role="menuitem" data-a="hubmorego">Blip’s design team ($99) &#8599;</button></span>' : '')+
+        '</span></div>';
   }
   /* search, filter and sort redraw only the grid, so typing keeps its focus */
   document.addEventListener('input', function(e){
@@ -2614,6 +2629,7 @@
 
   document.addEventListener('click', function(e){
     if(BM.info && !e.target.closest('.bminfo')){ BM.info = false; if(!e.target.closest('[data-a]')) paint(); }
+    if(S.hubMore && !e.target.closest('.hmore')){ S.hubMore = false; if(!e.target.closest('[data-a]')) paint(); }
     /* the row menu closes on any click outside it */
     if(bmCheckbox(e)) return;
     var pk=e.target.closest('[data-pick]');
@@ -3090,6 +3106,8 @@
           (BM.blay==='group' ? '</div>' : '')+
         '</div>')+
       '</div>'+
+      /* the one outsourcing option, quiet and below the card: Create stays the only primary */
+      '<p class="bmalt">Prefer a designer? <a class="elink ext" data-a="noop">Blip’s design team ($99) &#8599;</a></p>'+
       '</div>';
   }
   /* a run takes 5 to 20 minutes, so this is a handoff, not a place to wait: it's started, here's what's happening, go back */
@@ -3524,6 +3542,8 @@
     if(BM.reveal && /^bm/.test(act) && ['bmopen','bmzoom','bmzoomx'].indexOf(act)<0) BM.reveal = null;
     switch(act){
       case 'createai': case 'bmopen': openAI(); return true;
+      case 'hubmore': S.hubMore = !S.hubMore; paint(); return true;
+      case 'hubmorego': S.hubMore = false; paint(); return true;
       case 'hubtab': S.lib.tab = a.getAttribute('data-t'); if(S.lib.tab==='ai'){ bmSeen(); } paint(); return true;
       case 'toastclose': hideToast(); return true;
       case 'bmchip': var c = a.getAttribute('data-c');
