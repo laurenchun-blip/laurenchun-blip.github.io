@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blip · Add creative</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page:#f2f2f2; --surface:#ffffff; --surface-2:#f7f7f7; --surface-3:#ededed;
+    --text:#161616; --text-2:#5c5c5c; --text-3:#8f8f8f;
+    --border:#e3e3e3; --border-2:#d1d1d1; --dash:#c4c4c4;
+    --accent:#176BF5; --accent-2:#0f4fba; --accent-bg:#eaf1fe; --accent-border:#bcd5fb;
+    --success:#0f7a54; --success-bg:#e6f4ee; --success-border:#b7ddcb;
+    --warn:#8a5a00; --warn-bg:#fdf1dc; --warn-border:#f0d29a;
+    --toast-bg:#232a33; --toast-border:rgba(255,255,255,.09); --toast-text:#fafafa; --toast-action:#cbb7f7;
+    --violet:#5b3fb8; --violet-bg:#efeafe; --violet-border:#cfc2f4;
+    --shadow:0 1px 2px rgba(0,0,0,.05),0 8px 24px rgba(0,0,0,.06);
+    --inter:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --fs-sm:12px; --fs-md:14px; --fs-lg:16px;
+    --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px;
+    --r-sm:4px; --r-md:6px; --r-lg:10px; --r-pill:999px;
+    --stroke:2px; --hair:1px;
+    color-scheme:light;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--page);color:var(--text);font-family:var(--inter);line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .app{min-height:100vh;background:var(--page);}
+  .topnav{display:flex;align-items:center;gap:12px;height:56px;padding:0 20px;background:var(--surface);
+          border-bottom:var(--hair) solid var(--border);}
+  .tn-back{font-size:19px;color:var(--text);width:24px;}
+  .tn-title{flex:1;text-align:center;font-size:16.5px;font-weight:600;letter-spacing:-.01em;}
+  .tn-right{display:flex;align-items:center;gap:14px;}
+  .tn-help{width:26px;height:26px;border-radius:50%;border:1.6px solid var(--text);display:grid;place-items:center;
+           font-size:13px;font-weight:600;}
+  .tn-av{width:30px;height:30px;border-radius:50%;background:#7b4bd6;color:#fff;display:grid;place-items:center;
+         font-size:12px;font-weight:600;letter-spacing:.02em;}
+  .cols{display:grid;grid-template-columns:200px minmax(0,748px) 300px;gap:36px;justify-content:center;padding:24px 20px 60px;}
+
+  .steprail{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-lg);padding:18px 16px;
+            align-self:start;display:flex;flex-direction:column;gap:2px;}
+  .step{display:flex;gap:11px;align-items:flex-start;padding:6px 0;position:relative;}
+  .step:not(:last-child)::after{content:'';position:absolute;left:11px;top:32px;bottom:-2px;width:1.5px;background:var(--border-2);}
+  .step .dot{width:23px;height:23px;border-radius:50%;flex:none;display:grid;place-items:center;
+             font-size:11.5px;font-weight:600;border:1.6px solid var(--border-2);color:var(--text-3);background:var(--surface);z-index:1;}
+  .step.done .dot{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .step.on .dot{border-color:var(--accent);color:var(--accent);}
+  .step b{display:block;font-size:13.5px;font-weight:600;line-height:1.5;}
+  .step i{display:block;font-size:12px;font-style:normal;color:var(--text-3);font-weight:500;line-height:1.4;}
+  .step.on b{color:var(--accent);}
+
+  .maincol{display:flex;flex-direction:column;gap:16px;}
+  .navbtns{display:flex;justify-content:flex-end;gap:10px;}
+  .nb{font-size:13.5px;font-weight:600;padding:9px 20px;border-radius:var(--r-md);border:var(--stroke) solid var(--border-2);
+      background:var(--surface);color:var(--text);}
+  .nb.pri{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+  .reachrail{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-lg);padding:16px 17px;align-self:start;}
+  .rc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:11px;}
+  .rc-lab{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--text-2);}
+  .rc-link{font-size:12px;font-weight:600;color:var(--accent);}
+  .rc-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--text-2);font-weight:500;margin-bottom:5px;}
+  .rc-row b{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.01em;}
+  .rc-bar{height:7px;border-radius:var(--r-pill);background:linear-gradient(90deg,#176BF5 0%,#4d92ff 62%,#cfe0fb 100%);margin:12px 0 5px;}
+  .rc-ticks{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-3);font-weight:500;margin-bottom:12px;}
+  .rc-ticks .on{color:var(--accent);font-weight:600;}
+  .rc-copy{font-size:14px;font-weight:600;line-height:1.45;margin:0 0 9px;letter-spacing:-.008em;}
+  .rc-good{display:flex;gap:7px;font-size:13.5px;font-weight:600;color:var(--success);margin:0 0 11px;}
+  .rc-note{font-size:12.5px;color:var(--text-3);font-weight:500;margin:0;}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 24px 60px;display:flex;flex-direction:column;gap:10px;}
+  .eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.10em;text-transform:uppercase;color:var(--text-3);margin:0 0 8px;}
+  .h1{font-size:26px;font-weight:600;letter-spacing:-.022em;margin:0 0 9px;line-height:1.18;}
+  .lede{font-size:14.5px;color:var(--text-2);margin:0;max-width:80ch;font-weight:500;}
+  .lede b{color:var(--text);font-weight:600;}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--surface-3);padding:1px 5px;border-radius:3px;color:var(--text);}
+
+  .flowbar{display:flex;align-items:center;background:var(--surface);border:var(--hair) solid var(--border);
+           border-radius:var(--r-md);padding:8px;box-shadow:var(--shadow);position:sticky;top:0;z-index:60;flex-wrap:wrap;}
+  .fb{font-family:inherit;font-size:12.5px;font-weight:600;padding:6px 9px;border-radius:var(--r-md);border:0;
+      background:transparent;color:var(--text-3);cursor:pointer;line-height:17px;white-space:nowrap;}
+  .fb:hover{background:var(--surface-2);color:var(--text);}
+  .fb.on{background:var(--accent-bg);color:var(--accent-2);}
+  .fb .n{font-family:var(--mono);font-size:10.5px;opacity:.75;margin-right:4px;}
+  .fbsep{color:var(--border-2);font-size:12px;}
+  .flowbar .sp{flex:1;}
+  .scen{display:flex;align-items:center;gap:7px;background:var(--surface);border:var(--hair) solid var(--border);
+        border-radius:var(--r-md);padding:9px 12px;box-shadow:var(--shadow);flex-wrap:wrap;}
+  .scen .lab{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-right:2px;}
+  .sc{font-family:inherit;font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:var(--r-md);
+      border:var(--hair) solid var(--border-2);background:var(--surface);color:var(--text-2);cursor:pointer;}
+  .sc:hover{background:var(--surface-2);color:var(--text);}
+  .sc.on{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent-2);}
+
+  .restart{margin:0;text-align:right;}
+  .restart a{font-size:12px;color:var(--text-3);font-weight:500;text-decoration:underline;cursor:pointer;}
+  .restart a:hover{color:var(--text-2);}
+  .hintbar{background:var(--surface);border:var(--hair) solid var(--border);border-left:3px solid var(--accent);
+           border-radius:0 var(--r-md) var(--r-md) 0;padding:11px 14px;font-size:13.5px;color:var(--text-2);font-weight:500;line-height:1.55;}
+  .hintbar b{color:var(--text);font-weight:600;}
+
+  .frame{background:transparent;border:0;border-radius:0;box-shadow:none;overflow:visible;}
+  .chrome{display:flex;align-items:center;gap:12px;padding:9px 14px;background:var(--surface-2);border-bottom:var(--hair) solid var(--border);}
+  .dots{display:flex;gap:6px;} .dots i{width:9px;height:9px;border-radius:50%;background:var(--border-2);display:block;}
+  .url{font-family:var(--mono);font-size:11px;color:var(--text-3);background:var(--surface);border:var(--hair) solid var(--border);
+       border-radius:var(--r-pill);padding:3px 12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .stage{padding:0;background:transparent;position:relative;}
+
+  /* shipped section */
+  .pcard{position:relative;width:100%;background:var(--surface-2);border:var(--hair) solid var(--border);border-radius:var(--r-lg);padding:20px 22px 22px;}
+  .crtitle{display:flex;align-items:center;gap:7px;font-size:18px;font-weight:600;letter-spacing:-.012em;margin:0 0 3px;}
+  .crsub{font-size:var(--fs-md);color:var(--text);margin:0 0 var(--sp-5);font-weight:500;}
+  .meterhead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:9px;}
+  .meterhead .n{font-size:var(--fs-lg);font-weight:600;font-variant-numeric:tabular-nums;}
+  .meterhead .why{font-size:13.5px;color:var(--text-2);font-weight:500;}
+  .meterhead .why.good{color:var(--success);font-weight:600;}
+  .meter{height:7px;border-radius:var(--r-pill);background:var(--surface-3);overflow:hidden;margin-bottom:var(--sp-5);}
+  .meter i{display:block;height:100%;background:var(--accent);border-radius:var(--r-pill);transition:width .9s cubic-bezier(.22,.61,.36,1);}
+  .meterhead .why.good.arrive{animation:fadein .35s ease .8s both;}
+  @media (prefers-reduced-motion:reduce){ .meter i{transition:none;} .meterhead .why.good.arrive{animation:none;} }
+  .rows{margin-top:var(--sp-4);display:flex;flex-direction:column;gap:var(--sp-2);}
+  .srow{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);}
+  .srow .line{display:flex;align-items:center;gap:var(--sp-3);padding:9px 12px;min-height:54px;}
+  .srow .line.head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+       grid-template-areas:'sw dim cnt' 'sw meta cnt';column-gap:12px;row-gap:1px;align-content:center;align-items:center;}
+  .srow .line.head.solo{grid-template-areas:'sw dim cnt';}
+  .line.head .swatch{grid-area:sw;}
+  .line.head .sdim{grid-area:dim;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .line.head .smeta{grid-area:meta;font-size:12.5px;font-weight:500;color:var(--text-2);white-space:nowrap;}
+  .line.head .scount{grid-area:cnt;display:inline-flex;align-items:center;gap:7px;justify-self:end;}
+  .line.head .scount .ch{font-style:normal;font-size:13px;color:var(--text-3);}
+  .swatch{flex:none;width:52px;height:44px;display:grid;place-items:center;}
+  .swatch i{display:block;background:var(--surface-3);border:var(--hair) solid var(--border-2);border-radius:2px;}
+  .swatch .tn{display:block;border-radius:2px;border:var(--hair) solid var(--border-2);background-size:cover;background-position:center;}
+  .sdim{font-size:var(--fs-md);font-weight:600;white-space:nowrap;}
+  .sdim span{color:var(--text-2);font-weight:500;font-size:12.5px;}
+  .sgrow{flex:1;min-width:6px;}
+  .scount{font-size:var(--fs-md);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .scount.offer{color:var(--accent-2);} .scount.done{color:var(--text-2);font-weight:500;}
+  .sacts{display:flex;align-items:center;gap:var(--sp-2);flex:none;}
+  .fold{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:13px;font-weight:600;color:var(--text-2);background:var(--surface);
+        border:var(--hair) solid var(--border);border-radius:var(--r-md);cursor:pointer;}
+  .fold .c{margin-left:auto;color:var(--text-3);font-weight:500;}
+  .needcard{margin-top:var(--sp-4);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--surface);
+            border:var(--hair) solid var(--border);border-radius:var(--r-md);padding:13px 15px;}
+  .needcard h4{margin:0;font-size:var(--fs-md);font-weight:600;}
+  .needcard .lks{display:flex;gap:18px;flex-wrap:wrap;}
+  a.lk{color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;}
+  .foot{margin-top:var(--sp-4);font-size:12px;color:var(--text-3);font-weight:500;line-height:1.55;}
+  .creativehd{display:flex;align-items:center;gap:14px;background:var(--surface);border:var(--hair) solid var(--border);
+              border-radius:var(--r-md);padding:12px 14px;margin-bottom:var(--sp-2);}
+  .creativehd .big{width:96px;height:28px;border-radius:3px;border:var(--hair) solid var(--border-2);background-size:cover;flex:none;}
+  .creativehd .nm{font-size:var(--fs-md);font-weight:600;margin:0;}
+  .creativehd .mt{font-size:12.5px;color:var(--text-2);font-weight:500;margin:1px 0 0;}
+  .creativehd .sp{flex:1;}
+  .modchip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:var(--r-pill);
+           background:var(--success-bg);color:var(--success);border:var(--hair) solid var(--success-border);white-space:nowrap;}
+  .modchip i{font-style:normal;font-size:11px;line-height:1;}
+  .srow.click{cursor:pointer;} .srow.click:hover{background:var(--surface-2);}
+  .ch{color:var(--text-3);font-size:15px;flex:none;}
+  .askchip{display:inline-flex;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:var(--r-pill);
+           background:var(--surface-3);color:var(--text-3);border:var(--hair) solid var(--border-2);white-space:nowrap;}
+  .grouplab{font-size:12px;font-weight:600;color:var(--text-3);margin:var(--sp-3) 0 4px 2px;}
+  .srow .line.head{cursor:pointer;}
+  .srow .line.head:hover{background:var(--surface-2);border-radius:var(--r-md);}
+  .rowbody{border-top:var(--hair) solid var(--border);padding:12px;}
+  /* filled size, open: the creative tiles it holds, then the selected file's name and status */
+  .srow.filled .rowbody{padding:0;}
+  .srow.filled .scount .chv{color:var(--text);flex:none;}
+  .srow.filled .scount.done{color:var(--text);font-weight:500;}
+  .cstrip{display:flex;align-items:center;gap:12px;padding:14px 16px;}
+  .ctiles{display:flex;flex-wrap:wrap;gap:12px;flex:1;min-width:0;}
+  .ctile{position:relative;width:250px;height:140px;border-radius:var(--r-md);background:var(--surface-3);
+         display:grid;place-items:center;border:var(--stroke) solid transparent;}
+  .ctile.sel{border-color:var(--accent);}
+  .ctile .img{display:block;background-size:100% 100%;border-radius:1px;}
+  .ctile .ok{position:absolute;top:8px;left:8px;width:22px;height:22px;border-radius:50%;background:var(--success);color:#fff;
+             font-size:12px;display:grid;place-items:center;border:2px solid #fff;box-sizing:content-box;margin:-2px;}
+  .cstrip .addmore{flex:none;align-self:center;}
+  .ctile[data-a="seltile"]{cursor:pointer;}
+  .orow .ov.covered{color:var(--text-3);font-weight:500;}
+  .nlft .gain.covered{color:var(--text-3);font-weight:500;}
+  .another{margin:14px 2px 0;font-size:12.5px;color:var(--text-2);font-weight:500;}
+  .another .elink{font-size:12.5px;}
+  .cinfo{border-top:var(--hair) solid var(--border);padding:12px 16px 14px;}
+  .cinfo .cmeta{margin-top:0;}
+  .scount.offer{color:var(--text);font-weight:500;}
+  .srow .line .sori{min-width:0;flex-shrink:1;overflow:hidden;text-overflow:ellipsis;}
+  .creatives{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .cthumb{position:relative;border:var(--stroke) solid var(--accent);border-radius:var(--r-sm);background:var(--surface-3);
+          padding:12px 0;display:grid;place-items:center;width:172px;}
+  .cthumb .img{display:block;background-size:100% 100%;border-radius:1px;}
+  .cthumb .ok{position:absolute;top:6px;left:6px;width:19px;height:19px;border-radius:50%;background:var(--success);
+              color:#fff;font-size:11px;display:grid;place-items:center;}
+  .cmeta{display:flex;align-items:center;gap:10px;margin-top:12px;}
+  .cmeta .fn{font-size:13.5px;font-weight:600;}
+  .cmeta .sp{flex:1;}
+  .cmeta a{color:var(--accent);font-size:13px;font-weight:600;text-decoration:underline;cursor:pointer;}
+  .rdy{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--success);margin-top:7px;}
+
+  .btn{font-family:inherit;font-size:13px;font-weight:600;padding:7px 13px;border-radius:var(--r-md);border:var(--stroke) solid var(--border-2);
+       background:var(--surface);color:var(--text);cursor:pointer;line-height:18px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
+  .btn:hover{background:var(--surface-2);}
+  .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;} .btn.pri:hover{background:var(--accent-2);border-color:var(--accent-2);}
+  .btn.acc{border-color:var(--accent-border);color:var(--accent-2);} .btn.acc:hover{background:var(--accent-bg);}
+  .btn.vio{border-color:var(--violet-border);color:var(--violet);background:var(--violet-bg);} .btn.vio:hover{background:#e6dffb;}
+  .btn.sm{font-size:12px;padding:5px 10px;}
+  .btn[disabled]{opacity:.45;cursor:default;}
+
+  /* modal */
+  .veil{position:fixed;inset:0;background:rgba(22,22,22,.44);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;overflow:auto;}
+  .md{background:var(--surface);border-radius:var(--r-lg);box-shadow:0 14px 44px rgba(0,0,0,.26);width:100%;max-width:960px;overflow:hidden;display:flex;flex-direction:column;max-height:100%;}
+  .mdhd{padding:14px 20px 12px;border-bottom:var(--hair) solid var(--border);display:flex;align-items:center;gap:12px;}
+  .mdhd .t{font-size:15.5px;font-weight:600;margin:0;} .mdhd .s{font-size:12.5px;color:var(--text-2);font-weight:500;margin:2px 0 0;}
+  .mdhd .sp{flex:1;}
+  .mdhd .back{background:transparent;border:0;color:var(--text-2);cursor:pointer;font-size:17px;padding:2px 6px 2px 0;}
+  .mdhd .x{background:transparent;border:0;color:var(--text-2);cursor:pointer;font-size:15px;line-height:1;width:28px;height:28px;
+           border-radius:var(--r-sm);display:grid;place-items:center;margin:-4px -8px -4px 0;padding:0;}
+  .mdhd .x:hover{background:var(--surface-2);color:var(--text);}
+  .md{position:relative;}
+  .mdft{min-height:57px;box-sizing:border-box;}
+  /* exit confirmation, over the modal it would discard */
+  .confirm{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:16px;background:rgba(22,22,22,.32);}
+  .cbox{width:100%;max-width:360px;background:var(--surface);border-radius:var(--r-lg);box-shadow:0 10px 32px rgba(0,0,0,.24);padding:18px 20px 16px;}
+  .cbox .ct{font-size:15px;font-weight:600;margin:0 0 4px;}
+  .cbox .cs{font-size:13px;line-height:1.45;color:var(--text-2);font-weight:500;margin:0 0 16px;}
+  .cbox .cacts{display:flex;justify-content:flex-end;gap:var(--sp-2);}
+  .nlcard.landed{animation:land .55s cubic-bezier(.2,.7,.2,1);}
+  /* skeleton loading: neutral blocks in the sign's shape, one sweep shared by every card */
+  .skel{background:var(--surface-2);cursor:default;}
+  .skel .sk{display:block;border-radius:3px;box-shadow:none;
+    background-color:#e6e6e6;background-image:linear-gradient(90deg,#e6e6e6 0,#f4f4f4 160px,#e6e6e6 320px);
+    background-size:640px 100%;background-repeat:repeat-x;background-attachment:fixed;animation:sweep 1.5s linear infinite;}
+  @keyframes sweep{from{background-position:-640px 0}to{background-position:0 0}}
+  @media (prefers-reduced-motion:reduce){ .skel .sk{animation:none;} }
+  @keyframes land{from{opacity:.25;transform:scale(.96)}to{opacity:1;transform:none}}
+  /* B: the layouts screen carries the rest of the results */
+  .sublab{font-size:12px;font-weight:600;color:var(--text-3);margin:14px 0 6px;}
+  .rhead + .sublab{margin-top:0;}
+  .incl .srcline{margin-bottom:6px;}
+  .incl .rd{font-size:13px;font-weight:600;}
+  .incl .lm{font-size:12px;color:var(--text-3);font-weight:500;}
+  .incl .cover{margin-right:6px;}
+  .steps{display:flex;gap:6px;} .steps i{width:6px;height:6px;border-radius:50%;background:var(--border-2);display:block;}
+  .steps i.on{background:var(--accent);} .steps i.past{background:var(--accent-border);}
+  .mdbody{padding:18px 20px;background:var(--surface-2);overflow:auto;height:560px;}
+  .mdft{display:flex;align-items:center;gap:var(--sp-2);padding:12px 20px;border-top:var(--hair) solid var(--border);background:var(--surface);}
+  .mdft .sp{flex:1;} .mdft .note{font-size:12.5px;color:var(--text-3);font-weight:500;}
+
+  .loadwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;min-height:524px;}
+  .loadthumb{width:400px;max-width:100%;border-radius:var(--r-md);border:var(--hair) solid var(--border-2);background-size:cover;background-position:center;}
+  .loadbar{width:190px;height:3px;border-radius:var(--r-pill);background:var(--surface-3);overflow:hidden;position:relative;}
+  .loadbar i{position:absolute;left:0;top:0;height:100%;width:40%;background:var(--accent);border-radius:var(--r-pill);animation:slide 1.25s cubic-bezier(.5,0,.5,1) infinite;}
+  .loadbar.vio i{background:var(--violet);}
+  @keyframes slide{0%{left:-42%}100%{left:102%}}
+  .loadphr{font-size:14px;font-weight:600;color:var(--text);min-height:21px;text-align:center;animation:fadein .35s ease;}
+  .loaddone{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;}
+  .loadok{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:var(--text);margin:0;}
+  .loadok i{width:17px;height:17px;border-radius:50%;background:var(--success);color:#fff;display:grid;place-items:center;
+            font-size:10px;font-style:normal;line-height:1;}
+  .loadfile{font-size:12.5px;color:var(--text-2);font-weight:500;margin:0;}
+  .loadrep{margin-top:-2px;}
+  @keyframes fadein{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+  .headline{font-size:19px;font-weight:600;letter-spacing:-.014em;margin:0 0 2px;}
+  .subline{font-size:13.5px;color:var(--text-2);font-weight:500;margin:0 0 15px;}
+  .srcline{display:flex;align-items:center;gap:11px;padding:8px 11px;background:var(--surface);border:var(--hair) solid var(--border);
+           border-radius:var(--r-md);margin-bottom:var(--sp-3);}
+  .srcline .tn{width:48px;border-radius:2px;border:var(--hair) solid var(--border-2);background-size:cover;flex:none;}
+  .srcline .nm{font-size:12.5px;font-weight:600;} .srcline .dm{font-family:var(--mono);font-size:11px;color:var(--text-2);font-weight:500;}
+  .srcline .sp{flex:1;}
+
+  /* groups */
+  .grp{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);padding:11px 12px;margin-bottom:var(--sp-2);}
+  .grp.task{border-color:var(--accent-border);}
+  .grp.ai{border-color:var(--violet-border);}
+  .grp.gap{border-style:dashed;border-color:var(--border-2);background:var(--surface-2);}
+  .grph{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .grph .gt{font-size:13.5px;font-weight:600;}
+  .grph .gs{font-size:12.5px;color:var(--text-2);font-weight:500;}
+  .grph .sp{flex:1;}
+  .grph .gn{font-size:12.5px;font-weight:600;color:var(--text-2);font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .tiles{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px;}
+  .tile{position:relative;}
+  .tile .tpv{display:block;border-radius:3px;border:var(--hair) solid var(--border-2);background-size:cover;background-position:center;background-color:var(--surface-3);}
+  .tile.ghost .tpv{opacity:.32;border-style:dashed;}
+  .tile.busy .tpv{filter:grayscale(.5) brightness(1.05);}
+  .tile .busylab{position:absolute;inset:0;display:grid;place-items:center;border-radius:3px;background:rgba(255,255,255,.6);
+                 font-size:10px;font-weight:600;color:var(--violet);}
+  .tile .edit{position:absolute;top:4px;right:4px;width:21px;height:21px;border-radius:50%;background:rgba(255,255,255,.94);
+              border:var(--hair) solid rgba(0,0,0,.16);color:var(--text);cursor:pointer;display:grid;place-items:center;
+              font-size:10.5px;line-height:1;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.22);}
+  .tile .edit:hover{background:#fff;}
+  .tile .tlab{display:block;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text-2);margin-top:4px;text-align:center;}
+  .tile .top{display:block;font-size:10px;font-weight:600;text-align:center;margin-top:1px;color:var(--text-3);}
+  .tile .top.sc{color:var(--success);} .tile .top.cr{color:var(--accent-2);} .tile .top.ai{color:var(--violet);}
+  .tile.aidone .tpv{border-color:var(--violet-border);box-shadow:0 0 0 2px var(--violet-bg);}
+  .noteline{font-size:12px;color:var(--text-3);font-weight:500;margin:12px 0 0;}
+
+  /* results grid */
+  .rhead{display:flex;align-items:baseline;gap:9px;margin:0 0 12px;flex-wrap:wrap;}
+  .rhead .rt{font-size:15px;font-weight:600;margin:0;}
+  .rhead .rs{font-size:12.5px;color:var(--text-3);font-weight:500;}
+  .rgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;}
+  .rcard{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);overflow:hidden;}
+  .rcard.act{border-color:var(--accent-border);}
+  .rcard.ai{border-color:var(--border);}
+  .rcard.wait{border-style:dashed;border-color:var(--border-2);}
+  .rpv{height:110px;background:var(--surface-3);display:grid;place-items:center;overflow:hidden;position:relative;}
+  .rpv.zoomable{cursor:zoom-in;}
+  .rpv.zoomable span{transition:transform .14s ease;}
+  .rpv.zoomable:hover span{transform:scale(1.03);}
+  .rpv span{display:block;background-size:100% 100%;background-repeat:no-repeat;border-radius:1px;box-shadow:0 1px 4px rgba(0,0,0,.22);}
+  .rpv.empty span{background:var(--surface);border:var(--hair) dashed var(--border-2);box-shadow:none;}
+  .rpv .ov{position:absolute;inset:0;display:grid;place-items:center;background:rgba(247,247,247,.72);
+           font-size:11.5px;font-weight:600;color:var(--violet);}
+  .rpv .todo{position:absolute;inset:0;display:grid;place-items:center;font-size:11.5px;font-weight:500;color:var(--text-3);}
+  .rft{padding:8px 11px 9px;border-top:var(--hair) solid var(--border);}
+  .rft .r1,.rft .r2{display:flex;align-items:center;gap:8px;}
+  .rft .r2{margin-top:6px;min-height:24px;}
+  .rft .rd{font-size:13px;font-weight:600;}
+  .rft .sp{flex:1;}
+  .rst{display:inline-flex;font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--r-pill);border:var(--hair) solid transparent;white-space:nowrap;}
+  .rst.sc{background:var(--success-bg);color:var(--success);border-color:var(--success-border);}
+  .rst.cr{background:var(--accent-bg);color:var(--accent-2);border-color:var(--accent-border);}
+  .rst.ai{background:var(--violet-bg);color:var(--violet);border-color:var(--violet-border);}
+  .rst.mt{background:var(--surface-3);color:var(--text-3);border-color:var(--border-2);}
+  .rft .btn{padding:4px 9px;font-size:11.5px;}
+  .elink{font-family:inherit;font-size:12px;font-weight:600;color:var(--accent);background:transparent;
+         border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+  .elink:hover{color:var(--accent-2);}
+  /* label style B: dot and text */
+  .ldot{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;white-space:nowrap;}
+  .ldot i{width:6px;height:6px;border-radius:50%;display:block;flex:none;}
+  .ldot.cr{color:var(--text-3);} .ldot.cr i{background:var(--border-2);}
+  .ldot.ai{color:var(--violet);} .ldot.ai i{background:var(--violet);}
+  .ldot.mt{color:var(--text-3);} .ldot.mt i{background:var(--border-2);}
+  /* label style C: inline with the dimension */
+  .linline{font-size:12px;font-weight:500;color:var(--text-3);}
+  .rft .r1 .linline{margin-left:-4px;}
+  .linline.cr{color:var(--text-3);} .linline.ai{color:var(--violet);} .linline.mt{color:var(--text-3);}
+  .lmono{font-size:12px;font-weight:500;color:var(--text-3);white-space:nowrap;}
+  .cover{font-size:12.5px;color:var(--text-2);font-weight:500;}
+  .cover b{color:var(--text);font-weight:600;}
+  .unlock{font-size:12.5px;font-weight:600;color:var(--accent-2);white-space:nowrap;}
+
+  /* opt-in offer */
+  .unlockcard{margin-top:14px;background:var(--surface);border:var(--stroke) solid var(--accent-border);border-radius:var(--r-md);padding:13px 14px;}
+  .unlockcard .oh{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:2px;}
+  .unlockcard .ot{font-size:15px;font-weight:600;margin:0;}
+  .unlockcard .os{font-size:12.5px;color:var(--text-2);font-weight:500;margin:0 0 3px;}
+  .disc{font-size:11.5px;color:var(--text-3);font-weight:500;line-height:1.5;margin:0 0 13px;}
+  .disc.below{margin:10px 2px 0;}
+
+  /* checklist: two matching neutral panels, the crop (with its source file) then the AI offer */
+  .ckpanel{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);padding:12px 14px;}
+  .ckpanel + .ckpanel{margin-top:12px;}
+  /* AI offer: the fitted card, empty, and selectable */
+  .ckpanel.offer .os{margin:-6px 0 10px;}
+  .ocard{display:block;width:100%;padding:0;text-align:left;font-family:inherit;color:var(--text);cursor:pointer;}
+  .ocard .rpv,.ocard .rft,.ocard .r1,.ocard .r2{display:flex;}
+  .ocard .rpv{align-items:center;justify-content:center;}
+  .ocard .rft{flex-direction:column;}
+  .ocard .oghost{display:block;border:1.5px dashed #a9a9a9;border-radius:2px;background:var(--surface-2);box-sizing:border-box;}
+  .ocard .ock{position:absolute;top:8px;left:8px;width:20px;height:20px;border-radius:5px;background:var(--surface);
+              border:1.5px solid var(--border-2);display:grid;place-items:center;color:#fff;font-size:12px;font-weight:700;line-height:1;}
+  .ocard.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+  .ocard.on .ock{background:var(--accent);border-color:var(--accent);}
+  .ocard:not(.on) .oghost{opacity:.6;}
+  .ocard:not(.on) .lmono{color:var(--text-3);}
+  .ocard:hover:not(.on){border-color:var(--accent-border);}
+  .ocard:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .ocard{transition:opacity .35s ease;} .ocard.skipped{opacity:.35;}
+  .merged .rhead{align-items:baseline;}
+  .merged .rhead .sp{flex:1;}
+  .merged .hacts{display:flex;gap:12px;}
+  .merged .hacts a{font-size:12.5px;font-weight:600;color:var(--accent);cursor:pointer;}
+  .merged .os{font-size:12.5px;color:var(--text-2);font-weight:500;margin:-6px 0 10px;}
+  .merged .fitrow{margin-top:14px;padding-top:12px;border-top:var(--hair) solid var(--border);}
+  .merged .fitrow .sublab{margin:0 0 8px;}
+  /* review: new-layout cards sized like the checklist cards */
+  .nlrow .nlpv{height:92px;}
+  .nlrow .nlcard .nlft.two{padding:8px 11px 9px;}
+  .nlrow .nlpv .rm{width:22px;height:22px;top:5px;right:5px;font-size:11px;}
+  .nlrow .nlft.two .l1{gap:4px;}
+  .nlrow .nlft.two .l2{flex-wrap:wrap;row-gap:2px;gap:4px 10px;}
+  .nlrow .nlft .gain{white-space:nowrap;}
+  .nlft .acts{display:inline-flex;gap:8px;white-space:nowrap;margin-left:auto;}
+  .ocard.st .rpv span:first-child{opacity:.85;}
+  /* checklist: the body splits into the results (scrolling) and a full-height sign coverage pane */
+  .mdbody.split{padding:0;display:grid;grid-template-columns:minmax(0,1fr) 232px;grid-template-rows:minmax(0,1fr);overflow:hidden;}
+  .split .ckmain{overflow:auto;padding:18px 20px;min-height:0;}
+  .split .rft .r2{flex-wrap:wrap;row-gap:2px;}
+  /* a receipt: lines at the top, the total ruled off at the foot of the pane, everything in one weight */
+  .ckside{background:var(--surface);border-left:var(--hair) solid var(--border);padding:30px 22px 20px;
+          display:flex;flex-direction:column;font-size:14px;font-weight:500;}
+  .ckside .sh{font-size:15px;font-weight:600;margin:0 0 14px;}
+  .ckside ul{list-style:none;margin:0;padding:0;}
+  .ckside li,.ckside .stot{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-variant-numeric:tabular-nums;}
+  .ckside li{padding:10px 0;border-bottom:var(--hair) solid var(--border);color:var(--text-2);}
+  .ckside li:first-child{border-top:var(--hair) solid var(--border);}
+  .ckside .v{color:var(--text);font-weight:600;}
+  .ckside li.ai .v{color:var(--accent-2);}
+  .ckside li.off .v{color:var(--text-3);}
+  .ckside .stot{margin-top:auto;padding-top:14px;border-top:1.5px dashed var(--border-2);color:var(--text);font-weight:600;}
+  .ckside{transition:opacity .35s ease;} .ckside.skipped li.ai{opacity:.45;}
+  .ckpanel.offer,.disc.below{transition:opacity .35s ease, filter .35s ease, background-color .35s ease;}
+  .ckpanel.offer.skipped{opacity:.45;filter:grayscale(1);background-color:var(--surface-2);}
+  .disc.below.skipped{opacity:.45;}
+  .md.closing{pointer-events:none;}
+  @media (prefers-reduced-motion:reduce){ .ckpanel.offer,.disc.below{transition:none;} }
+  .ckpanel .rhead{margin-bottom:10px;}
+  .ckpanel.offer .ot{font-size:15px;font-weight:600;margin:0 0 2px;}
+  .ckpanel.offer .os{font-size:12.5px;color:var(--text-2);font-weight:500;margin:0 0 10px;}
+  .ckpanel .rgrid{gap:10px;}
+  .ckpanel .rpv{height:92px;}
+  .ckpanel .rft .r2{margin-top:4px;min-height:20px;}
+  .rft .fromfile{font-size:11.5px;color:var(--text-3);font-weight:500;margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .unlockcard .os{margin-bottom:10px;}
+  .disc a{color:var(--accent);font-weight:600;text-decoration:underline;cursor:pointer;white-space:nowrap;}
+  .aitag{font-size:12.5px;font-weight:500;color:var(--text-2);white-space:nowrap;}
+  .orow{display:flex;align-items:center;gap:10px;padding:6px 2px;cursor:pointer;border-top:var(--hair) solid var(--border);}
+  .orow .othumb{width:66px;height:34px;flex:none;display:grid;place-items:center;margin:-2px 0;}
+  .orow .oghost{display:block;border:1.5px dashed #a9a9a9;border-radius:2px;background:var(--surface-2);box-sizing:border-box;}
+  .orow.off .oghost{opacity:.5;}
+  .orow:first-of-type{border-top:0;}
+  .orow input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex:none;margin:0;}
+  .orow .od{font-size:13px;font-weight:600;}
+  .orow .on{font-size:12.5px;color:var(--text-2);font-weight:500;}
+  .orow .sp{flex:1;}
+  /* every sign count shares one neutral style; the "+" alone marks what AI would add */
+  .orow .ov{font-size:12.5px;font-weight:500;color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .orow.off .od,.orow.off .on{color:var(--text-3);} .orow.off .ov{color:var(--text-3);font-weight:500;}
+  .ofoot{display:flex;align-items:center;gap:12px;margin-top:9px;padding-top:9px;border-top:var(--hair) solid var(--border);}
+  .ofoot a{font-size:12.5px;font-weight:600;color:var(--accent);cursor:pointer;}
+  .ofoot .sp{flex:1;}
+  .ofoot .tot{font-size:12.5px;color:var(--text-2);font-weight:500;}
+
+  /* editor + ai options */
+  .canvas{position:relative;height:424px;background:var(--surface-2);border:var(--hair) solid var(--border);border-radius:var(--r-md);
+          display:grid;place-items:center;overflow:hidden;user-select:none;touch-action:none;}
+  .imgwrap{position:relative;line-height:0;}
+  .lay{position:absolute;top:0;left:0;background-size:100% 100%;background-repeat:no-repeat;}
+  .lay.out{opacity:.16;}
+  .clip{position:absolute;overflow:hidden;}
+  .cframe{position:absolute;border:2px solid var(--accent);box-shadow:0 0 0 1px rgba(255,255,255,.85);cursor:move;}
+  .g{position:absolute;background:rgba(255,255,255,.38);pointer-events:none;opacity:0;transition:opacity .12s;}
+  .canvas.dragging .g{opacity:1;}
+  .hnd{position:absolute;width:13px;height:13px;background:#fff;border:1px solid rgba(0,0,0,.22);border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.28);}
+  .hnd.nw{cursor:nwse-resize;} .hnd.ne{cursor:nesw-resize;} .hnd.sw{cursor:nesw-resize;} .hnd.se{cursor:nwse-resize;}
+  .edcap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .pill{display:inline-flex;font-size:12.5px;font-weight:600;padding:3px 11px;border-radius:var(--r-pill);border:var(--hair) solid transparent;}
+  .pill.ok{background:var(--success-bg);color:var(--success);border-color:var(--success-border);}
+  .pill.vio{background:var(--violet-bg);color:var(--violet);border-color:var(--violet-border);}
+  .edcap .say{font-size:12.5px;color:var(--text-3);font-weight:500;}
+  .edcap .sp{flex:1;}
+  .edcap .reset{font-family:inherit;font-size:12.5px;font-weight:600;color:var(--accent);background:transparent;border:0;cursor:pointer;}
+
+  .aiprev{height:196px;background:var(--surface-3);border:var(--hair) solid var(--border-2);border-radius:var(--r-md);
+          display:grid;place-items:center;overflow:hidden;}
+  .aiprev span{display:block;background-size:cover;background-position:center;border-radius:2px;}
+  .airesult{background:var(--surface-3);border:var(--hair) solid var(--border-2);border-radius:var(--r-md);
+            display:grid;place-items:center;overflow:hidden;padding:14px;}
+  .airesult span{display:block;background-size:100% 100%;background-repeat:no-repeat;border-radius:2px;box-shadow:0 2px 8px rgba(0,0,0,.24);}
+  .nlgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .nlcard{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);overflow:hidden;}
+  .nlpv{height:150px;background:var(--surface-3);display:grid;place-items:center;overflow:hidden;cursor:zoom-in;position:relative;}
+  /* remove sits on the preview, apart from the refine links, because it discards rather than refines */
+  .nlpv .rm{position:absolute;top:6px;right:6px;z-index:2;width:24px;height:24px;padding:0;border-radius:50%;cursor:pointer;
+            display:grid;place-items:center;font-size:12px;line-height:1;color:var(--text);
+            background:rgba(255,255,255,.94);border:var(--hair) solid rgba(0,0,0,.16);box-shadow:0 1px 3px rgba(0,0,0,.22);}
+  .nlpv .rm:hover{background:#fff;}
+  .mdft .ftlink{font-size:12.5px;margin-right:10px;}
+  /* removed layout, card style */
+  .nlcard.gone .nlpv{cursor:default;background:var(--surface-2);}
+  .nlcard.gone .nlpv em{font-style:normal;font-size:12px;font-weight:500;color:var(--text-3);}
+  .nlcard.gone .gonebox{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:0 10px;}
+  .nlcard .errline{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#b42318;white-space:nowrap;}
+  .nlcard .errline svg{flex:none;}
+
+  /* simulated system file picker (prototype stand-in for the OS dialog, deliberately generic) */
+  .fpveil{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.16);}
+  .fp{width:100%;max-width:700px;height:440px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;
+      background:#fbfbfb;color:#1d1d1f;font-size:13px;border-radius:12px;border:1px solid rgba(0,0,0,.2);box-shadow:0 24px 64px rgba(0,0,0,.36);}
+  .fp.enter{animation:fpin .18s ease-out;}
+  @keyframes fpin{from{opacity:0;transform:translateY(-10px) scale(.98)}to{opacity:1;transform:none}}
+  .fp-top{display:flex;align-items:center;gap:14px;padding:9px 12px;background:#f2f2f2;border-bottom:1px solid #e0e0e0;}
+  .fp-dots{display:flex;gap:7px;} .fp-dots i{display:block;width:11px;height:11px;border-radius:50%;background:#d2d2d2;}
+  .fp-nav{color:#9a9a9a;font-size:16px;word-spacing:6px;}
+  .fp-loc{font-weight:600;}
+  .fp-search{margin-left:auto;width:170px;height:24px;display:flex;align-items:center;padding:0 9px;box-sizing:border-box;
+             border-radius:6px;border:1px solid #d6d6d6;background:#fff;color:#a0a0a0;font-size:12px;}
+  .fp-main{flex:1;min-height:0;display:flex;}
+  .fp-side{width:150px;flex:none;padding:8px;background:#ececec;border-right:1px solid #e0e0e0;}
+  .fp-side h6{margin:6px 8px 4px;font-size:11px;font-weight:600;color:#9a9a9a;}
+  .fp-side div{padding:4px 8px;border-radius:5px;color:#333;}
+  .fp-side div.on{background:#d9d9d9;}
+  .fp-list{flex:1;overflow:auto;background:#fff;}
+  .fp-row{display:grid;grid-template-columns:34px minmax(0,1fr) 170px 64px;align-items:center;gap:10px;padding:5px 14px;user-select:none;}
+  .fp-row.hd{position:sticky;top:0;z-index:1;background:#fff;border-bottom:1px solid #ececec;font-size:11px;font-weight:600;color:#8a8a8a;}
+  .fp-row:not(.hd):nth-child(odd){background:#f6f6f6;}
+  .fp-row.pick{cursor:pointer;}
+  .fp-row.off{color:#b9b9b9;cursor:default;}
+  .fp-row.sel{background:#176BF5 !important;color:#fff;}
+  .fp-row.sel .fp-meta{color:rgba(255,255,255,.85);}
+  .fp-thumb{width:32px;height:24px;display:grid;place-items:center;}
+  .fp-thumb span{display:block;background-size:100% 100%;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.14);}
+  .fp-thumb .fp-doc{width:17px;height:22px;background:#ebebeb;box-shadow:inset 0 0 0 1px #d3d3d3;}
+  .fp-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .fp-meta{font-size:12px;color:#8a8a8a;white-space:nowrap;}
+  .fp-foot{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f2f2f2;border-top:1px solid #e0e0e0;}
+  .fp-foot .sp{flex:1;}
+  .fp-btn{font-family:inherit;font-size:13px;padding:4px 16px;border-radius:6px;border:1px solid #cdcdcd;background:#fff;color:#1d1d1f;cursor:pointer;}
+  .fp-btn.pri{background:#176BF5;border-color:#176BF5;color:#fff;}
+  .fp-btn[disabled]{opacity:.45;cursor:default;}
+  @media (max-width:600px){ .fp-side,.fp-search,.fp-date{display:none;} .fp-row{grid-template-columns:34px minmax(0,1fr) 64px;} }
+  .nlcard.gone .rd,.nlcard.gone .linline{color:var(--text-3);}
+  .nlpv:hover span{transform:scale(1.02);}
+  .nlpv span{transition:transform .14s ease;}
+  .nlbig{background:var(--surface-3);border:var(--hair) solid var(--border-2);border-radius:var(--r-md);
+         display:grid;place-items:center;overflow:hidden;padding:14px;}
+  .nlbig span{display:block;background-size:100% 100%;background-repeat:no-repeat;border-radius:2px;box-shadow:0 2px 10px rgba(0,0,0,.26);}
+  .nlpv span{display:block;background-size:100% 100%;background-repeat:no-repeat;border-radius:2px;box-shadow:0 1px 5px rgba(0,0,0,.22);}
+  .nlft{display:flex;align-items:center;gap:10px;padding:9px 11px;border-top:var(--hair) solid var(--border);}
+  .nlft .rd{font-size:13px;font-weight:600;}
+  .nlft .sp{flex:1;}
+  /* two quiet lines: what it is, then what it adds beside what you can do with it */
+  .nlft.two{display:block;padding:8px 11px 9px;}
+  .nlft.two .l1,.nlft.two .l2{display:flex;align-items:center;gap:10px;}
+  .nlft.two .l2{margin-top:3px;min-height:20px;}
+  .nlft .gain{font-size:12px;font-weight:500;color:var(--text-2);font-variant-numeric:tabular-nums;}
+  .nlcard.gone .gain{color:var(--text-3);}
+  .aifrom{display:flex;align-items:center;gap:10px;margin-top:11px;padding:9px 11px;background:var(--surface);
+          border:var(--hair) solid var(--border);border-radius:var(--r-md);}
+  .aifrom .fl{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);}
+  .aifrom .ftn{width:64px;border-radius:2px;border:var(--hair) solid var(--border-2);background-size:cover;background-position:center;flex:none;}
+  .aifrom .fn{font-size:12px;color:var(--text-2);font-weight:500;}
+  .aifrom .sp{flex:1;}
+  .optrow{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .optrow .ol{font-size:12.5px;font-weight:600;color:var(--text-2);min-width:78px;}
+  .seg{display:inline-flex;border:var(--hair) solid var(--border-2);border-radius:var(--r-md);overflow:hidden;}
+  .seg button{font-family:inherit;font-size:12.5px;font-weight:600;padding:5px 11px;border:0;background:var(--surface);
+              color:var(--text-2);cursor:pointer;border-right:var(--hair) solid var(--border-2);}
+  .seg button:last-child{border-right:0;}
+  .seg button.on{background:var(--violet-bg);color:var(--violet);}
+
+  .notes{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);padding:16px 18px;box-shadow:var(--shadow);}
+  .notes h3{font-size:13px;font-weight:600;margin:0 0 8px;}
+  .notes ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;}
+  .notes li{font-size:13.5px;color:var(--text-2);font-weight:500;line-height:1.55;}
+  .notes li b{color:var(--text);font-weight:600;}
+  .tbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}
+  .tbl th{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);
+          text-align:left;padding:0 12px 7px 0;border-bottom:var(--hair) solid var(--border-2);}
+  .tbl td{padding:6px 12px 6px 0;border-bottom:var(--hair) solid var(--border);color:var(--text-2);font-weight:500;}
+  .tbl td:first-child{color:var(--text);font-family:var(--mono);font-size:12px;}
+  .tn-close,.tn-mhelp{display:none;}
+  .sori{font-size:var(--fs-md);color:var(--text-2);font-weight:500;white-space:nowrap;}
+  .sori::before{content:'· ';}
+  .btn .sm{display:none;}
+  .prog{display:none;}
+  .foot2::before{content:' ';}
+
+
+  /* ---------- My Library picker: choose a design, nothing else ---------- */
+  .lpsearch{display:flex;align-items:center;gap:7px;background:var(--surface);border:var(--hair) solid var(--border-2);
+            border-radius:var(--r-md);padding:7px 11px;margin-bottom:var(--sp-3);}
+  .lpsearch span{color:var(--text-3);font-size:13px;}
+  .lpsearch input{border:0;outline:0;font-family:inherit;font-size:13.5px;background:transparent;width:100%;color:var(--text);}
+  .lpgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .lpk{background:var(--surface);border:var(--stroke) solid var(--border);border-radius:var(--r-md);padding:9px;cursor:pointer;
+       display:flex;flex-direction:column;gap:7px;text-align:left;font-family:inherit;color:var(--text);}
+  .lpk:hover{border-color:var(--accent-border);background:var(--accent-bg);}
+  .lpk .pv{height:110px;background:var(--surface-3);border-radius:var(--r-sm);display:grid;place-items:center;overflow:hidden;}
+  .lpk .pv i{display:block;background-size:100% 100%;border-radius:1px;box-shadow:0 1px 4px rgba(0,0,0,.22);}
+  .lpk .nm{font-size:13px;font-weight:600;line-height:1.35;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lpk .dm{font-size:12px;color:var(--text-2);font-weight:500;margin:-4px 0 0;}
+  .lpempty{background:var(--surface);border:var(--hair) dashed var(--border-2);border-radius:var(--r-md);padding:56px 24px;text-align:center;}
+  .lpempty h3{font-size:var(--fs-lg);font-weight:600;margin:0 0 5px;}
+  .lpempty p{font-size:13.5px;color:var(--text-2);font-weight:500;margin:0 auto 16px;max-width:44ch;}
+  @media (max-width:760px){ .lpgrid{grid-template-columns:1fr 1fr;} }
+
+  /* a stretched card the advertiser chose to regenerate: selected, not yet made */
+  .rcard.regen{border-color:var(--accent-border);box-shadow:0 0 0 1px var(--accent-border);}
+  .rft .lmono.picked{color:var(--accent-2);font-weight:600;}
+
+  /* library picker: search, dimension filter and sort in one row at the top */
+  .lptools{display:flex;align-items:center;gap:8px;margin-bottom:var(--sp-3);flex-wrap:wrap;}
+  .lptools .lpsearch{flex:1;min-width:200px;margin-bottom:0;}
+  .lpsel{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-3);}
+  .lpsel select{font-family:inherit;font-size:13px;font-weight:500;color:var(--text);background:var(--surface);
+                border:var(--hair) solid var(--border-2);border-radius:var(--r-md);padding:6px 8px;cursor:pointer;}
+  .lpk .pv{position:relative;}
+  .lpk.added{cursor:default;}
+  .lpk.added:hover{border-color:var(--border);background:var(--surface);}
+  .lpadded{position:absolute;top:6px;left:6px;display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;
+           padding:2px 8px;border-radius:var(--r-pill);background:var(--success-bg);color:var(--success);border:var(--hair) solid var(--success-border);}
+  .lpnone{grid-column:1/-1;margin:14px 2px;font-size:13px;color:var(--text-2);font-weight:500;}
+  /* names can be long generated strings (Ad_12_17_2025_f0k9pj…), so nothing that shows one may wrap or push its row wider */
+  .cmeta .fn,.srcline .nm,.srcline .rd,.aifrom .fn,.mdhd .s,.loadfile{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .mdhd > span{min-width:0;}
+  .loadfile{max-width:420px;}
+  .srcline .cover,.srcline .elink,.srcline .lm,.cmeta a{flex:none;}
+  /* toast with Undo, from the Campaign Creation Figma (Toast · action=removal) */
+  .toast{position:fixed;left:50%;bottom:24px;z-index:80;transform:translateX(-50%);
+         display:flex;align-items:center;gap:32px;padding:8px 16px;border-radius:12px;
+         background:var(--toast-bg);border:var(--hair) solid var(--toast-border);box-shadow:0 6px 20px rgba(0,0,0,.18);
+         font-size:14px;line-height:20px;font-weight:500;color:var(--toast-text);white-space:nowrap;animation:toastin .2s ease-out;}
+  .toast{max-width:calc(100% - 32px);}
+  .toast > span{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+  .toast .undo{flex:none;font:inherit;color:var(--toast-action);background:transparent;border:0;padding:0;cursor:pointer;}
+  .toast .undo:hover{text-decoration:underline;text-underline-offset:2px;}
+  @keyframes toastin{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+  @media (prefers-reduced-motion:reduce){ .toast{animation:none;} }
+  @media (max-width:699px){ .toast{bottom:92px;width:calc(100% - 32px);max-width:343px;justify-content:space-between;gap:12px;} }
+  /* the compact drop strip is a click and drag target too */
+  /* Add creative and Add another: the library picker's first tile uploads from the computer */
+  .lpk.lpup .pv{background:var(--surface);border:var(--stroke) dashed var(--dash);}
+  .lpk.lpup .upi{width:40px;height:40px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:grid;place-items:center;font-size:18px;font-weight:600;}
+
+
+  /* ---------- aligned with the Figma (V4 Resize/Crop) ---------- */
+  .mdhd .back{display:grid;place-items:center;padding:2px 4px 2px 0;}
+  .elink[disabled]{opacity:.45;cursor:default;}
+  /* checklist offer rows: "1920 × 1080 px · Landscape" */
+  .orow .odn{display:flex;align-items:baseline;gap:6px;min-width:0;}
+  .orow .on::before{content:'· ';}
+  /* zoom: the source line carries the item's own actions as text links */
+  .zsrc{display:flex;align-items:center;gap:10px;margin-top:11px;padding:8px 11px;background:var(--surface);
+        border:var(--hair) solid var(--border);border-radius:var(--r-md);}
+  .zsrc .tn{width:64px;border-radius:2px;border:var(--hair) solid var(--border-2);background-size:cover;background-position:center;flex:none;}
+  .zsrc .nm{font-size:12.5px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .zsrc .dm{font-size:12px;color:var(--text-3);font-weight:500;white-space:nowrap;}
+  .zsrc .sp{flex:1;}
+  .zsrc .elink{flex:none;margin-left:10px;}
+  /* review: Other dimensions and Other creatives are rows */
+  .incl .srcline .txt{display:flex;align-items:baseline;gap:6px;min-width:0;}
+  .incl .lm .tag{margin-left:4px;}
+  .incl .srcline .elink{margin-right:12px;}
+  .incl .rd.nm{font-family:inherit;font-size:12.5px;}
+  .mdft .another{margin:0;font-size:12.5px;color:var(--text-2);font-weight:500;}
+  /* library picker */
+  .lpsearch svg{color:var(--text-3);flex:none;}
+  select.lpsel{display:block;font-family:inherit;font-size:13px;font-weight:500;color:var(--text);background:var(--surface);
+               border:var(--hair) solid var(--border-2);border-radius:var(--r-md);padding:7px 8px;cursor:pointer;}
+  .lpk .pv{grid-template-columns:minmax(0,1fr);justify-items:center;}
+  .lpk .pv i{max-width:calc(100% - 16px);height:auto !important;}
+  .lpk.sel,.lpk.sel:hover{border-color:var(--accent);background:var(--accent-bg);}
+  .lpk .nm .lim{font-weight:500;color:var(--text-2);}
+  .lpempty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;box-sizing:border-box;}
+  .lpempty .lpico{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--accent-bg);color:var(--accent);margin-bottom:14px;}
+  .lpempty p.lpdrag{font-size:12.5px;color:var(--text-3);font-weight:500;margin:8px 0 0;}
+  .lpempty.dragging{border-color:var(--accent);background:var(--accent-bg);}
+  .lpemptyup{min-width:180px;justify-content:center;}
+  .lpempty p{max-width:46ch;}
+  .lpempty p.lprules,.lprules{font-size:12.5px;color:var(--text-2);font-weight:500;margin:10px 0 0;}
+  .md .mb,.grab,.xs{display:none;}
+
+
+  /* ---------- phones have no file dialog: the iOS upload menu, then Photos or Files ---------- */
+  .iosveil{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.14);
+           font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,Helvetica,Arial,sans-serif;color:#000;}
+  .iosveil.dim{background:rgba(0,0,0,.34);}
+  .iosmenu{position:absolute;width:250px;border-radius:13px;overflow:hidden;background:rgba(246,246,246,.94);
+           -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 10px 40px rgba(0,0,0,.24);}
+  .iosmenu button{display:flex;align-items:center;justify-content:space-between;width:100%;height:46px;padding:0 16px;
+                  background:transparent;border:0;border-top:.5px solid rgba(60,60,67,.29);font:inherit;font-size:17px;color:#000;cursor:pointer;}
+  .iosmenu button:first-child{border-top:0;}
+  .iosmenu button:active{background:rgba(0,0,0,.08);}
+  .iosmenu svg{flex:none;}
+  .iossheet{position:absolute;left:0;right:0;bottom:0;top:44px;background:#fff;border-radius:12px 12px 0 0;
+            display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -6px 30px rgba(0,0,0,.18);}
+  .ioshd{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 16px 10px;}
+  .ioshd .cx{justify-self:start;color:#007aff;font:inherit;font-size:17px;background:none;border:0;padding:0;cursor:pointer;}
+  .ioshd .tt{font-size:17px;font-weight:600;}
+  .iosseg{margin:0 16px 10px;background:#eeeef0;border-radius:9px;padding:2px;display:flex;}
+  .iosseg span{flex:1;text-align:center;font-size:13px;font-weight:600;padding:6px;border-radius:7px;color:#000;}
+  .iosseg .on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.14);}
+  .iosgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;overflow:auto;align-content:start;flex:1;}
+  .iosgrid button{aspect-ratio:1;border:0;padding:0;background-color:#e5e5ea;background-size:cover;background-position:center;cursor:pointer;}
+  .iossearch{display:flex;align-items:center;gap:6px;margin:0 16px 8px;background:#eeeef0;border-radius:10px;padding:8px 10px;color:#8e8e93;font-size:16px;}
+  .ioslist{overflow:auto;flex:1;}
+  .iosrow{display:flex;align-items:center;gap:12px;padding:9px 16px;border:0;background:none;width:100%;text-align:left;font:inherit;cursor:pointer;color:#000;}
+  .iosrow + .iosrow{box-shadow:inset 72px .5px 0 #fff, inset 0 .5px 0 rgba(60,60,67,.22);}
+  .iosrow .th{width:44px;height:44px;flex:none;display:grid;place-items:center;background:#f2f2f7;border-radius:6px;}
+  .iosrow .th span{display:block;background-size:100% 100%;border-radius:2px;}
+  .iosrow .th .doc{width:26px;height:32px;background:#fff;border:1px solid #c7c7cc;border-radius:3px;}
+  .iosrow .tx{min-width:0;display:flex;flex-direction:column;gap:2px;}
+  .iosrow .n{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .iosrow .m{font-size:13px;color:#8e8e93;}
+  .iosrow.off{opacity:.4;cursor:default;}
+
+  /* button-only layout: one Add creative on the progress line, drop target shown only while dragging */
+  .addbar{margin-bottom:var(--sp-4);}
+  .addhint{font-size:12.5px;color:var(--text-3);font-weight:500;margin:8px 0 0;}
+  /* row shortcuts: text links, so the section keeps one button */
+  .rowadd{font-family:inherit;font-size:13px;font-weight:600;color:var(--accent);background:transparent;border:0;padding:4px 2px;
+          cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;}
+  .rowadd .pl{font-size:15px;line-height:1;font-weight:500;}
+  .rowadd:hover{color:var(--accent-2);text-decoration:underline;}
+  .pcard .cveil{display:none;position:absolute;inset:8px;z-index:20;border-radius:var(--r-md);background:rgba(232,240,254,.94);
+                border:var(--stroke) dashed var(--accent);align-items:center;justify-content:center;flex-direction:column;gap:5px;pointer-events:none;}
+  .pcard.dragging .cveil{display:flex;}
+  .cveil .vt{font-size:var(--fs-lg);font-weight:600;color:var(--accent-2);}
+  .cveil .vs{font-size:var(--fs-sm);font-weight:500;color:var(--text-2);}
+  .scenbar .lab2{margin-left:6px;}
+
+  /* file requirements popover on the Creative heading */
+  .crtitle{position:relative;}
+  .infob{background:transparent;border:0;padding:0 2px;color:var(--text-3);font-size:17px;line-height:1;cursor:pointer;font-family:inherit;}
+  .infob:hover,.infob[aria-expanded="true"]{color:var(--accent);}
+  .infopop{position:absolute;top:calc(100% + 6px);left:0;z-index:40;width:380px;max-width:calc(100vw - 32px);box-sizing:border-box;
+           background:var(--surface);border:var(--hair) solid var(--border-2);border-radius:var(--r-md);box-shadow:0 10px 30px rgba(0,0,0,.16);
+           padding:14px 16px 13px;font-size:13px;font-weight:500;letter-spacing:0;color:var(--text-2);line-height:1.45;}
+  .infopop .ih{font-size:14px;font-weight:600;color:var(--text);margin:0 0 8px;}
+  .infopop dl{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;margin:0;}
+  .infopop dt{color:var(--text-3);} .infopop dd{margin:0;color:var(--text);}
+  .infopop .is{font-size:12px;font-weight:600;color:var(--text-3);margin:12px 0 4px;}
+  .infopop ul{list-style:none;margin:0;padding:0;}
+  .infopop li{display:flex;justify-content:space-between;gap:12px;padding:2px 0;color:var(--text);}
+  .infopop li .c{color:var(--text-3);white-space:nowrap;}
+  .infopop .in{margin:10px 0 0;padding-top:10px;border-top:var(--hair) solid var(--border);}
+  .infopop .il{margin:8px 0 0;display:flex;flex-wrap:wrap;gap:4px 6px;align-items:baseline;}
+  .infopop .il a{color:var(--accent);font-weight:600;text-decoration:underline;cursor:pointer;}
+  .infopop .il span{color:var(--text-3);}
+
+  /* scenario switcher: a reviewer's tool, not product UI */
+  .scenbar{position:fixed;left:16px;bottom:16px;z-index:70;display:flex;align-items:center;gap:6px;padding:5px 6px 5px 11px;
+           background:#232a33;color:#fafafa;border-radius:var(--r-pill);box-shadow:0 4px 16px rgba(0,0,0,.22);font-size:12px;font-weight:600;}
+  .scenbar select{font-family:inherit;font-size:12px;font-weight:600;color:#fafafa;background:#343c47;border:0;border-radius:var(--r-pill);
+                  padding:5px 8px;cursor:pointer;}
+  .scenbar button{background:transparent;border:0;color:#aeb4bd;cursor:pointer;font-size:13px;line-height:1;padding:4px 5px;}
+  .scenbar.min{padding:0;}
+  .scenbar.min > :not(.tog){display:none;}
+  .scenbar.min .tog{width:30px;height:30px;color:#fafafa;}
+  @media (max-width:699px){ .scenbar{bottom:86px;left:12px;right:12px;flex-wrap:wrap;border-radius:14px;} .scenbar.min{right:auto;}
+    .addbar .btn{width:100%;justify-content:center;padding:12px 14px;font-size:15px;border-radius:8px;}
+    /* 1px stroke reads lighter; the extra 1px of padding keeps the button the same height */
+    .addbar .btn.is-applied,.addbar .btn.is-applied:hover{background:var(--surface);color:var(--accent);border-color:var(--accent);border-width:1px;padding:13px 15px;}
+    .addhint{line-height:1.6;} }
+
+  /* ---------- responsive ---------- */
+  @media (max-width:1300px){
+    .cols{grid-template-columns:190px minmax(0,1fr) 280px;gap:24px;padding:20px 16px 52px;}
+  }
+  /* reach panel drops under the main column */
+  @media (max-width:1080px){
+    .cols{grid-template-columns:190px minmax(0,1fr);gap:22px;}
+    .reachrail{grid-column:2;}
+  }
+  /* single column: steps become a horizontal strip */
+  @media (max-width:880px){
+    .cols{grid-template-columns:minmax(0,1fr);gap:16px;padding:16px 14px 44px;}
+    .reachrail{grid-column:1;}
+    .steprail{flex-direction:row;gap:10px;}
+    .steprail .step{flex:1;padding:2px 0;}
+    .step:not(:last-child)::after{display:none;}
+    .navbtns{justify-content:stretch;}
+    .nb{flex:1;text-align:center;}
+  }
+  @media (max-width:640px){
+    .topnav{padding:0 12px;gap:8px;}
+    .tn-title{font-size:14px;}
+    .step i{display:none;}
+    .pcard{padding:16px 14px 18px;}
+    .srow .line{flex-wrap:wrap;}
+    .needcard{gap:10px;}
+  }
+  /* modal grids reflow with the modal, which tracks the viewport */
+  @media (max-width:900px){ .rgrid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:760px){ .nlgrid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:660px){ .rgrid{grid-template-columns:1fr;} .nlgrid{grid-template-columns:1fr;} }
+  /* short viewports: let the body breathe rather than clip */
+  .incl .srcline .tn{width:112px;}
+  @media (max-height:780px){
+    .mdbody{height:auto;min-height:260px;max-height:calc(100vh - 210px);}
+    .mdbody.split{height:calc(100vh - 210px);}
+    .loadwrap{min-height:240px;}
+    .canvas{height:250px;}
+  }
+
+  /* ---------- mobile: the shipped small-screen design ---------- */
+  @media (max-width:699px){
+    .cols{grid-template-columns:minmax(0,1fr);gap:0;padding:0 0 78px;}
+    .steprail,.reachrail{display:none;}
+    .topnav{justify-content:space-between;height:52px;padding:0 16px;background:var(--surface-2);}
+    .tn-back,.tn-title,.tn-right{display:none;}
+    .tn-close{display:block;font-size:19px;line-height:1;}
+    .tn-mhelp{display:block;font-size:15px;font-weight:600;color:var(--accent);}
+
+    .pcard{border:0;border-radius:0;background:var(--surface-2);padding:18px 16px 22px;}
+    .meterhead{flex-wrap:wrap;gap:4px 14px;}
+
+    .btn .lg{display:none;} .btn .sm{display:inline;}
+
+    .srow .line{display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+                grid-template-areas:'sw dim cnt' 'sw ori act';column-gap:12px;row-gap:2px;align-items:center;padding:11px 12px;}
+    .swatch{grid-area:sw;}
+    .sdim{grid-area:dim;font-size:15px;}
+    .sori{grid-area:ori;font-size:14px;}
+    .sori::before{content:none;}
+    .scount{grid-area:cnt;justify-self:end;}
+    .sacts{grid-area:act;justify-self:end;}
+    .sgrow{display:none;}
+    .sacts .btn{border:0;background:transparent;color:var(--accent);text-decoration:underline;
+                padding:0;font-size:14px;font-weight:600;}
+    .sacts .btn .cv{display:none;}
+
+    .needcard{flex-direction:column;align-items:flex-start;gap:8px;}
+    .needcard .lks{flex-direction:column;gap:9px;}
+    .foot2{display:block;margin-top:9px;}
+
+    .navbtns{position:sticky;bottom:0;justify-content:space-between;align-items:center;
+             background:var(--surface-2);border-top:var(--hair) solid var(--border);
+             padding:12px 16px;margin:0;position:fixed;left:0;right:0;bottom:0;z-index:30;}
+    .prog{display:block;position:absolute;top:0;left:0;right:0;height:3px;background:var(--surface-3);}
+    .prog b{display:block;height:100%;width:50%;background:var(--accent);}
+    .nb{flex:0 0 auto;text-align:left;border:0;background:transparent;color:var(--accent);
+        font-size:16px;font-weight:600;padding:6px 2px;}
+    .nb.pri{background:var(--accent);border:0;color:#fff;padding:12px 34px;border-radius:8px;font-size:16px;}
+
+    /* the modal is a full-screen overlay, not a card */
+    .veil{padding:0;background:var(--surface);overflow:hidden;align-items:stretch;justify-content:stretch;}
+    .md{max-width:none;width:100%;height:100%;max-height:none;border-radius:0;box-shadow:none;}
+    .mdhd{padding:14px 16px 12px;}
+    .mdbody{height:auto;flex:1;min-height:0;padding:16px;display:flex;flex-direction:column;}
+    .mdft{padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom));}
+    .loadwrap{min-height:0;flex:1;justify-content:center;}
+    .canvas{height:auto;flex:1;min-height:220px;}
+    .nlbig{height:auto !important;min-height:200px;}
+    .unlockcard{padding:12px;}
+    /* an open row stacks its creatives full width, with Add more underneath, so nothing overlaps at phone width */
+    .cstrip{flex-direction:column;align-items:stretch;padding:12px;}
+    .ctile{width:100%;}
+    .cstrip .addmore{align-self:flex-start;}
+
+    /* phones: the checklist and review cards scroll sideways, the next one peeking in */
+    .cover .xl,.another .xl,.scount .xl{display:none;}
+    .mdft{flex-wrap:wrap;row-gap:8px;}
+    .mdbody.split{display:flex;flex-direction:column;padding:16px;overflow:auto;height:auto;}
+    .split .ckmain{overflow:visible;padding:0;min-width:0;}
+    .ckside{display:none;}
+    .ckside{position:static;}
+    .mdft .cover:not(:empty){flex:1 0 100%;}
+    .mdft .cover:empty{display:none;}
+    .srow.filled .line.head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:'sw dim cnt' 'sw meta cnt';row-gap:1px;}
+    .srow.filled .line.head.solo{grid-template-areas:'sw dim cnt';}
+    .srow.filled .smeta{grid-area:meta;margin:0;}
+    .srow.filled .scount{grid-area:cnt;align-self:center;}
+    .srow.filled .sdim{white-space:nowrap;}
+    .srow.filled .sdim span{display:none;}
+    .rgrid,.nlgrid{display:flex !important;overflow-x:auto;gap:10px;scroll-snap-type:x mandatory;padding-bottom:4px;}
+    .nlgrid{margin-right:-16px;padding-right:16px;}
+    .rgrid > *,.nlgrid > *{flex:0 0 84%;scroll-snap-align:start;}
+    .orow .odn{flex-direction:column;align-items:flex-start;gap:1px;}
+    .orow .on::before{content:none;}
+    .incl .srcline .txt{flex-direction:column;align-items:flex-start;gap:1px;}
+    .incl .lm .dot{display:none;}
+    .zsrc{flex-wrap:wrap;}
+    /* My Library from the page is a bottom sheet over the step, Upload pinned beside Add to campaign */
+    .veil.sheetveil{background:rgba(22,22,22,.44);align-items:flex-end;}
+    .md.sheet{height:auto;max-height:calc(100% - 44px);border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.2);}
+    .md.sheet .grab{display:block;width:40px;height:4px;border-radius:2px;background:var(--border-2);margin:8px auto 0;flex:none;}
+    .md.sheet .mdhd{padding-top:8px;}
+    .md.lib .dk{display:none;}
+    .md.lib .s .mb{display:inline;}
+    .md.lib .lpup{display:none;}
+    .md.lib .mdft{flex-wrap:wrap;}
+    .md.lib .mdft .btn{flex:1;justify-content:center;padding:11px 14px;font-size:15px;border-radius:8px;}
+    .md.lib .lpupbtn{display:inline-flex;}
+    .md.lib .lprules.mb{display:block;width:100%;text-align:center;margin:2px 0 0;}
+    .md.lib .lptools .lpsearch{min-width:100%;}
+    .md.lib .lpgrid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .md.lib .lpk{min-width:0;}
+    .md.lib .mdhd .s{white-space:normal;}
+    .md.lib.isempty .mdbody{flex:none;}
+    .md.lib.isempty [data-a="pickconfirm"]{display:none;}
+    .md.lib.isempty .lpupbtn{background:var(--accent);border-color:var(--accent);color:#fff;}
+    .lpempty{border:0;background:transparent;padding:44px 16px;height:auto;}
+    .lpempty .lpemptyup,.lpempty .lprules,.lpempty p.lpdrag{display:none;}
+    .lpempty p{margin-bottom:0;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="topnav">
+    <span class="tn-back">&#8592;</span>
+    <span class="tn-close">&#10005;</span>
+    <span class="tn-title">2026-01-18 Blip Airlines Campaign</span>
+    <span class="tn-right">
+      <span class="tn-help">?</span>
+      <span class="tn-av">JD</span>
+    </span>
+    <span class="tn-mhelp">Need Help?</span>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="cols">
+
+      <aside class="steprail">
+        <div class="step done"><span class="dot">&#10003;</span>
+          <span><b>Set up</b><i>Goal &amp; location</i></span></div>
+        <div class="step on"><span class="dot">2</span>
+          <span><b>Strategy</b><i>Budget &amp; Targeting</i></span></div>
+        <div class="step"><span class="dot">3</span>
+          <span><b>Review</b><i>Confirm &amp; Launch</i></span></div>
+      </aside>
+
+      <main class="maincol">
+        <div class="pcard" id="card"></div>
+        <div class="navbtns">
+          <i class="prog"><b></b></i>
+          <span class="nb">Back</span><span class="nb pri">Next</span>
+        </div>
+      </main>
+
+      <aside class="reachrail">
+        <div class="rc-head"><span class="rc-lab">Estimated reach</span><span class="rc-link">ongoing, per month</span></div>
+        <div class="rc-row"><span>Impressions</span><b>685K - 986K</b></div>
+        <div class="rc-row"><span>Blips</span><b>up to 3.3M</b></div>
+        <div class="rc-bar"><i></i></div>
+        <div class="rc-ticks"><span>1 mo</span><span>2 mo</span><span class="on">3 mo</span></div>
+        <p class="rc-copy">About 23K to 33K every 3 months, and counting</p>
+        <p class="rc-good">&#10003; Long enough to stick with people.</p>
+        <p class="rc-note">Estimates shift with board availability.</p>
+      </aside>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- artwork: the same generator library-page.html uses, so a design looks identical on both ---------------- */
+  function art(o){
+    var w=o.w,h=o.h,land=w>=h;
+    var s='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'">'+
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">'+
+      '<stop offset="0" stop-color="'+o.c1+'"/><stop offset=".55" stop-color="'+o.c2+'"/>'+
+      '<stop offset="1" stop-color="'+o.c1+'"/></linearGradient></defs>'+
+      '<rect width="'+w+'" height="'+h+'" fill="url(#g)"/>';
+    if(land) s+='<rect x="0" y="0" width="'+Math.round(w*0.009)+'" height="'+h+'" fill="'+o.accent+'"/>';
+    else s+='<rect x="0" y="0" width="'+w+'" height="'+Math.round(h*0.012)+'" fill="'+o.accent+'"/>';
+    var f=Math.min(w,h);
+    var cx=w*0.5, cy=land?h*0.47:h*0.5;
+    s+='<text x="'+cx+'" y="'+(cy-f*0.02)+'" font-family="Inter,Helvetica,Arial" font-size="'+(f*0.155)+
+       '" font-weight="600" fill="#ffffff" text-anchor="middle">'+o.l1+'</text>';
+    s+='<text x="'+cx+'" y="'+(cy+f*0.135)+'" font-family="Inter,Helvetica,Arial" font-size="'+(f*0.155)+
+       '" font-weight="600" fill="'+o.accent+'" text-anchor="middle">'+o.l2+'</text>';
+    s+='<text x="'+(land?w*0.055:w*0.5)+'" y="'+(land?h*0.24:h*0.19)+'" font-family="Inter,Helvetica,Arial" font-size="'+(f*0.062)+
+       '" font-weight="600" fill="#cfd3dc" letter-spacing="'+(f*0.006)+'" text-anchor="'+(land?'start':'middle')+'">'+o.brand+'</text>';
+    s+='<text x="'+(land?w*0.945:w*0.5)+'" y="'+(land?h*0.82:h*0.86)+'" font-family="Inter,Helvetica,Arial" font-size="'+(f*0.055)+
+       '" font-weight="500" fill="#9aa0ac" text-anchor="'+(land?'end':'middle')+'">'+o.foot+'</text>';
+    return uri(s+'</svg>');
+  }
+  var BRAND = {
+    ridge:{c1:'#111a2e',c2:'#16324f',accent:'#f5c542',brand:'RIDGELINE AUTO CARE',l1:'HALF-PRICE',l2:'OIL CHANGE',foot:'EXIT 12 · 2 MILES'},
+    vera :{c1:'#0d2b2b',c2:'#14514c',accent:'#5fe0c0',brand:'VERA DENTAL',l1:'NEW PATIENTS',l2:'WELCOME',foot:'BOOK ONLINE TODAY'},
+    pike :{c1:'#2b1d14',c2:'#5a3a22',accent:'#f0b775',brand:'PIKE &amp; CO COFFEE',l1:'OPEN AT',l2:'6 AM',foot:'MAIN &amp; 3RD'},
+    hall :{c1:'#1c1630',c2:'#3a2a63',accent:'#c9a6ff',brand:'HALLOW FITNESS',l1:'FIRST MONTH',l2:'FREE',foot:'JOIN THIS WEEK'}
+  };
+  function uri(s){ return "url('data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s)+"')"; }
+  var ART = {};
+  /* artwork laid out for a given shape: stands in for an AI layout */
+  function bg(brand,w,h){
+    var k=brand+'|'+w+'x'+h;
+    if(!ART[k]) ART[k]=art(Object.assign({w:w,h:h},BRAND[brand]));
+    return ART[k];
+  }
+  /* an advertiser's own file, made at the exact sign dimension (a different layout from the AI one, on purpose) */
+  function svgUpload(w,h,b){
+    var o = BRAND[b], u = Math.min(w,h)/100, cx = w/2, f1 = Math.min(u*14, w/7), f2 = Math.min(u*6, w/21);
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'">'+
+      '<defs><linearGradient id="u" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+o.c2+'"/><stop offset="1" stop-color="'+o.c1+'"/></linearGradient></defs>'+
+      '<rect width="'+w+'" height="'+h+'" fill="url(#u)"/><rect x="0" y="'+(h-u*4)+'" width="'+w+'" height="'+(u*4)+'" fill="'+o.accent+'"/>'+
+      '<text x="'+cx+'" y="'+(h*0.44)+'" font-family="Inter,Helvetica,Arial" font-size="'+f1+'" font-weight="600" fill="#ffffff" text-anchor="middle">'+o.l1+'</text>'+
+      '<text x="'+cx+'" y="'+(h*0.44+f1*1.15)+'" font-family="Inter,Helvetica,Arial" font-size="'+f1+'" font-weight="600" fill="'+o.accent+'" text-anchor="middle">'+o.l2+'</text>'+
+      '<text x="'+cx+'" y="'+(h*0.8)+'" font-family="Inter,Helvetica,Arial" font-size="'+f2+'" fill="#c9ccd4" text-anchor="middle">'+o.brand+'</text></svg>';
+  }
+  function upArt(d, b){ b = b || files()[0].brand; var k = 'up|'+b+'|'+d[0]+'x'+d[1]; if(!ART[k]) ART[k] = uri(svgUpload(d[0], d[1], b)); return ART[k]; }
+
+  /* ---------------- My Library: the same designs, images and tags as library-page.html ----------------
+     prov: original · crop (Cropped) · ai (Resized with AI) · stretch (Stretched: made by Blip's earlier resize,
+     which stretched the original to the sign dimension). Stretched images are kept and stay usable. */
+  var DESIGNS = {
+    ridge:{id:'ridge', brand:'ridge', name:'Ridgeline · Summer Promo', created:'Mar 4, 2026',
+      images:[
+        {w:2800, h:800,  prov:'original', file:'ridgeline-summer-2800×800.jpg'},
+        {w:1400, h:400,  prov:'crop',    signs:40},
+        {w:840,  h:400,  prov:'stretch', signs:12},
+        {w:1080, h:1920, prov:'ai',      signs:5}
+      ]},
+    vera:{id:'vera', brand:'vera', name:'Vera Dental · New Patients', created:'Feb 19, 2026',
+      images:[
+        {w:2400, h:600,  prov:'original', file:'vera-newpatients-2400×600.png'},
+        {w:1400, h:400,  prov:'stretch', signs:22},
+        {w:1920, h:1080, prov:'stretch', signs:7}
+      ]},
+    hall:{id:'hall', brand:'hall', name:'Hallow Fitness · First Month Free', created:'Dec 2, 2025',
+      images:[
+        {w:3000, h:900,  prov:'original', file:'hallow-firstmonth-3000×900.jpg'},
+        {w:1400, h:400,  prov:'crop',    signs:31},
+        {w:840,  h:400,  prov:'stretch', signs:9, pend:{prov:'ai'}}
+      ]},
+    pike:{id:'pike', brand:'pike', name:'Pike & Co · Open at 6', created:'Jan 8, 2026',
+      images:[
+        {w:1600, h:900,  prov:'original', file:'pike-open6-1600×900.jpg'}
+      ]}
+  };
+  var LIB_ORDER = ['ridge','vera','hall','pike'];
+  var DESIGN = 'ridge';
+
+  /* ---------------- files uploaded from the computer: concept-flow-v2's artwork, unchanged ---------------- */
+  function svgWide(){
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2800 800">'+
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">'+
+      '<stop offset="0" stop-color="#111a2e"/><stop offset=".52" stop-color="#16324f"/><stop offset="1" stop-color="#0e1626"/>'+
+      '</linearGradient></defs><rect width="2800" height="800" fill="url(#g)"/>'+
+      '<rect x="0" y="0" width="26" height="800" fill="#e8b53a"/>'+
+      '<rect x="150" y="352" width="66" height="66" rx="9" fill="#7d6a3a"/>'+
+      '<text x="183" y="396" font-family="Inter,Helvetica,Arial" font-size="38" font-weight="600" fill="#efe4c6" text-anchor="middle">R</text>'+
+      '<text x="244" y="382" font-family="Inter,Helvetica,Arial" font-size="34" font-weight="600" fill="#c9ccd4" letter-spacing="3">RIDGELINE</text>'+
+      '<text x="244" y="416" font-family="Inter,Helvetica,Arial" font-size="24" fill="#8b90a0" letter-spacing="3">AUTO CARE</text>'+
+      '<text x="1400" y="378" font-family="Inter,Helvetica,Arial" font-size="96" font-weight="600" fill="#ffffff" text-anchor="middle">HALF-PRICE</text>'+
+      '<text x="1400" y="474" font-family="Inter,Helvetica,Arial" font-size="96" font-weight="600" fill="#f5c542" text-anchor="middle">OIL CHANGE</text>'+
+      '<text x="2650" y="386" font-family="Inter,Helvetica,Arial" font-size="54" font-weight="600" fill="#c9ccd4" text-anchor="end">801-555-0142</text>'+
+      '<text x="2650" y="424" font-family="Inter,Helvetica,Arial" font-size="26" fill="#8b90a0" text-anchor="end">EXIT 12 · 2 MILES</text></svg>';
+  }
+  function svgTall(){
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920">'+
+      '<defs><linearGradient id="p" x1="0" y1="0" x2="1" y2="1">'+
+      '<stop offset="0" stop-color="#111a2e"/><stop offset=".55" stop-color="#16324f"/><stop offset="1" stop-color="#0e1626"/>'+
+      '</linearGradient></defs><rect width="1080" height="1920" fill="url(#p)"/>'+
+      '<rect x="0" y="0" width="1080" height="22" fill="#e8b53a"/>'+
+      '<rect x="462" y="300" width="96" height="96" rx="13" fill="#7d6a3a"/>'+
+      '<text x="510" y="366" font-family="Inter,Helvetica,Arial" font-size="56" font-weight="600" fill="#efe4c6" text-anchor="middle">R</text>'+
+      '<text x="540" y="470" font-family="Inter,Helvetica,Arial" font-size="42" font-weight="600" fill="#c9ccd4" text-anchor="middle" letter-spacing="4">RIDGELINE</text>'+
+      '<text x="540" y="516" font-family="Inter,Helvetica,Arial" font-size="28" fill="#8b90a0" text-anchor="middle" letter-spacing="4">AUTO CARE</text>'+
+      '<text x="540" y="930" font-family="Inter,Helvetica,Arial" font-size="112" font-weight="600" fill="#ffffff" text-anchor="middle">HALF-PRICE</text>'+
+      '<text x="540" y="1052" font-family="Inter,Helvetica,Arial" font-size="112" font-weight="600" fill="#f5c542" text-anchor="middle">OIL CHANGE</text>'+
+      '<text x="540" y="1560" font-family="Inter,Helvetica,Arial" font-size="60" font-weight="600" fill="#c9ccd4" text-anchor="middle">801-555-0142</text>'+
+      '<text x="540" y="1614" font-family="Inter,Helvetica,Arial" font-size="30" fill="#8b90a0" text-anchor="middle">EXIT 12 · 2 MILES</text></svg>';
+  }
+  ART.wide = uri(svgWide()); ART.tall = uri(svgTall());
+  var FILES = {
+    wide:{id:'wide', name:'ridgeline-summer-2800×800.jpg', w:2800, h:800, art:'wide', brand:'ridge'},
+    tall:{id:'tall', name:'ridgeline-story-1080×1920.png', w:1080, h:1920, art:'tall', brand:'ridge'},
+    near:{id:'near', name:'ridgeline-promo-1520×400.jpg', w:1520, h:400, art:'wide', brand:'ridge'}
+  };
+
+  function origOf(d){ return d.images.filter(function(x){ return x.prov==='original'; })[0]; }
+  /* the design's original, shaped like v2's file record so the rest of v2 runs on it unchanged */
+  function fileOf(id){ var d = DESIGNS[id], o = origOf(d);
+    return {id:id, name:o.file, design:d.name, brand:d.brand, w:o.w, h:o.h, art:id}; }
+  LIB_ORDER.forEach(function(id){ var d = DESIGNS[id], o = origOf(d); ART[id] = bg(d.brand, o.w, o.h); });
+
+  /* ---- the four bands ---- */
+  var B = {FIT:0.03, ADJ:0.07, RELAY:0.12};
+  function bandOf(c){ return c<=B.FIT?'fit':(c<=B.ADJ?'adjust':(c<=B.RELAY?'relayout':'genfam')); }
+
+  /* [w,h,signs] */
+  /* a real campaign: three or four required sizes */
+  var REAL = [[1400,400,40],[840,400,12],[1920,1080,10],[1080,1920,5]];
+  var SCEN = [{id:'real', lab:'Campaign', files:['wide'], sizes:REAL}];
+
+  var PHRASES = ['Reading your file','Checking dimensions','Matching your sizes','Preparing crops'];
+
+  var S = {v:'section', src:{kind:'upload', id:'wide'}, applied:[], scen:'real', phr:0, cropping:false, ai:'idle', showDrag:false,
+           done:{}, sel:null, lab:'mono', zoom:null, zoomFrom:null, openRows:{},
+           framed:false, folded:true, cache:{}, editFrom:null, tq:[], building:null, landed:{},
+           signsShown:0, signsTarget:0, removed:{}, uploaded:{}, uploading:{}, uploadErr:{}, picker:null, batches:[], fileId:null, tileSel:{},
+           drag:null, dragging:false, frames:{}, editFile:null, editSize:null, aiEditSize:null, t1:null, t2:null};
+
+  function sc(){ return SCEN.filter(function(x){return x.id===S.scen;})[0]; }
+  /* starting states to review, picked from the switcher and kept in the URL, so a reload stays put */
+  var SCENARIOS = [['new','New campaign'],['empty','Empty library'],['partial','Partly covered'],['full','Fully covered']];
+  var HASH = location.hash.replace('#','').split('&');
+  var SCENARIO = HASH[0] || 'new';
+  if(!SCENARIOS.some(function(x){ return x[0]===SCENARIO; })) SCENARIO = 'new';
+  function writeHash(){
+    history.replaceState(null, '', location.pathname + location.search + (SCENARIO==='new' ? '' : '#'+SCENARIO));
+  }
+  /* the creative in progress comes from one of two sources: a file from the computer, or a design from My Library */
+  function files(){ var s = S.src || {kind:'upload', id:'wide'}; return [s.kind==='lib' ? fileOf(s.id) : FILES[s.id]]; }
+
+
+
+  /* ---- more than one creative in a single visit: each finished creative is kept as a batch ---- */
+  /* scan thumbnails keep the file's shape inside a 400×300 box, so a tall file doesn't blow up the modal */
+  function thumbStyle(f){ var r = f.w/f.h, w = Math.min(400, Math.round(300*r)); return 'width:'+w+'px;height:'+Math.round(w/r)+'px;background-image:'+ART[f.art]; }
+  /* how a creative's source is named on screen: a library design by its design name (its stored file name is a
+     generated string that means nothing to the advertiser), an upload by the file they chose */
+  function srcLabel(f){ return f.design ? f.design.replace('&','&amp;') : f.name; }
+  function batchName(f, d){ return f.name.replace(/\.[a-z]+$/,'').replace(/-\d+×\d+$/,'')+'_'+d[0]+'×'+d[1]+'.jpg'; }
+  /* what the creative in progress would add right now: saved dimensions and crops, plus AI layouts and uploads that exist */
+  function currentBatch(){
+    var p = plan(), f = files()[0], all = aiAll(p);
+    /* a removed dimension adds nothing, including a stretched one whose regenerated layout was removed */
+    return {file:f, items: p.items.filter(function(i){ var k = kOf(i.d);
+        return S.done[k] || (p.aiTask.indexOf(i)<0 && !S.removed[k]); }).map(function(i){
+      var k = kOf(i.d), up = S.uploaded[k], made = all.indexOf(i)>-1 && !!S.done[k] && !up;
+      return {k:k, i:i, up: up ? {name:up.name} : null, made:made,
+              ai: made || (!up && !!i.saved && i.saved.prov==='ai'),
+              stretch: !up && !made && isRegen(i),
+              /* a library creative is named by its design, an upload by its file */
+              name: up ? up.name : (f.design ? srcLabel(f) : batchName(f, i.d))};
+    })};
+  }
+  function entryBG(e, w){
+    if(e.up) return 'background-image:'+upArt(e.i.d, e.i.f.brand)+';background-size:100% 100%';
+    if(e.made) return aiBG(e.i, w);
+    if(e.i.saved) return savedBG(e.i, w);
+    return e.i.band==='fit' ? fitBG(e.i,w) : cropBG(e.i,w); }
+  /* every creative this visit adds, earlier batches first, grouped by sign dimension */
+  /* every creative on the campaign, grouped by sign dimension: what was already added, then this visit's earlier creatives,
+     then (while the modal is open) the one in progress. Both sources add to the same campaign */
+  function entriesByDim(withCurrent){
+    var by = {}, list = S.applied.concat(S.batches);
+    if(withCurrent) list = list.concat([currentBatch()]);
+    list.forEach(function(b){ b.items.forEach(function(e){ (by[e.k] = by[e.k] || []).push(e); }); });
+    return by;
+  }
+  function batchKeys(){ var s = {}; S.applied.concat(S.batches).forEach(function(b){ b.items.forEach(function(e){ s[e.k] = true; }); }); return s; }
+  /* signs covered once earlier batches are counted alongside the given dimensions */
+  function unionSigns(items){
+    var s = batchKeys(); items.forEach(function(i){ s[kOf(i.d)] = true; });
+    return signsIn(plan().items.filter(function(i){ return s[kOf(i.d)]; }));
+  }
+  function sizes(){ return sc().sizes; }
+  function total(){ return sizes().reduce(function(a,d){return a+d[2];},0); }
+  function orient(r){ return r>1.15?'land':(r<0.87?'port':'sq'); }
+  function ratioName(f){ var o=orient(f.w/f.h);
+    return (o==='land'?'Horizontal':(o==='port'?'Vertical':'Square'))+' ('+(Math.round(f.w/f.h*100)/100)+':1)'; }
+  function sg(n){ return n+' sign'+(n===1?'':'s'); }
+  /* dimensions are described by orientation only: Landscape, Portrait or Square, never a format name */
+  function fmtName(d){ return oriName(d); }
+  var SPARK = '<svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">'+
+    '<path d="M6 0 L7.1 4.9 L12 6 L7.1 7.1 L6 12 L4.9 7.1 L0 6 L4.9 4.9 Z"/></svg>';
+  function kOf(d){ return d[0]+'x'+d[1]; }
+  function oriName(d){ var o=orient(d[0]/d[1]); return o==='land'?'Landscape':(o==='port'?'Portrait':'Square'); }
+  function thumbH(d,w){ return Math.max(9, Math.round(w/(d[0]/d[1]))); }
+  /* fit any ratio inside a fixed box so rows share a height */
+  function fitBox(d,bw,bh){
+    var r=d[0]/d[1], w=bw, h=w/r;
+    if(h>bh){ h=bh; w=h*r; }
+    return {w:Math.max(10,Math.round(w), 0), h:Math.max(9,Math.round(h))};
+  }
+  var ROWBOX={w:52,h:44};
+
+  /* each sign dimension takes an image the design already carries when there is one; otherwise it is measured against the original */
+  function plan(){
+    var f = files()[0], D = DESIGNS[f.id], items = [], gap = [];
+    sizes().forEach(function(d){
+      /* an uploaded file carries nothing saved; a library design may already have this dimension */
+      var saved = D ? D.images.filter(function(x){ return x.prov!=='original' && x.w===d[0] && x.h===d[1]; })[0] : null;
+      if(saved){ items.push({d:d, f:f, saved:saved, band:'saved', cost:0}); return; }
+      var r = d[0]/d[1], sr = f.w/f.h, c = 1 - Math.min(r,sr)/Math.max(r,sr);
+      items.push({d:d, f:f, cost:c, band:bandOf(c)});
+    });
+    var of_ = function(b){ return items.filter(function(i){return i.band===b;}); };
+    var fit = of_('fit'), adj = of_('adjust'), rel = of_('relayout'), gen = of_('genfam'), saved = of_('saved');
+    /* crops happen without asking; every AI layout is opt-in, and so is regenerating a stretched image */
+    return {items:items, gap:gap, fit:fit, adjust:adj, relayout:rel, genfam:gen,
+            saved:saved, stretched:saved.filter(isRegen),
+            auto: fit,
+            aiTask: rel.concat(gen)};
+  }
+  /* a saved image made by Blip's earlier stretch resize: kept, and offered Regenerate per card */
+  function isRegen(i){ return !!(i && i.saved && i.saved.prov==='stretch'); }
+  /* everything AI can make in this visit: missing dimensions, plus stretched ones picked to regenerate */
+  function aiAll(p){ return p.aiTask.concat(p.stretched); }
+  function itemOf(k){ return plan().items.filter(function(i){ return kOf(i.d)===k; })[0]; }
+  function signsIn(list){ return list.reduce(function(a,i){return a+(i.d?i.d[2]:i[2]);},0); }
+
+  /* frames, keyed by file + size */
+  function key(i){ return i.f.id+'|'+i.d[0]+'x'+i.d[1]; }
+  function maxFrame(i){ var f=i.f, r=i.d[0]/i.d[1], w=f.w, h=w/r; if(h>f.h){h=f.h;w=h*r;} return {w:w,h:h}; }
+  function initFrame(i){ var mx=maxFrame(i);
+    var j = (NUDGE++ % 3) - 1;
+    return {w:mx.w,h:mx.h,x:Math.max(0,Math.min(i.f.w-mx.w,(i.f.w-mx.w)/2 + j*(i.f.w-mx.w)*0.35)),y:(i.f.h-mx.h)/2}; }
+  function FR(i){ var k=key(i); if(!S.frames[k]) S.frames[k]=initFrame(i); return S.frames[k]; }
+  var NUDGE = 0;
+  function clampF(i,f){ var mx=maxFrame(i), r=i.d[0]/i.d[1], minW=mx.w*0.34;
+    f.w=Math.max(minW,Math.min(mx.w,f.w)); f.h=f.w/r;
+    f.x=Math.max(0,Math.min(i.f.w-f.w,f.x)); f.y=Math.max(0,Math.min(i.f.h-f.h,f.y)); return f; }
+  function cropBG(i,pw){
+    var f=FR(i), src=i.f, r=i.d[0]/i.d[1], cw=f.h*r, cx=f.x+(f.w-cw)/2, k=pw/cw;
+    return 'background-image:'+ART[src.art]+';background-size:'+(src.w*k)+'px '+(src.h*k)+'px;'+
+           'background-position:-'+(cx*k)+'px -'+(f.y*k)+'px'; }
+  function fitBG(i,pw){ /* pure scale, no crop */
+    return 'background-image:'+ART[i.f.art]+';background-size:100% 100%'; }
+  /* a new AI layout, drawn for the sign's own shape */
+  /* a new AI layout: a library design shows the layout drawn for the shape; an uploaded file keeps concept-flow-v2's look */
+  function aiBG(i,pw){ return DESIGNS[i.f.id] ? 'background-image:'+bg(i.f.brand, i.d[0], i.d[1])+';background-size:100% 100%' : cropBG(i, pw || 270); }
+
+  /* a saved image as it is stored: a stretched one is the original squeezed into the sign's shape */
+  function savedBG(i,pw){
+    var s = i.saved;
+    if(s.prov==='stretch') return 'background-image:'+ART[i.f.art]+';background-size:100% 100%';
+    if(s.prov==='ai') return aiBG(i);
+    return cropBG(i,pw); }
+  function aiCapable(i){ return i.band==='relayout' || i.band==='genfam' || isRegen(i); }
+  /* whatever fills this dimension: their own upload, a new AI layout, a saved image, a straight scale, or a crop */
+  function artBG(i,pw){
+    var k = kOf(i.d);
+    if(S.uploaded[k]) return 'background-image:'+upArt(i.d, i.f.brand)+';background-size:100% 100%';
+    if(S.done[k] && aiCapable(i)) return aiBG(i,pw);
+    if(i.saved) return savedBG(i,pw);
+    return i.band==='fit' ? fitBG(i,pw) : cropBG(i,pw); }
+
+  function curItem(list,key2){
+    var p=plan(), all=p.items;
+    return all.filter(function(i){ return i.d[0]+'x'+i.d[1]===key2; })[0];
+  }
+
+  /* ================= section ================= */
+  /* the info button carries the file requirements: the rules people come to it for, not a pitch */
+  function titleHTML(){
+    return '<div class="crtitle">Creative <button class="infob" data-a="info" aria-expanded="'+!!S.info+'" aria-label="File requirements">&#9432;</button>'+
+      (S.info ? infoPop() : '')+'</div>';
+  }
+  function infoPop(){
+    var dims = sizes().slice().sort(function(a,b){ return b[2]-a[2]; }).map(function(d){
+      return '<li><span>'+d[0]+' × '+d[1]+' px · '+oriName(d)+'</span><span class="c">'+sg(d[2])+'</span></li>'; }).join('');
+    return '<div class="infopop" role="dialog" aria-label="File requirements">'+
+      '<p class="ih">File requirements</p>'+
+      '<dl><dt>Formats</dt><dd>PNG, JPG, JPEG, WEBP</dd>'+
+        '<dt>Max file size</dt><dd>5 MB per file</dd>'+
+        '<dt>Limit</dt><dd>10 creatives per sign dimension</dd></dl>'+
+      '<p class="is">Sign dimensions in this campaign</p><ul>'+dims+'</ul>'+
+      '<p class="in">Files at these exact dimensions need no changes. Other files are cropped or resized to fit, and can be reviewed before adding.</p>'+
+      '<p class="il"><a>Content guidelines</a><span>·</span>Need more than 10? <a>Contact support</a></p></div>';
+  }
+  /* Add creative leads the section with the rules line under it. The whole card still takes a dropped file,
+     shown only while one is dragged over it */
+  var CVEIL = '<div class="cveil" aria-hidden="true"><span class="vt">Drop to upload</span><span class="vs">PNG, JPG, JPEG · 5MB max per file</span></div>';
+  function addBar(){
+    /* stays the primary once creatives are added: it is the section's one main action, the row links are shortcuts to it */
+    /* on phones, once something is applied, the full-width button steps down to the secondary style (Next leads there) */
+    return '<div class="addbar"><button class="btn pri'+(S.applied.length ? ' is-applied' : '')+'" data-a="openlib">Add creative</button>'+
+      '<p class="addhint">PNG, JPG, JPEG &nbsp;·&nbsp; 5MB max per file &nbsp;·&nbsp; Up to 10 files per sign dimension</p></div>';
+  }
+  function sectionHTML(){
+    /* the step shows everything already added to the campaign, whichever source it came from */
+    var applied = S.applied.length>0, p = plan(), SZ = sizes(), T = total();
+    var byDim = applied ? entriesByDim(false) : {};
+    var has = function(i){ return !!byDim[kOf(i.d)]; };
+    /* once every sign has a creative there is nothing left to upload for, and the full meter already says so */
+    var complete = applied && p.items.every(has);
+    /* the bar is drawn at the last count shown, then animated to the new one after paint */
+    var cov = applied ? signsIn(p.items.filter(has)) : 0;
+    S.signsTarget = cov;
+    var rows = applied
+      ? p.items.slice().sort(function(a,b){ return b.d[2]-a.d[2]; }).map(function(i){ return has(i) ? filledRow(i, byDim[kOf(i.d)]) : emptyRow(i.d); })
+      : SZ.slice().sort(function(a,b){ return b[2]-a[2]; }).map(emptyRow);
+    return titleHTML()+
+      (complete ? '' : '<p class="crsub">Upload more sizes to reach more people.</p>')+
+      '<div class="meterhead"><span class="n">'+cov+' of '+T+' signs</span>'+
+        (complete ? '<span class="why good">&#10003; Your creative is ready for every selected sign</span>'
+                  : '<span class="why">Each size unlocks more impressions.</span>')+'</div>'+
+      '<div class="meter"><i id="meterfill" style="width:'+(S.signsShown/T*100)+'%"></i></div>'+
+      addBar()+'<div class="rows" style="margin-top:0">'+rows.join('')+'</div>'+CVEIL+
+      '<div class="needcard"><h4>Need a creative?</h4><div class="lks">'+
+      '<a class="lk">Canva templates &#8599;</a><a class="lk">Blip\'s design team ($99/design) &#8599;</a></div></div>'+
+      '<p class="foot">Your creative is reviewed within 48 hours. Once approved your campaign goes live at scheduled time and you will '+
+      'receive a confirmation email. <span class="foot2">Sign owners set their own content exclusions, so some placements may not be available.</span></p>';
+  }
+  function emptyRow(d){
+    var bx=fitBox(d,ROWBOX.w,ROWBOX.h);
+    return '<div class="srow"><div class="line"><span class="swatch"><i style="width:'+bx.w+
+      'px;height:'+bx.h+'px"></i></span>'+
+      '<span class="sdim">'+d[0]+' × '+d[1]+' px</span><span class="sori">'+oriName(d)+'</span>'+
+      '<span class="sgrow"></span><span class="scount offer">+'+sg(d[2])+'</span>'+
+      /* a shortcut to the same picker as the main button, so it is a quiet link, not a second button */
+      '<span class="sacts"><button class="rowadd" data-a="addcreative"><span class="pl">+</span> Add creative</button></span>'+
+      '</div></div>';
+  }
+  function filledRow(i, list){
+    var k = kOf(i.d), open = !!S.openRows[k];
+    /* one tile per creative this size holds; the selected tile is the one named below */
+    var si = Math.min(S.tileSel[k] || 0, list.length-1), cur = list[si];
+    /* v2 labels only AI rows; a stretched image kept from the library says so too */
+    var nAI = list.filter(function(e){ return e.ai; }).length, nSt = list.filter(function(e){ return e.stretch; }).length;
+    var meta = nAI ? (nAI===list.length ? 'Resized with AI' : nAI+' of '+list.length+' resized with AI'+(nSt ? ' · '+nSt+' stretched' : ''))
+             : nSt ? (nSt===list.length ? 'Stretched' : nSt+' of '+list.length+' stretched') : '';
+    var isAI = !!meta;
+    var fn = cur.name;
+    var tb = fitBox(i.d, 232, 122);
+    var chev = open
+      ? '<svg class="chv" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg class="chv" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    return '<div class="srow filled'+(open?' open':'')+'"><div class="line head'+(isAI?'':' solo')+'" data-a="togglerow" data-k="'+k+'" aria-expanded="'+open+'">'+
+      '<span class="swatch"><span class="tn" style="width:'+fitBox(i.d,ROWBOX.w,ROWBOX.h).w+
+        'px;height:'+fitBox(i.d,ROWBOX.w,ROWBOX.h).h+'px;'+entryBG(list[0],ROWBOX.w)+'"></span></span>'+
+      '<span class="sdim">'+i.d[0]+' × '+i.d[1]+' px <span>· '+oriName(i.d)+'</span></span>'+
+      (meta?'<span class="smeta">'+meta+'</span>':'')+
+      '<span class="scount done">'+sg(i.d[2])+'<span class="xl"> covered</span>'+chev+'</span></div>'+
+      (open ? '<div class="rowbody">'+
+        '<div class="cstrip"><div class="ctiles">'+
+          list.map(function(e, n){
+            return '<div class="ctile'+(n===si?' sel':'')+'" data-a="seltile" data-k="'+k+'" data-n="'+n+'" title="'+e.name+'"><span class="ok">&#10003;</span>'+
+              '<span class="img" style="width:'+tb.w+'px;height:'+tb.h+'px;'+entryBG(e,tb.w)+'"></span></div>';
+          }).join('')+
+          /* Add more opens the same picker as Add creative; whatever is added lands on every dimension it fits, this one included */
+          '</div><button class="rowadd addmore" data-a="addcreative"><span class="pl">+</span> Add more</button></div>'+
+        '<div class="cinfo"><div class="cmeta"><span class="fn">'+fn+'</span><span class="sp"></span><a data-a="removecreative" data-k="'+k+'" data-n="'+si+'">Remove</a></div>'+
+          '<div class="rdy">&#10003; Ready for review</div></div>'+
+      '</div>' : '')+'</div>';
+  }
+
+  function doneRow(i,open){
+    var d=i.d, r=d[0]/d[1];
+    var sw = open ? '<i style="width:'+Math.round(26*r)+'px;height:26px"></i>'
+      : '<span class="tn" style="height:'+thumbH(d,44)+'px;'+(i.band==='fit'?fitBG(i,44):cropBG(i,44))+'"></span>';
+    return '<div class="srow click"><div class="line"><span class="swatch">'+sw+'</span>'+
+      '<span class="sdim">'+d[0]+' × '+d[1]+' px <span>· '+oriName(d)+'</span></span>'+
+
+      (open?'<span class="askchip">Add a '+oriName(d).toLowerCase()+' file</span>':'')+
+      '<span class="sgrow"></span>'+
+      (open?'<span class="scount offer">+'+sg(d[2])+'</span>':'<span class="scount done">'+sg(d[2])+'</span>')+
+      '<span class="ch">&#8250;</span></div></div>';
+  }
+
+  /* ================= modal ================= */
+  function dotsEl(i){ return '<div class="steps">'+[0,1,2].map(function(k){
+    return '<i class="'+(k===i?'on':(k<i?'past':''))+'"></i>';}).join('')+'</div>'; }
+  var BACK = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3.5M7.5 3.5 3 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  /* the crop editor and the zoom are steps inside a screen, so they keep that screen's footer */
+  function parentFoot(v){ return v==='aiedit' ? mdAIEdit(true) : mdChecklist(true); }
+  function wrapMD(t,s,d,body,ft,back,bodyCls){
+    return '<div class="veil"><div class="md">'+
+      '<div class="mdhd">'+(back?'<button class="back" data-a="back" aria-label="Back">'+BACK+'</button>':'')+
+      '<span><p class="t">'+t+'</p>'+(s?'<p class="s">'+s+'</p>':'')+'</span><span class="sp"></span>'+d+
+      '<button class="x" data-a="exit" aria-label="Exit">&#10005;</button></div>'+
+      '<div class="mdbody'+(bodyCls?' '+bodyCls:'')+'">'+body+'</div><div class="mdft">'+ft+'</div>'+(S.confirm?confirmHTML():'')+'</div></div>';
+  }
+  /* the scan applies nothing, so only screens after it ask before exiting */
+  function needsConfirm(){ return S.v!=='checking' && S.v!=='scanned'; }
+  function confirmHTML(){
+    var made = aiAll(plan()).filter(function(i){ return S.done[kOf(i.d)] && !S.uploaded[kOf(i.d)]; }).length;
+    return '<div class="confirm"><div class="cbox" role="alertdialog" aria-labelledby="ct">'+
+      '<p class="ct" id="ct">Exit without applying?</p>'+
+      '<p class="cs">Nothing will be added to your campaign'+
+        (made ? ', and your '+made+' new layout'+(made===1?'':'s')+' will be discarded.' : '.')+'</p>'+
+      '<div class="cacts"><button class="btn sm" data-a="stay">Keep editing</button>'+
+      '<button class="btn pri sm" data-a="leave">Exit</button></div></div></div>';
+  }
+  function srcline(){
+    return files().map(function(f){
+      return '<div class="srcline"><span class="tn" style="height:'+Math.round(48/(f.w/f.h))+'px;background-image:'+ART[f.art]+'"></span>'+
+        '<span><span class="nm">'+srcLabel(f)+'</span> <span class="dm">'+ratioName(f)+'</span></span><span class="sp"></span></div>';
+    }).join('');
+  }
+
+  function mdChecking(){
+    var f = files()[0];
+    return wrapMD('Add creative','',dotsEl(0),
+      '<div class="loadwrap">'+
+      '<span class="loadthumb" style="'+thumbStyle(f)+'"></span>'+
+      '<span class="loadbar"><i></i></span><p class="loadphr">'+PHRASES[S.phr]+'</p></div>',
+      '');
+  }
+  /* step 1 revisited: the scan has already run, so it settles instead of looping */
+  function mdScanned(){
+    var f = files()[0];
+    /* this screen confirms what the advertiser did: uploaded a file, or chose a design from My Library */
+    return wrapMD('Add creative','',dotsEl(0),
+      '<div class="loadwrap">'+
+      '<span class="loadthumb" style="'+thumbStyle(f)+'"></span>'+
+      (DESIGNS[f.id]
+        ? '<div class="loaddone"><p class="loadok"><i>&#10003;</i>Added from My Library</p>'+
+          '<p class="loadfile">'+srcLabel(f)+'</p>'+
+          '<p class="loadfile loadrep"><button class="elink" data-a="libreplace">Choose a different creative</button></p></div></div>'
+        : '<div class="loaddone"><p class="loadok"><i>&#10003;</i>File uploaded</p>'+
+          '<p class="loadfile">'+f.name+'</p>'+
+          '<p class="loadfile loadrep"><button class="elink" data-a="up">Replace file</button></p></div></div>'),
+      '<span class="sp"></span><button class="btn pri sm" data-a="continue">Continue</button>');
+  }
+
+  function opLabel(i,p,aiDone){
+    if(p.auto.indexOf(i)>-1) return i.band==='fit' ? ['Scaled','sc'] : ['Regenerated','ai'];
+    if(p.adjust.indexOf(i)>-1) return ['Cropped','cr'];
+    return aiDone ? ['AI resized','ai'] : ['Waiting',''];
+  }
+  function tileHTML(i,opts){
+    opts = opts||{};
+    var pw = 68, ph = thumbH(i.d,pw);
+    if(ph>68){ ph=68; pw=Math.max(18,Math.round(ph*(i.d[0]/i.d[1]))); }
+    var bg = opts.ghost ? '' : (i.band==='fit' ? fitBG(i,pw) : cropBG(i,pw));
+    return '<div class="tile'+(opts.ghost?' ghost':'')+(opts.busy?' busy':'')+(opts.aidone?' aidone':'')+'">'+
+      '<span class="tpv" style="width:'+pw+'px;height:'+ph+'px;'+bg+'"></span>'+
+      (opts.busy?'<span class="busylab">Resizing…</span>':'')+
+      (opts.edit&&!opts.busy?'<button class="edit" data-a="'+opts.edit+'" data-k="'+i.d[0]+'x'+i.d[1]+'" aria-label="Edit">&#9998;</button>':'')+
+      '<span class="tlab">'+i.d[0]+'×'+i.d[1]+'</span>'+
+      (opts.op?'<span class="top '+opts.op[1]+'">'+opts.op[0]+'</span>':'')+'</div>';
+  }
+
+  function selSet(p){
+    /* dimensions another creative already covers add no signs, so they start unselected */
+    if(!S.sel){ S.sel = {}; var prior = batchKeys(); p.aiTask.forEach(function(i){ S.sel[kOf(i.d)] = !prior[kOf(i.d)]; }); }
+    return S.sel;
+  }
+  /* regenerating a stretched image is the advertiser's call, card by card, so nothing starts selected */
+  function regenSet(){ if(!S.regen) S.regen = {}; return S.regen; }
+  function mdChecklist(footOnly){
+    var p = plan(), T = total();
+    var sel = selSet(p), rg = regenSet();
+    var missing = p.aiTask.filter(function(i){ return !S.done[kOf(i.d)]; });
+    var built   = p.aiTask.filter(function(i){ return  S.done[kOf(i.d)]; });
+    var shown   = p.saved.concat(p.auto).concat(p.adjust).concat(built).sort(function(a,b){ return b.d[2]-a.d[2]; });
+    var covered = signsIn(shown);
+    var picked  = missing.filter(function(i){ return sel[kOf(i.d)]; });
+    var stretchedOpen = p.stretched.filter(function(i){ return !S.done[kOf(i.d)]; });
+    var regenPicked   = stretchedOpen.filter(function(i){ return rg[kOf(i.d)]; });
+
+    function pv(i){
+      var maxW = 262, maxH = 76, r = i.d[0]/i.d[1];
+      var w = maxW, h = Math.round(w/r);
+      if(h > maxH){ h = maxH; w = Math.round(h*r); }
+      return '<span style="width:'+w+'px;height:'+h+'px;'+artBG(i,w)+'"></span>';
+    }
+    /* one card per dimension. From My Library ones came with the design; a stretched one carries Regenerate where a crop carries Edit */
+    function ckCard(i){
+      var k = kOf(i.d), lab, act = '', cls = '';
+      if(i.saved && !S.done[k]){
+        if(isRegen(i) && rg[k]){
+          cls = ' regen'; lab = '<span class="lmono picked">Selected to regenerate</span>';
+          act = '<button class="elink" data-a="regenmark" data-k="'+k+'">Undo</button>';
+        } else if(isRegen(i)){
+          lab = '<span class="lmono">From My Library · Stretched</span>';
+          act = '<button class="elink" data-a="regenmark" data-k="'+k+'">Regenerate</button>';
+        } else lab = '<span class="lmono">From My Library</span>';
+      } else if(S.done[k]){
+        lab = '<span class="lmono">New layout</span>';
+        act = '<button class="elink" data-a="aiedit" data-k="'+k+'">Edit</button>';
+      } else {
+        lab = '<span class="lmono">Cropped</span>';
+        act = '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>';
+      }
+      return '<div class="rcard'+cls+'">'+
+        '<div class="rpv zoomable" data-a="zoom" data-k="'+k+'">'+pv(i)+'</div>'+
+        /* every card shares one source and the header carries the sign total, so the footer is just what and how */
+        '<div class="rft"><div class="r1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="linline">· '+fmtName(i.d)+'</span></div>'+
+          '<div class="r2">'+lab+'<span class="sp"></span>'+act+'</div></div></div>';
+    }
+
+    /* signs an earlier creative already covers aren't new value, so they don't count toward "unlock" */
+    var prior = batchKeys(), isNew = function(i){ return !prior[kOf(i.d)]; };
+    var pickedSigns = signsIn(picked.filter(isNew)), allAI = signsIn(missing.filter(isNew));
+    var body = '';
+
+    /* an AI offer card: the fitted card, empty, with an outline where the layout will go; the whole card is the checkbox */
+    function offerCard(i){
+      var k = kOf(i.d), on = !!sel[k], gb = fitBox(i.d, 262, 76);
+      return '<button class="rcard ocard'+(on?' on':'')+'" role="checkbox" aria-checked="'+on+'" data-a="pickcard" data-k="'+k+'">'+
+        '<span class="rpv"><span class="oghost" style="width:'+gb.w+'px;height:'+gb.h+'px"></span>'+
+          '<span class="ock" aria-hidden="true">'+(on?'&#10003;':'')+'</span></span>'+
+        '<span class="rft"><span class="r1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="linline">· '+fmtName(i.d)+'</span></span>'+
+          /* signs are counted in the receipt; the card only notes when another creative already covers it */
+          '<span class="r2"><span class="lmono">'+(isNew(i) ? '' : 'Already covered')+'</span></span></span></button>';
+    }
+    /* a stretched image is a decision too: shown as it is, selectable to be replaced by an AI resize. Nothing starts selected */
+    function stretchCard(i){
+      var k = kOf(i.d), on = !!rg[k];
+      return '<button class="rcard ocard st'+(on?' on':'')+'" role="checkbox" aria-checked="'+on+'" data-a="regenmark" data-k="'+k+'">'+
+        '<span class="rpv">'+pv(i)+'<span class="ock" aria-hidden="true">'+(on?'&#10003;':'')+'</span></span>'+
+        '<span class="rft"><span class="r1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="linline">· '+fmtName(i.d)+'</span></span>'+
+          '<span class="r2"><span class="lmono">From My Library · Stretched</span></span></span></button>';
+    }
+    var stretchedCards = shown.filter(function(i){ return isRegen(i) && !S.done[kOf(i.d)]; });
+    var fittedCards = shown.filter(function(i){ return stretchedCards.indexOf(i)<0; });
+    if(missing.length || stretchedCards.length){
+      /* one panel for every sign dimension: the decisions on the first row, what is already fitted on its own row below */
+      body += '<div class="ckpanel merged"><div class="rhead"><p class="rt">Sign dimensions</p>'+
+          '<span class="sp"></span><span class="hacts"><a data-a="selall">Select all</a><a data-a="selnone">Clear</a></span></div>'+
+        '<p class="os">Select the dimensions to resize with AI.'+(stretchedCards.length ? ' Stretched images can be replaced with an AI resize.' : '')+'</p>'+
+        '<div class="rgrid">'+missing.map(offerCard).join('')+stretchedCards.map(stretchCard).join('')+'</div>'+
+        /* cropped and From My Library cards sit on their own row, set apart by a rule rather than a label */
+        (fittedCards.length ? '<div class="fitrow"><p class="sublab">Ready to use</p><div class="rgrid">'+fittedCards.map(ckCard).join('')+'</div></div>' : '')+'</div>'+
+        '<p class="disc below">AI layouts are reviewed like any creative. Sign owners set their own content rules. <a>Content guidelines</a></p>';
+    } else if(shown.length){
+      body += '<div class="ckpanel"><div class="rhead"><p class="rt">Fitted to your sign dimensions</p></div>'+
+        '<div class="rgrid">'+shown.map(ckCard).join('')+'</div></div>';
+    }
+
+    /* the one place the numbers live, kept to two lines and a total: what is fitted now, what ticked AI dimensions add */
+    var fitted = unionSigns(shown), withAI = unionSigns(shown.concat(picked)), gain = withAI - fitted;
+    /* a pane of the modal, not a card: like an order summary, with the total set in the step's own "N of N signs" style */
+    var side = '<aside class="ckside" aria-label="Sign coverage"><p class="sh">Sign coverage</p><ul>'+
+      '<li><span class="d">Ready to use</span><span class="v">'+fitted+'</span></li>'+
+      (missing.length ? '<li class="'+(gain?'ai':'off')+'"><span class="d">Resize with AI</span><span class="v">'+(gain?'+'+gain:'—')+'</span></li>' : '')+
+      '</ul><div class="stot"><span class="d">Total</span><span class="v">'+withAI+' of '+T+' signs</span></div></aside>';
+    body = '<div class="ckmain">'+body+'</div>'+side;
+
+    /* the buttons never swap roles: with nothing ticked or picked, Resize only disables.
+       Regenerate picks run with the ticked dimensions, so any stretched card keeps the two-button footer */
+    var anyOffer = missing.length || stretchedOpen.length;
+    var nPicked = picked.length + regenPicked.length;
+    var primary = anyOffer
+      ? '<button class="btn sm" data-a="apply">Add without resizing</button>'+
+        '<button class="btn pri sm" data-a="runai"'+(nPicked?'':' disabled')+'>Resize</button>'
+      : '<button class="btn pri sm" data-a="apply">Add to campaign</button>';
+    /* no count in the footer: the header says what is covered now, the offer panel says what resizing adds */
+    var ft = '<span class="sp"></span>'+primary;
+    if(footOnly) return ft;
+    return wrapMD('Add creative', '', dotsEl(anyOffer?1:2), body, ft, true, 'split');
+  }
+
+  function mdEditor(){
+    var p = plan();
+    var i = p.items.filter(function(x){return x.d[0]+'x'+x.d[1]===S.editSize;})[0] || p.adjust[0];
+    if(!i) return mdChecklist();
+    S.editSize = i.d[0]+'x'+i.d[1];
+    /* the crop is kept as it is dragged; the back arrow returns to the screen it was opened from */
+    return wrapMD(i.d[0]+'×'+i.d[1], srcLabel(i.f), dotsEl(1),
+      '<div class="canvas" id="canvas"></div>'+
+      '<div class="edcap"><span class="pill ok">'+sg(i.d[2])+' from this crop</span>'+
+      '<span class="say">Drag to move · corners to scale</span><span class="sp"></span>'+
+      '<button class="reset" data-a="resetcrop">Reset</button></div>',
+      parentFoot(S.editFrom ? S.editFrom.v : 'checklist'), true);
+  }
+
+  function aiPool(){
+    var p = plan();
+    return p.auto.filter(function(i){return i.band!=='fit';})
+            .concat(p.aiTask.filter(function(i){ return S.done[kOf(i.d)]; }));
+  }
+  function mdZoom(){
+    var p = plan();
+    var i = p.items.filter(function(x){ return kOf(x.d)===S.zoom; })[0];
+    if(!i) return null;
+    var k = kOf(i.d), up = S.uploaded[k];
+    var isAI = aiCapable(i) && S.done[k] && !up;
+    var zw=840, zh=Math.round(zw/(i.d[0]/i.d[1]));
+    if(zh>350){ zh=350; zw=Math.round(zh*(i.d[0]/i.d[1])); }
+    var f=i.f, fromReview = S.zoomFrom==='aiedit';
+    var big = '<div class="nlbig" style="height:380px"><span style="width:'+zw+'px;height:'+zh+'px;'+artBG(i,zw)+'"></span></div>';
+    /* what applies to this one item sits as text links on its source line; the footer stays the screen's own */
+    var acts = '';
+    if(up) acts = '<button class="elink" data-a="removeai" data-k="'+k+'">Remove</button>'+
+                  '<button class="elink" data-a="uploadown" data-k="'+k+'">Replace</button>';
+    else if(i.saved && !isAI){
+      /* picking a stretched image to regenerate happens on the checklist only, never on the review */
+      if(isRegen(i) && !fromReview)
+        acts = '<button class="elink" data-a="regenmark" data-k="'+k+'">'+(S.regen && S.regen[k] ? 'Undo regenerate' : 'Regenerate')+'</button>';
+    }
+    else if(isAI) acts = '<button class="elink" data-a="removeai" data-k="'+k+'">Remove</button>'+
+                         '<button class="elink" data-a="regen" data-k="'+k+'">Regenerate</button>'+
+                         '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>';
+    else acts = '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>';
+    var src = up
+      ? '<div class="zsrc"><span class="nm">'+up.name+'</span><span class="dm">Your upload</span><span class="sp"></span>'+acts+'</div>'
+      : '<div class="zsrc"><span class="tn" style="height:'+Math.round(64/(f.w/f.h))+'px;background-image:'+ART[f.art]+'"></span>'+
+          '<span class="nm">'+srcLabel(f)+'</span><span class="dm">'+ratioName(f)+'</span><span class="sp"></span>'+acts+'</div>';
+    return wrapMD(i.d[0]+'×'+i.d[1], up ? 'Your upload' : srcLabel(f), dotsEl(fromReview?2:1), big+src,
+      parentFoot(S.zoomFrom), true);
+  }
+
+  function mdAIEdit(footOnly){
+    var p = plan();
+    var made = aiAll(p).filter(function(i){ return S.done[kOf(i.d)] || (S.building && S.building[kOf(i.d)]); });
+    if(!made.length && !Object.keys(S.removed).length) return mdChecklist(footOnly);
+    return mdLayoutsReview(p, made, footOnly);
+  }
+  function nlCard(i){
+    /* the checklist card's preview box, so the review reads as the same cards with the layouts filled in */
+    var maxW=262, maxH=76, r=i.d[0]/i.d[1], w=maxW, h=Math.round(w/r), k=kOf(i.d), st=isRegen(i);
+    if(h>maxH){ h=maxH; w=Math.round(h*r); }
+    var busy = S.building && S.building[k];
+    /* incremental coverage sits under the dimension in regular grey, never as a bold accent;
+       a regenerated dimension was already covered, so its count carries no plus until it is removed */
+    /* everything on this row was resized with AI, so the card just says so; signs are counted in the receipt, not here */
+    var foot = function(actions, tag, status){
+      var gain = (S.removed[k] || busy || S.uploading[k]) ? '' : '<span class="gain">'+(tag || 'Resized')+'</span>'; tag = '';
+      return '<div class="nlft two"><div class="l1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span>'+
+        '<span class="linline">· '+fmtName(i.d)+'</span></div>'+
+        '<div class="l2">'+(status || (gain+(tag?'<span class="linline">· '+tag+'</span>':'')))+
+        '<span class="sp"></span>'+(actions ? '<span class="acts">'+actions+'</span>' : '')+'</div></div>';
+    };
+    var rmBtn = '<button class="rm" data-a="removeai" data-k="'+k+'" aria-label="Remove '+i.d[0]+'×'+i.d[1]+'" title="Remove">&#10005;</button>';
+    if(S.uploading[k])
+      return '<div class="nlcard">'+buildPV(i, maxW, maxH, 'nlpv', 'Uploading')+foot('')+'</div>';
+    /* their own file fills the slot the AI layout left */
+    if(S.uploaded[k])
+      return '<div class="nlcard'+(S.landed[k]?' landed':'')+'">'+
+        '<div class="nlpv zoomable" data-a="zoom" data-k="'+k+'"><span style="width:'+w+'px;height:'+h+'px;'+artBG(i,w)+'"></span>'+rmBtn+'</div>'+
+        foot('<button class="elink" data-a="uploadown" data-k="'+k+'">Replace</button>', 'Your upload')+'</div>';
+    /* a removed layout keeps its place and shape in the grid, and offers the way to fill it themselves.
+       A removed regenerated layout removes the whole dimension; the stretched version is not put back */
+    if(S.removed[k]){
+      var err = S.uploadErr[k];
+      var undo = '<button class="elink" data-a="undoremove" data-k="'+k+'">Undo</button>';
+      if(err)
+        return '<div class="nlcard gone err"><div class="nlpv"><div class="gonebox">'+
+            '<button class="elink" data-a="uploadown" data-k="'+k+'">Upload a different image</button></div></div>'+
+          foot(undo, '', '<span class="errline" role="alert"><svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true">'+
+            '<circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.6"/>'+
+            '<path d="M8 4.6v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="11.2" r="1" fill="currentColor"/></svg>'+
+            'Image must be '+i.d[0]+'×'+i.d[1]+' px</span>')+'</div>';
+      return '<div class="nlcard gone"><div class="nlpv"><div class="gonebox"><em>Layout removed</em>'+
+          '<button class="elink" data-a="uploadown" data-k="'+k+'">Upload</button></div></div>'+
+        foot(undo)+'</div>';
+    }
+    return '<div class="nlcard'+(S.landed[k]?' landed':'')+'">'+
+      (busy ? buildPV(i, maxW, maxH, 'nlpv', st ? 'Regenerating' : '')
+            : '<div class="nlpv zoomable" data-a="zoom" data-k="'+k+'"><span style="width:'+w+'px;height:'+h+'px;'+aiBG(i,w)+'"></span>'+rmBtn+'</div>')+
+      foot(busy ? '' : '<button class="elink" data-a="regen" data-k="'+k+'">Regenerate</button>'+
+                       '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>',
+           '')+'</div>';
+  }
+  /* skeleton preview: a plain block in the sign's shape; the sweep is fixed to the page, so repaints never restart it */
+  function buildPV(i, maxW, maxH, cls, verb){
+    var r = i.d[0]/i.d[1], w = maxW, h = Math.round(w/r); if(h>maxH){ h=maxH; w=Math.round(h*r); }
+    return '<div class="'+cls+' skel" role="status" aria-label="'+(verb||'Resizing')+' '+i.d[0]+'×'+i.d[1]+'">'+
+      '<span class="sk" style="width:'+w+'px;height:'+h+'px"></span></div>';
+  }
+  /* the new layouts lead (removed ones keep their card and place), crops and saved images ride along underneath, and this screen applies */
+  /* the new layouts lead (removed ones keep their card and place), crops and saved images ride along underneath, and this screen applies.
+     Stretched images are picked to regenerate on the checklist only, so this screen is settled when it opens and nothing moves between sections */
+  function mdLayoutsReview(p, made, footOnly){
+    var crops = p.auto.concat(p.adjust), ready = made.filter(function(i){ return S.done[kOf(i.d)]; });
+    var bldg = function(k){ return !!(S.building && S.building[k]); };
+    var kept = p.saved.filter(function(i){ var k = kOf(i.d); return !S.done[k] && !S.removed[k] && !bldg(k); });
+    var nr = aiAll(p).filter(function(i){ return S.removed[kOf(i.d)]; }).length;
+    var coveredItems = crops.concat(p.saved.filter(function(i){ return !S.removed[kOf(i.d)]; }))
+      .concat(ready.filter(function(i){ return !i.saved; }));
+    var covered = signsIn(coveredItems);
+    var these = nr===1 ? 'this dimension' : 'these dimensions';
+    var busy = S.building || Object.keys(S.uploading).length;
+    var bySigns = function(a,b){ return b.d[2]-a.d[2]; };
+    /* one creative per visit: more are added from the step afterwards, so the footer only applies this one */
+    var ft = '<span class="sp"></span><button class="btn pri sm" data-a="apply"'+(busy?' disabled':'')+'>Add to campaign</button>';
+    if(footOnly) return ft;
+    /* new layouts, including stretched images picked to regenerate, in the same order as the checklist */
+    var gridItems = aiAll(p).filter(function(i){ return made.indexOf(i)>-1 || S.removed[kOf(i.d)]; }).sort(bySigns);
+    /* fitted dimensions as the checklist's cards: Cropped with Edit, From My Library as it is (Stretched if not replaced) */
+    var fitCard = function(i){
+      var k = kOf(i.d), mw = 262, mh = 76, r = i.d[0]/i.d[1], w = mw, h = Math.round(w/r);
+      if(h > mh){ h = mh; w = Math.round(h*r); }
+      var lab = i.saved ? 'From My Library'+(isRegen(i) ? ' · Stretched' : '') : 'Cropped';
+      return '<div class="rcard"><div class="rpv zoomable" data-a="zoom" data-k="'+k+'">'+
+          '<span style="width:'+w+'px;height:'+h+'px;'+(i.saved ? savedBG(i,w) : (i.band==='fit'?fitBG(i,w):cropBG(i,w)))+'"></span></div>'+
+        '<div class="rft"><div class="r1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="linline">· '+fmtName(i.d)+'</span></div>'+
+          '<div class="r2"><span class="lmono">'+lab+'</span><span class="sp"></span>'+
+            (i.saved ? '' : '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>')+'</div></div></div>';
+    };
+    var fitList = crops.concat(kept).sort(bySigns);
+    var body = '<div class="ckpanel merged"><div class="rhead"><p class="rt">Sign dimensions</p></div>'+
+      (gridItems.length ? '<p class="os">Resized with AI. Regenerate, edit or remove any of them.</p>'+
+        '<div class="rgrid nlrow">'+gridItems.map(nlCard).join('')+'</div>' : '')+
+      (nr ? '<p class="noteline">'+(made.length
+        ? 'Upload your own creative for '+these+' now, or add it later.'
+        : 'All new layouts removed. You can continue with just your original creative, or upload your own for '+these+' now or later.')+'</p>' : '')+
+      (fitList.length ? (gridItems.length ? '<div class="fitrow"><p class="sublab">Ready to use</p><div class="rgrid">'+fitList.map(fitCard).join('')+'</div></div>'
+                                          : '<div class="rgrid">'+fitList.map(fitCard).join('')+'</div>') : '')+'</div>';
+    /* same arithmetic as the checklist: Fitted includes what earlier creatives already cover, and each later line
+       counts only the signs it adds on top, so nothing is counted twice */
+    var notGone = function(i){ return !S.removed[kOf(i.d)]; };
+    var fitItems = crops.concat(p.saved.filter(notGone));
+    var aiItems = ready.filter(function(i){ return !i.saved && !S.uploaded[kOf(i.d)]; });
+    var fitted = unionSigns(fitItems), aiMade = unionSigns(fitItems.concat(aiItems)) - fitted;
+    var tot = unionSigns(coveredItems), ups = tot - fitted - aiMade;
+    var line = function(lab, val, cls){ return '<li class="'+(cls||'')+'"><span class="d">'+lab+'</span><span class="v">'+val+'</span></li>'; };
+    var anyAI = aiAll(p).some(function(i){ return !i.saved; });
+    var side = '<aside class="ckside" aria-label="Sign coverage"><p class="sh">Sign coverage</p><ul>'+
+      /* the same lines as the checklist's receipt, so the numbers read the same before and after resizing */
+      line('Ready to use', fitted)+
+      (anyAI ? (S.building ? line('Resize with AI', '…', 'off') : line('Resize with AI', aiMade ? '+'+aiMade : '—', aiMade ? 'ai' : 'off')) : '')+
+      (ups ? line('Your uploads', '+'+ups) : '')+
+      '</ul><div class="stot"><span class="d">Total</span><span class="v">'+tot+' of '+total()+' signs</span></div></aside>';
+    return wrapMD('Add creative', '', dotsEl(2), '<div class="ckmain">'+body+'</div>'+side, ft, true, 'split');
+  }
+
+  function paintCanvas(){
+    var c = document.getElementById('canvas'); if(!c) return;
+    var p = plan();
+    var i = p.items.filter(function(x){return x.d[0]+'x'+x.d[1]===S.editSize;})[0] || p.adjust[0] || p.items[0];
+    if(!i) return;
+    var src = i.f, bw = Math.max(200, c.clientWidth-40), bh = c.clientHeight-40;
+    var k = Math.min(bw/src.w, bh/src.h), W = src.w*k, H = src.h*k;
+    var f = clampF(i, FR(i)), fx=f.x*k, fy=f.y*k, fw=f.w*k, fh=f.h*k;
+    var img = 'width:'+W+'px;height:'+H+'px;background-image:'+ART[src.art];
+    c.innerHTML = '<div class="imgwrap" style="width:'+W+'px;height:'+H+'px">'+
+      '<div class="lay out" style="'+img+'"></div>'+
+      '<div class="clip" style="left:'+fx+'px;top:'+fy+'px;width:'+fw+'px;height:'+fh+'px">'+
+        '<div class="lay" style="'+img+';left:-'+fx+'px;top:-'+fy+'px"></div></div>'+
+      '<div class="cframe" id="cframe" style="left:'+fx+'px;top:'+fy+'px;width:'+fw+'px;height:'+fh+'px">'+
+        '<div class="g" style="left:33.33%;top:0;width:1px;height:100%"></div>'+
+        '<div class="g" style="left:66.66%;top:0;width:1px;height:100%"></div>'+
+        '<div class="g" style="top:33.33%;left:0;height:1px;width:100%"></div>'+
+        '<div class="g" style="top:66.66%;left:0;height:1px;width:100%"></div>'+
+        '<span class="hnd nw" data-h="nw" style="left:-7px;top:-7px"></span>'+
+        '<span class="hnd ne" data-h="ne" style="right:-7px;top:-7px"></span>'+
+        '<span class="hnd sw" data-h="sw" style="left:-7px;bottom:-7px"></span>'+
+        '<span class="hnd se" data-h="se" style="right:-7px;bottom:-7px"></span></div></div>';
+    c.classList.toggle('dragging', S.dragging);
+    c._k = k; c._i = i;
+  }
+
+  /* ---- Add another: choose where the next creative comes from, inside the same modal ---- */
+  /* ---- My Library picker: recognise and choose, no fit information ----
+     Like the shipped picker it can be searched and narrowed to a sign dimension, and sorted. Designs already on the
+     campaign (or being added in this visit) carry an Added tag on their thumbnail */
+  var LIBQ = {q:'', dim:'all', sort:'new'};
+  function addedBatches(){
+    var L = S.lib || {}, list = S.applied.slice();
+    if(L.mode==='another' || L.mode==='replace') list = list.concat(S.batches);
+    if(L.mode==='another') list = list.concat([currentBatch()]);
+    /* one line per creative, however many times it was added */
+    var seen = {}, out = [];
+    list.forEach(function(b){
+      var id = b.file.id;
+      if(!seen[id]){ seen[id] = {file:b.file, keys:{}}; out.push(seen[id]); }
+      b.items.forEach(function(e){ seen[id].keys[e.k] = e.i.d[2]; });
+    });
+    return out;
+  }
+  /* the picker card matches the library card: the original as the thumbnail, and the dimension count */
+  function dimsOf(d){ var s = {}; d.images.forEach(function(v){ s[v.w+'x'+v.h] = 1; }); var n = Object.keys(s).length; return n===1 ? '1 dimension' : n+' dimensions'; }
+  function libGrid(){
+    var L = S.lib, added = {};
+    addedBatches().forEach(function(a){ added[a.file.id] = true; });
+    var q = LIBQ.q.trim().toLowerCase();
+    var ids = LIB_ORDER.filter(function(id){
+      var d = DESIGNS[id];
+      if(EMPTYLIB && UPLOADED.indexOf(id)<0) return false;   /* a new advertiser's library holds only what they uploaded */
+      if(q && d.name.toLowerCase().indexOf(q)<0) return false;
+      if(LIBQ.dim!=='all') return d.images.some(function(x){ return x.w+'x'+x.h===LIBQ.dim; });
+      return true;
+    }).sort(function(a,b){
+      var A = DESIGNS[a], B = DESIGNS[b];
+      if(LIBQ.sort==='name') return A.name.localeCompare(B.name);
+      var d = Date.parse(B.created) - Date.parse(A.created);
+      return LIBQ.sort==='old' ? -d : d;
+    });
+    var tiles = (L.upload ? '<button class="lpk lpup" data-a="srcupload"><span class="pv"><span class="upi">&#8593;</span></span>'+
+        '<p class="nm">Upload from computer <span class="lim">· up to 5MB</span></p><p class="dm">PNG, JPG, JPEG, WEBP</p></button>' : '')+
+      ids.map(function(id){
+        var d = DESIGNS[id], o = origOf(d), b = fitBox([o.w,o.h], 220, 96), on = added[id];
+        /* already on the campaign: still shown, marked, and not picked a second time */
+        /* choosing a card selects it; Add to campaign carries it on */
+        return '<button class="lpk'+(on?' added':'')+(L.sel===id?' sel':'')+'"'+(on?' disabled aria-disabled="true"':' data-a="seldesign" data-id="'+id+'" aria-pressed="'+(L.sel===id)+'"')+'>'+
+          '<span class="pv"><i style="width:'+b.w+'px;height:'+b.h+'px;aspect-ratio:'+o.w+'/'+o.h+';background-image:'+ART[id]+'"></i>'+
+            (on?'<span class="lpadded">&#10003; Added</span>':'')+'</span>'+
+          '<p class="nm">'+d.name.replace('&','&amp;')+'</p><p class="dm">'+dimsOf(d)+'</p></button>';
+      }).join('');
+    if(!ids.length) tiles += '<p class="lpnone">'+(q ? 'No creatives match that search.' : 'No saved creatives at this dimension yet. Any creative can be fitted to your sign dimensions.')+'</p>';
+    return tiles;
+  }
+  var EMPTYLIB = SCENARIO==='empty';
+  var RULES = 'PNG, JPG, JPEG, WEBP · up to 5MB';
+  var LIMIT = 'Up to 10 creatives per sign dimension';
+  /* every way in opens Add creative. With nothing saved yet it opens on the first-upload screen, which is built
+     around uploading rather than around an empty library (and is where Create with AI will sit later) */
+  function openLib(mode){ S.lib = {mode:mode, upload:true}; paint(); }
+  function libHTML(){
+    var L = S.lib, empty = L.empty || (EMPTYLIB && !UPLOADED.length);
+    var dimOpts = '<option value="all">All dimensions</option>'+sizes().map(function(d){
+      var k = d[0]+'x'+d[1]; return '<option value="'+k+'"'+(LIBQ.dim===k?' selected':'')+'>'+d[0]+'×'+d[1]+' · '+oriName(d)+'</option>'; }).join('');
+    var sortOpts = [['new','New first'],['old','Old first'],['name','Name A–Z']].map(function(o){
+      return '<option value="'+o[0]+'"'+(LIBQ.sort===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
+    var body = empty
+      ? '<div class="lpempty" id="firstup"><span class="lpico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20">'+
+          '<path d="M10 14V4.5M5.8 8.6 10 4.4l4.2 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'+
+          '<path d="M4 15.5h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>'+
+        '<h3>Upload your first creative</h3>'+
+        '<p>Saved to My Library, ready for your next campaign.</p>'+
+        '<button class="btn pri lpemptyup" data-a="srcupload">Upload</button><p class="lpdrag">or drag a file here</p><p class="lprules">'+RULES+'<br>'+LIMIT+'</p></div>'
+      : '<div class="lptools"><div class="lpsearch"><svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m10.5 10.5 3.6 3.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>'+
+          '<input id="libq" placeholder="Search creatives" value="'+LIBQ.q.replace(/"/g,'&quot;')+'" /></div>'+
+          '<select class="lpsel" data-libf="dim" aria-label="Dimension">'+dimOpts+'</select>'+
+          '<select class="lpsel" data-libf="sort" aria-label="Sort">'+sortOpts+'</select></div>'+
+        '<div class="lpgrid" id="lpgrid">'+libGrid()+'</div>';
+    /* one picker screen, one header wherever it opens. Inside the Add creative modal (Add another, Choose a different design)
+       it replaces the current screen, so it carries the modal's back arrow, and the X exits the whole modal like every other screen.
+       Opened from the page on a phone it is a bottom sheet over the step, with Upload pinned in its footer */
+    var inFlow = L.mode==='another' || L.mode==='replace', sheet = !inFlow;
+    var fit = 'Any creative can be fitted to your sign dimensions.';
+    var cta = '<button class="btn pri sm" data-a="pickconfirm"'+(L.sel?'':' disabled')+'>Add to campaign</button>';
+    return '<div class="veil'+(sheet?' sheetveil':'')+'"><div class="md lib'+(sheet?' sheet':'')+(empty?' isempty':'')+'">'+
+      (sheet ? '<span class="grab" aria-hidden="true"></span>' : '')+
+      '<div class="mdhd">'+(inFlow ? '<button class="back" data-a="libclose" aria-label="Back">'+BACK+'</button>' : '')+
+        '<span><p class="t">Add creative</p><p class="s"><span class="dk">'+(empty ? '' : L.upload ? 'Upload a file or choose a saved creative' : 'Choose a saved creative')+'</span>'+
+          '<span class="mb">'+fit+'</span></p></span>'+
+        '<span class="sp"></span>'+
+        '<button class="x" data-a="'+(inFlow ? 'exit' : 'libclose')+'" aria-label="Close">&#10005;</button></div>'+
+      '<div class="mdbody">'+body+'</div>'+
+      '<div class="mdft"><span class="note dk">'+fit+'</span><span class="sp dk"></span>'+
+        '<button class="btn sm dk" data-a="libclose">Back</button>'+
+        (L.upload ? '<button class="btn sm mb lpupbtn" data-a="srcupload">Upload</button>' : '')+(empty ? '' : cta)+
+        '<p class="lprules mb">'+RULES+(empty ? '<br>'+LIMIT : '')+'</p></div>'+
+      (S.confirm ? confirmHTML() : '')+'</div></div>';
+  }
+  /* search, filter and sort redraw only the grid, so typing keeps its focus */
+  document.addEventListener('input', function(e){
+    if(e.target.id!=='libq') return;
+    LIBQ.q = e.target.value; var g = document.getElementById('lpgrid'); if(g) g.innerHTML = libGrid();
+  });
+  document.addEventListener('change', function(e){
+    var f = e.target.getAttribute && e.target.getAttribute('data-libf'); if(!f) return;
+    LIBQ[f] = e.target.value; var g = document.getElementById('lpgrid'); if(g) g.innerHTML = libGrid();
+  });
+
+  /* ---- toast: one at a time, gone after a few seconds or on Undo ---- */
+  var TOAST = null;
+  function showToast(msg, undo){
+    hideToast();
+    TOAST = {msg:msg, undo:undo, t:setTimeout(hideToast, 6000)};
+    var el = document.createElement('div');
+    el.className = 'toast'; el.id = 'toast'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite');
+    el.innerHTML = '<span>'+msg+'</span>'+(undo ? '<button class="undo" data-a="toastundo">Undo</button>' : '');
+    document.body.appendChild(el);
+  }
+  function hideToast(){
+    if(TOAST){ clearTimeout(TOAST.t); TOAST = null; }
+    var el = document.getElementById('toast'); if(el) el.remove();
+  }
+
+  var paintedKey = null;
+  function paint(){
+    var cardEl = document.getElementById('card');
+    cardEl.classList.add('dzcard');
+    cardEl.innerHTML = sectionHTML();
+    var st = document.getElementById('stage');
+    /* ticking a box repaints the modal, so hold the reader's place in it */
+    var key = S.v+'|'+S.zoom+'|'+(S.lib?S.lib.mode:''), prev = st.querySelector('.veil .mdbody .ckmain') || st.querySelector('.veil .mdbody');
+    var keep = (prev && key===paintedKey) ? prev.scrollTop : 0;
+    st.querySelectorAll('.veil,.fpveil,.iosveil').forEach(function(n){ n.remove(); });
+    if(S.zoom){ var z=mdZoom(); if(z){ st.insertAdjacentHTML('beforeend', z); } else { S.zoom=null; } }
+    /* the picker opened from inside the modal is a screen of that modal, not a second layer on top of it */
+    if(!S.zoom && !(S.lib && S.lib.mode!=='new')){
+    if(S.v==='checking')  st.insertAdjacentHTML('beforeend', mdChecking());
+    if(S.v==='scanned')   st.insertAdjacentHTML('beforeend', mdScanned());
+    if(S.v==='checklist' || S.v==='ready') st.insertAdjacentHTML('beforeend', mdChecklist());
+    if(S.v==='editor'){ st.insertAdjacentHTML('beforeend', mdEditor()); paintCanvas(); }
+    if(S.v==='aiedit') st.insertAdjacentHTML('beforeend', mdAIEdit());
+    }
+    if(S.lib) st.insertAdjacentHTML('beforeend', libHTML());
+    if(S.picker) st.insertAdjacentHTML('beforeend', pickerHTML());
+    if(keep){ var now = st.querySelector('.veil .mdbody .ckmain') || st.querySelector('.veil .mdbody'); if(now) now.scrollTop = keep; }
+    paintedKey = key;
+    S.landed = {};   /* the landing animation plays once */
+    animateMeter();
+  }
+
+  /* ---- simulated system file picker: a prototype stand-in for the OS "open file" dialog ---- */
+  function pickerFiles(k){
+    /* a new creative for this visit: any campaign file, not one dimension */
+    if(k==='__new') return [
+      {n:FILES.tall.name, fid:'tall', d:[1080,1920], art:ART.tall, when:'Yesterday at 4:05 PM', size:'3.3 MB'},
+      {n:FILES.near.name, fid:'near', d:[1520,400], art:ART.wide, when:'Sep 2, 2026 at 11:20 AM', size:'980 KB'},
+      {n:FILES.wide.name, fid:'wide', d:[2800,800], art:ART.wide, when:'Today at 9:12 AM', size:'2.1 MB'},
+      {n:'Brand guidelines.pdf', doc:true, when:'Aug 18, 2026 at 2:48 PM', size:'6.8 MB'},
+      {n:'Q3 media plan.pdf', doc:true, when:'Aug 11, 2026 at 10:02 AM', size:'412 KB'}
+    ];
+    /* upload your own for one dimension: a file at that dimension, the design's original, and some documents */
+    var d = k.split('x').map(Number), f = files()[0], base = f.name.replace(/-\d+×\d+\.[a-z]+$/,'');
+    return [
+      {n:base+'-'+d[0]+'×'+d[1]+'.jpg', d:d, art:upArt(d, f.brand), when:'Today at 9:41 AM', size:'1.4 MB'},
+      {n:f.name, d:[f.w,f.h], art:ART[f.art], when:'Today at 9:12 AM', size:'2.1 MB'},
+      {n:'Brand guidelines.pdf', doc:true, when:'Aug 18, 2026 at 2:48 PM', size:'6.8 MB'},
+      {n:'Q3 media plan.pdf', doc:true, when:'Aug 11, 2026 at 10:02 AM', size:'412 KB'}
+    ];
+  }
+  /* ---- phones have no file dialog. Like iOS, the file input opens a menu beside what was tapped:
+     Photo Library and Choose File open their own pickers; Take Photo returns a picture straight away ---- */
+  var ANCHOR = null;
+  function isPhone(){ return window.matchMedia('(max-width:699px)').matches; }
+  var IC = {
+    photos:'<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2.5" fill="none" stroke="#000" stroke-width="1.6"/><path d="M5.5 17l4.5-5 3.2 3.4 2.3-2.4 3 4" fill="none" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/><circle cx="15.5" cy="9" r="1.5" fill="#000"/></svg>',
+    camera:'<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3l1.4-2h5.6l1.4 2h2.3A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z" fill="none" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12.8" r="3.4" fill="none" stroke="#000" stroke-width="1.6"/></svg>',
+    files:'<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7A1.5 1.5 0 0 1 5 5.5h4.3l1.8 2H19A1.5 1.5 0 0 1 20.5 9v8.5A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z" fill="none" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/></svg>'
+  };
+  function iosPickerHTML(){
+    var P = S.picker, list = pickerFiles(P.k), mode = P.mob || 'menu';
+    if(mode==='menu'){
+      var r = ANCHOR || {top:innerHeight/2, bottom:innerHeight/2, left:innerWidth/2, right:innerWidth/2, width:0}, h = 138, w = 250;
+      var top = (r.bottom + 8 + h < innerHeight - 12) ? r.bottom + 8 : Math.max(12, r.top - 8 - h);
+      var left = Math.min(innerWidth - w - 12, Math.max(12, r.left + r.width/2 - w/2));
+      return '<div class="iosveil" data-a="fpcancel"><div class="iosmenu" role="menu" style="top:'+top+'px;left:'+left+'px">'+
+        '<button role="menuitem" data-a="iosopt" data-o="photos">Photo Library'+IC.photos+'</button>'+
+        '<button role="menuitem" data-a="iosopt" data-o="camera">Take Photo'+IC.camera+'</button>'+
+        '<button role="menuitem" data-a="iosopt" data-o="files">Choose File'+IC.files+'</button></div></div>';
+    }
+    var head = function(t){ return '<div class="ioshd"><button class="cx" data-a="fpcancel">Cancel</button><span class="tt">'+t+'</span><span></span></div>'; };
+    if(mode==='photos')
+      return '<div class="iosveil dim"><div class="iossheet" role="dialog" aria-label="Photos">'+head('Photos')+
+        '<div class="iosseg"><span class="on">Photos</span><span>Albums</span></div><div class="iosgrid">'+
+        list.map(function(f, n){ return f.doc ? '' :
+          '<button data-a="iospick" data-f="'+n+'" aria-label="'+f.n+'" style="background-image:'+f.art+'"></button>'; }).join('')+
+        '</div></div></div>';
+    return '<div class="iosveil dim"><div class="iossheet" role="dialog" aria-label="Files">'+head('Recents')+
+      '<div class="iossearch">&#9906; Search</div><div class="ioslist">'+
+      list.map(function(f, n){
+        var th = f.doc ? '<span class="doc"></span>'
+          : (function(){ var b = fitBox(f.d, 38, 38); return '<span style="width:'+b.w+'px;height:'+b.h+'px;background-image:'+f.art+'"></span>'; })();
+        return '<button class="iosrow'+(f.doc?' off':'')+'"'+(f.doc?' disabled':' data-a="iospick" data-f="'+n+'"')+'>'+
+          '<span class="th">'+th+'</span><span class="tx"><span class="n">'+f.n+'</span><span class="m">'+f.when+' – '+f.size+'</span></span></button>';
+      }).join('')+'</div></div></div>';
+  }
+  function pickerHTML(){
+    if(isPhone()) return iosPickerHTML();
+    var P = S.picker, files = pickerFiles(P.k), enter = !P.shown; P.shown = true;
+    return '<div class="fpveil"><div class="fp'+(enter?' enter':'')+'" role="dialog" aria-label="Choose a file">'+
+      '<div class="fp-top"><span class="fp-dots"><i></i><i></i><i></i></span><span class="fp-nav">&#8249; &#8250;</span>'+
+        '<span class="fp-loc">Desktop</span><span class="fp-search">Search</span></div>'+
+      '<div class="fp-main"><div class="fp-side"><h6>Favorites</h6><div>Recents</div><div class="on">Desktop</div>'+
+          '<div>Documents</div><div>Downloads</div></div>'+
+        '<div class="fp-list"><div class="fp-row hd"><span></span><span>Name</span><span class="fp-date">Date Modified</span><span>Size</span></div>'+
+        files.map(function(f, n){
+          var th = f.doc ? '<span class="fp-doc"></span>'
+            : (function(){ var b = fitBox(f.d, 30, 22); return '<span style="width:'+b.w+'px;height:'+b.h+'px;background-image:'+f.art+'"></span>'; })();
+          return '<div class="fp-row'+(f.doc?' off':' pick')+(P.sel===n?' sel':'')+'" data-a="fpsel" data-f="'+n+'">'+
+            '<span class="fp-thumb">'+th+'</span><span class="fp-name">'+f.n+'</span>'+
+            '<span class="fp-meta fp-date">'+f.when+'</span><span class="fp-meta">'+f.size+'</span></div>';
+        }).join('')+'</div></div>'+
+      '<div class="fp-foot"><span class="sp"></span>'+
+        '<button class="fp-btn" data-a="fpcancel">Cancel</button>'+
+        '<button class="fp-btn pri" data-a="fpopen"'+(P.sel===null?' disabled':'')+'>Open</button></div>'+
+      '</div></div>';
+  }
+  /* the chosen file uploads into the card; a file at the wrong dimension is caught there, not silently fitted */
+  function openPicked(){
+    var P = S.picker; if(!P || P.sel===null) return;
+    if(P.k==='__new'){
+      /* from the page this starts a new visit; inside one, keep what this creative already made, then scan the new file */
+      var nf = pickerFiles('__new')[P.sel];
+      if(S.v==='section' || S.v==='applied'){ S.batches=[]; S.tileSel={}; S.lib=null; }
+      else if(!P.replace) S.batches.push(currentBatch());
+      S.picker = null; S.src = {kind:'upload', id:nf.fid}; S.editSize = null; S.aiEditSize = null;
+      runCheck(); return;
+    }
+    var k = P.k, f = pickerFiles(k)[P.sel], want = k.split('x').map(Number);
+    S.picker = null; delete S.uploadErr[k]; S.uploading[k] = true; paint();
+    S.tq.push(setTimeout(function(){
+      delete S.uploading[k];
+      if(f.d[0]===want[0] && f.d[1]===want[1]){
+        delete S.removed[k]; S.uploaded[k] = {name:f.n}; S.done[k] = true; S.landed = {}; S.landed[k] = true;
+      } else {
+        delete S.uploaded[k]; S.done[k] = false; S.removed[k] = true; S.uploadErr[k] = {name:f.n, d:f.d};
+      }
+      paint();
+    }, 1400));
+  }
+  /* the bar grows whenever the covered sign count changes; the count itself just updates */
+  function animateMeter(){
+    var fill = document.getElementById('meterfill'), to = S.signsTarget;
+    if(!fill || S.signsShown===to) return;
+    S.signsShown = to;
+    var ok = document.querySelector('.meterhead .why.good'); if(ok) ok.classList.add('arrive');
+    void fill.offsetWidth;   /* commit the starting width so the transition runs */
+    fill.style.width = (to/total()*100)+'%';
+  }
+
+  function stop(){ if(S.t1){clearInterval(S.t1);S.t1=null;} if(S.t2){clearTimeout(S.t2);S.t2=null;} }
+  /* an upload is saved to My Library as it is made, so it is there the next time Add creative opens */
+  var UPLOADED = [];
+  function saveUpload(fid){
+    var f = FILES[fid]; if(!f || DESIGNS[fid]) return;
+    DESIGNS[fid] = {id:fid, brand:f.brand, name:f.name, created:new Date().toString(),
+      images:[{w:f.w, h:f.h, prov:'original', file:f.name}]};
+    ART[fid] = ART[f.art]; LIB_ORDER.unshift(fid); UPLOADED.push(fid);
+  }
+  function runCheck(){
+    if(S.src && S.src.kind==='upload') saveUpload(S.src.id);
+    stop(); clearBuild(); S.v='checking'; S.phr=0; S.done={}; S.sel=null; S.regen=null; S.cache={}; S.removed={}; S.uploaded={}; S.uploading={}; S.uploadErr={};
+    S.picker=null; S.lib=null; S.zoom=null; S.confirm=false; paint();
+    S.t1 = setInterval(function(){ S.phr = Math.min(S.phr+1, PHRASES.length-1); paint(); }, 900);
+    S.t2 = setTimeout(function(){ stop(); S.v='checklist'; S.cropping=true; paint();
+      S.t2 = setTimeout(function(){ S.cropping=false; paint(); }, 800); }, 3400);
+  }
+  function runAI(only){
+    var p = plan(), sel = selSet(p), rg = regenSet();
+    var picked = only
+      ? aiAll(p).filter(function(i){ return kOf(i.d)===only; })
+      : p.aiTask.filter(function(i){ return sel[kOf(i.d)] && !S.done[kOf(i.d)]; })
+          .concat(p.stretched.filter(function(i){ return rg[kOf(i.d)] && !S.done[kOf(i.d)]; }));
+    if(!picked.length) return;
+    picked.forEach(function(i){ delete S.removed[kOf(i.d)]; if(isRegen(i)) rg[kOf(i.d)] = true; });
+    /* layouts built before the advertiser stepped back come straight back, no second wait */
+    var cached = only ? [] : picked.filter(function(i){ return S.cache[kOf(i.d)]; });
+    cached.forEach(function(i){ S.done[kOf(i.d)] = true; delete S.cache[kOf(i.d)]; });
+    picked = picked.filter(function(i){ return cached.indexOf(i)<0; });
+    if(!picked.length){ show('aiedit'); return; }
+    stop(); buildInline(picked, only);
+  }
+  /* no loader screen: the review opens straight away, every new layout loads as a skeleton card, and they land together */
+  function buildInline(picked, only, hold){
+    clearBuild();
+    S.ai = 'running'; S.building = {};
+    picked.forEach(function(i){ S.frames[key(i)] = null; S.building[kOf(i.d)] = true; });
+    S.zoom = null; S.v = 'aiedit'; paint();
+    if(hold) return;   /* the harness can hold the loading state */
+    S.tq.push(setTimeout(function(){
+      if(!S.building) return;
+      S.landed = {};
+      picked.forEach(function(i){ S.done[kOf(i.d)] = true; S.landed[kOf(i.d)] = true; });
+      S.building = null; S.ai = 'idle';
+      paint();
+    }, only ? 1800 : 3200));
+  }
+  function clearBuild(){ S.tq.forEach(clearTimeout); S.tq = []; S.building = null; S.uploading = {}; S.ai = 'idle'; }
+  function unbuild(){
+    var p = plan(); selSet(p); regenSet();
+    aiAll(p).forEach(function(i){ var k=kOf(i.d), picks = isRegen(i) ? S.regen : S.sel;
+      if(S.uploaded[k]){ S.done[k]=false; picks[k]=false; delete S.uploaded[k]; return; }   /* uploads are not AI output to restore */
+      if(S.done[k]){ S.done[k]=false; S.cache[k]=true; picks[k]=true; } });
+  }
+  function go(v){
+    stop();
+    S.zoom=null;
+    if(v==='checking'){ runCheck(); return; }
+    var p = plan();
+    if(v==='editor' && !p.adjust.length && !S.editSize) v='checklist';
+    /* after adding, every size that just received creative opens, so it's clear what landed where */
+    if(v==='applied'){
+      /* what this visit added joins the campaign, next to anything added before from either source */
+      var added = S.batches.concat([currentBatch()]);
+      S.applied = S.applied.concat(added); S.batches = [];
+      S.openRows = {}; S.tileSel = {};
+      added.forEach(function(b){ b.items.forEach(function(e){ S.openRows[e.k] = true; }); }); }
+    if(v==='checklist') S.cropping=false;
+    S.v=v; paint();
+  }
+  /* move to a screen without go()'s jump-to-stage side effects */
+  function show(v){ stop(); S.zoom=null; S.v=v; paint(); }
+  function anyBuilt(){ return aiAll(plan()).some(function(i){ return S.done[kOf(i.d)]; }); }
+  function leaveEditor(){
+    var from = S.editFrom || {v:'checklist'};
+    S.editFrom = null; stop(); S.v = from.v; S.zoom = from.zoom || null;
+    if(from.zoomFrom) S.zoomFrom = from.zoomFrom;
+    paint();
+  }
+  function stopBuild(){ clearBuild(); if(S.v==='aiedit' && !anyBuilt()) S.v='checklist'; paint(); }
+  /* every screen after step 1 steps back one screen, never jumps */
+  function goBack(){
+    if(S.zoom){ S.zoom=null; paint(); return; }
+    if(S.building){ stopBuild(); return; }
+    if(S.v==='editor'){ leaveEditor(); return; }
+    /* back to the choice that made these: they return to the offer, still ticked */
+    if(S.v==='aiedit'){ clearBuild(); unbuild(); S.removed={}; S.uploadErr={}; show('checklist'); return; }
+    if(S.v==='checklist' || S.v==='ready'){ show(anyBuilt() ? 'aiedit' : 'scanned'); return; }
+  }
+
+
+  document.addEventListener('click', function(e){
+    /* the row menu closes on any click outside it */
+    var pk=e.target.closest('[data-pick]');
+    if(pk){ var k=pk.getAttribute('data-pick'); selSet(plan()); S.sel[k]=pk.checked; paint(); return; }
+    var a=e.target.closest('[data-a]');
+    /* any click outside the requirements popover closes it */
+    if(S.info && !e.target.closest('.infopop') && !(a && a.getAttribute('data-a')==='info')){ S.info=false; paint(); if(!a) return; }
+    var tapped = e.target.closest && e.target.closest('button,a');
+    if(tapped && !e.target.closest('.iosveil')) ANCHOR = tapped.getBoundingClientRect();
+    if(a){
+      var act=a.getAttribute('data-a'), k=a.getAttribute('data-k');
+      if(act==='noop') return;
+      if(act==='info'){ S.info = !S.info; paint(); return; }
+      if(act==='pickcard'){ selSet(plan()); S.sel[k] = !S.sel[k]; paint(); return; }
+      /* Upload from computer: from the page it starts a new visit with the file; inside the modal, Replace file rescans it */
+      if(act==='up'){ S.picker={k:'__new', sel:null, replace:S.v==='scanned'}; paint(); return; }
+      /* Add creative on a dimension row: the same picker as Add another, upload tile first */
+      /* Remove takes the selected creative off this dimension only; its other dimensions keep it. With nothing left,
+         the row goes back to an empty Add creative row and the meter drops */
+      if(act==='removecreative'){
+        var list = entriesByDim(false)[k] || [], gone = list[+a.getAttribute('data-n')];
+        if(gone){
+          showToast('Removed '+gone.name, {applied:S.applied.map(function(b){ return {file:b.file, items:b.items.slice()}; }),
+                    k:k, n:+a.getAttribute('data-n'), open:!!S.openRows[k]});
+          S.applied.forEach(function(b){ b.items = b.items.filter(function(x){ return x!==gone; }); });
+          S.applied = S.applied.filter(function(b){ return b.items.length; });
+          S.tileSel[k] = 0;
+          if(list.length===1) delete S.openRows[k];
+        }
+        paint(); return; }
+      /* Undo puts the creative back exactly where it was, on its row, selected */
+      if(act==='toastundo'){
+        var u = TOAST && TOAST.undo; hideToast();
+        if(u){ S.applied = u.applied; S.openRows[u.k] = true; S.tileSel[u.k] = u.n; }
+        paint(); return; }
+      if(act==='addcreative' || act==='openlib'){ openLib('new'); return; }
+      /* My Library: from the page it starts a new visit; from the scanned step it swaps the design */
+      /* My Library opens the same picker as Add creative, upload tile first, so a mis-click on it is never a dead end */
+      if(act==='lib'){ S.lib = (S.v==='section'||S.v==='applied') ? {mode:'new', upload:true} : {mode:'replace'}; paint(); return; }
+      /* Add another: My Library with an Upload from computer tile first; the tile opens the file dialog over it */
+      if(act==='another'){ S.zoom=null; openLib('another'); return; }
+      if(act==='srcupload'){ S.picker={k:'__new', sel:null}; paint(); return; }
+      if(act==='libreplace'){ S.lib={mode:'replace'}; paint(); return; }
+      if(act==='libclose'){ S.lib=null; paint(); return; }
+      if(act==='seldesign'){ S.lib.sel = S.lib.sel===a.getAttribute('data-id') ? null : a.getAttribute('data-id'); paint(); return; }
+      if(act==='pickconfirm' || act==='pickdesign'){
+        var id=a.getAttribute('data-id') || S.lib.sel, mode=S.lib ? S.lib.mode : 'new';
+        if(!id) return;
+        if(mode==='another') S.batches.push(currentBatch());
+        else if(mode==='new'){ S.batches=[]; S.tileSel={}; S.openRows={}; }
+        S.lib=null; S.src={kind:'lib', id:id}; S.editSize=null; S.aiEditSize=null; runCheck(); return; }
+      /* a stretched card: pick it to regenerate with the rest, or undo the pick */
+      if(act==='regenmark'){ var rg=regenSet(); rg[k]=!rg[k]; S.zoom=null; paint(); return; }
+      if(act==='seltile'){ S.tileSel[k] = +a.getAttribute('data-n'); paint(); return; }
+      if(act==='fold'){ S.folded=!S.folded; paint(); return; }
+      if(act==='togglerow'){ if(S.openRows[k]) delete S.openRows[k]; else S.openRows[k]=true; paint(); return; }
+      if(act==='close'){ go('section'); return; }
+      if(act==='exit'){ if(needsConfirm()){ S.confirm=true; paint(); } else { go('section'); } return; }
+      if(act==='stay'){ S.confirm=false; paint(); return; }
+      if(act==='leave'){ S.confirm=false; S.lib=null; clearBuild(); go('section'); return; }
+      if(act==='adjust'){ if(k) S.editSize=k;
+        var from = S.zoom ? {v:S.v, zoom:S.zoom, zoomFrom:S.zoomFrom} : {v:S.v};
+        S.zoom=null; S.editFrom = from; go('editor'); return; }
+      if(act==='continue'){ show('checklist'); return; }
+      if(act==='runai'){ runAI(); return; }
+      if(act==='selall'){ var pp=plan(); selSet(pp); pp.aiTask.forEach(function(i){S.sel[kOf(i.d)]=true;}); paint(); return; }
+      if(act==='selnone'){ var pn=plan(); selSet(pn); pn.aiTask.forEach(function(i){S.sel[kOf(i.d)]=false;}); S.regen={}; paint(); return; }
+      if(act==='aiedit'){ if(k) S.aiEditSize=k; show('aiedit'); return; }
+      if(act==='regen'){ S.zoom=null; runAI(k); return; }
+      if(act==='stopbuild'){ stopBuild(); return; }
+      if(act==='removeai'){
+        /* the layout is set aside, not lost: it stays listed as removed until they undo or leave */
+        selSet(plan()); regenSet(); S.done[k]=false; S.sel[k]=false; S.regen[k]=false; delete S.cache[k]; delete S.uploaded[k]; delete S.uploadErr[k]; S.removed[k]=true; S.zoom=null;
+        paint(); return; }
+      if(act==='undoremove'){ S.done[k]=true; if(isRegen(itemOf(k))) regenSet()[k]=true; else S.sel[k]=true; delete S.removed[k]; delete S.uploadErr[k]; paint(); return; }
+      if(act==='uploadown'){ S.zoom=null; S.picker={k:k, sel:null}; paint(); return; }
+      if(act==='fpsel'){ var fi=+a.getAttribute('data-f'); if(pickerFiles(S.picker.k)[fi].doc) return; S.picker.sel=fi; paint(); return; }
+      if(act==='fpcancel'){ S.picker=null; paint(); return; }
+      if(act==='iosopt'){
+        var o = a.getAttribute('data-o'), fl = pickerFiles(S.picker.k);
+        if(o==='camera'){
+          /* a photo of the finished artwork: the campaign file, or one at this dimension when filling a single slot */
+          var want = S.picker.k==='__new' ? fl.map(function(f){ return f.fid; }).indexOf('wide') : 0;
+          S.picker.sel = Math.max(0, want); openPicked(); return; }
+        S.picker.mob = o; paint(); return; }
+      if(act==='iospick'){ S.picker.sel = +a.getAttribute('data-f'); openPicked(); return; }
+      if(act==='fpopen'){ openPicked(); return; }
+      if(act==='saveadjust'){ leaveEditor(); return; }
+      if(act==='back'){ goBack(); return; }
+      if(act==='zoom'){ S.zoom=k; S.zoomFrom=S.v; paint(); return; }
+      if(act==='unzoom'){ S.zoom=null; paint(); return; }
+      if(act==='resetcrop'){ var c=document.getElementById('canvas'); if(c&&c._i){ S.frames[key(c._i)]=initFrame(c._i); paintCanvas(); } return; }
+      if(act==='apply'){
+        /* skipping AI: the offer visibly steps back before the modal closes, so it's clear those dimensions weren't added.
+           Nothing is lost; adding creative again brings the offer back. */
+        var offer = document.querySelectorAll('.ocard'), picks = document.querySelectorAll('.rcard.regen');
+        if(S.v==='checklist' && (offer.length || picks.length) && a.textContent.indexOf('without')>-1){
+          var md = document.querySelector('.md'); if(md) md.classList.add('closing');
+          offer.forEach(function(n){ n.classList.add('skipped'); });
+          picks.forEach(function(n){ n.classList.remove('regen'); });
+          /* the total drops back to what's actually being added */
+          var tot = document.querySelector('.mdft .cover[data-covered]');
+          if(tot) tot.innerHTML = '<b>'+tot.getAttribute('data-covered')+'</b> signs covered';
+          var note = document.querySelector('.disc.below'); if(note) note.classList.add('skipped');
+          var sum = document.querySelector('.ckside'); if(sum) sum.classList.add('skipped');
+          stop(); S.t2 = setTimeout(function(){ S.t2 = null; if(S.regen) S.regen = {}; go('applied'); }, 700);
+          return;
+        }
+        go('applied'); return; }
+      return;
+    }
+  });
+
+  document.addEventListener('pointerdown', function(e){
+    var hd=e.target.closest('.hnd'), fr=e.target.closest('#cframe');
+    if(!hd && !fr) return;
+    var c=document.getElementById('canvas'); if(!c||!c._i) return;
+    var f=FR(c._i);
+    S.drag={mode:hd?'scale':'move',h:hd?hd.getAttribute('data-h'):null,
+            sx:e.clientX,sy:e.clientY,f:{x:f.x,y:f.y,w:f.w,h:f.h},k:c._k,i:c._i};
+    S.dragging=true; c.classList.add('dragging'); e.preventDefault();
+  });
+  document.addEventListener('pointermove', function(e){
+    if(!S.drag) return;
+    var i=S.drag.i, f=FR(i), o=S.drag.f, r=i.d[0]/i.d[1];
+    var dx=(e.clientX-S.drag.sx)/S.drag.k, dy=(e.clientY-S.drag.sy)/S.drag.k;
+    if(S.drag.mode==='move'){ f.x=o.x+dx; f.y=o.y+dy; }
+    else { var sgn=(S.drag.h==='ne'||S.drag.h==='se')?1:-1, mx=maxFrame(i), minW=mx.w*0.34;
+      var nw=Math.max(minW,Math.min(mx.w,o.w+dx*sgn)), nh=nw/r;
+      f.x=(S.drag.h==='nw'||S.drag.h==='sw')?o.x+(o.w-nw):o.x;
+      f.y=(S.drag.h==='nw'||S.drag.h==='ne')?o.y+(o.h-nh):o.y;
+      f.w=nw; f.h=nh; }
+    clampF(i,f); paintCanvas();
+  });
+  document.addEventListener('pointerup', function(){
+    if(!S.drag) return; S.drag=null; S.dragging=false;
+    var c=document.getElementById('canvas'); if(c) c.classList.remove('dragging');
+  });
+  /* the picker behaves like the real one: double-click opens, Escape cancels, Enter opens */
+  document.addEventListener('dblclick', function(e){
+    var c = e.target.closest('.lpk[data-a="seldesign"]');
+    if(c && S.lib){ S.lib.sel = c.getAttribute('data-id'); var b = document.querySelector('[data-a="pickconfirm"]'); if(b){ b.disabled = false; b.click(); } return; }
+    var r = e.target.closest('.fp-row.pick'); if(!r || !S.picker) return;
+    S.picker.sel = +r.getAttribute('data-f'); openPicked();
+  });
+  document.addEventListener('keydown', function(e){
+    if(S.info && e.key==='Escape'){ S.info=false; paint(); e.preventDefault(); return; }
+    if(S.lib && !S.picker && e.key==='Escape'){ S.lib=null; paint(); e.preventDefault(); e.stopImmediatePropagation(); return; }
+    if(!S.picker) return;
+    if(e.key==='Escape'){ S.picker=null; paint(); e.preventDefault(); e.stopImmediatePropagation(); }
+    else if(e.key==='Enter'){ openPicked(); e.preventDefault(); e.stopImmediatePropagation(); }
+  }, true);
+  document.addEventListener('keydown', function(e){
+    if(S.v!=='editor' || ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].indexOf(e.key)<0) return;
+    var c=document.getElementById('canvas'); if(!c||!c._i) return;
+    var f=FR(c._i), step=e.shiftKey?40:8;
+    if(e.key==='ArrowLeft') f.x-=step; if(e.key==='ArrowRight') f.x+=step;
+    if(e.key==='ArrowUp') f.y-=step; if(e.key==='ArrowDown') f.y+=step;
+    clampF(c._i,f); paintCanvas(); e.preventDefault();
+  });
+  window.addEventListener('resize', function(){ if(S.v==='editor') paintCanvas(); });
+
+  /* dragging a file onto the drop area skips every choice: the drop is the upload, so scanning starts straight away */
+  var onPage = function(){ return (S.v==='section' || S.v==='applied') && !S.lib && !S.picker; };
+  var DROPS = '#firstup, #card.dzcard';
+  var canDrop = function(r){ return r.id==='firstup' ? (!!S.lib && !S.picker) : onPage(); };
+  ['dragenter','dragover'].forEach(function(ev){
+    document.addEventListener(ev, function(e){
+      var r=e.target.closest && e.target.closest(DROPS);
+      if(r && canDrop(r)){ e.preventDefault(); r.classList.add('dragging'); }
+    });
+  });
+  document.addEventListener('dragleave', function(e){
+    var r=e.target.closest && e.target.closest(DROPS);
+    if(r && !(e.relatedTarget && r.contains(e.relatedTarget))) r.classList.remove('dragging');
+  });
+  document.addEventListener('drop', function(e){
+    var r=e.target.closest && e.target.closest(DROPS);
+    if(!r || !canDrop(r)) return;
+    e.preventDefault(); r.classList.remove('dragging');
+    /* dropped on the first-upload screen: the same as choosing that file in the dialog */
+    if(r.id==='firstup'){ S.picker = {k:'__new', sel:pickerFiles('__new').map(function(f){ return f.fid; }).indexOf('wide')}; openPicked(); return; }
+    S.batches=[]; S.tileSel={}; S.src={kind:'upload', id:'wide'}; S.editSize=null; S.aiEditSize=null;
+    runCheck();
+  });
+  /* dropping a file anywhere else on the page shouldn't open it in the browser */
+  document.addEventListener('dragover', function(e){ e.preventDefault(); });
+  document.addEventListener('drop', function(e){ e.preventDefault(); });
+
+  /* Partly covered: Ridgeline added without resizing (1920×1080 still open). Fully covered: the same, with its AI layout */
+  function seedScenario(){
+    if(SCENARIO!=='partial' && SCENARIO!=='full') return;
+    S.src = {kind:'lib', id:'ridge'}; S.done = {}; S.sel = {};
+    if(SCENARIO==='full') S.done['1920x1080'] = true;
+    S.applied = [currentBatch()];
+    S.v = 'applied'; S.openRows = {'1400x400':true};
+  }
+  function scenBar(){
+    var el = document.createElement('div'), min = false;
+    try{ min = localStorage.getItem('acd-scen-min')==='1'; }catch(e){}
+    el.className = 'scenbar'+(min?' min':'');
+    el.innerHTML = '<span>Scenario</span><select class="scsel" aria-label="Scenario">'+SCENARIOS.map(function(x){
+        return '<option value="'+x[0]+'"'+(x[0]===SCENARIO?' selected':'')+'>'+x[1]+'</option>'; }).join('')+'</select>'+
+      '<button class="tog" title="Hide or show the scenario switcher" aria-label="Hide or show the scenario switcher">'+(min?'&#9881;':'&#10005;')+'</button>';
+    el.querySelector('.scsel').addEventListener('change', function(e){ SCENARIO = e.target.value; writeHash(); location.reload(); });
+    el.querySelector('.tog').addEventListener('click', function(e){
+      e.stopPropagation(); var m = !el.classList.contains('min'); el.classList.toggle('min', m);
+      this.innerHTML = m ? '&#9881;' : '&#10005;';
+      try{ localStorage.setItem('acd-scen-min', m?'1':'0'); }catch(err){} });
+    document.body.appendChild(el);
+  }
+  seedScenario();
+  scenBar();
+  paint();
+})();
+</script>
+</body>
+</html>
