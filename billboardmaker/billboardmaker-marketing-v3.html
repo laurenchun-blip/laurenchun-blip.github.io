@@ -1,0 +1,2257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Billboard Maker v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --pink:    #FF0C68;
+    --ink:     #30406A;
+    /* solid, not alpha: both clear 4.5:1 on white and on --wash */
+    --ink-70:  #4F5A7A;
+    --ink-50:  #5F6B8A;
+    --ink-32:  rgba(48,64,106,.32); /* borders and decoration only, never text */
+    --rule:    rgba(48,64,106,.12);
+    /* the creative brings its own colour, so the chrome stays neutral:
+       navy ink for type and selection, one grey wash for info,
+       pink only for the logo, the forward CTA and progress */
+    --wash:    #F3F4F6;
+    --sel:     var(--ink);
+    --danger:  #C62839;
+    --danger-wash: #FDF4F5;
+    --danger-line: rgba(198,40,57,.32);
+    --card:    #FFFFFF;
+    --sans: "Inter", system-ui, sans-serif;
+    /* one interface face; Lexend is only the lettering inside the billboard art */
+    --art: "Lexend", "Inter", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  body {
+    margin: 0;
+    background: #F7F8FA;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+  button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; border-radius: 4px; }
+
+  /* ---------- app chrome ---------- */
+
+  .app { max-width: 1060px; margin: 0 auto; padding: 22px 18px 80px; }
+
+  .bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; font-size: 18px; letter-spacing: -.01em; }
+  .logo svg { display: block; height: 22px; width: auto; flex: none; }
+  .ghost {
+    font-size: 13px; color: var(--ink-70); border: 1px solid var(--rule);
+    border-radius: 999px; padding: 4px 11px; background: #fff;
+  }
+
+  /* ---------- cards ---------- */
+
+  .card {
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 16px 18px; margin-bottom: 10px;
+  }
+  .card.current { box-shadow: 0 1px 3px rgba(20,32,44,.05); }
+  .card.pending { opacity: .5; }
+
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .card-name { font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+  .tick {
+    width: 15px; height: 15px; border-radius: 999px; background: var(--ink); color: #fff;
+    font-size: 11px; display: inline-flex; align-items: center; justify-content: center; flex: none;
+  }
+  .spin {
+    width: 14px; height: 14px; border-radius: 999px; flex: none;
+    border: 2px solid var(--rule); border-top-color: var(--ink);
+    animation: sp .7s linear infinite;
+  }
+  @keyframes sp { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+
+  .card-sub { font-size: 14px; color: var(--ink-50); margin-top: 1px; }
+  .link { font-size: 13px; color: var(--ink); font-weight: 500; flex: none; }
+
+  .result { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--rule); display: flex; gap: 12px; align-items: center; }
+  .result .txt { font-size: 15px; font-weight: 500; }
+  .result .meta { font-size: 13px; color: var(--ink-50); }
+
+  .swatchset { display: flex; gap: 4px; flex: none; }
+  .sw { width: 15px; height: 15px; border-radius: 4px; border: 1px solid rgba(0,0,0,.08); }
+
+  .valueline { font-size: 13px; color: var(--ink-70); background: var(--wash); border-radius: 6px; padding: 6px 10px; margin-top: 9px; }
+
+  .lbl { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-50); margin-bottom: 7px; }
+
+  /* ---------- options ---------- */
+
+  .options { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rule); display: grid; gap: 5px; }
+  .opt {
+    display: flex; gap: 10px; align-items: center; text-align: left; width: 100%;
+    border: 1px solid var(--rule); border-radius: 8px; padding: 7px 11px; background: #fff;
+  }
+  .o-main { min-width: 0; }
+  .o-sub { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-top: 1px; }
+  .opt:hover { border-color: var(--ink-32); }
+  .opt[aria-pressed="true"] { border-color: var(--sel); box-shadow: inset 0 0 0 1px var(--sel); }
+  .opt .o-txt { font-size: 14px; font-weight: 500; line-height: 1.3; }
+  .opt .o-meta { font-size: 12px; color: var(--ink-50); }
+  /* layouts: what the layout is good for, then what the picture would be */
+  .o-img { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; font-size: 13px; line-height: 1.4; color: var(--ink-70); }
+  .o-img-k {
+    flex: none; font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink-70); background: var(--wash); border-radius: 3px; padding: 1px 5px;
+  }
+
+  .wf { width: 76px; height: 22px; border-radius: 3px; background: var(--wash); border: 1px solid var(--rule); display: flex; gap: 2px; padding: 3px; flex: none; }
+  .wf i { display: block; background: var(--ink-32); border-radius: 1px; height: 100%; }
+
+  /* ---------- start screen ---------- */
+
+  .field { display: block; margin-bottom: 14px; }
+  .field span { display: block; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-50); margin-bottom: 6px; }
+  .field input, .field textarea {
+    width: 100%; font: inherit; font-size: 15px; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 9px; padding: 10px 12px; background: #fff;
+  }
+  .field textarea { resize: vertical; min-height: 62px; }
+  .field input:focus, .field textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
+  .hint { font-size: 13px; line-height: 1.5; color: var(--ink-50); margin: 10px 0 0; }
+  .tip {
+    display: flex; gap: 7px; align-items: flex-start; font-size: 13px; line-height: 1.5;
+    color: var(--ink-70); background: var(--wash); border-radius: 7px; padding: 8px 10px; margin: 9px 0 0;
+  }
+  .tip .i { flex: none; display: inline-flex; margin-top: 1px; }
+
+  /* scraped results should look returned, not typed */
+  .found {
+    display: flex; gap: 9px; align-items: flex-start;
+    background: var(--wash); border-radius: 9px; padding: 10px 11px; margin-bottom: 8px;
+  }
+  .found .tick { margin-top: 2px; }
+  .found .who { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .found b { font-weight: 600; font-size: 15px; color: var(--ink); }
+  .found span { font-size: 13px; color: var(--ink-70); }
+  .gist p { border-left: 2px solid var(--rule); padding-left: 11px; }
+
+  .btn { font-size: 15px; font-weight: 500; border-radius: 999px; padding: 9px 20px; background: var(--pink); color: #fff; }
+  .btn.sec { background: #fff; color: var(--ink-70); border: 1px solid var(--rule); }
+  /* acting on the creative is navy; pink is kept for moving forward */
+  .btn.ink { background: var(--ink); }
+  .btn.sm { font-size: 14px; padding: 7px 15px; }
+  .btn:hover { filter: brightness(1.06); }
+
+  /* ---------- run ---------- */
+
+  /* one centred column: a placeholder board, the step, then every step as a checklist */
+  .run { padding: 36px 20px 30px; display: flex; flex-direction: column; align-items: center; }
+  .run-col { width: 100%; max-width: 420px; }
+
+  .run-art {
+    aspect-ratio: 3.5/1; max-width: 100%; border-radius: 8px; overflow: hidden; position: relative;
+    background: var(--wash); border: 1px solid var(--rule);
+    display: grid; grid-template-columns: 1.25fr 1fr; align-items: center; gap: 6%; padding: 6% 7%;
+  }
+  .run-art .ra-copy { display: flex; flex-direction: column; gap: 9%; height: 70%; justify-content: center; }
+  .run-art .ra-copy i { display: block; height: 14%; min-height: 7px; border-radius: 3px; background: rgba(48,64,106,.16); }
+  .run-art .ra-copy i:nth-child(1) { width: 78%; }
+  .run-art .ra-copy i:nth-child(2) { width: 58%; height: 18%; background: rgba(48,64,106,.24); }
+  .run-art .ra-copy i:nth-child(3) { width: 44%; height: 8%; min-height: 4px; }
+  .run-art .ra-img { justify-self: center; width: 58%; aspect-ratio: 1; border-radius: 50%; background: rgba(48,64,106,.12); }
+  .run-art::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(100deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.55) 50%, rgba(255,255,255,0) 70%);
+    transform: translateX(-100%); animation: shimmer 1.8s ease-in-out infinite;
+  }
+  @keyframes shimmer { to { transform: translateX(100%); } }
+  @media (prefers-reduced-motion: reduce) { .run-art::after { animation: none; display: none; } }
+
+  .run-k { margin: 22px 0 2px; font-weight: 600; font-size: 22px; line-height: 1.3; color: var(--ink); text-align: center; }
+  .run .now { margin: 0 0 14px; font-size: 14px; color: var(--ink-70); text-align: center; min-height: 21px; }
+  .track { height: 6px; background: rgba(48,64,106,.1); border-radius: 999px; overflow: hidden; }
+  .track i { display: block; height: 100%; width: 0%; background: var(--pink); border-radius: 999px; transition: width .6s ease; }
+
+  .queue { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .queue li { display: flex; align-items: flex-start; gap: 11px; font-size: 15px; line-height: 1.4; color: var(--ink-70); }
+  .queue .qi {
+    width: 18px; height: 18px; border-radius: 999px; flex: none; margin-top: 1px;
+    border: 2px solid rgba(48,64,106,.25); display: inline-flex; align-items: center; justify-content: center;
+  }
+  .queue li.now-step { color: var(--ink); font-weight: 500; }
+  .queue li.now-step .qi { border-color: var(--rule); border-top-color: var(--ink); animation: sp .7s linear infinite; }
+  .queue li.done .qi { border: 0; background: var(--ink); color: #fff; font-size: 11px; }
+  .queue li.done .qi::before { content: "\2713"; }
+  @media (prefers-reduced-motion: reduce) { .queue li.now-step .qi { animation: none; border-color: var(--ink); } }
+
+  .run-notes { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--rule); text-align: center; }
+  .nofix { font-size: 13px; line-height: 1.5; color: var(--ink-50); margin: 0; }
+  .nofix.proto { font-size: 12px; margin-top: 6px; color: var(--ink-50); }
+  .run-notes .btn { margin-top: 14px; }
+
+  /* ---------- creative ---------- */
+
+  .creative {
+    aspect-ratio: 3.5/1; border-radius: 8px; border: 1px solid var(--rule);
+    background: linear-gradient(180deg, #DFEAD9, #D3E2CC);
+    overflow: hidden; display: grid; align-items: center; gap: 4%; padding: 5% 6%;
+  }
+  .creative .c-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .creative .c1 { font-family: var(--art); font-weight: 600; font-size: clamp(13px,2.5vw,26px); line-height: 1.02; color: #2C4230; }
+  .creative .c2 { font-family: var(--art); font-weight: 600; font-size: clamp(15px,3.1vw,31px); line-height: 1.02; color: #D6302B; }
+  .creative .c3 { font-size: clamp(8px,1.2vw,12px); color: #46613F; margin-top: 4%; }
+  .creative .c-art { display: flex; align-items: center; justify-content: center; }
+  .apple { width: 62%; aspect-ratio: 1; border-radius: 50% 50% 46% 46%; background: #E0352C; position: relative; }
+  .apple::after { content: ""; position: absolute; top: -9%; left: 52%; width: 26%; height: 22%; background: #4E8A3C; border-radius: 0 70% 0 70%; }
+
+  /* layout variants */
+  .creative.split    { grid-template-columns: 1.25fr 1fr; }
+  .creative.photo    { grid-template-columns: 1fr 1.5fr; }
+  .creative.photo .apple { width: 80%; }
+  .creative.photo .c-copy { background: rgba(255,255,255,.55); padding: 5%; border-radius: 6px; }
+  .creative.centred  { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .creative.centred .c-art { display: none; }
+  .creative.centred .c-copy { align-items: center; }
+  .creative.centred .c3 { background: #2C4230; color: #DFEAD9; padding: .4% 1.4%; border-radius: 3px; }
+
+  .art-meta { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
+  .dims { font-size: 13px; color: var(--ink-50); font-variant-numeric: tabular-nums; }
+  .actions { display: flex; gap: 7px; }
+
+  /* room to actually describe a change, the same shape as the promo field */
+  .adjust textarea {
+    width: 100%; font: inherit; font-size: 15px; line-height: 1.5; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 9px; padding: 11px 14px;
+    background: #fff; resize: vertical; min-height: 78px;
+  }
+  .adjust textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
+  .adjust { display: flex; gap: 10px; align-items: flex-end; }
+  .adjust textarea { flex: 1; }
+  .adjust-foot { flex: none; display: flex; }
+  .attach {
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+    border: 1px solid var(--rule); border-radius: 999px; padding: 10px 14px;
+    font-size: 14px; color: var(--ink-70); background: #fff;
+  }
+  .attach:hover { border-color: var(--ink-32); color: var(--ink); }
+  .attach .plus { font-size: 16px; line-height: 1; }
+  .attached {
+    display: flex; gap: 10px; align-items: center; margin-top: 8px;
+    font-size: 14px; color: var(--ink-70);
+    background: var(--wash); border-radius: 8px; padding: 8px 12px;
+  }
+  .attached button { font-size: 13px; color: var(--ink); font-weight: 500; margin-left: auto; }
+
+  /* ---------- start screen: tier 1, the minimum ---------- */
+
+  .hero { display: flex; gap: 10px; align-items: stretch; }
+  .hero input {
+    flex: 1; min-width: 0; font: inherit; font-size: 15px; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 9px; padding: 10px 14px; background: #fff;
+  }
+  .hero input:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
+  @media (max-width: 560px) {
+    .hero { flex-wrap: wrap; }
+    .hero input { width: 100%; flex: none; }
+    .hero .btn { width: 100%; }
+  }
+
+  /* ---------- start screen: tier 2, optional detail ---------- */
+
+  .optblock { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--rule); }
+  .opthead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .opthead .t { font-weight: 600; font-size: 15px; }
+  .opthead .s { font-size: 14px; color: var(--ink-50); }
+
+  .optgrid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 800px) { .optgrid { grid-template-columns: 1fr; gap: 22px; } }
+
+  .optgrid textarea {
+    width: 100%; font: inherit; font-size: 14px; color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 9px; padding: 9px 11px;
+    background: #fff; resize: vertical; min-height: 72px;
+  }
+  .optgrid textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { border: 1px solid var(--rule); border-radius: 999px; padding: 5px 11px; font-size: 13px; color: var(--ink-70); background: #fff; }
+  .chip:hover { border-color: var(--ink-32); color: var(--ink); }
+
+  .filebtn {
+    display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;
+    border: 1px dashed rgba(48,64,106,.25); border-radius: 9px; padding: 10px 13px;
+    font-size: 14px; color: var(--ink-70); background: #fff;
+  }
+  .filebtn:hover { border-color: var(--ink-50); color: var(--ink); }
+  .filedone {
+    display: flex; align-items: center; gap: 10px; color: var(--ink-70);
+    background: var(--wash); border-radius: 9px; padding: 8px 10px;
+  }
+  .filedone .txt { min-width: 0; flex: 1; }
+  .filedone .name {
+    display: block; font-size: 14px; line-height: 1.3; color: var(--ink);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .filedone .meta { display: block; font-size: 12px; font-variant-numeric: tabular-nums; line-height: 1.4; color: var(--ink-50); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .filedone button { font-size: 13px; color: var(--ink); font-weight: 500; flex: none; }
+
+  .thumb {
+    width: 36px; height: 36px; border-radius: 6px; flex: none; overflow: hidden;
+    border: 1px solid rgba(48,64,106,.14); background: #fff;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .thumb.sm { width: 26px; height: 26px; border-radius: 5px; }
+  /* checkerboard, the way transparent logo files are usually previewed */
+  .thumb.alpha {
+    background-image:
+      linear-gradient(45deg, rgba(48,64,106,.11) 25%, transparent 25%, transparent 75%, rgba(48,64,106,.11) 75%),
+      linear-gradient(45deg, rgba(48,64,106,.11) 25%, transparent 25%, transparent 75%, rgba(48,64,106,.11) 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 4px 4px;
+  }
+  .thumb .mark { font-family: var(--art); font-weight: 600; font-size: 9px; color: #19202B; }
+  .thumb.sm .mark { font-size: 7px; }
+  .thumb.photo { background: linear-gradient(170deg, #DFEAD9, #C6D9BE); }
+  .thumb.photo b { width: 15px; height: 15px; border-radius: 50%; background: #E0352C; display: block; }
+  .thumb.sm.photo b { width: 11px; height: 11px; }
+
+  .hexrow { display: flex; gap: 6px; }
+  .hexfield {
+    display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0;
+    border: 1px solid var(--rule); border-radius: 9px; padding: 6px 10px; background: #fff;
+  }
+  .hexfield:focus-within { outline: 2px solid var(--ink); outline-offset: -1px; }
+  .hexfield.off { opacity: .45; }
+  .btn[disabled] { opacity: .45; cursor: default; filter: none; }
+  .hexfield .prev {
+    width: 22px; height: 22px; border-radius: 6px; flex: none;
+    background: rgba(48,64,106,.14); border: 1px solid rgba(0,0,0,.09);
+  }
+  .hexfield input {
+    flex: 1; min-width: 0; border: 0; outline: 0; background: none; padding: 0;
+    font-family: inherit; font-size: 14px; text-transform: uppercase; color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+
+  .swatchlist { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+  .swrow {
+    display: flex; align-items: center; gap: 9px;
+    border: 1px solid var(--rule); border-radius: 8px; padding: 6px 8px 6px 7px;
+    background: #fff; font-size: 13px; color: var(--ink-70);
+  }
+  .swrow i { width: 20px; height: 20px; border-radius: 5px; border: 1px solid rgba(0,0,0,.09); display: block; flex: none; }
+  .swrow .role { margin-left: auto; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-50); }
+  .swrow button {
+    margin-left: 5px; font-size: 16px; line-height: 1; color: var(--ink-50);
+    width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; flex: none;
+  }
+  .swrow button:hover { color: var(--ink); }
+
+  .note { font-size: 13px; color: var(--ink-50); margin: 8px 0 0; }
+
+  /* ---------- the payoff: creative on a board ---------- */
+
+  .scene {
+    border-radius: 10px; overflow: hidden;
+    background:
+      linear-gradient(180deg, #8FB6D6 0%, #BFD6E6 46%, #A9BE97 46%, #8CA37A 100%);
+    padding: 7% 9% 0;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .board { width: 100%; max-width: 520px; display: flex; flex-direction: column; align-items: center; }
+  .board .creative {
+    width: 100%; border: 5px solid #71808C; border-radius: 3px;
+    box-shadow: 0 10px 26px rgba(20,32,44,.3);
+  }
+  .board .legs { display: flex; gap: 34%; width: 46%; }
+  .board .legs span { flex: 1; height: 46px; background: linear-gradient(90deg,#65727D,#7C8A96); }
+  @media (max-width: 560px) { .board .legs span { height: 30px; } }
+  /* both boards are far smaller here, and the clamp minimums are sized for desktop */
+  @media (max-width: 600px) {
+    .creative .c1 { font-size: 11px; }
+    .creative .c2 { font-size: 13px; }
+    .creative .c3 { font-size: 6px; }
+    .board .creative .c1 { font-size: 9px; }
+    .board .creative .c2 { font-size: 11px; }
+    .board .creative .c3 { font-size: 5px; }
+  }
+
+  .payoff-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap; margin-top: 14px;
+  }
+  .payoff-foot p { margin: 0; font-size: 13px; color: var(--ink-50); white-space: nowrap; }
+
+  .iconbtn {
+    width: 36px; height: 36px; border-radius: 999px; flex: none;
+    border: 1px solid var(--rule); background: #fff; color: var(--ink-70);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .iconbtn:hover { border-color: var(--ink-32); color: var(--ink); }
+  .payoff-foot .actions { align-items: center; }
+
+  /* ---------- share modal ---------- */
+
+  .overlay {
+    position: fixed; inset: 0; z-index: 40; padding: 20px;
+    background: rgba(20,32,44,.45);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal {
+    background: #fff; border-radius: 14px; width: 100%; max-width: 520px;
+    max-height: 90vh; overflow-y: auto; padding: 20px;
+    box-shadow: 0 24px 60px rgba(20,32,44,.32);
+  }
+  .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .modal-head .t { font-weight: 600; font-size: 18px; }
+  .modal-head .x { font-size: 22px; line-height: 1; color: var(--ink-50); padding: 0 4px; }
+  .modal-head .x:hover { color: var(--ink); }
+
+  /* start over: says exactly what goes, safe choice first */
+  .modal.confirm { max-width: 440px; }
+  .confirm-body { margin: 0; font-size: 15px; line-height: 1.55; color: var(--ink-70); }
+  .confirm-list { margin: 10px 0 0; padding: 0 0 0 18px; font-size: 15px; line-height: 1.55; color: var(--ink); }
+  .confirm-list li + li { margin-top: 3px; }
+  .confirm-keep { margin: 12px 0 0; font-size: 14px; color: var(--ink-50); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+  .btn.danger { background: var(--danger); }
+  .modal .scene { padding: 6% 8% 0; }
+  .modal .board { max-width: 340px; }
+  .modal .board .legs span { height: 26px; }
+  /* the creative sizes its type in vw, which ignores this smaller container */
+  .modal .creative .c1 { font-size: 13px; }
+  .modal .creative .c2 { font-size: 16px; }
+  .modal .creative .c3 { font-size: 6px; }
+
+  .share-row { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); }
+  .share-row .lbl { margin-bottom: 8px; }
+  .share-line { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .share-line span { font-size: 13px; color: var(--ink-50); }
+
+  /* platform colours would out-shout the picture being shared */
+  .platbtn {
+    width: 36px; height: 36px; border-radius: 999px; flex: none;
+    border: 1px solid var(--rule); background: #fff; color: var(--ink-70);
+    font-weight: 600; font-size: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .platbtn:hover { border-color: var(--ink-32); color: var(--ink); }
+
+  .tagline { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); }
+  .tagline span { font-size: 13px; color: var(--ink-50); }
+  .tagchip {
+    font-size: 13px; color: var(--ink-70);
+    background: #fff; border: 1px solid var(--rule);
+    border-radius: 999px; padding: 5px 11px;
+  }
+  .tagchip:hover { border-color: var(--ink-32); color: var(--ink); }
+
+  /* ---------- version strip ---------- */
+
+  .versions { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); }
+  .vstrip { display: flex; gap: 9px; overflow-x: auto; padding-bottom: 4px; }
+  .vitem { flex: none; width: 160px; text-align: left; padding: 0; background: none; }
+  .vthumb {
+    width: 100%; aspect-ratio: 3.5/1; border-radius: 4px; border: 1px solid var(--rule);
+    overflow: hidden; position: relative; display: block;
+  }
+  .vscale {
+    position: absolute; top: 0; left: 0; width: 560px;
+    transform: scale(0.2857); transform-origin: 0 0;
+  }
+  .vscale .creative { width: 560px; border: 0; border-radius: 0; }
+  .vscale .creative .c1 { font-size: 26px; }
+  .vscale .creative .c2 { font-size: 31px; }
+  .vscale .creative .c3 { font-size: 12px; }
+
+  .vhead { display: flex; align-items: center; gap: 5px; margin-top: 6px; }
+  .vkind { font-size: 12px; font-weight: 500; color: var(--ink-70); }
+  .vitem[aria-pressed="true"] .vkind { color: var(--ink); }
+  .vlatest {
+    font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink-70); background: var(--wash); border-radius: 3px; padding: 1px 4px;
+  }
+  .vdetail {
+    display: block; font-size: 12px; line-height: 1.3; color: var(--ink-50);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .vtime { display: block; font-size: 11px; color: var(--ink-50); font-variant-numeric: tabular-nums; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+    background: #1B2440; color: #fff; font-size: 14px; padding: 10px 16px;
+    border-radius: 999px; z-index: 50; box-shadow: 0 6px 24px rgba(0,0,0,.18);
+  }
+
+  /* ---------- result layout: creative first, ingredients under ---------- */
+
+  #s-done { display: flex; flex-direction: column; gap: 10px; }
+  #s-done > .card { margin: 0; }
+  #s-done > .card.current { padding: 14px 12px; }
+  #s-done > .card.current > .lbl { padding-left: 6px; }
+  #s-done > .card.current > .art-meta,
+  #s-done > .card.current > .versions { padding: 0 6px; }
+
+  /* the parts the creative was made from, one click each */
+  .ingrow { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ingchip {
+    display: flex; align-items: center; gap: 9px; text-align: left;
+    border: 1px solid var(--rule); border-radius: 10px; padding: 8px 12px 8px 9px;
+    background: #fff; min-width: 0; flex: 1 1 210px;
+  }
+  .ingchip:hover { border-color: var(--ink-32); }
+  .ingchip[aria-expanded="true"] { border-color: var(--sel); box-shadow: inset 0 0 0 1px var(--sel); }
+  .ic-txt { min-width: 0; }
+  .ic-k { display: block; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-50); }
+  .ic-v { display: block; font-size: 14px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .ingchip .chev { margin-left: auto; font-size: 12px; color: var(--ink-50); flex: none; transition: transform .15s ease; }
+  .ingchip[aria-expanded="true"] .chev { transform: rotate(180deg); color: var(--ink); }
+  .ingchip .willtag {
+    font-size: 11px; font-weight: 600; letter-spacing: .07em;
+    text-transform: uppercase; color: var(--ink-70); background: var(--wash);
+    border-radius: 3px; padding: 2px 5px; margin-left: auto; flex: none;
+  }
+  .ingchip.willupdate { border-style: dashed; border-color: var(--ink-32); }
+  .ingchip.willupdate .chev { display: none; }
+
+  /* what a change downstream costs, said before you make it */
+  .cascade {
+    font-size: 12px; color: var(--ink-70); background: var(--wash);
+    border-radius: 6px; padding: 6px 10px; margin: 0 0 9px;
+  }
+
+  .listing { display: flex; flex-direction: column; gap: 2px; font-size: 14px; color: var(--ink-70); }
+  .listing b { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .listing .links { margin-top: 5px; display: flex; gap: 9px; align-items: center; }
+  .linkbtn { font-size: 13px; color: var(--ink); font-weight: 500; }
+  .linkbtn:hover { text-decoration: underline; }
+
+  .gist { margin-top: 15px; padding-top: 13px; border-top: 1px solid var(--rule); }
+  .gist p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink-70); max-width: 72ch; }
+
+  .tags { display: flex; gap: 3px; flex-wrap: wrap; }
+  .tags s {
+    text-decoration: none; font-size: 11px; color: var(--ink-50);
+    background: rgba(48,64,106,.06); border-radius: 3px; padding: 1px 5px;
+  }
+
+  .confirmbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+    background: #fff; border: 1px solid var(--ink-32);
+    box-shadow: 0 2px 10px rgba(20,32,44,.06);
+  }
+  .confirmbar p { margin: 0; font-size: 14px; color: var(--ink-70); }
+  .confirmbar b { font-weight: 600; color: var(--ink); }
+
+  .creative.redrawing { opacity: .35; }
+  .redrawnote { font-size: 13px; color: var(--ink-70); margin: 9px 0 0; display: flex; align-items: center; gap: 7px; }
+
+  .panel { margin-top: 11px; padding-top: 12px; border-top: 1px solid var(--rule); }
+  .pgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 700px) { .pgrid { grid-template-columns: 1fr; gap: 16px; } }
+
+  .zoomable { cursor: zoom-in; }
+  .zoomwrap { position: relative; width: 100%; max-width: 1040px; }
+  .zoomwrap .creative { width: 100%; }
+  .zoomwrap .x {
+    position: absolute; top: -38px; right: 0; font-size: 26px; line-height: 1;
+    color: #fff; opacity: .85; padding: 4px 8px;
+  }
+  .zoomwrap .x:hover { opacity: 1; }
+
+  /* the three ingredient cards only appear once Edit is pressed */
+
+  .reason { font-size: 13px; color: var(--ink-50); margin: 7px 0 0; line-height: 1.45; }
+
+  /* ---------- v2: parts that exist only on phones ---------- */
+
+  .vtoggle, .boardrow, .mbar, .share-note, .gist-chev, .o-why, .vl-short { display: none; }
+  .gist-t { padding: 0; text-align: left; cursor: default; }
+
+  /* ---------- v2: phone layout ----------
+     The creative stays in view while editing, the commit lives in a
+     bar at the bottom of the screen, and every panel is compacted. */
+
+  @media (max-width: 600px) {
+    .app { padding: 14px 16px 96px; }
+    .bar { margin-bottom: 14px; }
+    .card { padding: 12px; }
+
+    /* iOS zooms the page on focus under 16px */
+    .hero input, .field input, .optgrid textarea, .adjust textarea, .hexfield input { font-size: 16px; }
+    .iconbtn { width: 40px; height: 40px; }
+
+    /* creative card: no label, short dims, versions behind a toggle */
+    #s-done > .card.current { padding: 10px; }
+    #s-done > .card.current > .lbl { display: none; }
+    #s-done > .card.current > .art-meta,
+    #s-done > .card.current > .versions { padding: 0; }
+    .art-meta { margin-top: 8px; gap: 8px; flex-wrap: nowrap; }
+    .dims-x { display: none; }
+    .vtoggle:not([hidden]) {
+      display: inline-flex; align-items: center; gap: 4px; margin-left: auto;
+      font-size: 13px; color: var(--ink-70); border: 1px solid var(--rule);
+      border-radius: 999px; padding: 0 12px; height: 32px; background: #fff;
+    }
+    .vtoggle[aria-expanded="true"] { border-color: var(--ink); color: var(--ink); }
+    .versions:not(.open) { display: none; }
+    .versions { margin-top: 10px; padding-top: 10px; }
+    .versions .lbl { display: none; }
+    .vitem { width: 128px; }
+
+    /* while a panel is open, the creative pins to the top */
+    #s-done.editing > .card.current {
+      position: sticky; top: 8px; z-index: 10;
+      box-shadow: 0 6px 20px rgba(20,32,44,.12);
+    }
+    #s-done.editing > .card.current > .art-meta,
+    #s-done.editing > .card.current > .versions { display: none; }
+
+    /* the edit card sits on the page, not as a card inside a card */
+    #s-done > .editcard { background: none; border: 0; padding: 0; }
+
+    /* refine: one line with the button inside, grows once you type */
+    .adjust { position: relative; }
+    .adjust textarea {
+      height: 50px; min-height: 50px; resize: none; line-height: 1.35; overflow: hidden;
+      padding: 13px 92px 13px 14px; transition: height .15s ease;
+    }
+    .adjust textarea:focus, .adjust textarea.has { height: 92px; overflow: auto; }
+    .adjust-foot { position: absolute; right: 6px; bottom: 6px; }
+    .adjust-foot .btn { font-size: 14px; padding: 7px 15px; }
+
+    /* made from: a segmented control instead of three stacked cards */
+    .editcard > .lbl { margin-top: 14px !important; }
+    .ingrow { flex-wrap: nowrap; gap: 3px; padding: 3px; border-radius: 10px; background: rgba(48,64,106,.07); }
+    .ingchip {
+      flex: 1 1 0; justify-content: center; min-height: 40px; padding: 6px 4px;
+      border: 0; border-radius: 8px; background: none;
+    }
+    .ingchip:hover { border: 0; }
+    .ingchip .thumb, .ingchip .wf, .ingchip .chev, .ingchip .ic-v, .ingchip .willtag { display: none; }
+    .ingchip .ic-k {
+      font-size: 14px; font-weight: 500; letter-spacing: 0; text-transform: none;
+      color: var(--ink-70); text-align: center;
+    }
+    .ingchip[aria-expanded="true"] { background: #fff; box-shadow: 0 1px 3px rgba(20,32,44,.14); }
+    .ingchip[aria-expanded="true"] .ic-k { color: var(--ink); font-weight: 600; }
+    .ingchip.willupdate { border: 0; box-shadow: none; }
+    .ingchip.willupdate .ic-k { color: var(--ink-70); }
+    .ingchip.willupdate .ic-k::after { content: " \2022"; }
+
+    /* panels: one consequence line, the why lives on the picked option */
+    .panel { margin-top: 10px; padding-top: 0; border-top: 0; }
+    .cascade { margin-bottom: 8px; }
+    .reason { display: none; }
+    .options { margin-top: 0; padding-top: 0; border-top: 0; }
+    .opt { padding: 9px 12px; min-height: 44px; }
+    .opt .tags { display: none; }
+    .opt .wf { width: 52px; height: 18px; }
+    .opt[aria-pressed="true"] .o-why { display: block; font-size: 13px; line-height: 1.4; color: var(--ink-70); margin-top: 4px; }
+    /* layouts already say what they're for and what the image is */
+    #opt-lay .opt[aria-pressed="true"] .o-why { display: none; }
+    .vl-long { display: none; }
+    .vl-short { display: inline; }
+    .valueline { margin-top: 8px; }
+
+    /* brand: swatches and the add field share one row, the gist folds */
+    .pgrid { gap: 14px; }
+    .colorblock { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .colorblock > .lbl { flex-basis: 100%; margin-bottom: 0; }
+    .colorblock .swatchlist { order: 1; flex-direction: row; gap: 12px; margin: 0 4px 0 0; }
+    .colorblock .hexrow { order: 2; flex: 1; min-width: 150px; }
+    .colorblock .swrow { position: relative; padding: 0; border: 0; background: none; }
+    .colorblock .swrow i { width: 34px; height: 34px; border-radius: 8px; }
+    .colorblock .swrow span { display: none; }
+    .colorblock .swrow button {
+      position: absolute; top: -9px; right: -9px; margin: 0;
+      width: 24px; height: 24px; font-size: 14px; color: var(--ink-70);
+      background: #fff; border: 1px solid var(--rule); border-radius: 999px;
+    }
+    .gist { margin-top: 12px; padding-top: 10px; }
+    .gist-t { cursor: pointer; display: flex; align-items: center; gap: 4px; width: 100%; margin-bottom: 0; }
+    .gist-chev { display: inline; transition: transform .15s ease; }
+    .gist.open .gist-t { margin-bottom: 7px; }
+    .gist.open .gist-chev { transform: rotate(180deg); }
+    .gist:not(.open) p { display: none; }
+
+    /* commit bar: pinned to the bottom, over the campaign bar */
+    .confirmbar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; margin: 0;
+      flex-wrap: nowrap; gap: 12px; border: 0; border-top: 1px solid var(--rule);
+      border-radius: 14px 14px 0 0; background: #fff;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      box-shadow: 0 -8px 24px rgba(20,32,44,.1);
+    }
+    .confirmbar p { font-size: 13px; line-height: 1.4; }
+    .confirmbar .actions { flex: none; }
+
+    .mbar:not([hidden]) {
+      display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 24;
+      background: rgba(255,255,255,.96); border-top: 1px solid var(--rule);
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    }
+    .mbar .btn { width: 100%; padding: 11px 20px; }
+    .toast { bottom: 84px; }
+
+    /* see it on a board: a row that opens the preview and share sheet */
+    .card.tail > .lbl, .card.tail > .scene, .card.tail > .payoff-foot { display: none; }
+    .boardrow { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 0; }
+    .mscene {
+      width: 92px; height: 42px; flex: none; border-radius: 6px; overflow: hidden;
+      position: relative; background: #8CA37A;
+    }
+    .mscene .scene { position: absolute; top: 0; left: 0; width: 343px; transform: scale(.268); transform-origin: 0 0; pointer-events: none; }
+    .br-txt { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+    .br-t { font-weight: 600; font-size: 15px; line-height: 1.3; }
+    .br-s { font-size: 13px; color: var(--ink-50); }
+    .br-go { font-size: 22px; line-height: 1; color: var(--ink-50); }
+    /* the short line, kept to one row down to a 320px screen */
+    .share-note { display: block; margin-top: 10px; white-space: nowrap; }
+    @media (max-width: 360px) { .share-note { font-size: 12px; } }
+    .overlay { padding: 12px; }
+    .modal { padding: 16px; }
+    .modal-actions { flex-direction: column-reverse; }
+    .modal-actions .btn { width: 100%; padding: 11px 20px; }
+
+    /* loading fills the screen below the header, content centred in it */
+    .app:has(> #s-run:not([hidden])) {
+      display: flex; flex-direction: column; padding-bottom: 16px;
+      min-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    }
+    #s-run:not([hidden]) { flex: 1; display: flex; }
+    #s-run > .card {
+      flex: 1; margin: 0; display: flex; align-items: center; justify-content: center;
+      background: none; border: 0; box-shadow: none; padding: 0;
+    }
+    .run { padding: 0 0 12px; width: 100%; }
+    .run-k { font-size: 22px; margin-top: 24px; }
+
+    /* type floor: nothing under 12px; the text you read to decide sits at 15 */
+    .lbl, .field span, .vlatest, .o-img-k, .swrow .role, .tags s, .vtime, .vdetail, .vkind { font-size: 12px; }
+    .opt .o-txt, .found b, .listing b, .queue li { font-size: 15px; }
+    .opt .o-meta, .reason, .cascade, .valueline, .hint, .tip, .found span,
+    .card-sub, .br-s, .filedone .meta, .nofix, .confirm-keep { font-size: 13px; }
+    .opt[aria-pressed="true"] .o-why { font-size: 14px; }
+    .adjust textarea { padding-right: 100px; }
+  }
+
+  /* ---------- errors ----------
+     An error sits where the work happened, stays until the visitor acts on it,
+     and never says more than the visitor can use. No codes, no provider text,
+     and never a toast. */
+
+  .erri {
+    width: 17px; height: 17px; border-radius: 999px; flex: none; margin-top: 2px;
+    background: var(--danger); color: #fff; font-size: 11px; font-weight: 600; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .inlerr {
+    display: flex; gap: 9px; align-items: flex-start; margin-top: 10px;
+    padding: 9px 12px; border-radius: 8px;
+    background: var(--danger-wash); border: 1px solid var(--danger-line);
+    font-size: 14px; line-height: 1.45; color: var(--ink);
+  }
+  .inlerr .et { flex: 1; min-width: 0; }
+  .inlerr .et b { font-weight: 600; }
+  .inlerr .et span { display: block; color: var(--ink-70); font-size: 13px; }
+  .inlerr .linkbtn { flex: none; margin-top: 1px; text-decoration: underline; }
+  #s-done > .card.current > #dlerr { margin-left: 6px; margin-right: 6px; }
+
+  .fielderr { display: flex; gap: 7px; align-items: flex-start; margin: 7px 0 0; font-size: 13px; line-height: 1.45; color: var(--danger); }
+  .fielderr .erri { width: 15px; height: 15px; font-size: 10px; margin-top: 1px; }
+  .fielderr b { font-weight: 600; }
+  .hero input[aria-invalid="true"], .hexfield.bad { border-color: var(--danger); }
+
+  /* the run stops where it stopped: finished steps stay ticked */
+  .run.failed .run-art::after { display: none; }
+  .run.failed .track i { background: var(--ink-32); }
+  .queue li.stuck { color: var(--ink); font-weight: 500; }
+  .queue li.stuck .qi { border: 0; background: var(--danger); color: #fff; font-size: 11px; font-weight: 600; animation: none; }
+  .queue li.stuck .qi::before { content: "!"; }
+  .queue li.later { opacity: .55; }
+  .run-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--rule); }
+  .refnote { margin: 12px 0 0; text-align: center; font-size: 12px; color: var(--ink-50); font-variant-numeric: tabular-nums; }
+
+  .confirmbar.errbar { border-color: var(--danger-line); }
+
+  /* share sheet: the error sits under the row whose button failed */
+  .share-row .inlerr { margin-top: 10px; }
+  .errbtns { display: flex; gap: 12px; flex: none; }
+  .copyfield { margin-top: 8px; }
+  .copyfield input {
+    width: 100%; font: inherit; font-size: 14px; color: var(--ink);
+    border: 1px solid var(--ink-32); border-radius: 8px; padding: 8px 11px; background: #fff;
+  }
+  .copyfield input:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
+  @media (max-width: 600px) {
+    .share-row .inlerr { flex-wrap: wrap; }
+    .errbtns { flex-basis: 100%; padding-left: 26px; }
+    .copyfield input { font-size: 16px; }
+  }
+  .confirmbar.errbar p { display: flex; gap: 9px; align-items: flex-start; color: var(--ink); }
+
+  .adjust textarea:disabled { background: var(--wash); color: var(--ink-70); }
+  .reloadflash { animation: rl .5s ease; }
+  @keyframes rl { 0% { opacity: 1; } 40% { opacity: .1; } 100% { opacity: 1; } }
+
+  @media (max-width: 600px) {
+    .colorblock .fielderr { order: 3; flex-basis: 100%; margin: 0; }
+    .confirmbar.errbar { border: 0; border-top: 1px solid var(--danger-line); flex-wrap: wrap; }
+    .confirmbar.errbar p { flex-basis: 100%; font-size: 14px; }
+    .confirmbar.errbar .actions { width: 100%; }
+    .confirmbar.errbar .actions .btn { flex: 1; }
+    .ghost { white-space: nowrap; }
+    .run-actions .btn { width: 100%; }
+  }
+
+  /* ---------- prototype control: play a state ---------- */
+
+  .bar { position: relative; }
+  .simbtn { margin-left: auto; border-style: dashed; }
+  .simbtn .short { display: none; }
+  @media (max-width: 600px) {
+    .bar { gap: 8px; }
+    .bar .logo { font-size: 16px; gap: 8px; white-space: nowrap; }
+    .bar .ghost { padding: 4px 9px; }
+    .simbtn .long { display: none; }
+    .simbtn .short { display: inline; }
+  }
+  .simpanel {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 60;
+    width: 330px; max-width: calc(100vw - 32px); max-height: 75vh; overflow-y: auto;
+    background: #fff; border: 1px dashed var(--ink-32); border-radius: 12px;
+    box-shadow: 0 14px 40px rgba(20,32,44,.18); padding: 12px;
+  }
+  .simpanel .sim-k { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-50); margin: 10px 4px 4px; }
+  .simpanel .sim-k:first-child { margin-top: 0; }
+  .simrow { display: block; width: 100%; text-align: left; border-radius: 8px; padding: 7px 8px; }
+  .simrow:hover { background: var(--wash); }
+  .simrow b { display: block; font-size: 14px; font-weight: 500; line-height: 1.35; }
+  .simrow span { display: block; font-size: 12px; line-height: 1.4; color: var(--ink-50); }
+  .simpanel .sim-foot { margin: 8px 4px 0; padding-top: 8px; border-top: 1px solid var(--rule); font-size: 12px; color: var(--ink-50); }
+
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="bar">
+    <span class="logo"><svg viewBox="0 0 97 46" fill="none" role="img" aria-label="Blip"><path d="M58.6674 8.73141C58.6674 9.42073 58.1504 9.88028 57.5185 9.88028H53.038C52.4061 9.88028 51.8891 9.42073 51.8891 8.73141V6.77833C51.8891 6.14645 52.4061 5.68691 53.038 5.68691H57.5185C58.1504 5.68691 58.6674 6.14645 58.6674 6.77833V8.73141ZM58.6674 30.1578C58.6674 30.7323 58.1504 31.1918 57.5185 31.1918H53.038C52.4061 31.1918 51.8891 30.7323 51.8891 30.1578V14.8779C51.8891 14.3034 52.4061 13.7864 53.038 13.7864H57.5185C58.1504 13.7864 58.6674 14.3034 58.6674 14.8779V30.1578ZM45.4555 0V29.9281C45.4555 30.6174 44.8236 30.9046 44.1917 30.9046H39.7686C39.1942 30.9046 38.6772 30.6174 38.6772 29.9281V0H16.3892V10.1675H26.7864C30.0032 10.1675 31.8989 11.9482 31.8989 15.1076V25.9645C31.8989 29.1813 30.0032 30.9046 26.7864 30.9046H11.3342C10.4151 30.9046 9.61089 30.3302 9.61089 29.4111V0H0.879517V40.2104H65.1011V11.661C65.1011 10.7994 65.6755 10.1675 66.5946 10.1675H82.1617C85.3785 10.1675 87.389 11.9482 87.389 15.1076V25.9645C87.389 29.1813 85.3785 30.9046 82.1617 30.9046H71.8793V45.7825H78.313V40.2104H96.1204V0H45.4555ZM80.6107 15.797H71.8793V25.3326H80.6107V15.797ZM25.1206 15.797H16.3892V25.3326H25.1206V15.797Z" fill="#FF0C68"/></svg>Billboard Maker</span>
+    <button class="ghost" id="startover" hidden>Start over</button>
+    <button class="ghost simbtn" id="simbtn" type="button" aria-expanded="false" aria-controls="simpanel"><span class="long">Show a state</span><span class="short">States</span></button>
+    <div class="simpanel" id="simpanel" hidden>
+      <div class="sim-k">Making the billboard</div>
+      <button class="simrow" type="button" data-sim="gen"><b>Generation failed</b><span>A step fails. Try again resumes from that step.</span></button>
+      <button class="simrow" type="button" data-sim="site"><b>Website couldn’t be read</b><span>Back to the start with the field flagged.</span></button>
+      <button class="simrow" type="button" data-sim="runlogo"><b>Logo couldn’t be used</b><span>Continue without it, or try another.</span></button>
+      <div class="sim-k">Result</div>
+      <button class="simrow" type="button" data-sim="dl"><b>Download failed</b><span>Inline under the creative.</span></button>
+      <div class="sim-k">Changes</div>
+      <button class="simrow" type="button" data-sim="r1"><b>R1 · Change didn’t apply</b><span>Refine fails. Billboard unchanged, text kept.</span></button>
+      <button class="simrow" type="button" data-sim="r2"><b>R2 · Change was interrupted</b><span>Coming back after a refresh, result lost.</span></button>
+      <button class="simrow" type="button" data-sim="r3"><b>R3 · Still working after a refresh</b><span>Not an error. Picks the change back up.</span></button>
+      <button class="simrow" type="button" data-sim="r4"><b>R4 · Change can’t be made</b><span>Blocked by the content filter. Reword it.</span></button>
+      <button class="simrow" type="button" data-sim="r5"><b>R5 · Panel change didn’t apply</b><span>A layout switch fails. Selection reverts.</span></button>
+      <button class="simrow" type="button" data-sim="r6"><b>R6 · New logo can’t be used</b><span>Brand panel upload rejected. Current logo kept.</span></button>
+      <div class="sim-k">Sharing</div>
+      <button class="simrow" type="button" data-sim="s1"><b>S1 · Instagram picture didn’t save</b><span>Under “Post the picture”.</span></button>
+      <button class="simrow" type="button" data-sim="s2"><b>S2 · Picture download didn’t start</b><span>Same row, same pattern.</span></button>
+      <button class="simrow" type="button" data-sim="s3"><b>S3 · LinkedIn didn’t open</b><span>Same for Facebook and X. Try again or copy the link.</span></button>
+      <button class="simrow" type="button" data-sim="s4"><b>S4 · Link couldn’t be copied</b><span>Clipboard blocked. The link is shown, selected.</span></button>
+      <p class="sim-foot">Prototype control. Each state plays once, then everything works normally, so Try again succeeds.</p>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 1 : START ============ -->
+  <div id="s-start">
+    <div class="card current">
+      <div class="card-top" style="margin-bottom:14px">
+        <div>
+          <div class="card-name">Your business</div>
+          <div class="card-sub">A finished billboard, sized for your boards.</div>
+        </div>
+      </div>
+
+      <div class="lbl">Business website</div>
+      <div class="hero">
+        <input id="url" type="text" value="brooklyncraftcompany.com" placeholder="yourbusiness.com" autocomplete="off">
+        <button class="btn" id="go">Make my billboard</button>
+      </div>
+      <p class="fielderr" id="urlerr" role="alert" hidden></p>
+      <p class="hint">We’ll pull your logo, colors, and what you do from your site. You can change any of it.</p>
+      <p class="tip"><span class="i"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.7a4.2 4.2 0 0 0-2.4 7.6c.5.4.8 1 .8 1.6v.3h3.2v-.3c0-.6.3-1.2.8-1.6A4.2 4.2 0 0 0 8 1.7z"/><path d="M6.5 13.2h3"/><path d="M7.1 14.7h1.8"/></svg></span><span>If you’re promoting one thing, link that page rather than your homepage. Works with the homepage too.</span></p>
+
+      <div class="optblock">
+      <div class="opthead">
+        <span class="t">Brand and promotion</span>
+        <span class="s">Optional</span>
+      </div>
+
+      <div class="optgrid">
+
+        <div>
+          <div class="lbl">What are you promoting?</div>
+          <textarea id="ctx" placeholder="20% off workshops through Labor Day"></textarea>
+          <div class="chips">
+            <button class="chip" data-fill="sale">Sale</button>
+            <button class="chip" data-fill="event">Event</button>
+            <button class="chip" data-fill="new location">New location</button>
+            <button class="chip" data-fill="product">Product</button>
+            <button class="chip" data-fill="seasonal">Seasonal</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="lbl">Your logo</div>
+          <button class="filebtn" data-file="logo">+ Upload logo</button>
+          <div class="filedone" id="f-logo" hidden>
+            <span class="thumb alpha"><span class="mark">BCC</span></span>
+            <span class="txt">
+              <span class="name">bcc-logo.svg</span>
+              <span class="meta">512 × 512</span>
+            </span>
+            <button type="button" data-clear="logo">Remove</button>
+          </div>
+
+          <div class="lbl" style="margin-top:18px">Product photo</div>
+          <button class="filebtn" data-file="prod">+ Upload photo</button>
+          <div class="filedone" id="f-prod" hidden>
+            <span class="thumb photo"><b></b></span>
+            <span class="txt">
+              <span class="name">workshop-kit.jpg</span>
+              <span class="meta">1600 × 1200</span>
+            </span>
+            <button type="button" data-clear="prod">Remove</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="lbl">Brand colors</div>
+          <div class="hexrow">
+            <div class="hexfield" id="hexfield">
+              <span class="prev" id="hexprev"></span>
+              <input id="hex" type="text" placeholder="1B2440" maxlength="7" autocomplete="off" aria-label="Brand color code">
+            </div>
+            <button class="btn sec sm" id="addhex">Add</button>
+          </div>
+          <p class="fielderr" id="hexerr" role="alert" hidden></p>
+          <div class="swatchlist" id="swatches"></div>
+        </div>
+
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 2 : RUN ============ -->
+  <div id="s-run" hidden>
+    <div class="card current">
+      <div class="run">
+        <div class="run-col">
+          <div class="run-art" aria-hidden="true">
+            <span class="ra-copy"><i></i><i></i><i></i></span>
+            <span class="ra-img"></span>
+          </div>
+          <p class="run-k" id="runk">Making your billboard</p>
+          <p class="now" id="now" aria-live="polite">Step 1 of 4</p>
+          <div class="track" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="track"><i id="bar"></i></div>
+          <ol class="queue" id="queue"></ol>
+          <div id="runfail" role="alert" hidden>
+            <div class="run-actions">
+              <button class="btn" type="button" id="runretry">Try again</button>
+              <button class="btn sec" type="button" id="runalt">Edit details</button>
+            </div>
+            <p class="refnote" id="refnote"></p>
+          </div>
+          <div class="run-notes" id="runnotes">
+            <p class="nofix">No time estimate shown. Runs vary too much to promise one.</p>
+            <p class="nofix proto">Prototype: compressed to about 8 seconds. Real runs take 5 to 20 minutes.</p>
+            <button class="btn sec sm" id="skip">Skip ahead</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 3 : RESULT ============ -->
+  <div id="s-done" hidden>
+
+    <div class="card current">
+      <div class="lbl">Creative</div>
+      <div class="creative split zoomable" id="creative" role="button" tabindex="0" aria-label="View full size">
+        <div class="c-copy">
+          <span class="c1" id="cr1">Crafting Comes to</span>
+          <span class="c2" id="cr2">Manhattan</span>
+          <span class="c3" id="cr3">Summer Pop-Up · 225 Broadway, New York</span>
+        </div>
+        <div class="c-art"><span class="apple"></span></div>
+      </div>
+      <p class="redrawnote" id="redrawnote" hidden><span class="spin"></span><span id="redrawtext">Redrawing with your change</span></p>
+
+      <div class="art-meta">
+        <span class="dims">1400 × 400<span class="dims-x"> · 3.5:1 · bulletin</span></span>
+        <button class="vtoggle" type="button" id="vtoggle" aria-expanded="false" aria-controls="versions" hidden></button>
+        <span class="actions">
+          <button class="iconbtn" type="button" id="zoombtn" title="View full size" aria-label="View full size">
+            <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 2.6H2.6V6"/><path d="M10 13.4h3.4V10"/><path d="M13.4 6V2.6H10"/><path d="M2.6 10v3.4H6"/>
+            </svg>
+          </button>
+          <button class="iconbtn" type="button" id="dl" title="Download the billboard file" aria-label="Download the billboard file">
+            <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8 2v8"/><path d="M4.6 7 8 10.4 11.4 7"/><path d="M2.6 13.2h10.8"/>
+            </svg>
+          </button>
+        </span>
+      </div>
+
+      <div class="inlerr" id="dlerr" role="alert" hidden>
+        <span class="erri" aria-hidden="true">!</span>
+        <span class="et"><b>The download didn’t start.</b></span>
+        <button class="linkbtn" type="button" id="dlretry">Try again</button>
+      </div>
+
+      <div class="versions" id="versions" hidden>
+        <div class="lbl">Versions</div>
+        <div class="vstrip" id="vstrip"></div>
+      </div>
+    </div>
+
+    <!-- change it: free text on top, the parts underneath -->
+    <div class="card editcard">
+      <div class="adjust">
+        <textarea id="refine" placeholder="Describe a change, or ask for a different look"></textarea>
+        <div class="adjust-foot"><button class="btn ink" id="do-refine" disabled>Refine</button></div>
+      </div>
+      <div class="inlerr" id="refineerr" role="alert" hidden>
+        <span class="erri" aria-hidden="true">!</span>
+        <span class="et" id="refineerrtext"></span>
+        <button class="linkbtn" type="button" id="refineretry">Try again</button>
+      </div>
+
+      <div class="lbl" style="margin-top:17px">Made from</div>
+      <div class="ingrow">
+        <button class="ingchip" type="button" data-panel="p-brand" aria-expanded="false">
+          <span class="thumb sm alpha"><span class="mark">BCC</span></span>
+          <span class="ic-txt"><span class="ic-k">Brand</span><span class="ic-v">Brooklyn Craft Company</span></span>
+          <span class="chev" aria-hidden="true">&#9662;</span>
+        </button>
+        <button class="ingchip" type="button" data-panel="p-head" aria-expanded="false">
+          <span class="ic-txt"><span class="ic-k">Message</span><span class="ic-v" id="chip-h">&#8220;Crafting Comes to Manhattan&#8221;</span></span>
+          <span class="chev" aria-hidden="true">&#9662;</span>
+        </button>
+        <button class="ingchip" type="button" data-panel="p-lay" aria-expanded="false">
+          <span class="wf" id="chip-wf"><i style="width:46%"></i><i style="width:54%"></i></span>
+          <span class="ic-txt"><span class="ic-k">Layout</span><span class="ic-v" id="chip-l">Split image</span></span>
+          <span class="chev" aria-hidden="true">&#9662;</span>
+        </button>
+      </div>
+
+      <div class="panel" id="p-brand" hidden>
+        <p class="cascade">Changing anything here rewrites the message, the layout and the artwork.</p>
+        <div class="pgrid">
+          <div>
+            <div class="lbl">Listing</div>
+            <div class="found">
+              <span class="tick">&#10003;</span>
+              <span class="who">
+                <b>Brooklyn Craft Company</b>
+                <span>165 Greenpoint Avenue, Brooklyn, NY 11222</span>
+                <span>646-201-4049</span>
+              </span>
+            </div>
+            <button class="linkbtn" type="button">Wrong listing?</button>
+          </div>
+          <div>
+            <div class="lbl">Logo</div>
+            <button class="filebtn" type="button" data-file="rlogo" hidden>+ Upload a different logo</button>
+            <div class="filedone" id="f-rlogo">
+              <span class="thumb sm alpha"><span class="mark">BCC</span></span>
+              <span class="txt"><span class="name">bcc-logo.svg</span><span class="meta">From your site &#183; 512 &#215; 512</span></span>
+              <button type="button" data-clear="rlogo">Replace</button>
+            </div>
+            <p class="fielderr" id="rlogoerr" role="alert" hidden><span class="erri" aria-hidden="true">!</span><span><b>That file can’t be used as a logo.</b> Try a PNG, SVG or JPG of just the logo. Current logo kept.</span></p>
+            <div class="lbl" style="margin-top:14px">Product photo</div>
+            <button class="filebtn" type="button" data-file="rprod">+ Upload photo</button>
+            <div class="filedone" id="f-rprod" hidden>
+              <span class="thumb sm photo"><b></b></span>
+              <span class="txt"><span class="name">workshop-kit.jpg</span><span class="meta">1600 &#215; 1200</span></span>
+              <button type="button" data-clear="rprod">Remove</button>
+            </div>
+          </div>
+          <div class="colorblock">
+            <div class="lbl">Colors</div>
+            <div class="hexrow">
+              <div class="hexfield" id="rhexfield">
+                <span class="prev" id="rhexprev"></span>
+                <input id="rhex" type="text" placeholder="1B2440" maxlength="7" autocomplete="off" aria-label="Brand color code">
+              </div>
+              <button class="btn sec sm" type="button" id="raddhex">Add</button>
+            </div>
+            <p class="fielderr" id="rhexerr" role="alert" hidden></p>
+            <div class="swatchlist" id="rswatches"></div>
+          </div>
+        </div>
+        <div class="gist" id="gist">
+          <button class="lbl gist-t" type="button" id="gist-t" aria-expanded="false">What we read from your site<span class="gist-chev" aria-hidden="true">&#9662;</span></button>
+          <p>A modern craft store and DIY workshop space in Greenpoint, Brooklyn, selling fabric, yarn and craft supplies in store and online. Runs beginner friendly classes in sewing, knitting, crochet, embroidery and quilting, plus kids classes and private events.</p>
+        </div>
+      </div>
+
+      <div class="panel" id="p-head" hidden>
+        <p class="cascade">A different message redraws the layout and the artwork.</p>
+        <p class="reason" id="head-reason" style="margin-top:0">Picked because your site leads with classes and events, and you mentioned a dated pop-up.</p>
+        <div class="options" id="opt-head"></div>
+        <p class="valueline"><span class="vl-long">A billboard gets about seven words. The line underneath carries the where and when:</span><span class="vl-short">Line underneath:</span> <b id="supportline">Summer Pop-Up &#183; 225 Broadway, New York</b></p>
+      </div>
+
+      <div class="panel" id="p-lay" hidden>
+        <p class="cascade">A different layout redraws the artwork.</p>
+        <p class="reason" id="lay-reason" style="margin-top:0">Picked because a four word headline leaves room for a product shot beside it.</p>
+        <div class="options" id="opt-lay"></div>
+      </div>
+
+      <div class="confirmbar" id="confirmbar" hidden>
+        <p id="confirmtext"></p>
+        <span class="actions">
+          <button class="btn sec sm" type="button" id="cancelchange">Cancel</button>
+          <button class="btn ink sm" type="button" id="applychange">Apply</button>
+        </span>
+      </div>
+
+      <div class="confirmbar errbar" id="changeerr" role="alert" hidden>
+        <p><span class="erri" aria-hidden="true">!</span><span id="changeerrtext"></span></p>
+        <span class="actions">
+          <button class="btn sec sm" type="button" id="changekeep">Keep current</button>
+          <button class="btn ink sm" type="button" id="changeretry">Try again</button>
+        </span>
+      </div>
+    </div>
+
+    <!-- Everything below the ingredients -->
+    <div class="card tail">
+      <button class="boardrow" type="button" id="boardrow">
+        <span class="mscene" id="mscene" aria-hidden="true"></span>
+        <span class="br-txt"><span class="br-t">See it on a board</span><span class="br-s">Preview and share</span></span>
+        <span class="br-go" aria-hidden="true">&#8250;</span>
+      </button>
+      <div class="lbl">See it on a board</div>
+      <div class="scene">
+        <div class="board">
+          <div class="creative split" id="mockart">
+            <div class="c-copy">
+              <span class="c1" id="mk1">Crafting Comes to</span>
+              <span class="c2" id="mk2">Manhattan</span>
+              <span class="c3" id="mk3">Summer Pop-Up · 225 Broadway, New York</span>
+            </div>
+            <div class="c-art"><span class="apple"></span></div>
+          </div>
+          <div class="legs"><span></span><span></span></div>
+        </div>
+      </div>
+
+      <div class="payoff-foot">
+        <p>Illustration only. Not a specific board, and the art is AI-generated.</p>
+        <div class="actions">
+          <div class="sharewrap">
+            <button class="iconbtn" id="sharebtn" title="Share" aria-label="Share">
+              <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="3.6" r="1.9"/><circle cx="4" cy="8" r="1.9"/><circle cx="12" cy="12.4" r="1.9"/>
+                <path d="M5.7 7.1 10.3 4.5"/><path d="M5.7 8.9l4.6 2.6"/>
+              </svg>
+            </button>
+          </div>
+          <button class="btn sm" id="usecampaign">Use in campaign</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- phones: the primary action, always reachable -->
+    <div class="mbar" id="mbar">
+      <button class="btn" type="button" id="usecampaign2">Use in campaign</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ FULL SCREEN CREATIVE ============ -->
+<div class="overlay" id="zoomoverlay" hidden>
+  <div class="zoomwrap">
+    <button class="x" type="button" id="zoomx" aria-label="Close">×</button>
+    <div id="zoomart"></div>
+  </div>
+</div>
+
+<!-- ============ START OVER CONFIRM ============ -->
+<div class="overlay" id="resetoverlay" hidden>
+  <div class="modal confirm" role="alertdialog" aria-modal="true" aria-labelledby="resettitle" aria-describedby="resettext">
+    <div class="modal-head">
+      <span class="t" id="resettitle">Start over?</span>
+      <button class="x" type="button" id="resetx" aria-label="Close">×</button>
+    </div>
+    <p class="confirm-body" id="resettext"></p>
+    <ul class="confirm-list" id="resetlist"></ul>
+    <p class="confirm-keep">This can’t be undone.</p>
+    <div class="modal-actions">
+      <button class="btn sec" type="button" id="resetcancel">Keep working</button>
+      <button class="btn danger" type="button" id="resetgo">Delete and start over</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SHARE MODAL ============ -->
+<div class="overlay" id="shareoverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sharetitle">
+    <div class="modal-head">
+      <span class="t" id="sharetitle">Share your billboard</span>
+      <button class="x" type="button" id="sharex" aria-label="Close">×</button>
+    </div>
+
+    <div id="sharepreview"></div>
+    <p class="note share-note">Illustration only. AI-generated art, not a real board.</p>
+
+    <div class="share-row">
+      <div class="lbl">Post the picture</div>
+      <div class="share-line">
+        <button class="iconbtn" type="button" id="dl3" title="Download this picture" aria-label="Download this picture">
+          <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 2v8"/><path d="M4.6 7 8 10.4 11.4 7"/><path d="M2.6 13.2h10.8"/>
+          </svg>
+        </button>
+        <button class="platbtn ig" type="button" id="ig" title="Instagram" aria-label="Save the picture for Instagram">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="2.2" y="2.2" width="11.6" height="11.6" rx="3.4"/><circle cx="8" cy="8" r="2.7"/><circle cx="11.5" cy="4.5" r=".5" fill="currentColor" stroke="none"/>
+          </svg>
+        </button>
+        <span>Instagram needs the picture itself. Save it, then post.</span>
+      </div>
+      <div class="inlerr" id="picerr" role="alert" hidden>
+        <span class="erri" aria-hidden="true">!</span>
+        <span class="et" id="picerrtext"></span>
+        <button class="linkbtn" type="button" id="picretry">Try again</button>
+      </div>
+    </div>
+
+    <div class="share-row">
+      <div class="lbl">Share a link</div>
+      <div class="share-line">
+        <button class="platbtn" type="button" data-share="Facebook" title="Facebook" aria-label="Share on Facebook">f</button>
+        <button class="platbtn" type="button" data-share="LinkedIn" title="LinkedIn" aria-label="Share on LinkedIn">in</button>
+        <button class="platbtn" type="button" data-share="X" title="X" aria-label="Share on X">X</button>
+        <button class="iconbtn" type="button" data-share="link" title="Copy link" aria-label="Copy link">
+          <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6.6 9.4a2.9 2.9 0 0 0 4.1 0l2-2a2.9 2.9 0 0 0-4.1-4.1l-1 1"/>
+            <path d="M9.4 6.6a2.9 2.9 0 0 0-4.1 0l-2 2a2.9 2.9 0 0 0 4.1 4.1l1-1"/>
+          </svg>
+        </button>
+        <span>Shares a link to Billboard Maker so others can make their own.</span>
+      </div>
+      <div class="inlerr" id="linkerr" role="alert" hidden>
+        <span class="erri" aria-hidden="true">!</span>
+        <span class="et" id="linkerrtext"></span>
+        <span class="errbtns">
+          <button class="linkbtn" type="button" id="linkretry">Try again</button>
+          <button class="linkbtn" type="button" id="linkcopy">Copy link</button>
+        </span>
+      </div>
+      <div class="copyfield" id="copyfield" hidden>
+        <input id="copyurl" type="text" readonly value="blipbillboards.com/billboard-maker" aria-label="Link to Billboard Maker">
+      </div>
+    </div>
+
+    <div class="tagline">
+      <span>Tag it</span>
+      <button class="tagchip" type="button" data-share="tag">#billboardmaker</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  const HEADLINES = [
+    { pre: "Crafting Comes to", hit: "Manhattan", label: "“Crafting Comes to Manhattan”", meta: "Event angle · 4 words",
+      support: "Summer Pop-Up · 225 Broadway, New York", tags: ["event", "dated", "new market"],
+      why: "Picked because your site leads with classes and events, and you mentioned a dated pop-up." },
+    { pre: "20% Off All", hit: "Workshops", label: "“20% Off All Workshops”", meta: "Offer angle · 4 words",
+      support: "Through Labor Day · 225 Broadway, New York", tags: ["offer", "discount", "urgency"],
+      why: "You mentioned a Labor Day discount, and a clear offer reads fastest at speed." },
+    { pre: "Learn To Sew", hit: "This Summer", label: "“Learn To Sew This Summer”", meta: "Problem-solution angle · 5 words",
+      support: "Beginner classes · 225 Broadway, New York", tags: ["beginner", "outcome", "classes"],
+      why: "Your classes are beginner focused, so this speaks to what someone walks away with." },
+    { pre: "Brooklyn’s Craft Studio,", hit: "Now Downtown", label: "“Brooklyn’s Craft Studio, Now Downtown”", meta: "Brand-awareness angle · 5 words",
+      support: "Now open · 225 Broadway, New York", tags: ["name-led", "awareness", "new market"],
+      why: "Useful in a market that does not know the name yet, which Manhattan is for you." },
+    { pre: "1,200 Five-Star Makers", hit: "Can’t Be Wrong", label: "“1,200 Five-Star Makers Can’t Be Wrong”", meta: "Reputation angle · 6 words",
+      support: "1,200 five-star reviews · 225 Broadway, New York", tags: ["proof", "reviews", "trust"],
+      why: "Your listing shows a high review count, and proof travels well on a board." }
+  ];
+
+
+  const LAYOUTS = [
+    { cls: "split", name: "Split image", meta: "Copy left, product right. Reads in one pass at speed.", wf: [46, 54],
+      desc: "An oversized yarn ball over the skyline, headline beside it.",
+      why: "Picked because a four word headline leaves room for a product shot beside it." },
+    { cls: "photo", name: "Photo-led", meta: "Product dominant, copy on a panel. Strongest at distance.", wf: [34, 66],
+      desc: "A hand-cut Manhattan silhouette takes the board.",
+      why: "Works when the product is recognizable from far away, so the image does the selling." },
+    { cls: "centred", name: "Logo-led", meta: "Centered copy, no product shot. Best when the name is the message.", wf: [100],
+      desc: "Stitched lettering carries it, no image.",
+      why: "Best when the name itself is the message and there is no product worth showing." }
+  ];
+
+  let headIdx = 0, layIdx = 0;
+
+  /* ---------- screens ---------- */
+  function show(which) {
+    $("s-start").hidden = which !== "start";
+    $("s-run").hidden   = which !== "run";
+    $("s-done").hidden  = which !== "done";
+    $("startover").hidden = which === "start";
+    window.scrollTo({ top: 0 });
+  }
+
+  /* ---------- the run ---------- */
+  const STAGES = [
+    "Reading brooklyncraftcompany.com",
+    "Writing headlines short enough to read at 65mph",
+    "Laying this out for a 14 × 48 bulletin",
+    "Checking your logo holds up at 300 feet"
+  ];
+  let timers = [];
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+  /* every step is listed from the start: done, in progress, or still to come */
+  function paintRun(step) {
+    const items = $("queue").children;
+    [...items].forEach((li, i) => {
+      li.className = i < step ? "done" : i === step ? "now-step" : "";
+    });
+    const pct = Math.round(step / STAGES.length * 100);
+    $("bar").style.width = pct + "%";
+    $("track").setAttribute("aria-valuenow", pct);
+    $("now").textContent = step < STAGES.length
+      ? "Step " + (step + 1) + " of " + STAGES.length
+      : "Finishing your artwork";
+  }
+
+  /* the prototype control arms one failure; the action that hits it consumes it */
+  let failNext = null;
+  function takeFail(kind) {
+    if (failNext !== kind) return false;
+    failNext = null;
+    return true;
+  }
+
+  /* resumes from `from`, so Try again keeps the steps that already finished */
+  function runFlow(from) {
+    from = from || 0;
+    clearTimers();
+    show("run");
+    clearRunFail();
+    if (from === 0) {
+      const site = siteName();
+      STAGES[0] = "Reading " + site;
+      $("queue").innerHTML = STAGES.map(s => '<li><span class="qi" aria-hidden="true"></span><span>' + s + '</span></li>').join("");
+    }
+    paintRun(from);
+
+    for (let i = from; i < STAGES.length; i++) {
+      timers.push(setTimeout(() => {
+        if (i === 0 && takeFail("site")) return siteFail();
+        if (i === 2 && takeFail("gen")) return runFail(i, "gen");
+        if (i === 3 && takeFail("runlogo")) return runFail(i, "logo");
+        paintRun(i + 1);
+        if (!STAGES[i + 1]) timers.push(setTimeout(finish, 900));
+      }, (i - from + 1) * 1800));
+    }
+  }
+
+  function siteName() { return ($("url").value.trim() || "your site").replace(/^https?:\/\//, "").replace(/\/$/, ""); }
+
+  function refId() {
+    const c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let s = "";
+    for (let i = 0; i < 4; i++) s += c[Math.floor(Math.random() * c.length)];
+    return "BM-" + s;
+  }
+
+  /* the run stops in place: what finished stays ticked, the stuck step is marked */
+  let failedAt = 0, failKind = null;
+  function runFail(i, kind) {
+    clearTimers();
+    failedAt = i; failKind = kind;
+    const items = [...$("queue").children];
+    items.forEach((li, n) => {
+      li.className = n < i ? "done" : n === i ? "stuck" : "later";
+    });
+    document.querySelector(".run").classList.add("failed");
+    $("runnotes").hidden = true;
+    $("runfail").hidden = false;
+    if (kind === "logo") {
+      $("runk").textContent = "The logo couldn’t be used";
+      $("now").textContent = "The file may be a photo, or too small to read on a board. Everything else is ready.";
+      $("runretry").textContent = "Continue without the logo";
+      $("runalt").textContent = "Use a different logo";
+      $("refnote").textContent = "";
+    } else {
+      $("runk").textContent = "This billboard didn’t finish";
+      $("now").textContent = "Nothing you entered was lost. Trying again picks up from this step.";
+      $("runretry").textContent = "Try again";
+      $("runalt").textContent = "Edit details";
+      $("refnote").textContent = "Reference " + refId();
+    }
+    $("runretry").focus();
+  }
+
+  function clearRunFail() {
+    document.querySelector(".run").classList.remove("failed");
+    $("runnotes").hidden = false;
+    $("runfail").hidden = true;
+    $("runk").textContent = "Making your billboard";
+    failKind = null;
+  }
+
+  $("runretry").onclick = () => runFlow(failedAt);
+  $("runalt").onclick = () => {
+    if (failKind === "logo") { runFlow(failedAt); return; }   /* prototype: the upload is assumed to work */
+    clearRunFail();
+    show("start");
+    $("url").focus();
+  };
+
+  /* nothing the visitor can do inside the run fixes an unreadable site,
+     so it goes back to the one field that can, with everything else kept */
+  function siteFail() {
+    clearTimers();
+    clearRunFail();
+    show("start");
+    fieldErr("url", "urlerr",
+      "<b>Couldn’t read " + siteName() + ".</b> Check the address, or link a page that says more about the business, like an About page.");
+    $("url").focus();
+  }
+
+  function fieldErr(inputId, errId, html) {
+    $(errId).innerHTML = '<span class="erri" aria-hidden="true">!</span><span>' + html + '</span>';
+    $(errId).hidden = false;
+    if (inputId) $(inputId).setAttribute("aria-invalid", "true");
+  }
+  function clearFieldErr(inputId, errId) {
+    $(errId).hidden = true;
+    if (inputId) $(inputId).removeAttribute("aria-invalid");
+  }
+
+  function finish() { clearTimers(); show("done"); versions = []; activeV = 0; snapshot("Original", "First generation"); }
+
+  /* ---------- option lists ---------- */
+  function buildHeadlines() {
+    const sel = (pending && pending.kind === "head") ? pending.idx : headIdx;
+    $("opt-head").innerHTML = "";
+    HEADLINES.forEach((h, i) => {
+      const b = document.createElement("button");
+      b.className = "opt";
+      b.type = "button";
+      b.setAttribute("aria-pressed", i === sel);
+      b.innerHTML = '<span class="o-main"><span class="o-txt">' + h.label + '</span>' +
+                    '<span class="o-sub"><span class="o-meta">' + h.meta + '</span>' +
+                    '<span class="tags">' + h.tags.map(t => "<s>" + t + "</s>").join("") + '</span></span>' +
+                    '<span class="o-why">' + h.why + '</span></span>';
+      b.onclick = () => { if (i === headIdx) clearPending(); else stage("head", i); };
+      $("opt-head").appendChild(b);
+    });
+  }
+
+  function buildLayouts() {
+    const sel = (pending && pending.kind === "lay") ? pending.idx : layIdx;
+    $("opt-lay").innerHTML = "";
+    LAYOUTS.forEach((l, i) => {
+      const b = document.createElement("button");
+      b.className = "opt";
+      b.type = "button";
+      b.setAttribute("aria-pressed", i === sel);
+      b.innerHTML = '<span class="wf">' + l.wf.map(w => '<i style="width:' + w + '%"></i>').join("") +
+                    '</span><span class="o-main"><span class="o-txt">' + l.name + '</span>' +
+                    '<span class="o-sub"><span class="o-meta">' + l.meta + '</span></span>' +
+                    '<span class="o-img"><span class="o-img-k">Imagery</span><span>' + l.desc + '</span></span>' +
+                    '<span class="o-why">' + l.why + '</span></span>';
+      b.onclick = () => { if (i === layIdx) clearPending(); else stage("lay", i); };
+      $("opt-lay").appendChild(b);
+    });
+  }
+
+  /* ---------- staged changes ---------- */
+
+  let pending = null;
+  const CASCADE = {
+    head:  { text: "redraws the layout and the artwork", mins: "about 5 minutes", chips: ["p-lay"] },
+    lay:   { text: "redraws the artwork", mins: "about 3 minutes", chips: [] },
+    brand: { text: "rewrite the message, the layout and the artwork", mins: "about 8 minutes", chips: ["p-head", "p-lay"] }
+  };
+
+  /* a panel open or a change waiting: pin the creative, swap the bottom bar */
+  function syncEditing() {
+    const open = [...document.querySelectorAll(".panel")].some(p => !p.hidden);
+    const failed = !$("changeerr").hidden;
+    $("s-done").classList.toggle("editing", open || !!pending || failed);
+    $("mbar").hidden = !!pending || failed;
+  }
+
+  /* brand edits happen in place, so keep what was last applied to undo to */
+  function captureBrand() {
+    return { colors: brandColors.get(), logo: !$("f-rlogo").hidden, prod: !$("f-rprod").hidden };
+  }
+  function restoreBrand(s) {
+    brandColors.set(s.colors);
+    $("f-rlogo").hidden = !s.logo;
+    document.querySelector('[data-file="rlogo"]').hidden = s.logo;
+    $("f-rprod").hidden = !s.prod;
+    document.querySelector('[data-file="rprod"]').hidden = s.prod;
+  }
+  let brandCommitted = null;
+  function brandTouched() {
+    if (pending && pending.kind === "brand") return;
+    if (pending) clearPending();
+    stage("brand", null);
+  }
+
+  function paintWillUpdate(list) {
+    document.querySelectorAll("[data-panel]").forEach(c => {
+      c.classList.remove("willupdate");
+      const t = c.querySelector(".willtag");
+      if (t) t.remove();
+    });
+    list.forEach(p => {
+      const c = document.querySelector('[data-panel="' + p + '"]');
+      c.classList.add("willupdate");
+      const tag = document.createElement("span");
+      tag.className = "willtag";
+      tag.textContent = "will update";
+      c.appendChild(tag);
+    });
+  }
+
+  function stage(kind, idx) {
+    $("changeerr").hidden = true;
+    pending = { kind: kind, idx: idx };
+    const c = CASCADE[kind];
+    const label = kind === "head" ? HEADLINES[idx].label : kind === "lay" ? LAYOUTS[idx].name : "Your brand changes";
+    $("confirmtext").innerHTML = "<b>" + label + "</b> " + c.text + ", " + c.mins + ".";
+    $("confirmbar").hidden = false;
+    paintWillUpdate(c.chips);
+    buildHeadlines(); buildLayouts();
+    syncEditing();
+  }
+
+  function clearPending() {
+    if (pending && pending.kind === "brand") restoreBrand(brandCommitted);
+    pending = null;
+    $("confirmbar").hidden = true;
+    paintWillUpdate([]);
+    buildHeadlines(); buildLayouts();
+    syncEditing();
+  }
+
+  function applyPending() {
+    if (!pending) return;
+    const p = pending;
+    pending = null;
+    $("confirmbar").hidden = true;
+    paintWillUpdate([]);
+    syncEditing();
+    showRedraw("Redrawing with your change");
+    const attempt = p.kind === "brand" ? captureBrand() : null;
+    setTimeout(() => {
+      /* R5: the selection goes back to what's on the billboard, and the bar
+         stays where Apply was until the visitor retries or keeps the current one */
+      if (takeFail("panel")) {
+        hideRedraw();
+        if (p.kind === "brand") restoreBrand(brandCommitted);
+        buildHeadlines(); buildLayouts();
+        const what = p.kind === "head" ? "<b>" + HEADLINES[p.idx].label + "</b>"
+                   : p.kind === "lay" ? "<b>" + LAYOUTS[p.idx].name + "</b>" : "<b>your brand changes</b>";
+        $("changeerrtext").innerHTML = "Couldn’t switch to " + what + ". The billboard is unchanged.";
+        $("changeerr").hidden = false;
+        lastFailedChange = { p: p, brand: attempt };
+        syncEditing();
+        $("changeretry").focus();
+        return;
+      }
+      if (p.kind === "head") { headIdx = p.idx; applyHeadline(); }
+      else if (p.kind === "lay") { layIdx = p.idx; applyLayout(); }
+      else { tweak++; applyLayout(); brandCommitted = captureBrand(); }
+      hideRedraw();
+      buildHeadlines(); buildLayouts();
+      snapshot(p.kind === "head" ? "New message" : p.kind === "lay" ? "New layout" : "New brand",
+               p.kind === "head" ? HEADLINES[p.idx].label : p.kind === "lay" ? LAYOUTS[p.idx].name : "Colors and logo");
+      toast("Updated");
+    }, 2200);
+  }
+
+  $("applychange").onclick = applyPending;
+  $("cancelchange").onclick = clearPending;
+
+  let lastFailedChange = null;
+  $("changekeep").onclick = () => { $("changeerr").hidden = true; lastFailedChange = null; syncEditing(); };
+  $("changeretry").onclick = () => {
+    const f = lastFailedChange;
+    $("changeerr").hidden = true;
+    lastFailedChange = null;
+    if (!f) return syncEditing();
+    if (f.p.kind === "brand") restoreBrand(f.brand);
+    stage(f.p.kind, f.p.idx);
+    applyPending();
+  };
+
+
+  function applyHeadline() {
+    const h = HEADLINES[headIdx];
+    $("cr1").textContent = h.pre;
+    $("cr2").textContent = h.hit;
+    $("chip-h").textContent = h.label;
+    $("head-reason").textContent = h.why;
+    $("cr3").textContent = h.support;
+    $("mk3").textContent = h.support;
+    $("supportline").textContent = h.support;
+
+    $("mk1").textContent = h.pre;
+    $("mk2").textContent = h.hit;
+    refreshMini();
+  }
+
+  /* the phone's board row shows a small copy of the scene */
+  function refreshMini() {
+    const s = document.querySelector(".card.tail .scene").cloneNode(true);
+    s.querySelectorAll("[id]").forEach(e => e.removeAttribute("id"));
+    $("mscene").innerHTML = "";
+    $("mscene").appendChild(s);
+  }
+
+  function applyLayout() {
+    const l = LAYOUTS[layIdx];
+    $("creative").className = "creative zoomable " + l.cls;
+    $("chip-l").textContent = l.name;
+    $("lay-reason").textContent = l.why;
+    $("chip-wf").innerHTML = l.wf.map(w => '<i style="width:' + w + '%"></i>').join("");
+
+    $("mockart").className = "creative " + l.cls;
+    paintTweak($("creative"), tweak);
+    paintTweak($("mockart"), tweak);
+    refreshMini();
+  }
+
+  document.querySelectorAll("[data-panel]").forEach(chip => {
+    chip.onclick = () => {
+      const id = chip.dataset.panel;
+      const opening = $(id).hidden;
+      document.querySelectorAll(".panel").forEach(p => p.hidden = true);
+      document.querySelectorAll("[data-panel]").forEach(c => c.setAttribute("aria-expanded", "false"));
+      $(id).hidden = !opening;
+      chip.setAttribute("aria-expanded", String(opening));
+      syncEditing();
+    };
+  });
+
+  function openZoom() {
+    const art = $("creative").cloneNode(true);
+    art.removeAttribute("id");
+    art.classList.remove("zoomable");
+    art.removeAttribute("role");
+    art.removeAttribute("tabindex");
+    $("zoomart").innerHTML = "";
+    $("zoomart").appendChild(art);
+    $("zoomoverlay").hidden = false;
+    $("zoomx").focus();
+  }
+  function closeZoom() { $("zoomoverlay").hidden = true; $("creative").focus(); }
+
+  $("creative").onclick = openZoom;
+  $("creative").onkeydown = e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openZoom(); }
+  };
+  $("zoombtn").onclick = openZoom;
+  $("zoomx").onclick = closeZoom;
+  $("zoomoverlay").onclick = e => { if (e.target === $("zoomoverlay")) closeZoom(); };
+
+  /* ---------- versions ---------- */
+
+  let versions = [], activeV = 0, tweak = 0;
+
+  /* refines nudge the composition, so a new version looks new */
+  const TWEAKS = [
+    { apple: "62%", bg: "linear-gradient(180deg,#DFEAD9,#D3E2CC)" },
+    { apple: "48%", bg: "linear-gradient(180deg,#E7F0E0,#DAE8D2)" },
+    { apple: "74%", bg: "linear-gradient(180deg,#D6E5D0,#C7DBC0)" },
+    { apple: "56%", bg: "linear-gradient(180deg,#E3EEE1,#CFE1CB)" }
+  ];
+  function paintTweak(root, t) {
+    const tw = TWEAKS[t % TWEAKS.length];
+    root.style.background = tw.bg;
+    const a = root.querySelector(".apple");
+    if (a) a.style.width = tw.apple;
+  }
+
+  function clockLabel() {
+    return new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  }
+
+  function snapshot(kind, detail) {
+    versions.unshift({ kind: kind, detail: detail, headIdx: headIdx, layIdx: layIdx, tweak: tweak, time: clockLabel() });
+    activeV = 0;
+    drawVersions();
+  }
+
+  function showRedraw(msg) {
+    $("redrawtext").textContent = msg;
+    $("creative").classList.add("redrawing");
+    $("redrawnote").hidden = false;
+  }
+  function hideRedraw() {
+    $("creative").classList.remove("redrawing");
+    $("redrawnote").hidden = true;
+  }
+
+  function drawVersions() {
+    $("versions").hidden = versions.length < 2;
+    $("vtoggle").hidden = versions.length < 2;
+    $("vtoggle").innerHTML = "Version " + (versions.length - activeV) + " of " + versions.length +
+                             ' <span aria-hidden="true">&#9662;</span>';
+    $("vstrip").innerHTML = "";
+    versions.forEach((v, i) => {
+      const b = document.createElement("button");
+      b.className = "vitem";
+      b.type = "button";
+      b.setAttribute("aria-pressed", i === activeV);
+      const vh = HEADLINES[v.headIdx];
+      b.innerHTML =
+        '<span class="vthumb"><span class="vscale">' +
+          '<span class="creative ' + LAYOUTS[v.layIdx].cls + '">' +
+            '<span class="c-copy">' +
+              '<span class="c1">' + vh.pre + '</span>' +
+              '<span class="c2">' + vh.hit + '</span>' +
+              '<span class="c3">' + vh.support + '</span>' +
+            '</span>' +
+            '<span class="c-art"><span class="apple"></span></span>' +
+          '</span>' +
+        '</span></span>' +
+        '<span class="vhead"><span class="vkind">' + v.kind + '</span>' +
+          (i === 0 ? '<span class="vlatest">Latest</span>' : "") + '</span>' +
+        '<span class="vdetail">' + v.detail + '</span>' +
+        '<span class="vtime">' + v.time + '</span>';
+      b.onclick = () => {
+        if (i === activeV) return;
+        showRedraw("Loading this version");
+        setTimeout(() => {
+          activeV = i;
+          headIdx = v.headIdx;
+          layIdx = v.layIdx;
+          tweak = v.tweak;
+          applyHeadline(); applyLayout();
+          buildHeadlines(); buildLayouts();
+          drawVersions();
+          hideRedraw();
+        }, 650);
+      };
+      paintTweak(b.querySelector(".creative"), v.tweak || 0);
+      $("vstrip").appendChild(b);
+    });
+  }
+
+  /* ---------- toast ---------- */
+  let toastTimer;
+  function toast(msg) {
+    document.querySelectorAll(".toast").forEach(t => t.remove());
+    const t = document.createElement("div");
+    t.className = "toast";
+    t.setAttribute("role", "status");
+    t.textContent = msg;
+    document.body.appendChild(t);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.remove(), 2200);
+  }
+
+  /* ---------- wiring ---------- */
+  /* checked before a job is created: a malformed address never starts a run */
+  $("go").onclick = () => {
+    const v = $("url").value.trim();
+    if (!/^(https?:\/\/)?[^\s.\/]+(\.[^\s.\/]+)+(\/\S*)?$/i.test(v)) {
+      fieldErr("url", "urlerr", "<b>Enter a website address,</b> like yourbusiness.com.");
+      $("url").focus();
+      return;
+    }
+    clearFieldErr("url", "urlerr");
+    runFlow(0);
+  };
+  $("url").oninput = () => clearFieldErr("url", "urlerr");
+  $("url").onkeydown = e => { if (e.key === "Enter") $("go").click(); };
+  $("skip").onclick = finish;
+  /* start over asks first, and names exactly what it deletes */
+  function openReset() {
+    const running = !$("s-run").hidden;
+    const n = versions.length;
+    if (running) {
+      $("resettext").textContent = "This stops making your billboard and clears:";
+      $("resetlist").innerHTML = "<li>The billboard in progress</li><li>The promotion details, logo, photo and colors you added</li>";
+      $("resetgo").textContent = "Stop and start over";
+    } else {
+      $("resettext").textContent = "This permanently deletes:";
+      $("resetlist").innerHTML =
+        "<li>" + (n > 1 ? "Your billboard and all " + n + " versions" : "Your billboard") + "</li>" +
+        "<li>Your changes to the brand, message and layout</li>" +
+        "<li>The promotion details, logo, photo and colors you added</li>";
+      $("resetgo").textContent = "Delete and start over";
+    }
+    $("resetoverlay").hidden = false;
+    $("resetcancel").focus();
+  }
+  function closeReset() { $("resetoverlay").hidden = true; $("startover").focus(); }
+
+  $("startover").onclick = openReset;
+  $("resetcancel").onclick = closeReset;
+  $("resetx").onclick = closeReset;
+  $("resetoverlay").onclick = e => { if (e.target === $("resetoverlay")) closeReset(); };
+  $("resetgo").onclick = () => { $("resetoverlay").hidden = true; startOver(); toast("Started over"); };
+
+  function startOver() {
+    clearTimers(); headIdx = 0; layIdx = 0; tweak = 0;
+    versions = []; activeV = 0; drawVersions();
+    applyHeadline(); applyLayout(); buildHeadlines(); buildLayouts();
+    document.querySelectorAll(".panel").forEach(p => p.hidden = true);
+    document.querySelectorAll("[data-panel]").forEach(c => c.setAttribute("aria-expanded", "false"));
+    $("zoomoverlay").hidden = true;
+    clearPending();
+    $("ctx").value = "";
+    startColors.reset();
+    brandColors.reset();
+    document.querySelectorAll("[data-file]").forEach(b => b.hidden = (b.dataset.file === "rlogo"));
+    document.querySelectorAll(".filedone").forEach(f => f.hidden = (f.id !== "f-rlogo"));
+    brandCommitted = captureBrand();
+    $("versions").classList.remove("open");
+    $("vtoggle").setAttribute("aria-expanded", "false");
+    $("gist").classList.remove("open");
+    $("gist-t").setAttribute("aria-expanded", "false");
+    clearTimeout(refineTimer);
+    $("refine").value = "";
+    lockRefine(false);
+    hideRedraw();
+    clearAllErrors();
+    syncEditing();
+    show("start");
+  }
+
+  function clearAllErrors() {
+    failNext = null;
+    clearRunFail();
+    clearFieldErr("url", "urlerr");
+    hideRefineErr();
+    $("dlerr").hidden = true;
+    $("rlogoerr").hidden = true;
+    $("changeerr").hidden = true;
+    lastFailedChange = null;
+    clearShareErrors();
+  }
+
+  /* ---------- start screen: optional detail ---------- */
+
+  document.querySelectorAll(".chip[data-fill]").forEach(c => {
+    c.onclick = () => {
+      const t = $("ctx");
+      if (t.value.includes(c.dataset.fill)) { t.focus(); return; }
+      t.value = t.value.trim() ? t.value.trim() + ", " + c.dataset.fill : c.dataset.fill;
+      t.focus();
+    };
+  });
+
+  document.querySelectorAll("[data-file]").forEach(b => {
+    b.onclick = () => {
+      /* R6: the rejected file never replaces anything; the logo already on the billboard comes back */
+      if (b.dataset.file === "rlogo" && takeFail("logo")) {
+        $("f-rlogo").hidden = false; b.hidden = true;
+        $("rlogoerr").hidden = false;
+        if (pending && pending.kind === "brand" &&
+            JSON.stringify(captureBrand()) === JSON.stringify(brandCommitted)) clearPending();
+        return;
+      }
+      if (b.dataset.file === "rlogo") $("rlogoerr").hidden = true;
+      $("f-" + b.dataset.file).hidden = false; b.hidden = true; toast("Added");
+      if (b.dataset.file[0] === "r") brandTouched();
+    };
+  });
+  document.querySelectorAll("[data-clear]").forEach(b => {
+    b.onclick = () => {
+      const k = b.dataset.clear;
+      $("f-" + k).hidden = true;
+      document.querySelector('[data-file="' + k + '"]').hidden = false;
+      if (k[0] === "r") brandTouched();
+    };
+  });
+
+
+  function colorField(p, seed, onChange) {
+    const el = n => $(p + n);
+    let colors = seed.slice();
+
+    function draw() {
+      el("swatches").innerHTML = "";
+      colors.forEach((c, i) => {
+        const row = document.createElement("div");
+        row.className = "swrow";
+        const role = i === 0 ? "Primary" : i === 1 ? "Secondary" : "Accent";
+        row.title = c;
+        row.innerHTML = '<i style="background:' + c + '"></i><span>' + c + '</span>' +
+                        '<span class="role">' + role + '</span>';
+        const x = document.createElement("button");
+        x.type = "button";
+        x.textContent = "×";
+        x.setAttribute("aria-label", "Remove " + c);
+        x.onclick = () => { colors.splice(i, 1); draw(); if (onChange) onChange(); };
+        row.appendChild(x);
+        el("swatches").appendChild(row);
+      });
+    }
+
+    function preview() {
+      const v = el("hex").value.trim().replace(/^#/, "");
+      el("hexprev").style.background = /^[0-9a-f]{6}$/i.test(v) ? "#" + v : "";
+    }
+
+    function add() {
+      let v = el("hex").value.trim().replace(/^#/, "");
+      /* said under the field, not in a toast that leaves before it's read */
+      if (!/^([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v)) { bad("<b>Enter a color code,</b> like 1B2440."); return; }
+      if (v.length === 3) v = v.split("").map(ch => ch + ch).join("");
+      const hex = "#" + v.toUpperCase();
+      if (colors.includes(hex)) { bad("<b>" + hex + "</b> is already in the list."); return; }
+      ok();
+      colors.push(hex);
+      el("hex").value = "";
+      preview();
+      draw();
+      if (onChange) onChange();
+    }
+
+    function bad(html) { fieldErr(null, p + "hexerr", html); el("hexfield").classList.add("bad"); }
+    function ok() { clearFieldErr(null, p + "hexerr"); el("hexfield").classList.remove("bad"); }
+
+    el("addhex").onclick = add;
+    el("hex").oninput = () => { preview(); ok(); };
+    el("hex").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); add(); } };
+    draw();
+
+    return {
+      reset: () => { colors = seed.slice(); el("hex").value = ""; preview(); ok(); draw(); },
+      get: () => colors.slice(),
+      set: arr => { colors = arr.slice(); draw(); }
+    };
+  }
+
+  /* nothing on the start screen; on the results, what the scrape found */
+  const startColors = colorField("", []);
+  const brandColors = colorField("r", ["#FE0481", "#69DECB", "#E19DFF"], () => brandTouched());
+  brandCommitted = captureBrand();
+
+  $("vtoggle").onclick = () => {
+    const open = $("versions").classList.toggle("open");
+    $("vtoggle").setAttribute("aria-expanded", String(open));
+  };
+
+  $("gist-t").onclick = () => {
+    const open = $("gist").classList.toggle("open");
+    $("gist-t").setAttribute("aria-expanded", String(open));
+  };
+
+  /* short prompt on phones so it fits the one-line field */
+  if (matchMedia("(max-width: 600px)").matches) $("refine").placeholder = "Describe a change";
+  /* Refine is off until there's something to send, so an empty submit never needs a message */
+  function syncRefine() {
+    const has = !!$("refine").value.trim();
+    $("refine").classList.toggle("has", has);
+    $("do-refine").disabled = !has || $("refine").disabled;
+  }
+  $("refine").oninput = () => { hideRefineErr(); syncRefine(); };
+
+  let refineTimer = null;
+  function lockRefine(on) {
+    $("refine").disabled = on;
+    syncRefine();
+  }
+
+  function refineErr(html, retry) {
+    $("refineerrtext").innerHTML = html;
+    $("refineretry").hidden = !retry;
+    $("refineerr").hidden = false;
+  }
+  function hideRefineErr() { $("refineerr").hidden = true; }
+
+  /* a failed change never touches the billboard, the versions or the download */
+  function doRefine(msg) {
+    const v = $("refine").value.trim();
+    if (!v) return;
+    hideRefineErr();
+    lockRefine(true);
+    showRedraw(msg || "Redrawing with your change");
+    const blocked = takeFail("r4");
+    const fails = !blocked && takeFail("r1");
+    clearTimeout(refineTimer);
+    refineTimer = setTimeout(() => {
+      hideRedraw();
+      lockRefine(false);
+      if (blocked) {
+        refineErr("<b>That change can’t be made.</b><span>Try describing it a different way.</span>", false);
+        $("refine").focus();
+        return;
+      }
+      if (fails) {
+        refineErr("<b>That change didn’t go through.</b><span>The billboard is unchanged.</span>", true);
+        return;
+      }
+      tweak++;
+      applyLayout();
+      snapshot("Refined", "“" + v + "”");
+      $("refine").value = "";
+      syncRefine();
+      $("refine").blur();
+      toast("Applied. Saved as a new version.");
+    }, blocked ? 1100 : 2200);
+  }
+
+  $("do-refine").onclick = () => doRefine();
+  $("refineretry").onclick = () => doRefine();
+
+  /* download: the icon is the only thing on screen that says it worked, so a failure is said right under it */
+  function doDownload() {
+    if (takeFail("dl")) {
+      $("dlerr").hidden = false;
+      return;
+    }
+    $("dlerr").hidden = true;
+    toast("Downloaded billboard-1400x400.png, ready for the board");
+  }
+  $("dl").onclick = doDownload;
+  $("dlretry").onclick = doDownload;
+
+  /* Where the product lives. Set this and the button navigates there;
+     left empty it just confirms, so the prototype never dead-ends. */
+  const RETURN_URL = "";
+
+  $("usecampaign").onclick = () => {
+    if (RETURN_URL) {
+      toast("Opening your campaign");
+      window.open(RETURN_URL, "_blank", "noopener");
+    } else {
+      toast("Added to your campaign");
+    }
+  };
+
+  $("usecampaign2").onclick = () => $("usecampaign").click();
+
+  let shareOpener = null;
+  function openShare(e) {
+    shareOpener = e && e.currentTarget;
+    /* show exactly what is being shared, cloned from the live preview */
+    const shot = document.querySelector(".card.tail .scene").cloneNode(true);
+    shot.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
+    $("sharepreview").innerHTML = "";
+    $("sharepreview").appendChild(shot);
+    $("shareoverlay").hidden = false;
+    $("sharex").focus();
+  }
+  function closeShare() { $("shareoverlay").hidden = true; clearShareErrors(); if (shareOpener) shareOpener.focus(); }
+
+  $("sharebtn").onclick = openShare;
+  $("boardrow").onclick = openShare;
+  $("sharex").onclick = closeShare;
+  $("shareoverlay").onclick = e => { if (e.target === $("shareoverlay")) closeShare(); };
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    if (!$("resetoverlay").hidden) closeReset();
+    else if (!$("zoomoverlay").hidden) closeZoom();
+    else if (!$("shareoverlay").hidden) closeShare();
+  });
+
+  /* share failures: said under the row that failed, kept until retried or the sheet closes.
+     None of them say why: a blocked window, a failed save and a dropped connection
+     all have the same fix. */
+  let picRetry = null, linkRetry = null;
+  function picFail(text, retry) {
+    $("picerrtext").innerHTML = text;
+    $("picerr").hidden = false;
+    picRetry = retry;
+  }
+  function clearShareErrors() {
+    $("picerr").hidden = true;
+    $("linkerr").hidden = true;
+    $("copyfield").hidden = true;
+  }
+
+  function savePicture() {
+    if (takeFail("ig")) return picFail("<b>The picture didn’t save.</b><span>Nothing was posted.</span>", savePicture);
+    $("picerr").hidden = true;
+    toast("Picture saved. Open Instagram to post it.");
+  }
+  function downloadPicture() {
+    if (takeFail("dl3")) return picFail("<b>The download didn’t start.</b>", downloadPicture);
+    $("picerr").hidden = true;
+    toast("Downloaded the picture, ready to post");
+  }
+  $("ig").onclick = savePicture;
+  $("dl3").onclick = downloadPicture;
+  $("picretry").onclick = () => picRetry && picRetry();
+
+  /* a platform that didn't open still has a way through: copy the link and post it by hand */
+  function sharePlatform(name) {
+    if (takeFail("platform")) {
+      $("linkerrtext").innerHTML = "<b>" + name + " didn’t open.</b><span>Try again, or copy the link and paste it into a post.</span>";
+      $("linkerr").hidden = false;
+      $("linkretry").hidden = false;
+      $("linkcopy").hidden = false;
+      linkRetry = () => sharePlatform(name);
+      return;
+    }
+    $("linkerr").hidden = true;
+    toast("Opening " + name);
+  }
+  /* if the clipboard is blocked, hand over the link itself, selected and ready to copy */
+  function copyLink() {
+    if (takeFail("copy")) {
+      $("linkerrtext").innerHTML = "<b>The link couldn’t be copied automatically.</b><span>Select it below and copy it.</span>";
+      $("linkerr").hidden = false;
+      $("linkretry").hidden = true;
+      $("linkcopy").hidden = true;
+      $("copyfield").hidden = false;
+      $("copyurl").focus();
+      $("copyurl").select();
+      return;
+    }
+    $("linkerr").hidden = true;
+    $("copyfield").hidden = true;
+    toast("Link copied");
+  }
+  $("linkretry").onclick = () => linkRetry && linkRetry();
+  $("linkcopy").onclick = copyLink;
+  $("copyurl").onfocus = () => $("copyurl").select();
+
+  document.querySelectorAll("[data-share]").forEach(b => {
+    b.onclick = () => {
+      if (b.dataset.share === "link") copyLink();
+      else if (b.dataset.share === "tag") toast("#billboardmaker copied");
+      else sharePlatform(b.dataset.share);
+    };
+  });
+
+  /* ---------- prototype control: play one state ---------- */
+
+  function closeSim() { $("simpanel").hidden = true; $("simbtn").setAttribute("aria-expanded", "false"); }
+  $("simbtn").onclick = e => {
+    e.stopPropagation();
+    const open = $("simpanel").hidden;
+    $("simpanel").hidden = !open;
+    $("simbtn").setAttribute("aria-expanded", String(open));
+  };
+  document.addEventListener("click", e => {
+    if (!$("simpanel").hidden && !$("simpanel").contains(e.target)) closeSim();
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeSim(); });
+
+  /* every play starts from a clean result screen, so states never stack */
+  function toResult() {
+    if (!$("resetoverlay").hidden) $("resetoverlay").hidden = true;
+    $("shareoverlay").hidden = true;
+    clearTimers();
+    clearTimeout(refineTimer);
+    hideRedraw();
+    lockRefine(false);
+    clearAllErrors();
+    if (pending) clearPending();
+    if ($("s-done").hidden) finish();
+  }
+  function toShare() {
+    toResult();
+    clearShareErrors();
+    if ($("shareoverlay").hidden) openShare();
+  }
+  function openPanel(id) {
+    const chip = document.querySelector('[data-panel="' + id + '"]');
+    if ($(id).hidden) chip.click();
+    chip.scrollIntoView({ block: "center" });
+  }
+  function setRefine(v) { $("refine").value = v; syncRefine(); }
+  function fakeReload(then) {
+    document.body.classList.remove("reloadflash");
+    void document.body.offsetWidth;
+    document.body.classList.add("reloadflash");
+    setTimeout(then, 220);
+  }
+
+  const PLAYS = {
+    gen:     () => { clearAllErrors(); failNext = "gen"; runFlow(0); },
+    site:    () => { clearAllErrors(); failNext = "site"; runFlow(0); },
+    runlogo: () => { clearAllErrors(); failNext = "runlogo"; runFlow(0); },
+    dl:      () => { toResult(); failNext = "dl"; doDownload(); $("dlerr").scrollIntoView({ block: "center" }); },
+    r1:      () => { toResult(); setRefine("Make the background a darker green"); failNext = "r1"; doRefine(); },
+    r4:      () => { toResult(); setRefine("Put the Michaels logo next to ours"); failNext = "r4"; doRefine(); },
+    /* R2: the visitor refreshed mid-change and the result was lost */
+    r2:      () => {
+      toResult();
+      setRefine("Make the yarn ball bigger");
+      doRefine();
+      setTimeout(() => {
+        clearTimeout(refineTimer);
+        fakeReload(() => {
+          hideRedraw();
+          lockRefine(false);
+          refineErr("<b>The last change didn’t finish.</b><span>The billboard is unchanged. The request is still in the box.</span>", true);
+        });
+      }, 900);
+    },
+    /* R3: the visitor refreshed, the change is still running, so it just carries on */
+    r3:      () => {
+      toResult();
+      fakeReload(() => {
+        setRefine("Add “Classes start June 3” under the headline");
+        doRefine("Still redrawing with your last change");
+      });
+    },
+    s1:      () => { toShare(); failNext = "ig"; savePicture(); },
+    s2:      () => { toShare(); failNext = "dl3"; downloadPicture(); },
+    s3:      () => { toShare(); failNext = "platform"; sharePlatform("LinkedIn"); },
+    s4:      () => { toShare(); failNext = "copy"; copyLink(); },
+    r5:      () => { toResult(); openPanel("p-lay"); stage("lay", layIdx === 1 ? 2 : 1); failNext = "panel"; applyPending(); },
+    r6:      () => {
+      toResult();
+      openPanel("p-brand");
+      if (!$("f-rlogo").hidden) document.querySelector('[data-clear="rlogo"]').click();
+      failNext = "logo";
+      document.querySelector('[data-file="rlogo"]').click();
+    }
+  };
+
+  document.querySelectorAll("[data-sim]").forEach(b => {
+    b.onclick = () => {
+      closeSim();
+      PLAYS[b.dataset.sim]();
+      if (["r1", "r2", "r3", "r4"].includes(b.dataset.sim)) $("refine").scrollIntoView({ block: "center" });
+    };
+  });
+
+  applyHeadline(); applyLayout(); buildHeadlines(); buildLayouts();
+</script>
+
+</body>
+</html>
