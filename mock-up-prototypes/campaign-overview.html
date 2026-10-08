@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Campaign Overview · Mockup Placements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap">
+<style>
+/* Campaign overview, option A: the Campaigns list (as shipped: tabs, two-column cards, status, last 7 days, alert footers)
+   and a peek drawer that answers, in order: is it running, how is it doing, what does it look like, where/when/how much.
+   Footer actions are Edit + Share (no full details page); Pause/Start live in the ⋮ menu and on the cards. Phones get the drawer as a full-screen view with a collapsible Details section.
+   Light only, like the product. */
+:root{
+  color-scheme:light;
+  --page:#f2f2f2; --surface:#ffffff; --surface-2:#f7f7f7; --surface-3:#ededed;
+  --text:#161616; --text-2:#5c5c5c; --text-3:#8f8f8f;
+  --border:#e3e3e3; --border-2:#d1d1d1;
+  --accent:#176BF5; --accent-2:#0f4fba; --accent-bg:#eaf1fe; --accent-border:#bcd5fb;
+  --success:#0f7a54; --success-bg:#e6f4ee;
+  --warn:#8a5a00; --warn-bg:#fdf1dc; --warn-border:#f2d49b;
+  --danger:#b42318; --danger-bg:#fdecea; --danger-border:#f5c2bc;
+  --brand:#e3122b; --org:#7b4bd6; --teal:#1f6f7a;
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --r-md:6px; --r-lg:8px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--page);color:var(--text);font:14px/1.45 var(--font);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.icon{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ---------- Product chrome ---------- */
+.ptop{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;display:flex;align-items:center;gap:16px;height:60px;padding:0 20px 0 14px;background:var(--surface);border-bottom:1px solid var(--border)}
+.wordmark{display:inline-flex;align-items:center;height:36px;padding:0 9px 2px;border-radius:4px;background:var(--brand);color:#fff;font-size:27px;font-weight:600;letter-spacing:-.05em;line-height:1;text-decoration:none}
+.ptop .sp{flex:1}
+.phelp{width:36px;height:36px;display:grid;place-items:center;border-radius:var(--r-md)}
+.phelp:hover{background:var(--surface-2)}
+.phelp .icon{width:24px;height:24px}
+.pav{width:36px;height:36px;border-radius:50%;background:var(--org);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:600}
+.pbody{display:grid;grid-template-columns:68px minmax(0,1fr);min-height:calc(100dvh - 60px)}
+.prail{position:sticky;top:60px;height:calc(100dvh - 60px);display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 0;background:var(--surface);border-right:1px solid var(--border)}
+.porg{width:40px;height:40px;border-radius:8px;background:var(--org);color:#fff;display:grid;place-items:center;font-size:15px;font-weight:600;margin-bottom:6px}
+.pnav{width:44px;height:44px;border-radius:8px;display:grid;place-items:center;border:2px solid transparent;text-decoration:none}
+.pnav .icon{width:24px;height:24px;stroke-width:1.7}
+.pnav:hover{background:var(--surface-2)}
+.pnav[aria-current="page"]{border-color:var(--accent);background:var(--surface-2)}
+main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
+
+/* ---------- Campaigns list ---------- */
+.head{display:flex;flex-direction:column;gap:16px;margin-bottom:20px}
+.head h1{font-size:24px;font-weight:600;letter-spacing:-.01em}
+.head-acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:var(--r-md);font-size:14px;font-weight:600;white-space:nowrap}
+.btn .icon{width:18px;height:18px}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-2)}
+.btn.secondary{background:var(--surface);border:1px solid var(--border-2)}
+.btn.secondary:hover{background:var(--surface-2)}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.warn{background:var(--surface);border:1px solid var(--warn-border);color:var(--warn)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border-2)}
+.tabs button{padding:8px 12px;font-size:14px;font-weight:500;color:var(--text-2);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button[aria-selected="true"]{color:var(--accent-2);border-bottom-color:var(--accent);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:1072px}
+
+.ccard{position:relative;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r-lg);overflow:hidden;text-align:left;transition:box-shadow .15s,border-color .15s;cursor:pointer}
+.ccard:hover{border-color:#b9b9b9;box-shadow:0 4px 14px rgba(0,0,0,.07)}
+.ccard[aria-current="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.ccard .inner{display:flex;flex-direction:column;gap:8px;padding:12px 14px 14px}
+.ccard .thumb{margin:12px 14px 0;border-radius:var(--r-md);overflow:hidden;aspect-ratio:3.5/1}
+.crow{display:flex;align-items:center;gap:8px}
+.crow .sp{flex:1}
+.tag-opt{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:4px;background:var(--teal);color:#fff;font-size:11px;font-weight:600}
+.cact{display:inline-flex;align-items:center;gap:4px;padding:4px 6px;border-radius:6px;font-size:13px;font-weight:600;color:var(--accent-2)}
+.cact:hover,.ciconb:hover{background:var(--surface-2)}
+.cact .icon{width:14px;height:14px}
+.ciconb{width:28px;height:28px;display:grid;place-items:center;border-radius:6px;color:var(--text-2)}
+.ciconb .icon{width:16px;height:16px}
+.cname{font-size:15px;font-weight:600}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2)}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--text-3)}
+.status.running i{background:var(--success)} .status.running{color:var(--success)}
+.status.stopped i{background:var(--danger)} .status.stopped{color:var(--danger)}
+.status.review i{background:#d08700} .status.review{color:var(--warn)}
+.cstats{border-top:1px solid var(--border);padding-top:10px;margin-top:2px}
+.cstats .lbl{font-size:12px;color:var(--text-3);font-weight:500}
+.cstats .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.cstats b{display:block;font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.cstats span{font-size:12px;color:var(--text-2)}
+.cstats .wait{font-size:13px;color:var(--text-2);margin-top:4px}
+.cfoot{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;font-weight:600;border-top:1px solid}
+.cfoot .sp{flex:1}
+.cfoot.error{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger)}
+.cfoot.warn{background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn)}
+.cfoot .icon{width:16px;height:16px}
+.empty{padding:40px;text-align:center;color:var(--text-2);background:var(--surface);border:1px dashed var(--border-2);border-radius:var(--r-lg);max-width:1072px}
+
+/* ---------- Creative (shared by card thumbs, drawer rows and the mockup face) ---------- */
+.thumb,.crow2 .t{container-type:size}
+.cre{position:relative;width:100%;height:100%;display:flex;align-items:center;gap:4cqw;padding:0 5cqw 6cqh;background:var(--cbg);color:var(--cfg);overflow:hidden}
+.cre b{flex:1;font-weight:800;font-size:min(21cqh,5.4cqw);line-height:1.05;letter-spacing:-.02em}
+.cre small{position:absolute;left:5cqw;bottom:9cqh;font-size:min(7cqh,2.2cqw);font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.9}
+.cre .logo{flex:none;width:min(54cqh,18cqw);aspect-ratio:1;border-radius:50%;background:var(--cfg);display:grid;place-items:center}
+.cre .logo::after{content:"";width:42%;aspect-ratio:1;border-radius:50%;border:max(2px,4cqh) solid var(--cbg)}
+
+/* ---------- Drawer ---------- */
+.veil{position:fixed;top:60px;right:0;bottom:0;left:68px;z-index:40;display:flex;justify-content:flex-end;background:rgba(22,22,22,.42)}
+.veil.enter{animation:veilin .22s ease-out}
+.veil.enter .drawer{animation:drawin .3s cubic-bezier(.2,.8,.2,1)}
+.veil.leave{animation:veilout .2s ease-in forwards;pointer-events:none}
+.veil.leave .drawer{animation:drawout .2s ease-in forwards}
+@keyframes veilin{from{opacity:0}to{opacity:1}}
+@keyframes veilout{from{opacity:1}to{opacity:0}}
+@keyframes drawin{from{transform:translateX(100%)}to{transform:none}}
+@keyframes drawout{from{transform:none}to{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.veil.enter,.veil.enter .drawer,.veil.leave,.veil.leave .drawer{animation:none}}
+.drawer{width:520px;max-width:100%;height:100%;display:flex;flex-direction:column;background:var(--surface);box-shadow:-8px 0 28px rgba(0,0,0,.14)}
+.dhead{display:flex;align-items:flex-start;gap:10px;padding:18px 16px 14px 20px;border-bottom:1px solid var(--border)}
+.dhead .tt{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.dhead h2{font-size:19px;font-weight:600;letter-spacing:-.01em}
+.dback{display:none}
+.dx{width:32px;height:32px;border-radius:var(--r-md);display:grid;place-items:center;color:var(--text-2)}
+.dx:hover{background:var(--surface-2);color:var(--text)}
+.dbody{flex:1;min-height:0;overflow:auto;padding:16px 20px 24px;display:flex;flex-direction:column;gap:22px}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec>h3{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.sec-h h3{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
+.sec-h span{font-size:12px;color:var(--text-3)}
+
+.alert{display:flex;gap:10px;padding:12px 14px;border:1px solid;border-radius:var(--r-lg)}
+.alert .icon{width:20px;height:20px;margin-top:1px}
+.alert div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.alert b{font-size:14px;font-weight:600;color:var(--text)}
+.alert p{font-size:13px;color:var(--text-2);line-height:1.45}
+.alert .btn{align-self:flex-start;margin-top:6px;padding:7px 12px;font-size:13px}
+.alert.error{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger)}
+.alert.warn{background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn)}
+.alert.flash{animation:flash 1.2s ease-out}
+@keyframes flash{0%{box-shadow:0 0 0 4px rgba(180,35,24,.25)}100%{box-shadow:0 0 0 0 rgba(180,35,24,0)}}
+
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-md);display:flex;flex-direction:column;gap:2px}
+.kpi span{font-size:12px;color:var(--text-2);font-weight:500}
+.kpi b{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.spark{width:100%;height:56px;display:block}
+.spark-cap{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-3);font-variant-numeric:tabular-nums}
+
+.mock{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#cfe2f3}
+.mock img{display:block;width:100%;height:auto}
+.mock .ex{position:absolute;right:10px;bottom:10px;padding:3px 8px;border-radius:999px;background:rgba(17,24,39,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;font-size:11px;font-weight:500}
+.mock-acts{display:flex;align-items:center;gap:8px}
+.mock-acts .cap{flex:1;font-size:12.5px;color:var(--text-2)}
+.iconbtn{width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--border-2);border-radius:var(--r-md);color:var(--text)}
+.iconbtn:hover{background:var(--surface-2)}
+.iconbtn .icon{width:18px;height:18px}
+
+.next{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:n}
+.next li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;font-size:13.5px;color:var(--text-2)}
+.next li::before{counter-increment:n;content:counter(n);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;background:var(--surface-3);color:var(--text-2)}
+.next li.now::before{background:var(--accent);color:#fff}
+.next b{color:var(--text);font-weight:600;display:block}
+
+.facts{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:var(--r-lg)}
+.fact{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;padding:11px 14px;border-top:1px solid var(--border);font-size:13.5px}
+.fact:first-child{border-top:0}
+.fact>span:first-child{color:var(--text-2);font-weight:500}
+.fact b{font-weight:600}
+.fact small{display:block;color:var(--text-2);font-size:12.5px;margin-top:2px}
+.bar{height:6px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.crows{display:flex;flex-direction:column;gap:8px}
+.crow2{display:flex;align-items:center;gap:10px}
+.crow2 .t{display:block;width:70px;flex:none;aspect-ratio:3.5/1;border-radius:4px;overflow:hidden}
+.crow2 b{flex:1;font-size:13.5px;font-weight:600;min-width:0}
+.ctag{font-size:12px;font-weight:600;padding:2px 7px;border-radius:4px}
+.ctag.ok{background:var(--success-bg);color:var(--success)}
+.ctag.bad{background:var(--danger-bg);color:var(--danger)}
+.ctag.wait{background:var(--warn-bg);color:var(--warn)}
+.dfoot{display:flex;align-items:center;gap:8px;padding:12px 16px 12px 20px;border-top:1px solid var(--border);background:var(--surface)}
+.dfoot .sp{flex:1}
+.menu{position:absolute;right:52px;top:52px;z-index:5;min-width:180px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:0 10px 30px rgba(0,0,0,.14);padding:6px;display:flex;flex-direction:column}
+.menu button{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r-md);font-size:14px;text-align:left}
+.menu button:hover{background:var(--surface-2)}
+.menu .icon{width:17px;height:17px;color:var(--text-2)}
+
+.toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:80;max-width:calc(100vw - 32px);background:#232a33;color:#fafafa;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+
+/* ---------- Step picker (same as the other Mockup Placements prototypes) ---------- */
+.statepick{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:75;color:#fafafa;font-size:13px}
+.statepick .icon{width:16px;height:16px}
+.sp-body{display:flex;align-items:center;gap:6px;background:#232a33;border-radius:999px;padding:4px 6px 4px 14px;box-shadow:0 8px 24px rgba(0,0,0,.22)}
+.sp-lbl{color:#9aa3b2;white-space:nowrap;font-size:12px}
+.statepick select{background:transparent;color:inherit;border:0;font:inherit;font-weight:600;max-width:300px;cursor:pointer;padding:5px 2px}
+.statepick select option,.statepick select optgroup{color:#161616;background:#fff}
+.sp-div{width:1px;height:18px;background:#3d4552;margin:0 6px}
+.sp-hub{color:#fafafa;font-weight:600;text-decoration:none;white-space:nowrap;padding:4px 6px;border-radius:6px}
+.sp-hub:hover,.sp-nav button:hover{background:#3a4350}
+.sp-nav{display:flex;gap:2px}
+.sp-nav button{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fafafa}
+.sp-nav button:disabled{opacity:.35;cursor:default;background:none}
+
+/* Details: a plain section on desktop; on phones a collapsible row with a summary line */
+.dt-toggle{display:none}
+.menu button[disabled]{opacity:.5;cursor:not-allowed}
+.menu small{display:block;font-size:12px;color:var(--text-3);margin-left:4px}
+/* ---------- Phones: one column; the drawer becomes a full-screen view ---------- */
+@media (max-width:767px){
+  .ptop{height:56px;padding:0 16px}
+  .wordmark{height:32px;font-size:24px}
+  .pbody{grid-template-columns:1fr}
+  .prail{display:none}
+  main{padding:20px 16px 96px}
+  .head h1{font-size:20px}
+  .grid{grid-template-columns:1fr}
+  .veil{top:0;left:0;z-index:60;background:transparent}
+  .drawer{width:100%;box-shadow:none}
+  .dhead{position:sticky;top:0;padding:10px 12px 12px 8px;flex-wrap:wrap}
+  .dback{display:inline-flex;align-items:center;gap:2px;height:36px;padding:0 6px;border-radius:var(--r-md);font-size:15px;font-weight:600;color:var(--accent-2)}
+  .dhead .tt{flex-basis:100%;order:3;padding-left:8px}
+  .dhead .dx{display:none}
+  .dhead .sp{flex:1}
+  .dbody{padding:14px 16px 24px}
+  .fact{grid-template-columns:84px minmax(0,1fr)}
+  .dfoot{padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+  .dfoot .btn{flex:1}
+  .dfoot .sp{display:none}
+  .dt-desk{display:none}
+  .dt-toggle{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r-lg);text-align:left}
+  .dt-toggle span{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+  .dt-toggle b{font-size:14px;font-weight:600}
+  .dt-toggle small{font-size:12.5px;color:var(--text-2)}
+  .dt-toggle .icon{color:var(--text-2);transition:transform .15s}
+  .details.open .dt-toggle{border-radius:var(--r-lg) var(--r-lg) 0 0;border-bottom:0}
+  .details.open .dt-toggle .icon{transform:rotate(180deg)}
+  .details .facts{display:none}
+  .details.open .facts{display:flex;border-radius:0 0 var(--r-lg) var(--r-lg);margin-top:-10px}
+  .menu{right:12px;top:52px}
+  .statepick{left:auto;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .sp-body{flex-wrap:wrap;border-radius:14px;max-width:calc(100vw - 24px)}
+  .toast{bottom:calc(140px + env(safe-area-inset-bottom,0px))}
+}
+</style>
+</head>
+<body>
+<header class="ptop"><a class="wordmark" href="dashboard.html" aria-label="Blip home">blip</a><span class="sp"></span>
+  <button class="phelp" data-act="help" aria-label="Help"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.5a2.3 2.3 0 114 1.6c-.8.6-1.8 1.1-1.8 2.4M12 16.6v.1"/></svg></button>
+  <span class="pav" aria-label="Account">LC</span></header>
+<div class="pbody">
+  <nav class="prail" aria-label="Main">
+    <span class="porg" title="Ridgeline Auto Care">RA</span>
+    <a class="pnav" href="dashboard.html" aria-label="Home" title="Home"><svg class="icon" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6h-6v6H5a1 1 0 01-1-1z"/></svg></a>
+    <a class="pnav" href="campaign-overview.html" aria-label="Campaigns" title="Campaigns" aria-current="page"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="13" r="8"/><circle cx="11" cy="13" r="4.5"/><circle cx="11" cy="13" r="1.2" fill="currentColor"/><path d="m11 13 8-8m-3 0h3v3"/></svg></a>
+    <a class="pnav" href="library.html" aria-label="My Library" title="My Library"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="3.5" width="14" height="5" rx="1"/><path d="M18 6h2v5h-8v3"/><rect x="10.5" y="14" width="3" height="7" rx=".8"/></svg></a>
+    <button class="pnav" data-act="nav" aria-label="Reports" title="Reports"><svg class="icon" viewBox="0 0 24 24"><path d="M5 21v-5M9.5 21v-8M14 21v-6M18.5 21v-9"/><path d="m4 11 5-5 4 3 7-6m-3 0h3v3"/></svg></button>
+  </nav>
+  <main id="main"></main>
+</div>
+<div id="drawer"></div>
+<div id="toast"></div>
+
+<div class="statepick" id="statepick">
+  <div class="sp-body">
+    <label class="sp-f"><span class="sp-lbl">Step</span> <select id="stateSel" aria-label="Step in the flow"></select></label>
+    <a class="sp-hub" href="index.html">All prototypes</a><span class="sp-div" aria-hidden="true"></span>
+    <span class="sp-nav"><button id="spPrev" aria-label="Previous step"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button id="spNext" aria-label="Next step"><svg class="icon" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></span>
+  </div>
+</div>
+
+<script>
+(function(){
+const $ = s => document.querySelector(s);
+const ICON = {
+  play:'<path d="M8 5.5v13l10-6.5z"/>', pause:'<path d="M8 5v14M16 5v14"/>', pencil:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  kebab:'<circle cx="12" cy="5.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="18.5" r="1.5" fill="currentColor" stroke="none"/>',
+  close:'<path d="M6 6l12 12M18 6L6 18"/>', back:'<path d="M15 5l-7 7 7 7"/>', chev:'<path d="M9 5l7 7-7 7"/>', down:'<path d="M6 9l6 6 6-6"/>',
+  alert:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.4v.1"/>', warn:'<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.2v.1"/>',
+  share:'<path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M5 13v5a2 2 0 002 2h10a2 2 0 002-2v-5"/>', download:'<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M5 19h14"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', copy:'<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a1 1 0 00-1-1H6a1 1 0 00-1 1v9a1 1 0 001 1h2"/>',
+  archive:'<rect x="3.5" y="5" width="17" height="4" rx="1"/><path d="M5 9v9a1 1 0 001 1h12a1 1 0 001-1V9M10 13h4"/>', external:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>'
+};
+const ic = n => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`;
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+
+/* Creatives (made up, Ridgeline Auto Care in Orem, UT) */
+const CRE = {
+  brakes:{name:'Brake special', bg:'#ffc93c', fg:'#161616', h:'Squeaky brakes? Fixed today.', s:'Ridgeline Auto Care · Exit 12'},
+  tires:{name:'Winter tires', bg:'#ffffff', fg:'#161616', h:'Winter tires, installed free.', s:'Ridgeline Auto Care · Exit 12'},
+  oil:{name:'Oil change deal', bg:'#c8102e', fg:'#ffffff', h:'$39 oil change. In and out.', s:'Ridgeline Auto Care · Exit 12'},
+  summer:{name:'Summer brake push', bg:'#1f285c', fg:'#ffffff', h:'Road trip ready? Brakes first.', s:'Ridgeline Auto Care · 1180 N State St'},
+  hours:{name:'Saturday hours', bg:'#0f5132', fg:'#ffffff', h:'Now open Saturdays. 8 to 4.', s:'Ridgeline Auto Care'}
+};
+const creative = k => { const c = CRE[k]; return `<div class="cre" style="--cbg:${c.bg};--cfg:${c.fg}"><b>${esc(c.h)}</b><span class="logo"></span><small>${esc(c.s)}</small></div>`; };
+
+/* Each creative's mockup is a pre-rendered image in assets/ (the creative baked onto the highway sign), mockup-<creative>.jpg */
+/* Campaigns. Alerts carry the fix action; the card footer's "Review" opens the drawer straight to them. */
+const CAMPAIGNS = [
+  {id:'fall', tab:'active', name:'Fall service promo', status:'running', label:'Running', opt:true, cre:['brakes'],
+    imp:'7.2k', spend:'$37', blips:'1,480', daily:[960,1010,1040,990,1050,1060,1090],
+    dates:'Sep 15 – Oct 31, 2026', left:'24 days left', budget:[412,600], locs:12, where:'Orem and Provo, UT', alerts:[]},
+  {id:'winter', tab:'active', name:'Winter tires', status:'stopped', label:'Stopped delivery', opt:true, cre:['tires'],
+    imp:'0', spend:'$0.00', blips:'0', daily:[0,0,0,0,0,0,0],
+    dates:'Oct 1 – Nov 30, 2026', left:'Paused by review', budget:[0,800], locs:8, where:'Orem, UT',
+    alerts:[{kind:'error', title:'All creatives rejected', body:'The phone number is too small to read at highway speed. Replace the creative to start delivery again.', action:'Replace creative', act:'replace'}],
+    creState:{tires:'Rejected'}},
+  {id:'summer', tab:'active', name:'Summer brake push', status:'paused', label:'Paused', opt:false, cre:['summer','brakes'],
+    imp:'1.1k', spend:'$9.40', blips:'214', daily:[420,380,300,0,0,0,0],
+    dates:'Aug 1 – Oct 31, 2026', left:'Paused Oct 4', budget:[1180,1200], locs:8, where:'Provo, UT',
+    alerts:[{kind:'warn', title:'No payment method', body:'Add a payment method to start this campaign again.', action:'Add payment method', act:'pay'},
+            {kind:'warn', title:'1 board unavailable', body:'The University Pkwy board is under maintenance until Oct 20. The budget moves to the other 7 boards.', action:null}]},
+  {id:'oil', tab:'active', name:'Oil change deal', status:'review', label:'In review', opt:true, cre:['oil'],
+    dates:'Starts Oct 15, 2026 · ends Nov 15', left:'Starts in 8 days', budget:[0,500], locs:10, where:'Orem and Lehi, UT', alerts:[], creState:{oil:'In review'}},
+  {id:'hours', tab:'draft', name:'Saturday hours', status:'draft', label:'Draft', opt:false, cre:['hours'], alerts:[]},
+  {id:'spring', tab:'archived', name:'Spring tune-up', status:'ended', label:'Ended', opt:true, cre:['oil'],
+    imp:'41k', spend:'$540', blips:'8,920', dates:'Mar 1 – Apr 30, 2026', alerts:[]}
+];
+const getC = id => CAMPAIGNS.find(c => c.id === id);
+const isPhone = () => matchMedia('(max-width:767px)').matches;
+const state = {tab:'active', open:null, focus:null, menu:false, enter:false, toast:'', details:false};
+
+/* ---------- Campaigns list ---------- */
+function card(c){
+  const live = c.status === 'running', canRun = c.status === 'paused' || c.status === 'stopped';
+  const toggle = live ? `<button class="cact" data-act="toggle" data-id="${c.id}">${ic('pause')}Pause</button>`
+    : canRun ? `<button class="cact" data-act="toggle" data-id="${c.id}">${ic('play')}Start</button>` : '';
+  const stats = c.imp != null
+    ? `<div class="lbl">Last 7 days</div><div class="nums"><div><b>${c.imp}</b><span>Impressions</span></div><div><b>${c.spend}</b><span>Spend</span></div><div><b>${c.blips}</b><span>Blips</span></div></div>`
+    : `<div class="lbl">Last 7 days</div><p class="wait">${c.status === 'draft' ? 'Not submitted yet' : 'Numbers show once it goes live'}</p>`;
+  const a = c.alerts, foot = !a.length ? '' : a.length === 1 && a[0].kind === 'error'
+    ? `<div class="cfoot error">${ic('alert')}${esc(a[0].title)}<span class="sp"></span><button data-act="review" data-id="${c.id}">Review →</button></div>`
+    : `<div class="cfoot warn">${ic('warn')}${a.length} alert${a.length>1?'s':''}<span class="sp"></span><button data-act="review" data-id="${c.id}" aria-label="Review alerts">${ic('chev')}</button></div>`;
+  return `<article class="ccard" data-act="open" data-id="${c.id}" tabindex="0" role="button" aria-label="${esc(c.name)} details" aria-current="${state.open === c.id}">
+    <div class="thumb">${creative(c.cre[0])}</div>
+    <div class="inner">
+      <div class="crow">${c.opt ? '<span class="tag-opt">Blip optimized</span>' : ''}<span class="sp"></span>${toggle}
+        <button class="ciconb" data-act="edit" data-id="${c.id}" aria-label="Edit ${esc(c.name)}">${ic('pencil')}</button></div>
+      <div class="cname">${esc(c.name)}</div>
+      <span class="status ${c.status}"><i></i>${c.label}</span>
+      <div class="cstats">${stats}</div>
+    </div>${foot}</article>`;
+}
+function list(){
+  const items = CAMPAIGNS.filter(c => c.tab === state.tab);
+  const tabs = [['active','Active'],['archived','Archived'],['draft','Draft']].map(([k,l]) => `<button role="tab" aria-selected="${state.tab===k}" data-act="tab" data-t="${k}">${l}</button>`).join('');
+  return `<div class="head"><h1>Campaigns</h1>
+      <div class="head-acts"><button class="btn primary" data-act="create">${ic('plus')}Create</button><button class="btn secondary" data-act="moderation">Check moderation</button></div>
+      <div class="tabs" role="tablist">${tabs}</div></div>
+    ${items.length ? `<div class="grid">${items.map(card).join('')}</div>` : '<div class="empty">No campaigns here yet.</div>'}`;
+}
+
+/* ---------- Drawer ---------- */
+function spark(d){
+  const W = 480, H = 56, max = Math.max(...d, 1), x = i => 2 + i*(W-4)/(d.length-1), y = v => H - 4 - (H-10)*v/max;
+  const line = d.map((v,i) => `${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Daily impressions, last 7 days">
+    <path d="${line} L${x(d.length-1)} ${H} L2 ${H}Z" fill="#eaf1fe"/><path d="${line}" fill="none" stroke="#176BF5" stroke-width="2" vector-effect="non-scaling-stroke"/>
+    <circle cx="${x(d.length-1)}" cy="${y(d[d.length-1])}" r="3.5" fill="#176BF5"/></svg>`;
+}
+function drawerHTML(){
+  const c = state.open && getC(state.open); if(!c) return '';
+  const live = c.status === 'running', review = c.status === 'review';
+  const alerts = c.alerts.map((a,i) => `<div class="alert ${a.kind} ${state.focus==='alerts'&&i===0?'flash':''}" role="${a.kind==='error'?'alert':'status'}">${ic(a.kind==='error'?'alert':'warn')}<div><b>${esc(a.title)}</b><p>${esc(a.body)}</p>${a.action?`<button class="btn ${a.kind==='error'?'danger':'warn'}" data-act="${a.act}">${esc(a.action)}</button>`:''}</div></div>`).join('');
+  const numbers = c.imp == null ? '' : `<section class="sec"><div class="sec-h"><h3>Last 7 days</h3><span>Oct 1 – Oct 7</span></div>
+      <div class="kpis"><div class="kpi"><span>Impressions</span><b>${c.imp}</b></div><div class="kpi"><span>Spend</span><b>${c.spend}</b></div><div class="kpi"><span>Blips</span><b>${c.blips}</b></div></div>
+      ${c.daily && c.daily.some(v => v) ? `${spark(c.daily)}<div class="spark-cap"><span>Oct 1</span><span>Impressions per day</span><span>Oct 7</span></div>` : c.daily ? '<p class="spark-cap" style="justify-content:flex-start">No plays this week. Delivery resumes once the alert is fixed.</p>' : ''}</section>`;
+  const mock = `<section class="sec"><h3>On a billboard</h3>
+      <div class="mock"><img src="assets/mockup-${c.cre[0]}.jpg" width="900" height="333" alt="${esc(CRE[c.cre[0]].name)} shown on a highway billboard"><span class="ex">Example placement</span></div>
+      <div class="mock-acts"><span class="cap">Mockup of ${esc(CRE[c.cre[0]].name)}. Saved with this campaign.</span>
+        <button class="iconbtn" data-act="download" aria-label="Download mockup" title="Download">${ic('download')}</button>
+</div></section>`;
+  const next = review ? `<section class="sec"><h3>What happens next</h3><ol class="next">
+      <li class="now"><span><b>Review</b>Usually under 48 hours. An email confirms approval.</span></li>
+      <li><span><b>Goes live Oct 15</b>Plays on ${c.locs} boards across ${esc(c.where)}.</span></li>
+      <li><span><b>First numbers</b>Impressions and spend show here the day after it starts.</span></li></ol></section>` : '';
+  const pct = Math.round(100 * c.budget[0] / c.budget[1]);
+  const creState = k => (c.creState && c.creState[k]) || 'Approved';
+  const tagCls = s => s === 'Approved' ? 'ok' : s === 'Rejected' ? 'bad' : 'wait';
+  const summary = `${c.locs} boards · $${c.budget[1].toLocaleString()} budget · ${c.cre.length} creative${c.cre.length>1?'s':''}`;
+  const facts = `<section class="sec details ${state.details?'open':''}"><h3 class="dt-desk">Details</h3>
+      <button class="dt-toggle" data-act="details" aria-expanded="${!!state.details}"><span><b>Details</b><small>${summary}</small></span>${ic('down')}</button>
+      <div class="facts">
+      <div class="fact"><span>Schedule</span><div><b>${esc(c.dates)}</b><small>${esc(c.left)}</small></div></div>
+      <div class="fact"><span>Budget</span><div><b>$${c.budget[0].toLocaleString()} of $${c.budget[1].toLocaleString()}</b><small>${review ? 'Spending starts on the start date' : pct + '% spent'}</small><div class="bar"><i style="width:${pct}%"></i></div></div></div>
+      <div class="fact"><span>Locations</span><div><b>${c.locs} boards</b><small>${esc(c.where)}</small></div></div>
+      <div class="fact"><span>Creatives</span><div class="crows">${c.cre.map(k => `<div class="crow2"><span class="t">${creative(k)}</span><b>${esc(CRE[k].name)}</b><span class="ctag ${tagCls(creState(k))}">${creState(k)}</span></div>`).join('')}</div></div>
+    </div></section>`;
+  const body = review ? mock + next + facts : alerts + numbers + mock + facts;
+  const canStart = c.status === 'paused' || c.status === 'stopped', blocked = canStart && c.alerts.length;
+  const toggleItem = live ? `<button role="menuitem" data-act="toggle" data-id="${c.id}">${ic('pause')}Pause campaign</button>`
+    : canStart ? `<button role="menuitem" data-act="toggle" data-id="${c.id}" ${blocked ? 'disabled title="Fix the alerts first"' : ''}>${ic('play')}Start campaign${blocked ? '<small>Fix the alerts first</small>' : ''}</button>` : '';
+  const menu = state.menu ? `<div class="menu" role="menu">${toggleItem}<button role="menuitem" data-act="duplicate">${ic('copy')}Duplicate</button><button role="menuitem" data-act="archive">${ic('archive')}Archive</button></div>` : '';
+  return `<div class="veil ${state.enter?'enter':''}" data-act="close"><aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+    <div class="dhead"><button class="dback" data-act="close">${ic('back')}Campaigns</button>
+      <div class="tt"><h2 id="dTitle">${esc(c.name)}</h2><div class="crow"><span class="status ${c.status}"><i></i>${c.label}</span>${c.opt ? '<span class="tag-opt">Blip optimized</span>' : ''}</div></div>
+      <span class="sp"></span>
+      <button class="dx" data-act="menu" aria-label="More options" aria-haspopup="menu" aria-expanded="${state.menu}">${ic('kebab')}</button>
+      <button class="dx" data-act="close" aria-label="Close">${ic('close')}</button></div>
+    ${menu}
+    <div class="dbody">${body}</div>
+    <div class="dfoot"><span class="sp"></span>
+      <button class="btn secondary" data-act="edit">${ic('pencil')}Edit</button>
+      <button class="btn primary" data-act="share">${ic('share')}Share</button></div>
+  </aside></div>`;
+}
+
+/* ---------- Render + actions ---------- */
+function render(){
+  $('#main').innerHTML = list();
+  $('#drawer').innerHTML = drawerHTML();
+  $('#toast').innerHTML = state.toast ? `<div class="toast" role="status">${esc(state.toast)}</div>` : '';
+  document.documentElement.style.overflow = state.open ? 'hidden' : '';
+  if(state.enter){ state.enter = false; const d = $('.drawer'); d && d.focus && d.setAttribute('tabindex','-1'); d && d.focus({preventScroll:true}); }
+  if(state.focus === 'alerts'){ const a = $('.alert'); a && a.scrollIntoView({block:'nearest'}); }
+  syncPicker();
+}
+let tt;
+function toast(m){ state.toast = m; render(); clearTimeout(tt); tt = setTimeout(() => { state.toast = ''; render(); }, 2600); }
+function open(id, focus){ state.details = false; state.open = id; state.focus = focus || null; state.menu = false; state.enter = true; render(); }
+function close(){
+  const v = $('.veil'), done = () => { state.open = null; state.menu = false; state.focus = null; render(); };
+  if(!v || matchMedia('(prefers-reduced-motion: reduce)').matches) return done();
+  v.classList.add('leave'); setTimeout(done, 200);
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]'); if(!t) { if(state.menu){ state.menu = false; render(); } return; }
+  const a = t.dataset.act, id = t.dataset.id;
+  if(a !== 'menu' && state.menu){ state.menu = false; }
+  switch(a){
+    case 'open': if(getC(id).status === 'draft'){ toast('Drafts open in the campaign builder'); break; } open(id); break;
+    case 'review': e.stopPropagation(); open(id, 'alerts'); break;
+    case 'close': if(e.target === t || t.closest('.dback, .dx')) close(); break;
+    case 'tab': state.tab = t.dataset.t; render(); break;
+    case 'menu': state.menu = !state.menu; render(); break;
+    case 'details': state.details = !state.details; render(); break;
+    case 'toggle': { const c = getC(id || state.open); if(c.status === 'running'){ c.status = 'paused'; c.label = 'Paused'; toast(`${c.name} paused`); } else { c.status = 'running'; c.label = 'Running'; toast(`${c.name} started`); } break; }
+    case 'edit': toast('Opens the campaign builder'); break;
+    case 'replace': toast('Opens My Library to pick a replacement creative'); break;
+    case 'pay': toast('Opens payment settings'); break;
+    case 'share': toast('Mockup link copied. Anyone with the link can view it.'); break;
+    case 'download': toast('Downloaded mockup.jpg'); break;
+    case 'duplicate': toast('Duplicated as a draft'); break;
+    case 'archive': toast('Moved to Archived'); break;
+    case 'create': toast('Opens the campaign builder'); break;
+    case 'moderation': toast('Opens moderation status'); break;
+    case 'help': toast('Opens the support hub drawer (not part of this prototype)'); break;
+    case 'nav': toast('That page isn’t part of this prototype'); break;
+  }
+});
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && state.open) close();
+  if((e.key === 'Enter' || e.key === ' ') && e.target.matches('.ccard')){ e.preventDefault(); e.target.click(); }
+});
+
+/* ---------- Step picker ---------- */
+const STEPS = [
+  ['Campaigns', [['list','Active campaigns'],['drafts','Draft tab']]],
+  ['Details drawer', [['running','Running campaign'],['rejected','Creatives rejected (from Review →)'],['alerts','Two alerts'],['review','In review, not live yet']]],
+  ['Entry points', [['email','From the “campaign is live” email']]]
+];
+const ORDER = STEPS.flatMap(([,s]) => s.map(x => x[0]));
+$('#stateSel').innerHTML = STEPS.map(([g,s]) => `<optgroup label="${g}">${s.map(([k,l]) => `<option value="${k}">${l}</option>`).join('')}</optgroup>`).join('');
+function jump(k){
+  state.tab = k === 'drafts' ? 'draft' : 'active'; state.open = null; state.menu = false; state.focus = null; state.toast = '';
+  if(k === 'running') open('fall'); else if(k === 'rejected') open('winter', 'alerts'); else if(k === 'alerts') open('summer', 'alerts');
+  else if(k === 'review') open('oil'); else if(k === 'email'){ open('fall'); toast('Opened from the email’s “View campaign performance” link'); }
+  else render();
+  $('#stateSel').value = k;
+}
+function current(){
+  if(!state.open) return state.tab === 'draft' ? 'drafts' : 'list';
+  return {fall:'running', winter:'rejected', summer:'alerts', oil:'review'}[state.open] || 'list';
+}
+function syncPicker(){
+  const sel = $('#stateSel'); if(document.activeElement !== sel && sel.value !== 'email') sel.value = current();
+  const i = ORDER.indexOf(sel.value); $('#spPrev').disabled = i <= 0; $('#spNext').disabled = i >= ORDER.length - 1;
+}
+$('#stateSel').addEventListener('change', e => jump(e.target.value));
+$('#spPrev').addEventListener('click', () => jump(ORDER[Math.max(0, ORDER.indexOf($('#stateSel').value) - 1)]));
+$('#spNext').addEventListener('click', () => jump(ORDER[Math.min(ORDER.length - 1, ORDER.indexOf($('#stateSel').value) + 1)]));
+
+/* Deep link: the "campaign is live" email opens Campaigns with that campaign's drawer, e.g. campaign-overview.html#open-fall */
+const m = location.hash.match(/^#open-(\w+)$/);
+if(m && getC(m[1])) open(m[1]); else render();
+})();
+</script>
+</body>
+</html>

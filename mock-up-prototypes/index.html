@@ -1,0 +1,206 @@
+<meta charset="utf-8">
+<title>Mockup Placements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: a single column index. Header, then one row per prototype thread (schematic thumbnail + what it explores + open), then decisions so far.
+   Uses the Blip product's own tokens: Inter, 0%-sat neutrals, #176BF5 accent, 6px radius. */
+:root{
+  --bg:#f2f2f2; --surface:#ffffff; --sunk:#ededed;
+  --text:#161616; --text-2:#5c5c5c; --text-3:#8f8f8f;
+  --line:#e3e3e3; --line-2:#d1d1d1;
+  --accent:#176BF5; --accent-ink:#0f4fba; --accent-bg:#eaf1fe;
+  --ok:#0f7a54; --ok-bg:#e6f4ee; --hold:#8a5a00; --hold-bg:#fdf1dc;
+  --brand:#e3122b; --sky:#8ec5ef; --road:#5f6b78; --board:#ffc93c; --board-ink:#161616;
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#131416; --surface:#1c1d20; --sunk:#25262a;
+  --text:#ededed; --text-2:#a8a8a8; --text-3:#7a7a7a;
+  --line:#2e3034; --line-2:#3c3e43;
+  --accent:#5b97ff; --accent-ink:#8fb8ff; --accent-bg:#1a2740;
+  --ok:#5fcf9f; --ok-bg:#16302a; --hold:#e8b450; --hold-bg:#33290f;
+  --sky:#3d6f99; --road:#8590a0;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131416; --surface:#1c1d20; --sunk:#25262a;
+  --text:#ededed; --text-2:#a8a8a8; --text-3:#7a7a7a;
+  --line:#2e3034; --line-2:#3c3e43;
+  --accent:#5b97ff; --accent-ink:#8fb8ff; --accent-bg:#1a2740;
+  --ok:#5fcf9f; --ok-bg:#16302a; --hold:#e8b450; --hold-bg:#33290f;
+  --sky:#3d6f99; --road:#8590a0;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font:15px/1.5 var(--font);-webkit-font-smoothing:antialiased;padding-inline:16px;padding-block:40px 64px}
+.wrap{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+h1,h2,h3,p,ul{margin:0}
+h1,h2,h3{text-wrap:balance}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* Header */
+.head{display:flex;flex-direction:column;gap:10px}
+.brandrow{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--text-2)}
+.mark{background:var(--brand);color:#fff;font-weight:800;font-size:15px;letter-spacing:-.02em;padding:0 6px 2px;border-radius:3px;line-height:1.4}
+h1{font-size:32px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.lede{font-size:16px;color:var(--text-2);max-width:62ch}
+.meta{font-size:13px;color:var(--text-3)}
+
+/* Threads */
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)}
+.threads{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.thread{display:grid;grid-template-columns:176px minmax(0,1fr) auto;gap:20px;align-items:center;padding:18px 20px;border-top:1px solid var(--line);color:inherit;text-decoration:none;transition:background .12s}
+.thread:first-child{border-top:0}
+a.thread:hover{background:var(--bg)}
+a.thread:hover .open{text-decoration:underline;text-underline-offset:3px}
+.tbody{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ttop{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.thread h3{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.thread p{font-size:14px;color:var(--text-2);max-width:60ch}
+.steps{font-size:13px;color:var(--text-3)}
+.pill{font-size:12px;font-weight:600;line-height:20px;padding:0 8px;border-radius:99px}
+.pill.concept{background:var(--ok-bg);color:var(--ok)}
+.pill.hold{background:var(--hold-bg);color:var(--hold)}
+.open{font-size:14px;font-weight:600;color:var(--accent);white-space:nowrap}
+.thread.placeholder .open{color:var(--text-3)}
+
+/* Schematic thumbnails: tiny wireframes of each screen in the product's colors */
+.sch{position:relative;aspect-ratio:16/10;width:100%;max-width:100%;border-radius:var(--r);background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.sch i{position:absolute;display:block;border-radius:2px}
+.sch .top{left:0;right:0;top:0;height:11%;background:var(--surface);border-bottom:1px solid var(--line)}
+.sch .rail{left:0;top:11%;bottom:0;width:9%;background:var(--surface);border-right:1px solid var(--line)}
+.sch .bar{height:5%;background:var(--line-2)}
+.sch .card{background:var(--surface);border:1px solid var(--line)}
+.sch .art{background:var(--board)}
+.sch .btn{background:var(--accent);height:7%}
+.sch .dim{background:rgba(22,22,22,.28);border-radius:0}
+.sch .sky{background:var(--sky);border-radius:0}
+.sch .road{background:var(--road);border-radius:0}
+.sch .dash{border:1.5px dashed var(--line-2);background:transparent}
+
+/* Decisions */
+.notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.notes section{display:flex;flex-direction:column;gap:10px;min-width:0}
+.notes ul{padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--text-2)}
+.notes li::marker{color:var(--text-3)}
+.notes b{color:var(--text);font-weight:600}
+
+@media (max-width:640px){
+  body{padding-block:24px 48px}
+  h1{font-size:26px}
+  .thread{grid-template-columns:96px minmax(0,1fr);gap:14px;padding:16px}
+  .open{grid-column:2}
+  .notes{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.thread{transition:none}}
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <div class="brandrow"><span class="mark" aria-hidden="true">blip</span>Concept prototypes</div>
+    <h1>Mockup Placements</h1>
+    <p class="lede">Where advertisers see a creative on a real billboard. Mockups belong to the campaign, so none of these flows save a mockup to My Library. Each prototype covers one part of the experience.</p>
+    <p class="meta">Updated Oct 7, 2026</p>
+  </header>
+
+  <section aria-labelledby="threadsT" style="display:flex;flex-direction:column;gap:12px">
+    <h2 class="eyebrow" id="threadsT">Prototypes</h2>
+    <div class="threads">
+
+      <a class="thread" href="library.html">
+        <div class="sch" aria-hidden="true">
+          <i class="top"></i><i class="rail"></i>
+          <i class="bar" style="left:14%;top:18%;width:30%"></i>
+          <i class="card" style="left:14%;top:32%;width:24%;height:30%"></i><i class="art" style="left:17%;top:38%;width:18%;height:9%"></i>
+          <i class="card" style="left:41%;top:32%;width:24%;height:30%"></i><i class="art" style="left:44%;top:38%;width:18%;height:9%"></i>
+          <i class="dim" style="left:9%;top:11%;right:0;bottom:0"></i>
+          <i class="card" style="right:0;top:11%;bottom:0;width:36%;border-radius:0"></i>
+          <i class="art" style="right:5%;top:20%;width:26%;height:12%"></i>
+          <i class="bar" style="right:5%;top:40%;width:26%"></i><i class="bar" style="right:5%;top:50%;width:26%"></i><i class="bar" style="right:5%;top:60%;width:26%"></i>
+        </div>
+        <div class="tbody">
+          <div class="ttop"><h3>My Library</h3><span class="pill concept">Concept</span></div>
+          <p>Creatives in a grid or list. A card opens a details side panel with dimensions, campaigns and a link to see it on a billboard. An empty library shows the centered null state.</p>
+          <span class="steps">Library · list view · side panel · rename · delete · upload</span>
+        </div>
+        <span class="open">Open</span>
+      </a>
+
+      <a class="thread" href="dashboard.html">
+        <div class="sch" aria-hidden="true">
+          <i class="top"></i><i class="rail"></i>
+          <i class="bar" style="left:14%;top:18%;width:18%"></i>
+          <i class="card" style="left:14%;top:28%;right:5%;height:30%;background:var(--accent-bg);border-color:transparent"></i>
+          <i class="bar" style="left:18%;top:34%;width:30%"></i><i class="btn" style="left:18%;top:46%;width:12%"></i>
+          <i class="sky" style="left:58%;top:28%;right:5%;height:22%"></i><i class="road" style="left:58%;top:50%;right:5%;height:8%"></i><i class="art" style="left:66%;top:32%;width:16%;height:8%"></i>
+          <i class="card" style="left:14%;top:64%;width:24%;height:12%"></i><i class="card" style="left:41%;top:64%;width:24%;height:12%"></i><i class="card" style="left:68%;top:64%;right:5%;height:12%"></i>
+          <i class="card" style="left:14%;top:80%;right:5%;height:14%"></i>
+        </div>
+        <div class="tbody">
+          <div class="ttop"><h3>Dashboard</h3><span class="pill concept">Concept</span></div>
+          <p>The Billboard maker banner at the top of Home, the shipped Blip Ads Manager page. New users see an upload option alongside Generate. Existing users see Generate only.</p>
+          <span class="steps">New user · existing user</span>
+        </div>
+        <span class="open">Open</span>
+      </a>
+
+      <a class="thread" href="mockup-maker.html">
+        <div class="sch" aria-hidden="true">
+          <i class="top"></i><i class="rail"></i>
+          <i class="dim" style="left:0;top:0;right:0;bottom:0"></i>
+          <i class="card" style="left:12%;top:12%;right:12%;bottom:12%"></i>
+          <i class="bar" style="left:16%;top:18%;width:22%"></i>
+          <i class="sky" style="left:16%;top:28%;width:46%;height:38%"></i><i class="road" style="left:16%;top:66%;width:46%;height:10%"></i>
+          <i class="art" style="left:26%;top:34%;width:26%;height:12%"></i>
+          <i class="sky" style="left:66%;top:28%;width:18%;height:10%"></i><i class="sky" style="left:66%;top:42%;width:18%;height:10%"></i><i class="sky" style="left:66%;top:56%;width:18%;height:10%"></i>
+          <i class="btn" style="right:16%;bottom:16%;width:14%"></i>
+        </div>
+        <div class="tbody">
+          <div class="ttop"><h3>Mock up Maker</h3><span class="pill concept">Concept</span></div>
+          <p>Three steps: choose a creative, choose a scene, then share it or start a campaign. Creatives that don’t fit 1400 × 400 px are resized with AI. Nothing is saved.</p>
+          <span class="steps">Choose a creative · choose a scene · share · new campaign</span>
+        </div>
+        <span class="open">Open</span>
+      </a>
+
+      <a class="thread" href="campaign-overview.html">
+        <div class="sch" aria-hidden="true">
+          <i class="top"></i><i class="rail"></i>
+          <i class="bar" style="left:14%;top:18%;width:26%"></i>
+          <i class="dash" style="left:14%;top:30%;right:5%;bottom:8%"></i>
+        </div>
+        <div class="tbody">
+          <div class="ttop"><h3>Campaign overview</h3><span class="pill concept">Concept</span></div>
+          <p>The Campaigns list, where a card opens a details drawer. In order, it shows any alert with its fix, the last 7 days, the campaign’s mockup with Share, and then the schedule, budget, locations and creatives. Phones show the drawer as a full-screen view.</p>
+          <span class="steps">Running · creatives rejected · two alerts · in review · from the live email</span>
+        </div>
+        <span class="open">Open</span>
+      </a>
+
+    </div>
+  </section>
+
+  <div class="notes">
+    <section aria-labelledby="decT">
+      <h2 class="eyebrow" id="decT">Decisions so far</h2>
+      <ul>
+        <li><b>Mockups aren’t saved.</b> They’ll attach to the campaign, so My Library has no Mockups tab.</li>
+        <li><b>Empty library</b> uses the centered null state (option 6).</li>
+        <li><b>The maker banner</b> moves to the dashboard, using option 5.</li>
+        <li><b>Upload in the banner</b> is for new users only. Existing users already know how to upload, so their banner sells Generate alone.</li>
+        <li><b>Creative details</b> open in a side panel, not a separate page.</li>
+        <li><b>Campaign details</b> open in a peek drawer. The footer has Edit and Share, and there’s no separate full details page. Pause and Start live in the ⋮ menu and on the cards. On phones, Details collapses so the drawer fits on one screen.</li>
+      </ul>
+    </section>
+    <section aria-labelledby="useT">
+      <h2 class="eyebrow" id="useT">Using the prototypes</h2>
+      <ul>
+        <li>The bar at the bottom of each prototype jumps between screens. <b>Scenario</b> sets what the account already has. <b>Step</b> picks a screen.</li>
+        <li>The left rail moves between prototypes, the way it moves between pages in the product.</li>
+        <li><b>All prototypes</b> in that bar comes back here.</li>
+      </ul>
+    </section>
+  </div>
+</div>
