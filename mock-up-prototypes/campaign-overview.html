@@ -93,7 +93,8 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 .cstats .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
 .cstats b{display:block;font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
 .cstats span{font-size:12px;color:var(--text-2)}
-.cstats .wait{font-size:13px;color:var(--text-2);margin-top:4px}
+.cstats .wait{font-size:12px;color:var(--text-3);margin-top:6px}
+.nums.dash b,.kpis.dash b{color:var(--text-3)}
 .cfoot{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;font-weight:600;border-top:1px solid}
 .cfoot .sp{flex:1}
 .cfoot.error{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger)}
@@ -148,9 +149,8 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .kpi{padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-md);display:flex;flex-direction:column;gap:2px}
 .kpi span{font-size:12px;color:var(--text-2);font-weight:500}
+.nodata{font-size:12.5px;color:var(--text-3)}
 .kpi b{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.spark{width:100%;height:56px;display:block}
-.spark-cap{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-3);font-variant-numeric:tabular-nums}
 
 .mock{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#cfe2f3}
 .mock img{display:block;width:100%;height:auto}
@@ -173,12 +173,11 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 .fact>span:first-child{color:var(--text-2);font-weight:500}
 .fact b{font-weight:600}
 .fact small{display:block;color:var(--text-2);font-size:12.5px;margin-top:2px}
-.bar{height:6px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin-top:6px}
-.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
-.crows{display:flex;flex-direction:column;gap:8px}
-.crow2{display:flex;align-items:center;gap:10px}
-.crow2 .t{display:block;width:70px;flex:none;aspect-ratio:3.5/1;border-radius:4px;overflow:hidden}
-.crow2 b{flex:1;font-size:13.5px;font-weight:600;min-width:0}
+.crows{display:flex;flex-direction:column;gap:14px}
+.crow2{display:flex;flex-direction:column;gap:6px}
+.crow2 .t{display:block;width:100%;aspect-ratio:3.5/1;border-radius:6px;overflow:hidden;box-shadow:0 0 0 1px var(--border)}
+.cmeta{display:flex;align-items:center;gap:8px}
+.cmeta b{flex:1;font-size:13.5px;font-weight:600;min-width:0}
 .ctag{font-size:12px;font-weight:600;padding:2px 7px;border-radius:4px}
 .ctag.ok{background:var(--success-bg);color:var(--success)}
 .ctag.bad{background:var(--danger-bg);color:var(--danger)}
@@ -303,19 +302,19 @@ const creative = k => { const c = CRE[k]; return `<div class="cre" style="--cbg:
 const CAMPAIGNS = [
   {id:'fall', tab:'active', name:'Fall service promo', status:'running', label:'Running', opt:true, cre:['brakes'],
     imp:'7.2k', spend:'$37', blips:'1,480', daily:[960,1010,1040,990,1050,1060,1090],
-    dates:'Sep 15 – Oct 31, 2026', left:'24 days left', budget:[412,600], locs:12, where:'Orem and Provo, UT', alerts:[]},
+    dates:'Sep 15 – Oct 31, 2026', left:'24 days left', perDay:15, locs:12, where:'Orem and Provo, UT', alerts:[]},
   {id:'winter', tab:'active', name:'Winter tires', status:'stopped', label:'Stopped delivery', opt:true, cre:['tires'],
     imp:'0', spend:'$0.00', blips:'0', daily:[0,0,0,0,0,0,0],
-    dates:'Oct 1 – Nov 30, 2026', left:'Paused by review', budget:[0,800], locs:8, where:'Orem, UT',
+    dates:'Oct 1 – Nov 30, 2026', left:'Paused by review', perDay:20, locs:8, where:'Orem, UT',
     alerts:[{kind:'error', title:'All creatives rejected', body:'The phone number is too small to read at highway speed. Replace the creative to start delivery again.', action:'Replace creative', act:'replace'}],
     creState:{tires:'Rejected'}},
   {id:'summer', tab:'active', name:'Summer brake push', status:'paused', label:'Paused', opt:false, cre:['summer','brakes'],
     imp:'1.1k', spend:'$9.40', blips:'214', daily:[420,380,300,0,0,0,0],
-    dates:'Aug 1 – Oct 31, 2026', left:'Paused Oct 4', budget:[1180,1200], locs:8, where:'Provo, UT',
+    dates:'Aug 1 – Oct 31, 2026', left:'Paused Oct 4', perDay:15, locs:8, where:'Provo, UT',
     alerts:[{kind:'warn', title:'No payment method', body:'Add a payment method to start this campaign again.', action:'Add payment method', act:'pay'},
             {kind:'warn', title:'1 board unavailable', body:'The University Pkwy board is under maintenance until Oct 20. The budget moves to the other 7 boards.', action:null}]},
   {id:'oil', tab:'active', name:'Oil change deal', status:'review', label:'In review', opt:true, cre:['oil'],
-    dates:'Starts Oct 15, 2026 · ends Nov 15', left:'Starts in 8 days', budget:[0,500], locs:10, where:'Orem and Lehi, UT', alerts:[], creState:{oil:'In review'}},
+    dates:'Starts Oct 15, 2026 · ends Nov 15', left:'Starts in 8 days', perDay:16, locs:10, where:'Orem and Lehi, UT', alerts:[], creState:{oil:'In review'}},
   {id:'hours', tab:'draft', name:'Saturday hours', status:'draft', label:'Draft', opt:false, cre:['hours'], alerts:[]},
   {id:'spring', tab:'archived', name:'Spring tune-up', status:'ended', label:'Ended', opt:true, cre:['oil'],
     imp:'41k', spend:'$540', blips:'8,920', dates:'Mar 1 – Apr 30, 2026', alerts:[]}
@@ -331,7 +330,7 @@ function card(c){
     : canRun ? `<button class="cact" data-act="toggle" data-id="${c.id}">${ic('play')}Start</button>` : '';
   const stats = c.imp != null
     ? `<div class="lbl">Last 7 days</div><div class="nums"><div><b>${c.imp}</b><span>Impressions</span></div><div><b>${c.spend}</b><span>Spend</span></div><div><b>${c.blips}</b><span>Blips</span></div></div>`
-    : `<div class="lbl">Last 7 days</div><p class="wait">${c.status === 'draft' ? 'Not submitted yet' : 'Numbers show once it goes live'}</p>`;
+    : `<div class="lbl">Last 7 days</div><div class="nums dash"><div><b>–</b><span>Impressions</span></div><div><b>–</b><span>Spend</span></div><div><b>–</b><span>Blips</span></div></div><p class="wait">${c.status === 'draft' ? 'No data yet. Submit the campaign to start review.' : 'No data yet. Numbers start the day after it goes live.'}</p>`;
   const a = c.alerts, foot = !a.length ? '' : a.length === 1 && a[0].kind === 'error'
     ? `<div class="cfoot error">${ic('alert')}${esc(a[0].title)}<span class="sp"></span><button data-act="review" data-id="${c.id}">Review →</button></div>`
     : `<div class="cfoot warn">${ic('warn')}${a.length} alert${a.length>1?'s':''}<span class="sp"></span><button data-act="review" data-id="${c.id}" aria-label="Review alerts">${ic('chev')}</button></div>`;
@@ -355,42 +354,37 @@ function list(){
 }
 
 /* ---------- Drawer ---------- */
-function spark(d){
-  const W = 480, H = 56, max = Math.max(...d, 1), x = i => 2 + i*(W-4)/(d.length-1), y = v => H - 4 - (H-10)*v/max;
-  const line = d.map((v,i) => `${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
-  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Daily impressions, last 7 days">
-    <path d="${line} L${x(d.length-1)} ${H} L2 ${H}Z" fill="#eaf1fe"/><path d="${line}" fill="none" stroke="#176BF5" stroke-width="2" vector-effect="non-scaling-stroke"/>
-    <circle cx="${x(d.length-1)}" cy="${y(d[d.length-1])}" r="3.5" fill="#176BF5"/></svg>`;
-}
 function drawerHTML(){
   const c = state.open && getC(state.open); if(!c) return '';
   const live = c.status === 'running', review = c.status === 'review';
   const alerts = c.alerts.map((a,i) => `<div class="alert ${a.kind} ${state.focus==='alerts'&&i===0?'flash':''}" role="${a.kind==='error'?'alert':'status'}">${ic(a.kind==='error'?'alert':'warn')}<div><b>${esc(a.title)}</b><p>${esc(a.body)}</p>${a.action?`<button class="btn ${a.kind==='error'?'danger':'warn'}" data-act="${a.act}">${esc(a.action)}</button>`:''}</div></div>`).join('');
-  const numbers = c.imp == null ? '' : `<section class="sec"><div class="sec-h"><h3>Last 7 days</h3><span>Oct 1 – Oct 7</span></div>
-      <div class="kpis"><div class="kpi"><span>Impressions</span><b>${c.imp}</b></div><div class="kpi"><span>Spend</span><b>${c.spend}</b></div><div class="kpi"><span>Blips</span><b>${c.blips}</b></div></div>
-      ${c.daily && c.daily.some(v => v) ? `${spark(c.daily)}<div class="spark-cap"><span>Oct 1</span><span>Impressions per day</span><span>Oct 7</span></div>` : c.daily ? '<p class="spark-cap" style="justify-content:flex-start">No plays this week. Delivery resumes once the alert is fixed.</p>' : ''}</section>`;
+  const numbersEmpty = `<section class="sec"><div class="sec-h"><h3>Last 7 days</h3></div>
+      <div class="kpis dash"><div class="kpi"><span>Impressions</span><b>–</b></div><div class="kpi"><span>Spend</span><b>–</b></div><div class="kpi"><span>Blips</span><b>–</b></div></div>
+      <p class="nodata">No data yet. Numbers start the day after it goes live.</p></section>`;
+  const numbers = c.imp == null ? numbersEmpty : `<section class="sec"><div class="sec-h"><h3>Last 7 days</h3><span>Oct 1 – Oct 7</span></div>
+      <div class="kpis"><div class="kpi"><span>Impressions</span><b>${c.imp}</b></div><div class="kpi"><span>Spend</span><b>${c.spend}</b></div><div class="kpi"><span>Blips</span><b>${c.blips}</b></div></div></section>`;
   const mock = `<section class="sec"><h3>On a billboard</h3>
       <div class="mock"><img src="assets/mockup-${c.cre[0]}.jpg" width="900" height="333" alt="${esc(CRE[c.cre[0]].name)} shown on a highway billboard"><span class="ex">Example placement</span></div>
-      <div class="mock-acts"><span class="cap">Mockup of ${esc(CRE[c.cre[0]].name)}. Saved with this campaign.</span>
+      <div class="mock-acts"><span class="cap">This is a mockup.</span>
         <button class="iconbtn" data-act="download" aria-label="Download mockup" title="Download">${ic('download')}</button>
+        <button class="iconbtn" data-act="share" aria-label="Share mockup" title="Share">${ic('share')}</button>
 </div></section>`;
   const next = review ? `<section class="sec"><h3>What happens next</h3><ol class="next">
       <li class="now"><span><b>Review</b>Usually under 48 hours. An email confirms approval.</span></li>
       <li><span><b>Goes live Oct 15</b>Plays on ${c.locs} boards across ${esc(c.where)}.</span></li>
       <li><span><b>First numbers</b>Impressions and spend show here the day after it starts.</span></li></ol></section>` : '';
-  const pct = Math.round(100 * c.budget[0] / c.budget[1]);
   const creState = k => (c.creState && c.creState[k]) || 'Approved';
   const tagCls = s => s === 'Approved' ? 'ok' : s === 'Rejected' ? 'bad' : 'wait';
-  const summary = `${c.locs} boards · $${c.budget[1].toLocaleString()} budget · ${c.cre.length} creative${c.cre.length>1?'s':''}`;
+  const summary = `${c.locs} boards · $${c.perDay}/day · ${c.cre.length} creative${c.cre.length>1?'s':''}`;
   const facts = `<section class="sec details ${state.details?'open':''}"><h3 class="dt-desk">Details</h3>
       <button class="dt-toggle" data-act="details" aria-expanded="${!!state.details}"><span><b>Details</b><small>${summary}</small></span>${ic('down')}</button>
       <div class="facts">
       <div class="fact"><span>Schedule</span><div><b>${esc(c.dates)}</b><small>${esc(c.left)}</small></div></div>
-      <div class="fact"><span>Budget</span><div><b>$${c.budget[0].toLocaleString()} of $${c.budget[1].toLocaleString()}</b><small>${review ? 'Spending starts on the start date' : pct + '% spent'}</small><div class="bar"><i style="width:${pct}%"></i></div></div></div>
+      <div class="fact"><span>Budget</span><div><b>$${c.perDay} per day</b></div></div>
       <div class="fact"><span>Locations</span><div><b>${c.locs} boards</b><small>${esc(c.where)}</small></div></div>
-      <div class="fact"><span>Creatives</span><div class="crows">${c.cre.map(k => `<div class="crow2"><span class="t">${creative(k)}</span><b>${esc(CRE[k].name)}</b><span class="ctag ${tagCls(creState(k))}">${creState(k)}</span></div>`).join('')}</div></div>
+      <div class="fact"><span>Creatives</span><div class="crows">${c.cre.map(k => `<div class="crow2"><span class="t">${creative(k)}</span><div class="cmeta"><b>${esc(CRE[k].name)}</b><span class="ctag ${tagCls(creState(k))}">${creState(k)}</span></div></div>`).join('')}</div></div>
     </div></section>`;
-  const body = review ? mock + next + facts : alerts + numbers + mock + facts;
+  const body = review ? numbers + mock + next + facts : alerts + numbers + mock + facts;
   const canStart = c.status === 'paused' || c.status === 'stopped', blocked = canStart && c.alerts.length;
   const toggleItem = live ? `<button role="menuitem" data-act="toggle" data-id="${c.id}">${ic('pause')}Pause campaign</button>`
     : canStart ? `<button role="menuitem" data-act="toggle" data-id="${c.id}" ${blocked ? 'disabled title="Fix the alerts first"' : ''}>${ic('play')}Start campaign${blocked ? '<small>Fix the alerts first</small>' : ''}</button>` : '';
