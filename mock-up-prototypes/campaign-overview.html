@@ -10,7 +10,7 @@
 <style>
 /* Campaign overview, option A: the Campaigns list (as shipped: tabs, two-column cards, status, last 7 days, alert footers)
    and a peek drawer that answers, in order: is it running, how is it doing, what does it look like, where/when/how much.
-   Footer actions are Edit + Share campaign (no full details page); the mockup has its own Share mockup + Download mockups, and both shares push a sub-view inside the drawer; Pause/Start live in the ⋮ menu and on the cards. Phones get the drawer as a full-screen view with a collapsible Details section.
+   Footer actions are Edit + Copy link (no full details page); the mockup has its own Share mockup (email, a sub-view inside the drawer) + Download mockups; Pause/Start live in the ⋮ menu and on the cards. Phones get the drawer as a full-screen view with a collapsible Details section.
    Light only, like the product. */
 :root{
   color-scheme:light;
@@ -156,6 +156,10 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 .mbanner p{font-size:13px;color:var(--text-2)}
 .mbanner .acts{display:flex;align-items:center;gap:14px;margin-top:8px}
 .mbanner .btn{padding:7px 12px;font-size:13px}
+/* Severity: Blocking = red outline + primary CTA (the campaign can't run); Warning = amber outline + secondary CTA (it still runs) */
+.mbanner.warn{border-color:var(--warn-border);color:#b25e00}
+.mbanner .btn.secondary{color:var(--text)}
+.ctag.none{background:var(--surface-3);color:var(--text-2)}
 
 /* Moderation (look A): the status pill is the headline, with the board count beside it and "See details" on the same line.
    Only a rejection that blocks delivery adds a light red band and the Replace action. Moderation only: no budget wording. */
@@ -400,6 +404,7 @@ const ICON = {
   check:'<circle cx="12" cy="12" r="8.5"/><path d="m8.5 12.2 2.4 2.4 4.6-5"/>', clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
   pauseC:'<circle cx="12" cy="12" r="8.5"/><path d="M10 9v6M14 9v6"/>', flag:'<path d="M6 21V4M6 4h11l-2 4 2 4H6"/>',
   repeat:'<path d="M17 3l3 3-3 3"/><path d="M4 11V10a4 4 0 014-4h12"/><path d="M7 21l-3-3 3-3"/><path d="M20 13v1a4 4 0 01-4 4H4"/>',
+  link:'<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
   plus:'<path d="M12 5v14M5 12h14"/>', copy:'<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a1 1 0 00-1-1H6a1 1 0 00-1 1v9a1 1 0 001 1h2"/>',
   archive:'<rect x="3.5" y="5" width="17" height="4" rx="1"/><path d="M5 9v9a1 1 0 001 1h12a1 1 0 001-1V9M10 13h4"/>', external:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>'
 };
@@ -436,12 +441,38 @@ const CAMPAIGNS = [
   {id:'winter', tab:'active', name:'Winter tires', status:'stopped', label:'Not running', opt:true, cre:['tires'],
     imp:'0', spend:'$0.00', blips:'0', daily:[0,0,0,0,0,0,0],
     dates:'Oct 1 – Nov 30, 2026', left:'Stopped Oct 2', perDay:20, locs:8, where:'Orem, UT',
-    alerts:[{kind:'error', title:'Creative rejected on all boards', body:'Not running until a new creative is approved.', to:'mod'}],
+    alerts:[{kind:'error', sev:'block', title:'Creative rejected on all boards', body:'Not running until a new creative is approved.', cta:'Replace creative', act:'replace', link:'See details'}],
     mod:{state:'fix', reason:'The phone number is too small to read at highway speed.', rows:[['1400 × 400',6,0,0,6],['840 × 400',2,0,0,2]]}},
+  /* Banner demos (one per kept banner; hidden from the list, opened from the "Banners" step group) */
+  {id:'bnFit', tab:'hidden', name:'Spring sale', status:'stopped', label:'Not running', opt:false, cre:['brakes'],
+    imp:'0', spend:'$0.00', blips:'0', dates:'Oct 1 – Nov 30, 2026', left:'Not started', perDay:15, locs:10, where:'Provo, UT',
+    alerts:[{kind:'error', sev:'block', title:'Creative doesn’t fit these boards', body:'No uploaded creative matches the selected sign sizes. Not running until one does.', cta:'Add creative', act:'setupStep', step:'Design'}],
+    mod:{state:'none', rows:[['1400 × 400',6,0,0,0,6],['840 × 400',4,0,0,0,4]]}},
+  {id:'bnSizesB', tab:'hidden', name:'Spring sale', status:'stopped', label:'Not running', opt:false, cre:['brakes'],
+    imp:'0', spend:'$0.00', blips:'0', dates:'Oct 1 – Nov 30, 2026', left:'Not started', perDay:15, locs:10, where:'Provo, UT',
+    alerts:[{kind:'error', sev:'block', title:'Sign sizes missing a creative', body:'Not running until each selected sign size has a creative.', cta:'Add creative', act:'setupStep', step:'Design'}],
+    mod:{state:'none', rows:[['1400 × 400',6,0,0,0,6],['840 × 400',4,0,0,0,4]]}},
+  {id:'bnSizesW', tab:'hidden', name:'Fall service promo', status:'running', label:'Running', opt:false, cre:['brakes'],
+    imp:'5.1k', spend:'$26', blips:'1,040', dates:'Sep 15 – Oct 31, 2026', left:'24 days left', perDay:15, locs:12, where:'Orem and Provo, UT',
+    alerts:[{kind:'warn', sev:'warn', title:'1 sign size missing a creative', body:'Running on the other boards. Add an 840 × 400 creative to run on all 12.', cta:'Add creative', act:'setupStep', step:'Design'}],
+    mod:{state:'ok', rows:[['1400 × 400',8,8,0,0],['840 × 400',4,0,0,0,4]]}},
+  {id:'bnUnavail', tab:'hidden', name:'Weekend specials', status:'stopped', label:'Not running', opt:false, cre:['summer'],
+    imp:'0', spend:'$0.00', blips:'0', dates:'Oct 1 – Oct 31, 2026', left:'Stopped Oct 5', perDay:12, locs:8, where:'Orem, UT',
+    alerts:[{kind:'error', sev:'block', title:'Selected boards unavailable', body:'All 8 boards are currently unavailable. Choose different locations to start running.', cta:'Change locations', act:'setupStep', step:'Locations'}],
+    mod:{state:'ok', rows:[['1400 × 400',8,8,0,0]]}},
+  {id:'bnExpand', tab:'hidden', name:'Tire rotation', status:'running', label:'Running', opt:true, cre:['tires'],
+    imp:'2.4k', spend:'$11', blips:'420', dates:'Oct 1 – Nov 30, 2026', left:'54 days left', perDay:20, locs:4, where:'Orem, UT',
+    alerts:[{kind:'warn', sev:'warn', title:'Not enough boards nearby', body:'Expand the radius to reach more people in this area.', cta:'Expand radius', act:'setupStep', step:'Locations'}],
+    mod:{state:'ok', rows:[['1400 × 400',4,4,0,0]]}},
+  {id:'bnMaxed', tab:'hidden', name:'Tire rotation', status:'running', label:'Running', opt:true, cre:['tires'],
+    imp:'6.8k', spend:'$40', blips:'1,310', dates:'Oct 1 – Nov 30, 2026', left:'54 days left', perDay:20, locs:14, where:'Orem, UT',
+    alerts:[{kind:'warn', sev:'warn', title:'Area is maxed out', body:'Every available board in this area is in use. Choose a new location to keep growing.', cta:'Choose a new location', act:'setupStep', step:'Locations'}],
+    mod:{state:'ok', rows:[['1400 × 400',10,10,0,0],['840 × 400',4,4,0,0]]}},
   {id:'summer', tab:'active', name:'Summer brake push', status:'paused', label:'Paused', opt:false, cre:['summer','brakes'], daypart:'Weekdays, 6 AM – 7 PM',
     imp:'1.1k', spend:'$9.40', blips:'214', daily:[420,380,300,0,0,0,0],
     dates:'Aug 1 – Oct 31, 2026', left:'Paused Oct 4', perDay:15, locs:8, where:'Provo, UT',
-    alerts:[{kind:'warn', title:'No payment method', body:'Add a payment method to start this campaign again.', action:'Add payment method', act:'pay'}],
+    /* No payment alert at the campaign level for now: payment problems become one account banner (campaign overview redesign) */
+    alerts:[],
     mod:{state:'ok', rows:[['1400 × 400',8,8,0,0]]}},
   {id:'oil', tab:'active', name:'Oil change deal', status:'review', label:'In review', opt:true, cre:['oil'],
     dates:'Starts Oct 15, 2026 · ends Nov 15', left:'Starts in 8 days', perDay:16, locs:10, where:'Orem and Lehi, UT', alerts:[],
@@ -505,18 +536,15 @@ function packRows(c){
   return `<div class="file">${mockImg(c,'team')}<span><b>${slug(c)}-preview.jpg</b><small>Labeled “Preview only”</small></span></div>
     <div class="file"><div class="mock sq"><img src="${MOCK[c.cre[0]]}" alt=""><span class="ex mwb"><i>blip</i>Made with Blip</span></div><span><b>${slug(c)}-social-square.jpg</b><small>1080×1080 for social · Tagged “Made with Blip”</small></span></div>`;
 }
-/* Share sub-view: the same pattern for both, different content.
-   mockup = the images only; campaign = the campaign's details and results (no images). */
+/* Share mockup sub-view: emails the mockup images. (The campaign itself is shared with Copy link in the footer.) */
 function shareView(c){
-  const mock = state.sv === 'mockup';
+  const mock = true;
   const chips = state.to.map((e,i) => `<span class="chip ${e==='Me'?'me':''}" ${e==='Me'?'title="Sends to the account email"':''}>${esc(e)}<button data-act="rmTo" data-i="${i}" aria-label="Remove ${esc(e)}">${ic('close')}</button></span>`).join('');
-  const nums = c.imp == null ? 'No results yet' : `Last 7 days: ${c.imp} impressions, ${c.spend} spend, ${c.blips} blips`;
-  const included = mock ? packRows(c)
-    : `<div class="file"><span class="doc">${ic('chart')}</span><span><b>Campaign summary</b><small>${esc(c.label)} · ${esc(c.dates)} · $${c.perDay} per day · ${c.locs} boards in ${esc(c.where)}</small><small>${nums}</small></span></div>`;
+  const included = packRows(c);
   return `<div class="veil" data-act="close"><aside class="drawer sv" role="dialog" aria-modal="true" aria-labelledby="svTitle">
     <div class="dhead sub"><button class="dback sv" data-act="svBack">${ic('back')}${esc(c.name)}</button><span class="sp"></span>
       <button class="dx" data-act="close" aria-label="Close">${ic('close')}</button>
-      <div class="tt"><h2 id="svTitle">${mock ? 'Share mockup' : 'Share campaign'}</h2><p>${mock ? 'Sent by email with the images attached.' : 'Sent by email as a summary of this campaign.'}</p></div></div>
+      <div class="tt"><h2 id="svTitle">Share mockup</h2><p>Sent by email with the images attached.</p></div></div>
     <div class="dbody">
       <label class="sv-f">To<div class="to ${state.toBad?'bad':''}">${chips}<input id="svTo" type="email" inputmode="email" autocomplete="off" placeholder="${state.to.length ? 'Add email' : 'name@business.com'}" aria-label="Add email"></div>${state.toBad ? '<span class="sv-hint">Add at least one email address.</span>' : ''}</label>
       <label class="sv-f"><span>Message <small>(optional)</small></span><textarea id="svMsg" rows="3" placeholder="Add a note">${esc(state.msg)}</textarea></label>
@@ -531,10 +559,10 @@ function shareView(c){
    "See details" on the same line when something on some boards isn't approved. When rejections block delivery, the
    banner at the top of the drawer offers Replace creative; the card never repeats it. Both go to the editor's
    creative step (Creative for Blip optimized, Design for the others). */
-function modCounts(rows){ return rows.reduce((t,r) => (t.boards += r[1], t.ok += r[2], t.wait += r[3], t.bad += r[4], t), {boards:0, ok:0, wait:0, bad:0}); }
+function modCounts(rows){ return rows.reduce((t,r) => (t.boards += r[1], t.ok += r[2], t.wait += r[3], t.bad += r[4], t.none += (r[5]||0), t), {boards:0, ok:0, wait:0, bad:0, none:0}); }
 function modRows(rows){
-  return rows.map(([dim, n, ok, wait, bad]) => {
-    const tags = ok === n ? '<span class="ctag ok">Approved</span>' : wait === n ? '<span class="ctag wait">In review</span>' : bad === n ? '<span class="ctag bad">Rejected</span>'
+  return rows.map(([dim, n, ok, wait, bad, none]) => {
+    const tags = none === n ? '<span class="ctag none">No creative</span>' : ok === n ? '<span class="ctag ok">Approved</span>' : wait === n ? '<span class="ctag wait">In review</span>' : bad === n ? '<span class="ctag bad">Rejected</span>'
       : [ok && `<span class="ctag ok">${ok} approved</span>`, wait && `<span class="ctag wait">${wait} in review</span>`, bad && `<span class="ctag bad">${bad} rejected</span>`].filter(Boolean).join('');
     return `<div class="mod-row"><div><b>${dim}</b><small>${n} board${n>1?'s':''}</small></div><span class="tags">${tags}</span></div>`;
   }).join('');
@@ -542,18 +570,19 @@ function modRows(rows){
 function modHTML(c){
   const m = c.mod; if(!m) return '';
   const t = modCounts(m.rows);
-  const PILL = {ok:'Approved', review:'In review', fix:'Rejected'};
+  const PILL = {ok:'Approved', review:'In review', fix:'Rejected', none:'Not started'};
   let line, see = false, extra = '';
   /* Each part stays whole, so a narrow drawer wraps between parts, never inside one */
   const parts = a => a.filter(Boolean).map(x => `<span class="nw">${x}</span>`).join(' · ');
   if(m.state === 'review') line = parts([`${t.boards} boards`, 'Usually 1–2 business days']);
+  else if(m.state === 'none') line = parts(['No creative to review yet']);
   else if(m.state === 'fix'){
     /* The banner at the top holds the fix; the card only reports the state. No reason here: it can be "Other",
        or come from the sign owner rather than Blip, so the reasons stay in the editor behind See details. */
     line = parts([`${t.bad} of ${t.boards} boards`]);
     see = true;
   } else {
-    line = parts([`${t.ok} of ${t.boards} boards`, t.bad && `${t.bad} rejected`, t.wait && `${t.wait} in review`]);
+    line = parts([`${t.ok} of ${t.boards} boards`, t.bad && `${t.bad} rejected`, t.wait && `${t.wait} in review`, t.none && `${t.none} need a creative`]);
     see = t.ok < t.boards;
   }
   const list = state.modOpen ? `<div class="mod-list">${modRows(m.rows)}</div>` : '';
@@ -569,8 +598,9 @@ function drawerHTML(){
   const c = state.open && getC(state.open); if(!c) return '';
   if(state.sv) return shareView(c);
   const live = c.status === 'running', review = c.status === 'review';
-  const alerts = c.alerts.map((a,i) => a.to === 'mod'
-    ? `<div class="mbanner ${state.focus==='alerts'&&i===0?'flash':''}" role="alert">${ic('alert')}<div><b>${esc(a.title)}</b><p>${esc(a.body)}</p><div class="acts"><button class="btn primary" data-act="replace">Replace creative</button><button class="linkbtn" data-act="seeMod">See details</button></div></div></div>`
+  /* Campaign banners (Figma: "Campaign banner"). sev 'block' = the campaign can't run; 'warn' = it still runs. */
+  const alerts = c.alerts.map((a,i) => a.cta
+    ? `<div class="mbanner ${a.sev==='warn'?'warn':''} ${state.focus==='alerts'&&i===0?'flash':''}" role="${a.sev==='warn'?'status':'alert'}">${ic(a.sev==='warn'?'warn':'alert')}<div><b>${esc(a.title)}</b><p>${esc(a.body)}</p><div class="acts"><button class="btn ${a.sev==='warn'?'secondary':'primary'}" data-act="${a.act}" data-step="${esc(a.step||'')}">${esc(a.cta)}</button>${a.link ? `<button class="linkbtn" data-act="seeMod">${esc(a.link)}</button>` : ''}</div></div></div>`
     : `<div class="alert ${a.kind} ${state.focus==='alerts'&&i===0?'flash':''}" role="${a.kind==='error'?'alert':'status'}">${ic(a.kind==='error'?'alert':'warn')}<div><b>${esc(a.title)}</b><p>${esc(a.body)}</p>${a.action?`<button class="btn ${a.kind==='error'?'danger':'warn'}" data-act="${a.act}">${esc(a.action)}</button>`:''}</div></div>`).join('');
   const numbersEmpty = `<section class="sec"><div class="sec-h"><h3>Last 7 days</h3></div>
       <div class="kpis dash"><div class="kpi"><span>Impressions</span><b>–</b></div><div class="kpi"><span>Spend</span><b>–</b></div><div class="kpi"><span>Blips</span><b>–</b></div></div>
@@ -613,8 +643,8 @@ function drawerHTML(){
     <div class="dbody">${body}</div>
     <div class="dfoot"><span class="sp"></span>
       ${c.status === 'ended'
-        ? `<button class="btn secondary" data-act="sv" data-v="campaign">${ic('share')}Share campaign</button><button class="btn primary" data-act="runAgain">${ic('repeat')}Duplicate &amp; relaunch</button>`
-        : `<button class="btn secondary" data-act="edit">${ic('pencil')}Edit</button><button class="btn secondary" data-act="sv" data-v="campaign">${ic('share')}Share campaign</button>`}</div>
+        ? `<button class="btn secondary" data-act="copyLink">${ic('link')}Copy link</button><button class="btn primary" data-act="runAgain">${ic('repeat')}Duplicate &amp; relaunch</button>`
+        : `<button class="btn secondary" data-act="edit">${ic('pencil')}Edit</button><button class="btn secondary" data-act="copyLink">${ic('link')}Copy link</button>`}</div>
   </aside></div>`;
 }
 
@@ -703,10 +733,11 @@ document.addEventListener('click', e => {
     case 'download': { const c = getC(state.open); toast(`Downloaded ${slug(c)}-mockups.zip · 2 images`); break; }
     case 'sv': state.sv = t.dataset.v; state.to = ['Me']; state.msg = ''; state.toBad = false; state.menu = false; render(); setTimeout(() => $('#svTo') && $('#svTo').focus(), 0); break;
     case 'svBack': state.sv = null; render(); break;
+    case 'copyLink': toast('Link copied. Anyone with access to this account can open it.'); break;
     case 'rmTo': state.to.splice(+t.dataset.i, 1); render(); $('#svTo').focus(); break;
     case 'svSend': { addTo($('#svTo').value); const n = state.to.length;
       if(!n){ state.toBad = true; render(); $('#svTo').focus(); break; }
-      const what = state.sv === 'mockup' ? 'Mockup' : 'Campaign summary';
+      const what = 'Mockup';
       const who = n === 1 && state.to[0] === 'Me' ? 'the account email' : `${n} ${n === 1 ? 'person' : 'people'}`;
       state.sv = null; toast(`${what} sent to ${who}`); break; }
     case 'duplicate': toast('Duplicated as a draft'); break;
@@ -738,28 +769,30 @@ document.addEventListener('keydown', e => {
 const STEPS = [
   ['Campaigns', [['list','Active campaigns'],['drafts','Draft tab']]],
   ['Draft drawer', [['draftOpen','Draft, setup not finished'],['draftNoCre','Draft, no creative yet'],['draftReady','Draft, ready to launch']]],
-  ['Details drawer · moderation lifecycle', [['review','1 · Submitted, in review'],['running','2 · Running, partly approved (quiet)'],['rejected','3 · Rejected, can’t spend (from Review →)'],['alerts','4 · Paused, payment needed'],['ended','5 · Ended']]],
-  ['Share', [['svMockup','Share mockup (images)'],['svCampaign','Share campaign (summary)']]],
+  ['Banners', [['rejected','Creative rejected (blocking)'],['bnFit','Creative doesn’t fit (blocking)'],['bnSizesB','Sign sizes missing a creative (blocking)'],['bnSizesW','1 sign size missing a creative (warning)'],['bnUnavail','Selected boards unavailable (blocking)'],['bnExpand','Not enough boards nearby (warning)'],['bnMaxed','Area is maxed out (warning)']]],
+  ['Details drawer · moderation lifecycle', [['review','1 · Submitted, in review'],['running','2 · Running, partly approved (quiet)'],['rejected','3 · Rejected, can’t spend (from Review →)'],['alerts','4 · Paused'],['ended','5 · Ended']]],
+  ['Share', [['svMockup','Share mockup (email)']]],
   ['Entry points', [['email','From the “campaign is live” email']]]
 ];
 const ORDER = STEPS.flatMap(([,s]) => s.map(x => x[0]));
 $('#stateSel').innerHTML = STEPS.map(([g,s]) => `<optgroup label="${g}">${s.map(([k,l]) => `<option value="${k}">${l}</option>`).join('')}</optgroup>`).join('');
 function jump(k){
   state.tab = k === 'drafts' ? 'draft' : 'active'; state.open = null; state.menu = false; state.focus = null; state.toast = ''; state.sv = null;
-  if(k === 'svMockup' || k === 'svCampaign'){ open('fall'); state.sv = k === 'svMockup' ? 'mockup' : 'campaign'; state.to = ['Me']; state.msg = ''; state.toBad = false; render(); $('#stateSel').value = k; return; }
+  if(k === 'svMockup'){ open('fall'); state.sv = 'mockup'; state.to = ['Me']; state.msg = ''; state.toBad = false; render(); $('#stateSel').value = k; return; }
   if(k === 'running') open('fall'); else if(k === 'rejected') open('winter', 'alerts'); else if(k === 'alerts') open('summer', 'alerts');
   else if(k === 'draftOpen'){ state.tab = 'draft'; open('hours'); }
   else if(k === 'draftNoCre'){ state.tab = 'draft'; open('grand'); }
   else if(k === 'draftReady'){ state.tab = 'draft'; open('tuneup'); }
   else if(k === 'ended'){ state.tab = 'archived'; open('spring'); }
+  else if(k.startsWith('bn')) open(k);
   else if(k === 'review') open('oil'); else if(k === 'email'){ open('fall'); toast('Opened from the email’s “View campaign performance” link'); }
   else render();
   $('#stateSel').value = k;
 }
 function current(){
   if(!state.open) return state.tab === 'draft' ? 'drafts' : 'list';
-  if(state.sv) return state.sv === 'mockup' ? 'svMockup' : 'svCampaign';
-  return {hours:'draftOpen', grand:'draftNoCre', tuneup:'draftReady', fall:'running', winter:'rejected', summer:'alerts', oil:'review', spring:'ended'}[state.open] || 'list';
+  if(state.sv) return 'svMockup';
+  return {hours:'draftOpen', grand:'draftNoCre', tuneup:'draftReady', fall:'running', winter:'rejected', bnFit:'bnFit', bnSizesB:'bnSizesB', bnSizesW:'bnSizesW', bnUnavail:'bnUnavail', bnExpand:'bnExpand', bnMaxed:'bnMaxed', summer:'alerts', oil:'review', spring:'ended'}[state.open] || 'list';
 }
 function syncPicker(){
   const sel = $('#stateSel'); if(document.activeElement !== sel && sel.value !== 'email') sel.value = current();
