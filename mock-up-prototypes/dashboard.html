@@ -404,7 +404,8 @@ button.lrow:hover{background:var(--surface-2)}
 @media (max-width:1099px){.app.wide .lnew{grid-template-columns:minmax(0,1fr) 240px}}
 /* Billboard maker banner: wider collage of website → brand colors → billboard */
 .lnew.maker{grid-template-columns:minmax(0,1fr) minmax(360px,48%);min-height:204px}
-.lnew.maker .lnew-req{color:var(--text-2);font-weight:500}
+/* The requirement note is a caption, not an action: quiet grey, regular weight, never on the button row */
+.lnew.maker .lnew-req{color:var(--text-2);font-weight:400}
 /* Option 5 on the dashboard: white copy side like the other dashboard cards; the art side is a bold blue-to-indigo gradient */
 .lnew.maker{background:linear-gradient(90deg,var(--maker-tint-1) 0%,var(--maker-tint-2) 100%);border:1px solid var(--border-2)}
 .lnew.maker .pill-new{background:var(--accent-bg)}
@@ -1223,9 +1224,9 @@ function makerBanner(fold){
       <p class="mk-body">${fold ? 'Logo, colors and services pulled in for you. Three designs to choose from.' : 'Fresh designs for the next campaign, built from a business website.'}</p>
       <p class="mk-short">${fold ? 'Logo, colors and services pulled in for you.' : 'Fresh designs for the next campaign.'}</p></div>
       ${fold ? `<div class="lnew-act"><button class="btn primary sm" data-act="make">Try Billboard maker</button><button class="link mk-dismiss" data-act="dismissDash">Dismiss</button><span class="lnew-or">or <button class="link" data-act="upload">upload a file</button></span></div><span class="lnew-req">Billboard maker requires a business website</span>`
-        : `<div class="lnew-act"><button class="btn primary sm" data-act="make">Try Billboard maker</button><button class="link mk-dismiss" data-act="dismissDash">Dismiss</button><span class="lnew-req">Requires a business website</span></div>`}</div>
+        : `<div class="lnew-act"><button class="btn primary sm" data-act="make">Try Billboard maker</button><button class="link mk-dismiss" data-act="dismissDash">Dismiss</button></div>`}</div>
     <div class="lnew-vis mk" aria-hidden="true"><div class="mk-scene">${scene(MAKER_BASE,'highway',{label:false})}</div>
-      <span class="mk-url">joesauto.com</span><span class="mk-pal">${pal}</span><span class="mk-ex">Example placement</span></div>${fold ? '' : `<button class="launch-x" data-act="dismissMaker" aria-label="Hide this">${ic('close')}</button>`}</section>`;
+      <span class="mk-url">joesauto.com</span><span class="mk-pal">${pal}</span><span class="mk-ex">Preview</span></div>${fold ? '' : `<button class="launch-x" data-act="dismissMaker" aria-label="Hide this">${ic('close')}</button>`}</section>`;
 }
 /* ---------- Dashboard ---------- */
 /* The Billboard maker banner lives here, not in the empty library. Two versions under review, switched from the step picker:
