@@ -53,6 +53,8 @@ button{font:inherit;cursor:pointer}
 .btn-primary{background:var(--blue);color:#fff}
 .btn-primary:hover{background:#0F5AD6}
 .btn-header{font-size:16px}
+.btn-secondary{background:var(--white);color:var(--blue);border:1px solid var(--blue)}
+.btn-secondary:hover{background:var(--tint)}
 .link{background:none;border:0;padding:0;color:var(--blue);font-weight:600;font-size:12px;text-decoration:underline;text-underline-offset:2px;text-align:left}
 .stack{display:flex;flex-direction:column;gap:24px}
 .cols{display:flex;gap:24px;align-items:flex-start}
@@ -137,6 +139,100 @@ button{font:inherit;cursor:pointer}
 .newnext .tag{animation:tagIn .4s .3s both}
 
 .task .link, .task .results{font-size:13px;font-weight:700;text-decoration-thickness:1.5px}
+/* ---------- mobile (375) ---------- */
+.viewport.m .rail, .viewport.m .only-desk{display:none}
+.viewport:not(.m) .only-m{display:none}
+.viewport.m .topnav{height:56px}
+.viewport.m .topnav img{height:29px}
+.viewport.m .topnav .brand{display:flex;align-items:center;gap:12px}
+.viewport.m .body{min-height:740px}
+.viewport.m .content{padding:20px 16px 24px}
+.viewport.m .pagehead{margin-bottom:16px}
+.viewport.m .pagehead h1{font-size:22px}
+.viewport.m .btn-header{height:36px;font-size:14px;padding:0 12px}
+.viewport.m .stack, .viewport.m .main, .viewport.m .side{gap:16px}
+.viewport.m .cols{flex-direction:column;gap:16px;align-items:stretch}
+.viewport.m .side{width:auto}
+.viewport.m .card{padding:16px}
+.viewport.m .perfhead .dd{display:none}
+.viewport.m .stats{gap:8px;margin-bottom:12px}
+.viewport.m .stat{padding:12px}
+.viewport.m .stat .v{font-size:20px}
+.viewport.m .empty{height:auto;padding:24px 16px}
+.viewport.m .chart{height:180px}
+.viewport.m .chart svg{height:140px}
+.gsm{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
+.gsm .hd{display:flex;justify-content:space-between;align-items:baseline}
+.gsm .hd h2{font-size:16px;font-weight:600;margin:0}
+.gsm .hd span{font-size:12px;font-weight:600;color:var(--grey)}
+.gsm .bar{width:100%}
+.gsm .list{display:flex;flex-direction:column;gap:8px}
+.mrow{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);border:1px solid var(--soft);background:var(--white)}
+.mrow .col{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.mrow h3, .mcard h3{font-size:14px;font-weight:600;margin:0;line-height:20px}
+.mrow .sub{font-size:12px;font-weight:500;color:var(--grey)}
+.mrow.done{background:var(--done-tint);border-color:var(--done-line)}
+.mrow.done .sub{font-weight:600;color:var(--blue-deep)}
+.mrow.todo{background:var(--flat);border-color:var(--todo-line)}
+.mrow.todo h3{color:var(--ink2)}
+.mrow.live{background:var(--done-tint);border-color:var(--done-line)}
+.mrow.done.just, .mrow.live.just{background:var(--white) linear-gradient(var(--done-tint),var(--done-tint)) no-repeat;background-size:100% 100%;animation:sweep .6s cubic-bezier(.4,0,.2,1) both}
+.just .sub{animation:rise .4s .35s both}
+.mcard{display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:var(--r);border:1px solid var(--soft)}
+.mcard .top{display:flex;justify-content:space-between;align-items:center}
+.mcard .desc{font-size:12px;font-weight:500;color:var(--grey);line-height:18px}
+.mcard .btn{width:100%}
+.mcard.next{background:var(--next-tint);border-color:var(--next-line)}
+.mcard.next .tag{background:var(--white);color:var(--blue)}
+.mcard.review{background:var(--amber-tint);border-color:var(--amber-line)}
+.mcard.review .tag{background:var(--amber-tag);color:var(--amber)}
+.mcard.review .link{color:var(--amber)}
+.mcard.alert{background:var(--red-tint);border-color:var(--red-line)}
+.mcard.alert h3{color:var(--red)}
+.mcard .link, .mrow .link{font-size:13px;font-weight:700;text-decoration-thickness:1.5px}
+/* ---------- Style=Neutral (matches Figma Style=Neutral variants) ---------- */
+.vgs{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;display:flex;gap:24px}
+.vprog{width:184px;flex:none;display:flex;flex-direction:column;gap:12px}
+.vprog h2{font-size:16px;font-weight:600;margin:0}
+.vprog .bar{width:100%}
+.vprog .grow{flex:1}
+.vt{flex:1 1 0;min-width:0;height:176px;border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:8px;background:var(--white);border:1px solid var(--line)}
+.vt .top, .vcard .top{display:flex;justify-content:space-between;align-items:center;height:32px}
+.vt .right, .vcard .right{display:flex;align-items:center;gap:8px}
+.vt .copy{flex:1;display:flex;flex-direction:column;gap:4px;min-height:0}
+.vt h3, .vrow h3, .vcard h3{font-size:14px;font-weight:600;margin:0;line-height:20px}
+.vt .desc, .vcard .desc{font-size:12px;font-weight:500;color:var(--grey);line-height:18px}
+.vt .meta, .vrow .meta, .vcard .meta{font-size:12px;font-weight:500;color:var(--grey)}
+.vt .vnote, .vrow .vnote{font-size:12px;font-weight:500;color:var(--grey)}
+.vt .btn{height:36px;width:100%;padding:0 12px}
+.tile{width:32px;height:32px;border-radius:6px;display:grid;place-items:center;background:var(--page);flex:none}
+.glyph{width:20px;height:20px;fill:none;stroke:var(--grey);stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
+.vt.next, .vcard.next{border:2px solid var(--blue);padding:15px}
+.vt.done, .vrow.done{background:#F8FAFF;border-color:#D3E0F7}
+.vt.next .tile, .vt.done .tile, .vrow.done .tile, .vcard.next .tile{background:var(--tint)}
+.vt.next .glyph, .vt.done .glyph, .vrow.done .glyph, .vcard.next .glyph{stroke:var(--blue)}
+.vt.review .tile, .vcard.review .tile{background:var(--amber-tint)}
+.vt.review .glyph, .vcard.review .glyph{stroke:var(--amber)}
+.vt.alert .tile, .vcard.alert .tile{background:var(--red-tint)}
+.vt.alert .glyph, .vcard.alert .glyph{stroke:var(--red)}
+.vt.todo h3, .vrow.todo h3{color:var(--ink2)}
+.vt .link.amber, .vcard .link.amber{color:var(--amber)}
+.pill.next{background:var(--tint);color:var(--blue)}
+.pill.goal{background:var(--flat);color:var(--grey)}
+.pill.alert{background:var(--red-tint);color:var(--red)}
+.vt.done.just, .vrow.done.just{background:var(--white) linear-gradient(#F8FAFF,#F8FAFF) no-repeat;background-size:100% 100%;animation:sweep .6s cubic-bezier(.4,0,.2,1) both}
+.newnext .pill{animation:tagIn .4s .3s both}
+.vgsm{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
+.vgsm .hd{display:flex;justify-content:space-between;align-items:center}
+.vgsm .hd h2{font-size:16px;font-weight:600;margin:0}
+.vgsm .hd span{font-size:12px;font-weight:500;color:var(--grey)}
+.vgsm .bar{width:100%}
+.vgsm .list{display:flex;flex-direction:column;gap:8px}
+.vrow{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--r);border:1px solid var(--line);background:var(--white)}
+.vrow .col{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;align-items:flex-start}
+.vcard{display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:var(--r);border:1px solid var(--line);background:var(--white)}
+.vcard .copy{display:flex;flex-direction:column;gap:4px}
+.vcard .btn{width:100%;height:40px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#1F1F1F;color:#fff;font-size:13px;padding:10px 16px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none;z-index:60}
 .toast.show{opacity:1;transform:translateX(-50%)}
 .note{font-size:12px;color:#555;max-width:1440px;margin:0 auto 24px;padding:0 16px;line-height:1.5}
@@ -163,20 +259,26 @@ button{font:inherit;cursor:pointer}
   <div class="grp"><span class="lbl">Width</span>
     <button data-w="1440" aria-pressed="true">1440</button>
     <button data-w="1280">1280</button>
+    <button data-w="375">Mobile 375</button>
+  </div>
+  <span class="sep"></span>
+  <div class="grp"><span class="lbl">Style</span>
+    <button data-style="v5">V5</button>
+    <button data-style="neutral" aria-pressed="true">Neutral</button>
   </div>
   <span class="sep"></span>
   <div class="grp"><button id="reset">Reset</button></div>
 </div>
-<p class="hint">Use the card buttons and links, or "Complete next step", to move through the checklist. Approve or reject the review from the bar once a campaign is submitted.</p>
+<p class="hint">Use the card buttons and links, or "Complete next step", to move through the checklist. Switch to Mobile 375 for the phone layout. Approve or reject the review from the bar once a campaign is submitted.</p>
 
 <div class="viewport" id="vp">
   <header class="topnav">
-    <img src="../assets/Blip.svg" alt="Blip">
+    <div class="brand"><button class="iconbtn only-m" aria-label="Menu" data-toast="Opens navigation (unchanged)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><img src="../assets/Blip.svg" alt="Blip"></div>
     <div class="icons">
       <button class="iconbtn" aria-label="Help" data-toast="Help menu (unchanged)">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4.5"/><circle cx="12" cy="17.5" r=".6" fill="currentColor"/></svg>
       </button>
-      <button class="iconbtn" aria-label="Settings" data-toast="Settings (unchanged)">
+      <button class="iconbtn only-desk" aria-label="Settings" data-toast="Settings (unchanged)">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
       </button>
       <span class="avatar">JD</span>
@@ -213,7 +315,7 @@ button{font:inherit;cursor:pointer}
     </main>
   </div>
 </div>
-<p class="note">V5 cards fitted to the dashboard. Changes from V5: 4 cards, with "Learn how Blip works" moved to a link in the progress panel so the row fits at 1280. Finished cards fill with blue so the row turns blue as steps finish; the next step has a stronger blue fill; the goal card turns amber while the ad is in review, and offers the results once it's live. While Getting started shows, the performance empty state has no Create campaign link. Header Create never changes.<br>Open questions: count the goal in "of 4"? Filled or outline button next to header Create? Dismiss before done, and once live? The rejected state is a rough proposal.</p>
+<p class="note"><b>Neutral (default, matches Figma Style=Neutral):</b> step cards are white with the page's 1px grey border; finished steps get a faint blue tint; the next step has a 2px blue border, a Next pill with the time beside it, and a full-width button; in review and needs changes show as pills on the goal card; illustrations sit in 32px icon tiles; the progress panel shows only the bar, count and How Blip works link.<br><b>V5:</b> V5 cards fitted to the dashboard. Changes from V5: 4 cards, with "Learn how Blip works" moved to a link in the progress panel so the row fits at 1280. Finished cards fill with blue so the row turns blue as steps finish; the next step has a stronger blue fill; the goal card turns amber while the ad is in review, and offers the results once it's live. While Getting started shows, the performance empty state has no Create campaign link. Header Create is the only filled button; card buttons are secondary (white with blue text and outline). On mobile the steps stack: finished and upcoming steps are compact rows, and the next step expands with a full-width button.<br>Open questions: count the goal in "of 4"? Dismiss before done, and once live? The rejected state is a rough proposal.</p>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -253,14 +355,14 @@ function taskCard(t){
   const cls = ['task', done?'done':t.id===nx?'next':'todo', JUST===t.id?'just':'', NEWNEXT===t.id?'newnext':''].join(' ');
   if(done) return `<article class="${cls}">${WM[t.id]}<div class="top">${ICON.done}</div><h3>${t.title}</h3><div class="desc">${t.desc}</div><div class="foot"><span class="outcome">${t.outcome}</span></div></article>`;
   if(t.id===nx) return `<article class="${cls}">${WM[t.id]}<div class="top">${ICON.next}<span class="tag">NEXT</span></div><h3>${t.title}</h3><div class="desc">${t.desc} About ${t.time}.</div>
-    <div class="foot"><button class="btn btn-primary" data-act="${t.id}">${plus}${t.cta}</button></div></article>`;
+    <div class="foot"><button class="btn btn-secondary" data-act="${t.id}">${plus}${t.cta}</button></div></article>`;
   return `<article class="${cls}">${WM[t.id]}<div class="top">${ICON.todo}<span class="meta">${t.time}</span></div><h3>${t.title}</h3><div class="desc">${t.desc}</div><div class="foot"><button class="link" data-act="${t.id}">${t.link}</button></div></article>`;
 }
 function goalCard(){
   const tag = '<span class="tag">GOAL</span>';
   if(S.campaign==='live') return `<article class="task goal done live ${JUST==='goal'?'just':''}">${WM.goal}<div class="top">${ICON.done}${tag}</div><h3>First ad is live</h3><div class="desc">Grand Opening is playing on screens now.</div><div class="foot"><button class="link" data-act="results">Check out the results →</button></div></article>`;
   if(S.campaign==='review') return `<article class="task goal review">${WM.goal}<div class="top">${ICON.review}${tag}</div><h3>In review</h3><div class="desc">Grand Opening starts playing once it passes review.</div><div class="foot"><button class="link" data-toast="Opens the campaign's moderation details">Track review status →</button></div></article>`;
-  if(S.campaign==='rejected') return `<article class="task alert">${WM.goal}<div class="top">${ICON.rejected}${tag}</div><h3>Needs changes</h3><div class="desc">Text is too small to read from the road.</div><div class="foot"><button class="btn btn-primary" data-act="fix">Fix creative</button></div></article>`;
+  if(S.campaign==='rejected') return `<article class="task alert">${WM.goal}<div class="top">${ICON.rejected}${tag}</div><h3>Needs changes</h3><div class="desc">Text is too small to read from the road.</div><div class="foot"><button class="btn btn-secondary" data-act="fix">Fix creative</button></div></article>`;
   return `<article class="task goal">${WM.goal}<div class="top">${ICON.goal}${tag}</div><h3>First ad goes live</h3><div class="desc">Happens on its own once the ad passes review and starts playing.</div><div class="foot">Not yet</div></article>`;
 }
 function progPanel(){
@@ -272,9 +374,77 @@ function progPanel(){
     <div class="muted">${n} of 4 steps done</div><div class="muted ${scls}">${status}</div><span class="grow"></span>
     <button class="link" data-toast="Opens How Blip works in a new tab">New to Blip? How it works ↗</button></div>`;
 }
+function mobileGS(){
+  const n = count4();
+  const status = {review:'In review, not live yet', rejected:'Changes needed', live:'First ad is live'}[S.campaign] || 'Ad not live yet';
+  const scls = S.campaign==='review' ? 'status-amber' : S.campaign==='rejected' ? 'status-red' : '';
+  const nx = nextStep(), tag = '<span class="tag">GOAL</span>';
+  const rows = TASKS.map(t=>{
+    const j = JUST===t.id ? ' just' : '';
+    if(isDone(t.id)) return `<div class="mrow done${j}">${ICON.done}<div class="col"><h3>${t.title}</h3><span class="sub">${t.outcome}</span></div></div>`;
+    if(t.id===nx) return `<div class="mcard next${NEWNEXT===t.id?' newnext':''}"><div class="top">${ICON.next}<span class="tag">NEXT</span></div><h3>${t.title}</h3><div class="desc">${t.desc} About ${t.time}.</div><button class="btn btn-secondary" data-act="${t.id}">${plus}${t.cta}</button></div>`;
+    return `<div class="mrow todo">${ICON.todo}<div class="col"><h3>${t.title}</h3><button class="link" data-act="${t.id}">${t.link}</button></div></div>`;
+  });
+  let goal;
+  if(S.campaign==='live') goal = `<div class="mrow live${JUST==='goal'?' just':''}">${ICON.done}<div class="col"><h3>First ad is live</h3><button class="link" data-act="results">Check out the results →</button></div>${tag}</div>`;
+  else if(S.campaign==='review') goal = `<div class="mcard review"><div class="top">${ICON.review}${tag}</div><h3>In review</h3><div class="desc">Grand Opening starts playing once it passes review.</div><button class="link" data-toast="Opens the campaign's moderation details">Track review status →</button></div>`;
+  else if(S.campaign==='rejected') goal = `<div class="mcard alert"><div class="top">${ICON.rejected}${tag}</div><h3>Needs changes</h3><div class="desc">Text is too small to read from the road.</div><button class="btn btn-secondary" data-act="fix">Fix creative</button></div>`;
+  else goal = `<div class="mrow goal">${ICON.goal}<div class="col"><h3>First ad goes live</h3><span class="sub">Not yet</span></div>${tag}</div>`;
+  return `<section class="gsm" aria-label="Getting started">
+    <div class="hd"><h2>Getting started</h2><span>${n} of 4 done</span></div>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${n}"><i style="width:${n/4*100}%"></i></div>
+    <div class="muted ${scls}">${status}</div>
+    <div class="list">${rows.join('')}${goal}</div>
+    <button class="link" data-toast="Opens How Blip works in a new tab">New to Blip? How it works ↗</button>
+  </section>`;
+}
+/* ----- Style=Neutral: white cards, state in icon tile + pill + one border ----- */
+const tile = id => `<span class="tile"><svg class="glyph" viewBox="0 0 48 48">${WM[id].replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg></span>`;
+const PILL = {next:'<span class="pill next">Next</span>', goal:'<span class="pill goal">Goal</span>', review:'<span class="pill review">In review</span>', alert:'<span class="pill alert">Needs changes</span>'};
+function nTaskCard(t){
+  const nx = nextStep(), done = isDone(t.id);
+  const j = JUST===t.id ? ' just' : '', nn = NEWNEXT===t.id ? ' newnext' : '';
+  if(done) return `<article class="vt done${j}"><div class="top">${tile(t.id)}${ICON.done}</div><div class="copy"><h3>${t.title}</h3><div class="desc">${t.desc}</div></div><span class="outcome muted">${t.outcome}</span></article>`;
+  if(t.id===nx) return `<article class="vt next${nn}"><div class="top">${tile(t.id)}<span class="right"><span class="meta">${t.time}</span>${PILL.next}</span></div><div class="copy"><h3>${t.title}</h3><div class="desc">${t.desc}</div></div><button class="btn btn-secondary" data-act="${t.id}">${t.cta}</button></article>`;
+  return `<article class="vt todo"><div class="top">${tile(t.id)}<span class="meta">${t.time}</span></div><div class="copy"><h3>${t.title}</h3><div class="desc">${t.desc}</div></div><span><button class="link" data-act="${t.id}">${t.link}</button></span></article>`;
+}
+function nGoalCard(){
+  if(S.campaign==='live') return `<article class="vt done${JUST==='goal'?' just':''}"><div class="top">${tile('goal')}${ICON.done}</div><div class="copy"><h3>First ad is live</h3><div class="desc">Grand Opening is playing on screens now.</div></div><span><button class="link" data-act="results">Check out the results →</button></span></article>`;
+  if(S.campaign==='review') return `<article class="vt review"><div class="top">${tile('goal')}${PILL.review}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Grand Opening starts playing once it passes review.</div></div><span><button class="link amber" data-toast="Opens the campaign's moderation details">Track review status →</button></span></article>`;
+  if(S.campaign==='rejected') return `<article class="vt alert"><div class="top">${tile('goal')}${PILL.alert}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Text is too small to read from the road.</div></div><button class="btn btn-secondary" data-act="fix">Fix creative</button></article>`;
+  return `<article class="vt goal"><div class="top">${tile('goal')}${PILL.goal}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Happens on its own once the ad passes review and starts playing.</div></div><span class="vnote">Not yet</span></article>`;
+}
+function nProgPanel(){
+  const n = count4();
+  return `<div class="vprog"><h2>Getting started</h2>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${n}"><i style="width:${n/4*100}%"></i></div>
+    <div class="muted">${n} of 4 done</div><span class="grow"></span>
+    <button class="link" data-toast="Opens How Blip works in a new tab">How Blip works</button></div>`;
+}
+function nMobileGS(){
+  const n = count4(), nx = nextStep();
+  const rows = TASKS.map(t=>{
+    const j = JUST===t.id ? ' just' : '';
+    if(isDone(t.id)) return `<div class="vrow done${j}">${tile(t.id)}<div class="col"><h3>${t.title}</h3><span class="outcome muted">${t.outcome}</span></div>${ICON.done}</div>`;
+    if(t.id===nx) return `<div class="vcard next${NEWNEXT===t.id?' newnext':''}"><div class="top">${tile(t.id)}<span class="right"><span class="meta">${t.time}</span>${PILL.next}</span></div><div class="copy"><h3>${t.title}</h3><div class="desc">${t.desc}</div></div><button class="btn btn-secondary" data-act="${t.id}">${t.cta}</button></div>`;
+    return `<div class="vrow todo">${tile(t.id)}<div class="col"><h3>${t.title}</h3><button class="link" data-act="${t.id}">${t.link}</button></div><span class="meta">${t.time}</span></div>`;
+  });
+  let goal;
+  if(S.campaign==='live') goal = `<div class="vrow done${JUST==='goal'?' just':''}">${tile('goal')}<div class="col"><h3>First ad is live</h3><button class="link" data-act="results">Check out the results →</button></div>${ICON.done}</div>`;
+  else if(S.campaign==='review') goal = `<div class="vcard review"><div class="top">${tile('goal')}${PILL.review}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Grand Opening starts playing once it passes review.</div></div><span><button class="link amber" data-toast="Opens the campaign's moderation details">Track review status →</button></span></div>`;
+  else if(S.campaign==='rejected') goal = `<div class="vcard alert"><div class="top">${tile('goal')}${PILL.alert}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Text is too small to read from the road.</div></div><button class="btn btn-secondary" data-act="fix">Fix creative</button></div>`;
+  else goal = `<div class="vrow goal">${tile('goal')}<div class="col"><h3>First ad goes live</h3><span class="vnote">Not yet</span></div>${PILL.goal}</div>`;
+  return `<section class="vgsm" aria-label="Getting started">
+    <div class="hd"><h2>Getting started</h2><span>${n} of 4 done</span></div>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${n}"><i style="width:${n/4*100}%"></i></div>
+    <div class="list">${rows.join('')}${goal}</div>
+    <span><button class="link" data-toast="Opens How Blip works in a new tab">How Blip works</button></span>
+  </section>`;
+}
 function renderGS(prevN){
   const slot = document.getElementById('gsSlot');
-  slot.innerHTML = `<section class="gs" aria-label="Getting started">${progPanel()}<div class="row">${TASKS.map(taskCard).join('')}${goalCard()}</div></section>`;
+  if(STYLE==='neutral') slot.innerHTML = VW===375 ? nMobileGS() : `<section class="vgs" aria-label="Getting started">${nProgPanel()}<div class="row">${TASKS.map(nTaskCard).join('')}${nGoalCard()}</div></section>`;
+  else slot.innerHTML = VW===375 ? mobileGS() : `<section class="gs" aria-label="Getting started">${progPanel()}<div class="row">${TASKS.map(taskCard).join('')}${goalCard()}</div></section>`;
   if(prevN!==undefined){
     const bar=slot.querySelector('.bar i'), w=bar.style.width; bar.style.width=(prevN/4*100)+'%'; requestAnimationFrame(()=>requestAnimationFrame(()=>bar.style.width=w));
   }
@@ -314,7 +484,8 @@ document.addEventListener('click', e=>{
   else if(a==='results'){ document.getElementById('perf').scrollIntoView({behavior:'smooth',block:'center'}); }
   else if(a) complete(a);
   if(t.dataset.preset){ S={...START, ...PRESETS[t.dataset.preset]}; render(); }
-  if(t.dataset.w){ VW=+t.dataset.w; fit(); document.querySelectorAll('[data-w]').forEach(b=>b.setAttribute('aria-pressed', b===t)); }
+  if(t.dataset.style){ STYLE=t.dataset.style; render(); document.querySelectorAll('[data-style]').forEach(b=>b.setAttribute('aria-pressed', b===t)); }
+  if(t.dataset.w){ VW=+t.dataset.w; fit(); render(); document.querySelectorAll('[data-w]').forEach(b=>b.setAttribute('aria-pressed', b===t)); }
 });
 document.getElementById('advance').onclick=()=>{
   const nx=nextStep();
@@ -326,8 +497,8 @@ document.getElementById('simApprove').onclick=()=>{ if(S.campaign==='none'){toas
 document.getElementById('simReject').onclick=()=>{ if(S.campaign==='none'){toast('Submit a campaign first');return;} S.campaign='rejected'; render(); toast('Simulated: review rejected'); };
 document.getElementById('reset').onclick=()=>{ S={...START}; render(); };
 
-let VW=1440;
-function fit(){ const vp=document.getElementById('vp'); vp.style.width=VW+'px'; vp.style.zoom=Math.min(1,(window.innerWidth-32)/VW); }
+let VW=1440, STYLE='neutral';
+function fit(){ const vp=document.getElementById('vp'); vp.classList.toggle('m', VW===375); vp.style.width=VW+'px'; vp.style.zoom=Math.min(1,(window.innerWidth-32)/VW); }
 window.addEventListener('resize',fit);
 fit();
 render();
