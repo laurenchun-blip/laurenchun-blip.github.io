@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Billboard Maker v3</title>
+<title>Billboard Maker v3 Exits</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
 
 <style>
   :root {
@@ -26,23 +26,60 @@
     --danger-wash: #FDF4F5;
     --danger-line: rgba(198,40,57,.32);
     --card:    #FFFFFF;
-    --sans: "Inter", system-ui, sans-serif;
+    --sans: "Lexend", system-ui, sans-serif;   /* one face for the whole marketing page */
     /* one interface face; Lexend is only the lettering inside the billboard art */
-    --art: "Lexend", "Inter", system-ui, sans-serif;
+    --art: "Lexend", system-ui, sans-serif;
   }
 
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
 
+  /* brand flare: the page ground is neutral (#E5E6E8) with the brand teal and fuchsia,
+     pulled well toward grey, glowing in from the edges. The top-left is kept near-white
+     so the pink Blip mark keeps its contrast, and the middle stays plain where the cards
+     and the creative sit.
+     Teal #2FBEBF -> #76AFAF, fuchsia #FB0060 -> #C7638A (about 60% toward grey). */
+  :root {
+    --ground:        #E5E6E8;
+    --navy:          #2B395D;
+    /* teal's job: helpers and good news. Bright teal only in borders and fills;
+       text uses the darker teal, which holds about 6:1 on white and on the wash. */
+    --teal:          #2FBEBF;
+    --teal-ink:      #1E6E6F;
+    --teal-wash:     #E7F4F4;
+    --flare-teal:    118,175,175;
+    --flare-fuchsia: 199,99,138;
+  }
+  html { background: var(--ground); }
   body {
     margin: 0;
-    background: #F7F8FA;
+    background: transparent;
     color: var(--ink);
     font-family: var(--sans);
     font-size: 16px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
+  }
+  /* a fixed layer rather than background-attachment: fixed, which iOS Safari ignores */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(ellipse 42vw 34vh at 0% 0%,     rgba(255,255,255,.85),           rgba(255,255,255,0) 72%),
+      radial-gradient(ellipse 48vw 60vh at 0% 78%,    rgba(var(--flare-teal), .34),    rgba(var(--flare-teal), 0) 70%),
+      radial-gradient(ellipse 36vw 36vh at 100% 0%,   rgba(var(--flare-teal), .16),    rgba(var(--flare-teal), 0) 70%),
+      radial-gradient(ellipse 56vw 56vh at 100% 100%, rgba(var(--flare-fuchsia), .24), rgba(var(--flare-fuchsia), 0) 70%),
+      var(--ground);
+  }
+  /* phones: white behind the header, the colour moves to the lower corners */
+  @media (max-width: 600px) {
+    body::before {
+      background:
+        radial-gradient(ellipse 120vw 26vh at 0% 0%,    rgba(255,255,255,.85),           rgba(255,255,255,0) 72%),
+        radial-gradient(ellipse 90vw 40vh at 0% 100%,   rgba(var(--flare-teal), .32),    rgba(var(--flare-teal), 0) 70%),
+        radial-gradient(ellipse 90vw 40vh at 100% 100%, rgba(var(--flare-fuchsia), .22), rgba(var(--flare-fuchsia), 0) 70%),
+        var(--ground);
+    }
   }
 
   button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
@@ -59,6 +96,10 @@
     font-size: 13px; color: var(--ink-70); border: 1px solid var(--rule);
     border-radius: 999px; padding: 4px 11px; background: #fff;
   }
+  /* Start over is a real action with a confirm behind it, so it reads as a button,
+     not a chip: ink text, a firmer border, the CTA weight */
+  #startover { color: var(--ink); font-weight: 600; border-color: var(--ink-32); padding: 5px 13px; }
+  #startover:hover { border-color: var(--ink); }
 
   /* ---------- cards ---------- */
 
@@ -82,6 +123,9 @@
   }
   @keyframes sp { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+  .spin.light { display: inline-block; vertical-align: -2px; margin-right: 8px; border-color: rgba(255,255,255,.4); border-top-color: #fff; }
+  #go[aria-busy="true"] { opacity: .85; cursor: progress; }
+  .hero input[readonly] { background: var(--wash); }
 
   .card-sub { font-size: 14px; color: var(--ink-50); margin-top: 1px; }
   .link { font-size: 13px; color: var(--ink); font-weight: 500; flex: none; }
@@ -96,6 +140,9 @@
   .valueline { font-size: 13px; color: var(--ink-70); background: var(--wash); border-radius: 6px; padding: 6px 10px; margin-top: 9px; }
 
   .lbl { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-50); margin-bottom: 7px; }
+  /* headers are brand navy; field labels stay grey, so the two never read as the same thing.
+     Navy rather than teal: teal on white is about 2.2:1, too faint for small text. */
+  .lbl.sec, .card-name, .opthead .t, .run-k, .modal-head .t, .auth-k { color: var(--navy); }
 
   /* ---------- options ---------- */
 
@@ -148,8 +195,10 @@
   .found span { font-size: 13px; color: var(--ink-70); }
   .gist p { border-left: 2px solid var(--rule); padding-left: 11px; }
 
-  .btn { font-size: 15px; font-weight: 500; border-radius: 999px; padding: 9px 20px; background: var(--pink); color: #fff; }
-  .btn.sec { background: #fff; color: var(--ink-70); border: 1px solid var(--rule); }
+  /* 600 is the heaviest weight in the product system (no 700) */
+  .btn { font-size: 15px; font-weight: 600; border-radius: 999px; padding: 9px 20px; background: var(--pink); color: #fff; }
+  .btn.sec { background: #fff; color: var(--ink); border: 1px solid var(--ink-32); }
+  .btn.sec:hover { border-color: var(--ink); filter: none; }
   /* acting on the creative is navy; pink is kept for moving forward */
   .btn.ink { background: var(--ink); }
   .btn.sm { font-size: 14px; padding: 7px 15px; }
@@ -180,7 +229,7 @@
   @keyframes shimmer { to { transform: translateX(100%); } }
   @media (prefers-reduced-motion: reduce) { .run-art::after { animation: none; display: none; } }
 
-  .run-k { margin: 22px 0 2px; font-weight: 600; font-size: 22px; line-height: 1.3; color: var(--ink); text-align: center; }
+  .run-k { margin: 22px 0 2px; font-weight: 600; font-size: 22px; line-height: 1.3; color: var(--navy); text-align: center; }
   .run .now { margin: 0 0 14px; font-size: 14px; color: var(--ink-70); text-align: center; min-height: 21px; }
   .track { height: 6px; background: rgba(48,64,106,.1); border-radius: 999px; overflow: hidden; }
   .track i { display: block; height: 100%; width: 0%; background: var(--pink); border-radius: 999px; transition: width .6s ease; }
@@ -536,8 +585,9 @@
   .listing { display: flex; flex-direction: column; gap: 2px; font-size: 14px; color: var(--ink-70); }
   .listing b { font-size: 15px; color: var(--ink); font-weight: 600; }
   .listing .links { margin-top: 5px; display: flex; gap: 9px; align-items: center; }
-  .linkbtn { font-size: 13px; color: var(--ink); font-weight: 500; }
-  .linkbtn:hover { text-decoration: underline; }
+  /* anything clickable that looks like text carries an underline, so it never reads as plain copy */
+  .linkbtn { font-size: 13px; color: var(--ink); font-weight: 500; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+  .linkbtn:hover { text-decoration-thickness: 2px; }
 
   .gist { margin-top: 15px; padding-top: 13px; border-top: 1px solid var(--rule); }
   .gist p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink-70); max-width: 72ch; }
@@ -789,6 +839,103 @@
 
   .confirmbar.errbar { border-color: var(--danger-line); }
 
+  /* ---------- guardrails ---------- */
+  .optgrid textarea[aria-invalid="true"] { border-color: var(--danger); }
+  .pausekeep { margin-top: 12px; }
+  .pausednote { margin: 0 0 12px; }
+  .pausednote .linkbtn { padding: 0; font-size: inherit; text-decoration: underline; }
+  .fielderr a { color: inherit; text-decoration: underline; }
+  .pausemodal .modal-actions { margin-top: 18px; }
+  .pausemodal .btn { white-space: nowrap; padding-left: 16px; padding-right: 16px; }
+
+  /* ---------- terms and the content guideline ---------- */
+
+  /* L1: as quiet as the sign-up line, but right under the action it governs */
+  .termsline { margin: 9px 0 0; font-size: 12px; line-height: 1.5; color: var(--ink-50); }
+  .termsline a, .guideline a { color: var(--ink-70); text-decoration: underline; }
+  /* L2: a rule, said once where people type; not an error, so no colour */
+  .guideline { margin: 6px 0 0; font-size: 12px; line-height: 1.45; color: var(--ink-50); }
+  @media (max-width: 560px) { .termsline { text-align: center; } }
+
+  /* prototype only: outline every legal placeholder with its L-number for review */
+  body.showlegal [data-legal] { outline: 1.5px dashed #B26B00; outline-offset: 3px; border-radius: 2px; position: relative; }
+  body.showlegal [data-legal]::after {
+    content: attr(data-legal); position: absolute; top: -9px; right: -6px;
+    font: 600 10px/1 var(--sans); letter-spacing: .04em; color: #fff; background: #B26B00;
+    border-radius: 3px; padding: 2px 4px; pointer-events: none;
+  }
+
+  /* ---------- exits and the shared email capture ---------- */
+
+  .dlbtn { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
+
+  .capoverlay { z-index: 45; }                 /* sits above the share sheet when opened from it */
+  .capmodal { max-width: 420px; position: relative; }
+  .capmodal .grab { display: none; }
+  .cap-s { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-70); }
+  .cap-wm { margin-top: 12px; }
+  .capfield { margin: 14px 0 0; }
+  .capfield input[aria-invalid="true"] { border-color: var(--danger); }
+  .capcheck { display: flex; gap: 9px; align-items: flex-start; margin-top: 12px; font-size: 14px; line-height: 1.45; color: var(--ink-70); cursor: pointer; }
+  .capcheck input { width: 16px; height: 16px; margin: 2px 0 0; flex: none; accent-color: var(--ink); }
+  .capgo { width: 100%; margin-top: 16px; padding: 11px 20px; }
+  .cap-legal { margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: var(--ink-50); text-align: center; }
+  .cap-legal a { color: var(--ink-70); }
+  .capalt { display: block; margin: 12px auto 0; }
+  /* the confirmation keeps the form's height: no jump, actions stay where the button was */
+  .capmodal { display: flex; flex-direction: column; }
+  #capdone:not([hidden]) { flex: 1; display: flex; flex-direction: column; }
+  .capfile { margin: 0 0 14px; padding: 10px; gap: 12px; }
+  .capfile .txt { min-width: 0; }
+  .capfile .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .capfile .meta { white-space: normal; }
+  .nowrap { white-space: nowrap; }
+  @media (max-width: 600px) {
+    .capthumb { width: 132px; }
+    .capthumb .vscale { transform: scale(.2357); }
+    .capmid .capthumb { width: 220px; }
+    .capmid .capthumb .vscale { transform: scale(.3929); }
+  }
+  .capthumb { width: 168px; flex: none; aspect-ratio: 3.5/1; border-radius: 5px; overflow: hidden; position: relative; border: 1px solid var(--rule); }
+  .capthumb .vscale { transform: scale(.3); }
+  .capmanual { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink-70); }
+  .capmid { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  /* after the download the file is the subject: stacked, larger, centred */
+  .capmid .capfile { flex-direction: column; align-items: center; width: 100%; padding: 14px 12px 12px; gap: 10px; margin: 0 0 12px; }
+  .capmid .capthumb { width: 220px; }
+  .capmid .capthumb .vscale { transform: scale(.3929); }
+  .capmid .capfile .txt { text-align: center; max-width: 100%; }
+  .capmid .capmanual { margin: 0; }
+  .capsent { margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: var(--ink-50); text-align: center; }
+  .capsent .ok { color: var(--ink-70); margin-right: 4px; }
+  .capsent.bad { color: var(--danger); }
+  .capsent .linkbtn { font-size: inherit; padding: 0; text-decoration: underline; margin-left: 4px; }
+  .capmanual .linkbtn { text-decoration: underline; padding: 0; font-size: inherit; }
+  .capdone-acts { margin-top: auto; padding-top: 18px; }
+
+  #runslow .run-actions { border-top: 1px solid var(--rule); }
+  .slowexit { display: block; margin: 14px auto 0; font-size: 14px; color: var(--ink); }
+  .slowdone { text-align: center; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--rule); }
+  .run.slow .run-art::after { animation-duration: 3.2s; }
+
+  @media (max-width: 600px) {
+    .dlbtn { display: none; }               /* phones: both exits live in the pinned bar */
+    .mbar:not([hidden]) { display: flex; gap: 8px; }
+    .mbar .btn { flex: 1; width: auto; padding: 11px 12px; white-space: nowrap; }
+    .mbar .btn.sec { flex: 0 0 auto; }
+
+    /* the capture becomes a bottom sheet */
+    .capoverlay { align-items: flex-end; padding: 0; }
+    .capmodal {
+      max-width: none; border-radius: 16px 16px 0 0; max-height: 92vh;
+      padding: 10px 16px calc(18px + env(safe-area-inset-bottom));
+    }
+    .capmodal .grab { display: block; width: 36px; height: 4px; border-radius: 999px; background: rgba(48,64,106,.2); margin: 0 auto 10px; }
+    .capfield input { font-size: 16px; }
+    .capdone-acts { flex-direction: column-reverse; }
+    .capdone-acts .btn { width: 100%; }
+  }
+
   /* ---------- sign in: the claim step ---------- */
 
   .art-meta .actions { align-items: center; }
@@ -857,29 +1004,325 @@
   /* ---------- prototype control: play a state ---------- */
 
   .bar { position: relative; }
-  .simbtn { margin-left: auto; border-style: dashed; }
-  .simbtn .short { display: none; }
+  /* prototype tooling: deliberately off-brand (dark, system type) so it reads as a dev overlay */
+  .simtab {
+    position: fixed; right: 0; top: 50%; z-index: 90;
+    transform: translateY(-50%) rotate(180deg); writing-mode: vertical-rl;
+    font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase;
+    color: #E5E7EB; background: #111827; border: 1px solid #374151; border-right: 0;
+    border-radius: 0 8px 8px 0; padding: 14px 8px; box-shadow: 0 6px 20px rgba(0,0,0,.25);
+  }
+  .simtab:hover { background: #1F2937; }
+  .simtab[aria-expanded="true"] { right: min(360px, 88vw); }
+  /* phones: mid-edge would sit on content, so it docks in the empty end of the header row */
   @media (max-width: 600px) {
-    .bar { gap: 8px; }
-    .bar .logo { font-size: 16px; gap: 8px; white-space: nowrap; }
-    .bar .ghost { padding: 4px 9px; }
-    .simbtn .long { display: none; }
-    .simbtn .short { display: inline; }
+    .simtab {
+      top: 14px; right: 8px; transform: none; writing-mode: horizontal-tb;
+      width: 32px; height: 32px; padding: 0; border: 1px solid #374151; border-radius: 999px;
+      font-size: 0; display: flex; align-items: center; justify-content: center;   /* label stays as the accessible name */
+    }
+    .simtab::after { content: "\2699"; font-size: 16px; line-height: 1; color: #E5E7EB; }
+    .simtab[aria-expanded="true"] { right: 10px; z-index: 91; }
   }
   .simpanel {
-    position: absolute; right: 0; top: calc(100% + 6px); z-index: 60;
-    width: 330px; max-width: calc(100vw - 32px); max-height: 75vh; overflow-y: auto;
-    background: #fff; border: 1px dashed var(--ink-32); border-radius: 12px;
-    box-shadow: 0 14px 40px rgba(20,32,44,.18); padding: 12px;
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 90;
+    width: min(360px, 88vw); display: flex; flex-direction: column;
+    background: #111827; color: #E5E7EB; border-left: 1px solid #374151;
+    box-shadow: -18px 0 50px rgba(0,0,0,.35);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   }
-  .simpanel .sim-k { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-50); margin: 10px 4px 4px; }
-  .simpanel .sim-k:first-child { margin-top: 0; }
-  .simrow { display: block; width: 100%; text-align: left; border-radius: 8px; padding: 7px 8px; }
-  .simrow:hover { background: var(--wash); }
-  .simrow b { display: block; font-size: 14px; font-weight: 500; line-height: 1.35; }
-  .simrow span { display: block; font-size: 12px; line-height: 1.4; color: var(--ink-50); }
-  .simpanel .sim-foot { margin: 8px 4px 0; padding-top: 8px; border-top: 1px solid var(--rule); font-size: 12px; color: var(--ink-50); }
+  .sim-head { display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 16px 12px; border-bottom: 1px solid #1F2937; }
+  .sim-title { font: 600 14px/1.3 system-ui, -apple-system, sans-serif; color: #F9FAFB; }
+  .sim-note { margin-top: 2px; font: 500 10px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .1em; text-transform: uppercase; color: #F59E0B; }
+  .sim-x { color: #9CA3AF; font-size: 22px; line-height: 1; padding: 0 2px; }
+  .sim-x:hover { color: #F9FAFB; }
+  .sim-body { flex: 1; overflow-y: auto; padding: 6px 10px 12px; }
+  .simpanel .sim-k {
+    margin: 16px 6px 6px; font: 600 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: .14em; text-transform: uppercase; color: #6B7280;
+  }
+  .simrow { display: block; width: 100%; text-align: left; border-radius: 6px; padding: 7px 8px; color: inherit; font-family: inherit; }
+  .simrow:hover, .simrow:focus-visible { background: #1F2937; outline: none; }
+  .simrow b { display: block; font-size: 13px; font-weight: 500; line-height: 1.35; color: #F3F4F6; }
+  .simrow span { display: block; font-size: 12px; line-height: 1.4; color: #9CA3AF; }
+  .simpanel .sim-foot { margin: 0; padding: 10px 16px 14px; border-top: 1px solid #1F2937; font-size: 11px; line-height: 1.45; color: #6B7280; }
 
+
+  /* ---------- sign-in and claim states ---------- */
+  .auth-gone {
+    display: flex; gap: 11px; align-items: flex-start;
+    background: var(--wash); border-radius: 10px; padding: 14px 16px; margin-bottom: 18px;
+  }
+  .auth-gone .i { color: var(--ink-70); margin-top: 2px; }
+  .auth-gone .btn { margin-top: 12px; }
+  .authforgot { display: block; margin: 8px 0 0 auto; }
+  .autherr { margin-top: 14px; }
+  .autherr + .authgo { margin-top: 14px; }
+  #authreset .auth-k { margin-bottom: 4px; }
+  .auth-sent { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; }
+  .auth-sent .tick { margin-top: 4px; }
+  #claimerr { margin-top: 12px; }
+  .fielderr .linkbtn { color: var(--danger); font-size: inherit; padding: 0; margin-left: 2px; }
+
+  /* ---------- watermarks ----------
+     "Preview only" = the on-screen mockup (it's not a real placement).
+     "Made with Blip" = every file that leaves the page (download, share). */
+  .scene, .creative { position: relative; }
+  .wm {
+    position: absolute; right: 10px; bottom: 10px; z-index: 2; pointer-events: none;
+    display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+    font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: .02em; line-height: 1;
+    color: #fff; background: rgba(20,32,44,.42); border-radius: 999px; padding: 5px 9px;
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  }
+  /* a soft dark pill behind the type so it reads on sky, grass or a light board */
+  .wm-preview {
+    right: 12px; bottom: 12px; padding: 6px 10px;
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: #fff; background: rgba(20,32,44,.55);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  }
+  .wm-made b { font-weight: 600; color: #FF5A93; letter-spacing: 0; }
+  /* on a full-size creative (560px before the thumbnail scales it) the mark sits in its corner */
+  .wm-onart { right: 16px; bottom: 14px; font-size: 19px; padding: 7px 13px; }
+  .mscene .wm { display: none; }          /* too small to read in the phone's board row */
+
+  /* ---------- teal accent: helpers and good news ----------
+     pink = logo + moving forward · navy = selection, editing, headers ·
+     teal = suggestions, tips, done and sent */
+  .chip, .tagchip { color: var(--teal-ink); background: var(--teal-wash); border-color: rgba(47,190,191,.38); font-weight: 500; }
+  .chip:hover, .tagchip:hover { color: var(--teal-ink); border-color: var(--teal); }
+  .chip:active, .tagchip:active { background: #D6EEEE; }
+  .tip .i { color: var(--teal-ink); }
+  /* help and reassurance sit on the teal wash; plain information (paused, watermark) stays grey */
+  /* a whisper of teal, not a fill: the chips carry the colour, the tip just sits near them */
+  .tip.tip-help { background: #F2F6F6; color: var(--ink-70); }
+  .tick, .queue li.done .qi { background: var(--teal-ink); }
+  .capsent .ok { color: var(--teal-ink); }
+  .vlatest { color: var(--teal-ink); background: var(--teal-wash); }
+
+  /* ---------- marketing type ----------
+     Follows the Marketing Communications design system (Figma 9wby7Lc5KSFaIdCfDurAzF,
+     "Typography", WIP) and the live blipbillboards.com: Lexend Bold for headers, Lexend
+     500 for buttons. Lauren chose Lexend for the body too (2026-10-13), so the page is one face.
+     Headers are navy and sentence case. */
+  :root { --display: "Lexend", system-ui, sans-serif; }
+  .card-name, .opthead .t, .run-k, .modal-head .t, .auth-k, .lbl.sec {
+    font-family: var(--display); font-weight: 700; color: var(--navy); letter-spacing: -.01em;
+  }
+  .card-name { font-size: 22px; line-height: 1.25; }
+  .opthead .t { font-size: 18px; }
+  .run-k { font-size: 26px; }
+  .modal-head .t, .auth-k { font-size: 20px; line-height: 1.3; }
+  .auth-gone .auth-k, .auth-done .auth-k, .auth-sent .auth-k, #authreset .auth-k { font-size: 18px; }
+  /* section labels become real headers: sentence case, not uppercase micro-labels */
+  .lbl.sec { font-size: 17px; text-transform: none; letter-spacing: -.005em; margin-bottom: 10px; }
+  .btn { font-family: var(--display); font-weight: 500; letter-spacing: 0; }
+  #startover { font-family: var(--display); font-weight: 500; }
+  @media (max-width: 600px) {
+    .card-name { font-size: 20px; }
+    .run-k { font-size: 23px; }
+    .lbl.sec { font-size: 16px; }
+  }
+
+  /* ---------- button sizes: three heights, nothing in between ----------
+     Heights are set, not left to padding and font, so a label or a border never
+     changes a button's size and side-by-side buttons always line up.
+       large   48px  full-width main actions (hero, sheets, everything full-width on phones)
+       default 40px  every other button and icon button
+       compact 32px  chips and header pills */
+  :root { --h-lg: 48px; --h-md: 40px; --h-sm: 32px; }
+
+  .btn, .btn.sm {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: var(--h-md); padding: 0 20px; font-size: 15px; line-height: 1;
+    box-sizing: border-box; white-space: nowrap;
+  }
+  .iconbtn, .platbtn { width: var(--h-md); height: var(--h-md); box-sizing: border-box; }
+
+  .hero .btn, .capgo, .authgo { height: var(--h-lg); padding: 0 24px; font-size: 16px; }
+  .hero input { height: var(--h-lg); box-sizing: border-box; }
+  .hexfield { height: var(--h-md); box-sizing: border-box; padding-top: 0; padding-bottom: 0; }
+
+  .chip, .tagchip, .ghost {
+    display: inline-flex; align-items: center; height: var(--h-sm);
+    padding: 0 12px; line-height: 1; box-sizing: border-box; white-space: nowrap;
+  }
+
+  @media (max-width: 600px) {
+    .iconbtn, .platbtn { width: var(--h-md); height: var(--h-md); }
+    /* full-width on phones = large */
+    .hero .btn, .mbar .btn, .modal-actions .btn, .run-actions .btn,
+    .capgo, .authgo, .capdone-acts .btn { height: var(--h-lg); font-size: 15px; padding: 0 16px; }
+    /* phones: both exits live in the pinned bar, so the action-bar copies stay hidden
+       (the size rule above is more specific than the original hide, so restate it) */
+    .art-meta .btn.dlbtn, .art-meta .btn.runcta { display: none; }
+    /* Refine sits inside the field, so it keeps the default height */
+    .adjust-foot .btn { height: var(--h-md); padding: 0 16px; font-size: 14px; }
+    .bar .ghost { padding: 0 10px; }
+  }
+
+  /* ---------- selection = teal ----------
+     pink = go · teal = chosen or good · navy = text · red = error.
+     Fuchsia was ruled out: it sits too close to the error red and already means "move forward".
+     #259E9F is the deepest teal that still reads as brand teal and clears 3:1 for a 2px outline. */
+  :root { --teal-line: #259E9F; --teal-tint: #F4FAFA; }
+  .opt { position: relative; }
+  .opt[aria-pressed="true"] {
+    border-color: var(--teal-line); box-shadow: inset 0 0 0 1px var(--teal-line);
+    background: var(--teal-tint); padding-right: 44px;
+  }
+  .opt[aria-pressed="true"]::after {
+    content: "\2713"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px; border-radius: 999px; background: var(--teal-ink); color: #fff;
+    font-size: 12px; line-height: 1; display: flex; align-items: center; justify-content: center;
+  }
+  .ingchip[aria-expanded="true"] { border-color: var(--teal-line); box-shadow: inset 0 0 0 1px var(--teal-line); background: var(--teal-tint); }
+  .ingchip[aria-expanded="true"] .chev { color: var(--teal-ink); }
+  .vitem[aria-pressed="true"] .vthumb { outline: 2px solid var(--teal-line); outline-offset: 1px; }
+  .vitem[aria-pressed="true"] .vkind { color: var(--teal-ink); }
+  @media (max-width: 600px) {
+    /* the segmented control keeps its white pill; the open tab's label and edge go teal */
+    .ingchip[aria-expanded="true"] { background: #fff; box-shadow: 0 1px 3px rgba(20,32,44,.14), inset 0 0 0 2px var(--teal-line); }
+    .ingchip[aria-expanded="true"] .ic-k { color: var(--teal-ink); }
+  }
+
+  /* the billboard's small line scales with the billboard itself, so it fits on one line at any
+     board size (wider type had made "New York" wrap onto a cropped second line) */
+  .creative { container-type: inline-size; }
+  .creative .c3 { font-size: clamp(5px, 1.85cqw, 13px); white-space: nowrap; }
+
+  /* ---------- chips are helpers, not buttons ----------
+     Thinner than the 32px header pills on desktop so they read as secondary to the field above.
+     Phones keep 32px: the tap target matters more than the visual weight there. */
+  .chip, .tagchip { height: 28px; padding: 0 10px; font-size: 12.5px; }
+  @media (max-width: 600px) {
+    .chip, .tagchip { height: var(--h-sm); padding: 0 12px; font-size: 13px; }
+  }
+
+  /* ---------- phone bottom bar: two equal halves ----------
+     The full label needs ~185px and half the bar is ~167px, so phones say "Run on billboards"
+     (same meaning, no promise of when or where) and the narrowest phones "Run this ad". */
+  .lbl-xs { display: none; }
+  @media (max-width: 600px) {
+    .mbar:not([hidden]) { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .mbar .btn, .mbar .btn.sec { width: 100%; min-width: 0; padding: 0 12px; }
+  }
+  @media (max-width: 359px) {
+    .mbar .lbl-m { display: none; }
+    .mbar .lbl-xs { display: inline; }
+  }
+
+  /* ---------- coming back: one quiet line, never a modal ---------- */
+  .resume-note {
+    display: flex; gap: 10px; align-items: flex-start; margin: 0 0 12px;
+    padding: 10px 14px; border-radius: 10px; font-size: 14px; line-height: 1.45; color: var(--ink-70);
+    background: var(--teal-tint); border: 1px solid rgba(37,158,159,.28);
+  }
+  .resume-note b { color: var(--navy); font-weight: 600; }
+  .resume-note .i { flex: none; color: var(--teal-ink); font-size: 15px; line-height: 1.3; }
+  .resume-note .t { flex: 1; }
+  .resume-note.neutral { background: #F2F6F6; border-color: var(--rule); }
+  .resume-note.neutral .i { color: var(--ink-70); }
+  .rn-x { flex: none; color: var(--ink-50); font-size: 18px; line-height: 1; padding: 0 2px; }
+  .rn-x:hover { color: var(--ink); }
+  .run-col .resume-note { text-align: left; margin-bottom: 18px; }
+  #s-done > .resume-note { margin: 0; }
+
+  /* ---------- the website field: the subject of the page ----------
+     Prominence through weight and size, not colour: teal would mean "already checked",
+     pink would compete with Make my billboard. */
+  .urlwrap { position: relative; flex: 1; min-width: 0; display: flex; }
+  .urlwrap input { flex: 1; width: 100%; }
+  .urlglobe { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--navy); opacity: .7; pointer-events: none; }
+  .hero .urlwrap input { padding-left: 40px; font-size: 17px; font-weight: 500; color: var(--navy); letter-spacing: 0; }
+  .hero .urlwrap input::placeholder { font-weight: 400; color: var(--ink-50); }
+  @media (max-width: 560px) { .hero .urlwrap { width: 100%; flex: none; } }
+
+  /* ---------- one drawn check everywhere, with a firmer stroke ----------
+     The text "✓" came from a fallback font, so its weight couldn't be set. */
+  :root { --check-white: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.6 8.4l2.9 2.9 5.9-6.6' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); --check-teal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.6 8.4l2.9 2.9 5.9-6.6' fill='none' stroke='%231E6E6F' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+  .tick { font-size: 0; background: var(--teal-ink) var(--check-white) center / 11px no-repeat; }
+  .queue li.done .qi { background: var(--teal-ink) var(--check-white) center / 12px no-repeat; }
+  .queue li.done .qi::before { content: ""; }
+  .opt[aria-pressed="true"]::after { content: ""; background: var(--teal-ink) var(--check-white) center / 13px no-repeat; }
+  .capsent .ok, .resume-note .i.ok, .pausekeep .i {
+    display: inline-block; width: 14px; height: 14px; font-size: 0; vertical-align: -2px;
+    background: var(--check-teal) center / 14px no-repeat;
+  }
+  .resume-note .i.ok { margin-top: 2px; }
+
+  /* the Brand panel's three columns wrap to two (then one) when there isn't room,
+     instead of squeezing the listing and pushing the colours past the card edge */
+  .pgrid { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+  .pgrid > * { min-width: 0; }
+
+  /* ---------- website status line ---------- */
+  .urlstatus { display: flex; align-items: center; gap: 7px; margin: 7px 0 0; font-size: 13px; line-height: 1.4; color: var(--ink-50); }
+  .urlstatus .spin { width: 12px; height: 12px; }
+  .urlstatus.ok { color: var(--teal-ink); font-weight: 500; }
+  .urlstatus .ok { display: inline-block; width: 14px; height: 14px; background: var(--check-teal) center / 14px no-repeat; }
+
+  /* ---------- field description and terms ----------
+     The help line describes the field, so it sits under the label, before anyone types.
+     The terms line is the form's small print, directly under the field and button,
+     left-aligned with everything else, so nothing floats. */
+  .hint.fieldhelp { margin: -2px 0 10px; font-size: 14px; line-height: 1.5; color: var(--ink-70); }
+  .termsline { text-align: left; margin: 10px 0 0; font-size: 12px; line-height: 1.45; color: var(--ink-50); }
+  .termsline + .tip, #urlstatus + .termsline { margin-top: 10px; }
+  .tip.tip-help { margin-top: 14px; }
+
+  /* ---------- phones: the start screen's action is pinned ----------
+     The form scrolls; Make my billboard and its terms stay in reach at the bottom,
+     the same pattern as the result screen's bar. Desktop keeps the button beside the field. */
+  .startbar { display: none; }
+  @media (max-width: 600px) {
+    .hero .btn, .hero + .fielderr + .urlstatus + .termsline, #s-start .card .termsline { display: none; }
+    .startbar {
+      display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 24;
+      background: rgba(255,255,255,.97); border-top: 1px solid var(--rule);
+      padding: 10px 16px calc(12px + env(safe-area-inset-bottom));
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    }
+    .startbar .termsline.sb { display: block; margin: 0 0 8px; text-align: center; font-size: 11.5px; }
+    .startbar .btn { width: 100%; height: var(--h-lg); font-size: 15px; }
+    #go2[aria-busy="true"] { opacity: .85; cursor: progress; }
+    #s-start { padding-bottom: 96px; }
+  }
+
+  /* ---------- run: visitor-facing timing line ---------- */
+  .runtime { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-70); }
+
+  /* ---------- My Library (Marketplace chrome) ---------- */
+  .mp-top { display: flex; align-items: center; gap: 22px; margin: -6px 0 16px; padding: 10px 14px; background: #fff; border: 1px solid var(--rule); border-radius: 12px; }
+  .mp-logo svg { display: block; height: 20px; width: auto; }
+  .mp-nav { display: flex; gap: 18px; font-size: 14px; color: var(--ink-70); }
+  .mp-nav .on { color: var(--navy); font-weight: 600; box-shadow: inset 0 -2px 0 var(--pink); padding-bottom: 4px; }
+  .mp-avatar { margin-left: auto; width: 30px; height: 30px; border-radius: 999px; background: var(--navy); color: #fff; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+  .libcard { padding: 20px 22px !important; }
+  .lib-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .libcard .resume-note { margin-bottom: 16px; }
+  .libgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .libitem { border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+  .libitem.fresh { border-color: var(--teal-line); box-shadow: 0 0 0 1px var(--teal-line), 0 6px 18px rgba(20,32,44,.08); }
+  .libthumb { aspect-ratio: 3.5/1; position: relative; overflow: hidden; border-bottom: 1px solid var(--rule); }
+  .libmeta { padding: 12px 14px 0; }
+  .libname { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--navy); }
+  .libsub { font-size: 13px; color: var(--ink-50); margin-top: 2px; }
+  .libtags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .libtag { font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--ink-70); background: var(--wash); border-radius: 4px; padding: 3px 7px; }
+  .libtag.new { color: var(--teal-ink); background: var(--teal-wash); }
+  .libacts { display: flex; gap: 8px; padding: 12px 14px 14px; margin-top: auto; }
+  .libacts .btn { flex: 1 1 auto; min-width: 0; padding: 0 16px; font-size: 14px; }
+  .libacts .btn.sec { flex: 0 0 auto; }   /* the next step gets the room */
+  .proto-end { margin: 14px 4px 0; font-size: 12px; color: var(--ink-50); text-align: center; }
+  @media (max-width: 600px) {
+    .mp-top { gap: 12px; margin-right: 40px; }   /* room for the prototype gear, docked top-right on phones */
+    .mp-nav { gap: 12px; font-size: 13px; }
+    .mp-nav span:not(.on):last-child { display: none; }
+    .libcard { padding: 14px !important; }
+    .lib-head .btn { padding: 0 12px; font-size: 14px; }
+  }
 
 </style>
 </head>
@@ -890,32 +1333,16 @@
   <div class="bar">
     <span class="logo"><svg viewBox="0 0 97 46" fill="none" role="img" aria-label="Blip"><path d="M58.6674 8.73141C58.6674 9.42073 58.1504 9.88028 57.5185 9.88028H53.038C52.4061 9.88028 51.8891 9.42073 51.8891 8.73141V6.77833C51.8891 6.14645 52.4061 5.68691 53.038 5.68691H57.5185C58.1504 5.68691 58.6674 6.14645 58.6674 6.77833V8.73141ZM58.6674 30.1578C58.6674 30.7323 58.1504 31.1918 57.5185 31.1918H53.038C52.4061 31.1918 51.8891 30.7323 51.8891 30.1578V14.8779C51.8891 14.3034 52.4061 13.7864 53.038 13.7864H57.5185C58.1504 13.7864 58.6674 14.3034 58.6674 14.8779V30.1578ZM45.4555 0V29.9281C45.4555 30.6174 44.8236 30.9046 44.1917 30.9046H39.7686C39.1942 30.9046 38.6772 30.6174 38.6772 29.9281V0H16.3892V10.1675H26.7864C30.0032 10.1675 31.8989 11.9482 31.8989 15.1076V25.9645C31.8989 29.1813 30.0032 30.9046 26.7864 30.9046H11.3342C10.4151 30.9046 9.61089 30.3302 9.61089 29.4111V0H0.879517V40.2104H65.1011V11.661C65.1011 10.7994 65.6755 10.1675 66.5946 10.1675H82.1617C85.3785 10.1675 87.389 11.9482 87.389 15.1076V25.9645C87.389 29.1813 85.3785 30.9046 82.1617 30.9046H71.8793V45.7825H78.313V40.2104H96.1204V0H45.4555ZM80.6107 15.797H71.8793V25.3326H80.6107V15.797ZM25.1206 15.797H16.3892V25.3326H25.1206V15.797Z" fill="#FF0C68"/></svg>Billboard Maker</span>
     <button class="ghost" id="startover" hidden>Start over</button>
-    <button class="ghost simbtn" id="simbtn" type="button" aria-expanded="false" aria-controls="simpanel"><span class="long">Show a state</span><span class="short">States</span></button>
-    <div class="simpanel" id="simpanel" hidden>
-      <div class="sim-k">Making the billboard</div>
-      <button class="simrow" type="button" data-sim="gen"><b>Generation failed</b><span>A step fails. Try again resumes from that step.</span></button>
-      <button class="simrow" type="button" data-sim="site"><b>Website couldn’t be read</b><span>Back to the start with the field flagged.</span></button>
-      <button class="simrow" type="button" data-sim="runlogo"><b>Logo couldn’t be used</b><span>Continue without it, or try another.</span></button>
-      <div class="sim-k">Result</div>
-      <button class="simrow" type="button" data-sim="dl"><b>Download failed</b><span>Inline under the creative.</span></button>
-      <div class="sim-k">Changes</div>
-      <button class="simrow" type="button" data-sim="r1"><b>R1 · Change didn’t apply</b><span>Refine fails. Billboard unchanged, text kept.</span></button>
-      <button class="simrow" type="button" data-sim="r2"><b>R2 · Change was interrupted</b><span>Coming back after a refresh, result lost.</span></button>
-      <button class="simrow" type="button" data-sim="r3"><b>R3 · Still working after a refresh</b><span>Not an error. Picks the change back up.</span></button>
-      <button class="simrow" type="button" data-sim="r4"><b>R4 · Change can’t be made</b><span>Blocked by the content filter. Reword it.</span></button>
-      <button class="simrow" type="button" data-sim="r5"><b>R5 · Panel change didn’t apply</b><span>A layout switch fails. Selection reverts.</span></button>
-      <button class="simrow" type="button" data-sim="r6"><b>R6 · New logo can’t be used</b><span>Brand panel upload rejected. Current logo kept.</span></button>
-      <div class="sim-k">Sharing</div>
-      <button class="simrow" type="button" data-sim="s1"><b>S1 · Instagram picture didn’t save</b><span>Under “Post the picture”.</span></button>
-      <button class="simrow" type="button" data-sim="s2"><b>S2 · Picture download didn’t start</b><span>Same row, same pattern.</span></button>
-      <button class="simrow" type="button" data-sim="s3"><b>S3 · LinkedIn didn’t open</b><span>Same for Facebook and X. Try again or copy the link.</span></button>
-      <button class="simrow" type="button" data-sim="s4"><b>S4 · Link couldn’t be copied</b><span>Clipboard blocked. The link is shown, selected.</span></button>
-      <p class="sim-foot">Prototype control. Each state plays once, then everything works normally, so Try again succeeds.</p>
-    </div>
   </div>
 
   <!-- ============ SCREEN 1 : START ============ -->
   <div id="s-start">
+    <!-- D6: the browser remembers a billboard that has since expired -->
+    <div class="resume-note neutral" id="startresume" role="status" hidden>
+      <span class="i" aria-hidden="true">&#9432;</span>
+      <span class="t" id="startresumetext"></span>
+      <button class="rn-x" type="button" data-close="startresume" aria-label="Dismiss">×</button>
+    </div>
     <div class="card current">
       <div class="card-top" style="margin-bottom:14px">
         <div>
@@ -925,13 +1352,22 @@
       </div>
 
       <div class="lbl">Business website</div>
+      <p class="hint fieldhelp">We’ll pull your logo, colors, and what you do from your site. You can change any of it.</p>
       <div class="hero">
-        <input id="url" type="text" value="brooklyncraftcompany.com" placeholder="yourbusiness.com" autocomplete="off">
+        <span class="urlwrap">
+          <svg class="urlglobe" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M1.8 8h12.4M8 1.8c1.8 1.9 2.6 4 2.6 6.2S9.8 12.3 8 14.2M8 1.8C6.2 3.7 5.4 5.8 5.4 8s.8 4.3 2.6 6.2"/></svg>
+          <input id="url" type="text" value="brooklyncraftcompany.com" placeholder="yourbusiness.com" autocomplete="off" aria-label="Business website">
+        </span>
         <button class="btn" id="go">Make my billboard</button>
       </div>
       <p class="fielderr" id="urlerr" role="alert" hidden></p>
-      <p class="hint">We’ll pull your logo, colors, and what you do from your site. You can change any of it.</p>
-      <p class="tip"><span class="i"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.7a4.2 4.2 0 0 0-2.4 7.6c.5.4.8 1 .8 1.6v.3h3.2v-.3c0-.6.3-1.2.8-1.6A4.2 4.2 0 0 0 8 1.7z"/><path d="M6.5 13.2h3"/><path d="M7.1 14.7h1.8"/></svg></span><span>If you’re promoting one thing, link that page rather than your homepage. Works with the homepage too.</span></p>
+      <!-- checked when the visitor leaves the field or stops typing, so problems show before the click -->
+      <p class="urlstatus" id="urlstatus" role="status" aria-live="polite" hidden></p>
+      <!-- L1 · LEGAL PLACEHOLDER, pending review. The button is the acceptance (sign-in wrap):
+           the line sits right by it, links visible, shown once. In the product the links open in a
+           new tab, and agreeing is logged on the job with the Terms version and a timestamp. -->
+      <p class="termsline" data-legal="L1">By making a billboard, you agree to the <a href="#" onclick="return false" title="Opens in a new tab">Terms of Service</a> and <a href="#" onclick="return false" title="Opens in a new tab">Privacy Policy</a>.</p>
+      <p class="tip tip-help"><span class="i"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.7a4.2 4.2 0 0 0-2.4 7.6c.5.4.8 1 .8 1.6v.3h3.2v-.3c0-.6.3-1.2.8-1.6A4.2 4.2 0 0 0 8 1.7z"/><path d="M6.5 13.2h3"/><path d="M7.1 14.7h1.8"/></svg></span><span>If you’re promoting one thing, link that page rather than your homepage. Works with the homepage too.</span></p>
 
       <div class="optblock">
       <div class="opthead">
@@ -943,7 +1379,11 @@
 
         <div>
           <div class="lbl">What are you promoting?</div>
-          <textarea id="ctx" placeholder="20% off workshops through Labor Day"></textarea>
+          <textarea id="ctx" placeholder="20% off workshops through Labor Day" aria-describedby="ctxguide"></textarea>
+          <!-- L2 · LEGAL PLACEHOLDER. The content rule said where people type, so the filter
+               (R4, and blocked first generations) is hit less. A hint, not an agreement. -->
+          <p class="guideline" id="ctxguide" data-legal="L2">Keep it to your own business: no other companies’ logos or names, and no claims that can’t be backed up.</p>
+          <p class="fielderr" id="ctxerr" role="alert" hidden></p>
           <div class="chips">
             <button class="chip" data-fill="sale">Sale</button>
             <button class="chip" data-fill="event">Event</button>
@@ -964,6 +1404,7 @@
             </span>
             <button type="button" data-clear="logo">Remove</button>
           </div>
+          <p class="fielderr" id="slogoerr" role="alert" hidden></p>
 
           <div class="lbl" style="margin-top:18px">Product photo</div>
           <button class="filebtn" data-file="prod">+ Upload photo</button>
@@ -975,6 +1416,7 @@
             </span>
             <button type="button" data-clear="prod">Remove</button>
           </div>
+          <p class="fielderr" id="sproderr" role="alert" hidden></p>
         </div>
 
         <div>
@@ -993,6 +1435,11 @@
       </div>
       </div>
     </div>
+    <!-- phones: the main action pinned to the bottom, with the terms it carries right above it -->
+    <div class="startbar" id="startbar">
+      <p class="termsline sb" data-legal="L1">By making a billboard, you agree to the <a href="#" onclick="return false" title="Opens in a new tab">Terms of Service</a> and <a href="#" onclick="return false" title="Opens in a new tab">Privacy Policy</a>.</p>
+      <button class="btn" type="button" id="go2">Make my billboard</button>
+    </div>
   </div>
 
   <!-- ============ SCREEN 2 : RUN ============ -->
@@ -1000,6 +1447,11 @@
     <div class="card current">
       <div class="run">
         <div class="run-col">
+          <!-- D1, D4, D5: back on a run that never stopped; the page follows the same job -->
+          <p class="resume-note" id="runresume" role="status" hidden>
+            <span class="i" aria-hidden="true">&#8635;</span>
+            <span class="t" id="runresumetext"></span>
+          </p>
           <div class="run-art" aria-hidden="true">
             <span class="ra-copy"><i></i><i></i><i></i></span>
             <span class="ra-img"></span>
@@ -1015,8 +1467,19 @@
             </div>
             <p class="refnote" id="refnote"></p>
           </div>
+          <!-- past the threshold: the run is fine, just slow, so this is a choice, not an error -->
+          <div id="runslow" hidden>
+            <div class="run-actions" id="slowacts">
+              <button class="btn" type="button" id="slowmail">Email me when it’s ready</button>
+              <button class="btn sec" type="button" id="slowwait">Keep waiting</button>
+            </div>
+            <button class="linkbtn slowexit" type="button" id="slowexit">Exit</button>
+            <div class="slowdone" id="slowdone" hidden>
+              <button class="linkbtn" type="button" id="slowwatch">Keep watching here</button>
+            </div>
+          </div>
           <div class="run-notes" id="runnotes">
-            <p class="nofix">No time estimate shown. Runs vary too much to promise one.</p>
+            <p class="runtime">Usually takes a few minutes. Keep this page open, or come back to it later in this browser.</p>
             <p class="nofix proto">Prototype: compressed to about 8 seconds. Real runs take 5 to 20 minutes.</p>
             <button class="btn sec sm" id="skip">Skip ahead</button>
           </div>
@@ -1027,9 +1490,15 @@
 
   <!-- ============ SCREEN 3 : RESULT ============ -->
   <div id="s-done" hidden>
+    <!-- D2: finished while the page was closed -->
+    <div class="resume-note" id="doneresume" role="status" hidden>
+      <span class="i ok" aria-hidden="true">&#10003;</span>
+      <span class="t" id="doneresumetext"></span>
+      <button class="rn-x" type="button" data-close="doneresume" aria-label="Dismiss">×</button>
+    </div>
 
     <div class="card current">
-      <div class="lbl">Creative</div>
+      <div class="lbl sec">Creative</div>
       <div class="creative split zoomable" id="creative" role="button" tabindex="0" aria-label="View full size">
         <div class="c-copy">
           <span class="c1" id="cr1">Crafting Comes to</span>
@@ -1049,10 +1518,11 @@
               <path d="M6 2.6H2.6V6"/><path d="M10 13.4h3.4V10"/><path d="M13.4 6V2.6H10"/><path d="M2.6 10v3.4H6"/>
             </svg>
           </button>
-          <button class="iconbtn" type="button" id="dl" title="Download the billboard file" aria-label="Download the billboard file">
-            <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <!-- two exits, side by side: take the file, or take it further -->
+          <button class="btn sec sm dlbtn" type="button" id="dl">
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M8 2v8"/><path d="M4.6 7 8 10.4 11.4 7"/><path d="M2.6 13.2h10.8"/>
-            </svg>
+            </svg>Download
           </button>
           <!-- the next step, beside the creative it acts on; never promises when or where it shows -->
           <button class="btn sm runcta" type="button" id="usecampaign">Run this on billboards</button>
@@ -1066,13 +1536,19 @@
       </div>
 
       <div class="versions" id="versions" hidden>
-        <div class="lbl">Versions</div>
+        <div class="lbl sec">Versions</div>
         <div class="vstrip" id="vstrip"></div>
       </div>
     </div>
 
     <!-- change it: free text on top, the parts underneath -->
     <div class="card editcard">
+      <!-- shown once the daily spend cap is hit: says up front that changes are paused,
+           so the sheet on Refine or Apply is never a surprise -->
+      <div class="tip pausednote" id="pausednote" role="status" hidden>
+        <span class="i" aria-hidden="true">&#9208;</span>
+        <span>Changes are paused for today. This billboard and its versions are kept, and Download still works. <button class="linkbtn" type="button" id="pausednotejoin">Create a free account</button> to keep editing.</span>
+      </div>
       <div class="adjust">
         <textarea id="refine" placeholder="Describe a change, or ask for a different look"></textarea>
         <div class="adjust-foot"><button class="btn ink" id="do-refine" disabled>Refine</button></div>
@@ -1083,7 +1559,7 @@
         <button class="linkbtn" type="button" id="refineretry">Try again</button>
       </div>
 
-      <div class="lbl" style="margin-top:17px">Made from</div>
+      <div class="lbl sec" style="margin-top:17px">Made from</div>
       <div class="ingrow">
         <button class="ingchip" type="button" data-panel="p-brand" aria-expanded="false">
           <span class="thumb sm alpha"><span class="mark">BCC</span></span>
@@ -1189,7 +1665,7 @@
         <span class="br-txt"><span class="br-t">See it on a board</span><span class="br-s">Preview and share</span></span>
         <span class="br-go" aria-hidden="true">&#8250;</span>
       </button>
-      <div class="lbl">See it on a board</div>
+      <div class="lbl sec">See it on a board</div>
       <div class="scene">
         <div class="board">
           <div class="creative split" id="mockart">
@@ -1202,10 +1678,12 @@
           </div>
           <div class="legs"><span></span><span></span></div>
         </div>
+        <!-- on screen it's a preview, never a placement; files that leave the page say "Made with Blip" instead -->
+        <span class="wm wm-preview" aria-hidden="true">Preview only</span>
       </div>
 
       <div class="payoff-foot">
-        <p>Illustration only. Not a specific board, and the art is AI-generated.</p>
+        <p>Preview only. Not a specific board, and the art is AI-generated.</p>
         <div class="actions">
           <div class="sharewrap">
             <button class="iconbtn" id="sharebtn" title="Share" aria-label="Share">
@@ -1221,7 +1699,8 @@
 
     <!-- phones: the primary action, always reachable -->
     <div class="mbar" id="mbar">
-      <button class="btn" type="button" id="usecampaign2">Run this on billboards</button>
+      <button class="btn sec" type="button" id="dl2">Download</button>
+      <button class="btn" type="button" id="usecampaign2" aria-label="Run this on billboards"><span class="lbl-m">Run on billboards</span><span class="lbl-xs">Run this ad</span></button>
     </div>
 
   </div>
@@ -1231,6 +1710,17 @@
        on success the billboard is claimed into My Library before the visitor lands. -->
   <div id="s-auth" hidden>
     <div class="card current authcard">
+      <!-- C1 / C2: the billboard in the link can't be claimed. Said before sign-in, not after,
+           so nobody makes an account expecting a billboard that isn't there -->
+      <div class="auth-gone" id="authgone" role="status" hidden>
+        <span class="i" aria-hidden="true">&#9432;</span>
+        <div>
+          <div class="auth-k" id="authgonet"></div>
+          <p class="auth-s" id="authgones"></p>
+          <button class="btn sec sm" type="button" id="authnew">Make a new billboard</button>
+        </div>
+      </div>
+
       <div class="auth-claim">
         <div class="auth-thumb" id="auththumb" aria-hidden="true"></div>
         <div>
@@ -1255,9 +1745,35 @@
           <input id="authpw" type="password" autocomplete="new-password">
         </label>
         <p class="fielderr" id="authpwerr" role="alert" hidden></p>
+        <button class="linkbtn authforgot" type="button" id="authforgot" hidden>Forgot password?</button>
+
+        <!-- errors that belong to the whole form, not one field: never say which half was wrong -->
+        <div class="inlerr autherr" id="autherr" role="alert" hidden>
+          <span class="erri" aria-hidden="true">!</span>
+          <span class="et" id="autherrtext"></span>
+        </div>
 
         <button class="btn authgo" type="button" id="authgo">Create account</button>
-        <p class="auth-legal" id="authlegal">By creating an account, you agree to the <a href="#" onclick="return false">Terms</a> and <a href="#" onclick="return false">Privacy Policy</a>.</p>
+        <p class="auth-legal" id="authlegal" data-legal="L6">By creating an account, you agree to the <a href="#" onclick="return false">Terms</a> and <a href="#" onclick="return false">Privacy Policy</a>.</p>
+      </div>
+
+      <!-- A3: reset without losing the claim; the job ID rides along in the reset link -->
+      <div id="authreset" hidden>
+        <div class="auth-k">Reset the password</div>
+        <div id="resetform">
+          <p class="auth-s">A reset link goes to this email. The link comes back here, with this billboard still ready to save.</p>
+          <label class="field" style="margin-top:14px">
+            <span>Email</span>
+            <input id="resetemail" type="email" autocomplete="email" placeholder="you@business.com">
+          </label>
+          <p class="fielderr" id="resetemailerr" role="alert" hidden></p>
+          <button class="btn authgo" type="button" id="resetgo2">Send reset link</button>
+        </div>
+        <div class="auth-sent" id="resetsent" role="status" hidden>
+          <span class="tick">&#10003;</span>
+          <p class="auth-s" id="resetsenttext"></p>
+        </div>
+        <button class="linkbtn auth-back" type="button" id="resetback">&#8249; Back to log in</button>
       </div>
 
       <div class="auth-done" id="authdone" hidden>
@@ -1265,12 +1781,57 @@
         <div>
           <div class="auth-k">Saved to My Library</div>
           <p class="auth-s">Prototype ends here. In the product, this lands in Marketplace with the billboard in My Library.</p>
+          <!-- C3: the account exists, the claim didn't land. The job is still there, so retry is safe -->
+          <div class="inlerr" id="claimerr" role="alert" hidden>
+            <span class="erri" aria-hidden="true">!</span>
+            <span class="et"><b>The billboard didn’t save to My Library yet.</b><span>The account is ready and the billboard is still here.</span></span>
+            <button class="linkbtn" type="button" id="claimretry">Try saving again</button>
+          </div>
         </div>
       </div>
 
       <button class="linkbtn auth-back" type="button" id="authback">&#8249; Back to the billboard</button>
     </div>
   </div>
+
+  <!-- ============ SCREEN 5 : MY LIBRARY (Marketplace) ============
+       Where a new account lands after the claim. Product chrome, not the marketing page:
+       the billboard is already here, marked new, with the next step beside it. -->
+  <div id="s-library" hidden>
+    <div class="mp-top">
+      <span class="mp-logo" id="mplogo" aria-label="Blip"></span>
+      <nav class="mp-nav" aria-label="Marketplace">
+        <span>Campaigns</span><span class="on" aria-current="page">My Library</span><span>Billing</span>
+      </nav>
+      <span class="mp-avatar" aria-hidden="true">M</span>
+    </div>
+    <div class="card current libcard">
+      <div class="lib-head">
+        <div class="card-name">My Library</div>
+        <button class="btn sec" type="button" id="libadd">+ Add creative</button>
+      </div>
+      <div class="resume-note" role="status">
+        <span class="i ok" aria-hidden="true"></span>
+        <span class="t"><b>Saved from Billboard Maker.</b> Ready to use in a campaign. Files downloaded from here have no “Made with Blip” mark.</span>
+      </div>
+      <div class="libgrid">
+        <div class="libitem fresh">
+          <div class="libthumb" id="libthumb" aria-hidden="true"></div>
+          <div class="libmeta">
+            <div class="libname" id="libname">Crafting Comes to Manhattan</div>
+            <div class="libsub">1400 × 400 · Added just now</div>
+            <div class="libtags"><span class="libtag new">New</span><span class="libtag">From Billboard Maker</span></div>
+          </div>
+          <div class="libacts">
+            <button class="btn" type="button" id="libuse">Use in a campaign</button>
+            <button class="btn sec" type="button" id="libdl">Download</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="proto-end">Prototype ends here. “Use in a campaign” opens campaign setup with this creative (a P1 item in the brief).</p>
+  </div>
+
 </div>
 
 <!-- ============ FULL SCREEN CREATIVE ============ -->
@@ -1298,6 +1859,77 @@
   </div>
 </div>
 
+<!-- ============ PAUSED: SPEND CAP OR RATE LIMIT ============
+     Not an error: nothing the visitor did is wrong and nothing is lost. Free
+     generation is paused, and a free account is the way through right now. Same
+     container as the email capture, so it's a sheet on phones. -->
+<div class="overlay capoverlay" id="pauseoverlay" hidden>
+  <div class="modal capmodal pausemodal" role="dialog" aria-modal="true" aria-labelledby="pausetitle" aria-describedby="pausebody">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="modal-head">
+      <span class="t" id="pausetitle"></span>
+      <button class="x" type="button" id="pausex" aria-label="Close">×</button>
+    </div>
+    <p class="cap-s" id="pausebody"></p>
+    <p class="tip tip-help pausekeep"><span class="i" aria-hidden="true">&#10003;</span><span>Everything entered here is kept.</span></p>
+    <div class="modal-actions">
+      <button class="btn sec" type="button" id="pauselater"></button>
+      <button class="btn" type="button" id="pausejoin">Create a free account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EMAIL CAPTURE ============
+     One component, four entry points: Download, the share sheet's picture
+     buttons, the quota, and the long-running run. A modal on desktop, a bottom
+     sheet on phones. Only the copy and the button change. -->
+<div class="overlay capoverlay" id="capoverlay" hidden>
+  <div class="modal capmodal" role="dialog" aria-modal="true" aria-labelledby="captitle">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="modal-head">
+      <span class="t" id="captitle"></span>
+      <button class="x" type="button" id="capx" aria-label="Close">×</button>
+    </div>
+
+    <!-- the file itself, shown before and after: the task is getting this, not giving an email -->
+    <div class="filedone capfile" id="capfilecard">
+      <span class="capthumb" id="capthumb" aria-hidden="true"></span>
+      <span class="txt">
+        <span class="name" id="capfilename">billboard-1400x400.png</span>
+        <span class="meta" id="capfilemeta">1400 × 400 · PNG · “Made with Blip” mark</span>
+      </span>
+    </div>
+
+    <div id="capform">
+      <p class="cap-s" id="capsub"></p>
+      <p class="tip cap-wm" id="capwm"><span class="i" aria-hidden="true">&#9432;</span><span>Downloads carry a small “Made with Blip” mark. An account removes it.</span></p>
+      <label class="field capfield">
+        <span>Email</span>
+        <input id="capemail" type="email" autocomplete="email" placeholder="you@business.com">
+      </label>
+      <p class="fielderr" id="capemailerr" role="alert" hidden></p>
+      <label class="capcheck" data-legal="L4"><input type="checkbox" id="capoptin"><span>Send me billboard tips and offers from Blip</span></label>
+      <button class="btn capgo" type="button" id="capgo"></button>
+      <p class="cap-legal" id="caplegalline" data-legal="L3"><span id="caplegal"></span> <a href="#" onclick="return false">Privacy Policy</a></p>
+      <button class="linkbtn capalt" type="button" id="capalt" hidden>Or create an account</button>
+    </div>
+
+    <!-- lead captured: the file is on its way, and the next step is offered right there -->
+    <div id="capdone" hidden>
+      <!-- centred in the height the form left behind: the file, the fallback, the emailed copy -->
+      <div class="capmid" id="capmid">
+        <p class="capmanual"><span id="capmanuallead">If the download doesn’t start,</span> <span class="nowrap"><button class="linkbtn" type="button" id="capmanual">download the file directly</button>.</span></p>
+        <!-- the emailed copy is a side effect, so it stays small, just above the actions -->
+        <p class="capsent" id="capsent" role="status"></p>
+      </div>
+      <div class="modal-actions capdone-acts">
+        <button class="btn sec" type="button" id="capclose">Done</button>
+        <button class="btn" type="button" id="caprun">Run this on billboards</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============ SHARE MODAL ============ -->
 <div class="overlay" id="shareoverlay" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sharetitle">
@@ -1307,10 +1939,10 @@
     </div>
 
     <div id="sharepreview"></div>
-    <p class="note share-note">Illustration only. AI-generated art, not a real board.</p>
+    <p class="note share-note">Shared with a “Made with Blip” mark. AI-generated art, not a real board.</p>
 
     <div class="share-row">
-      <div class="lbl">Post the picture</div>
+      <div class="lbl sec">Post the picture</div>
       <div class="share-line">
         <button class="iconbtn" type="button" id="dl3" title="Download this picture" aria-label="Download this picture">
           <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1332,7 +1964,7 @@
     </div>
 
     <div class="share-row">
-      <div class="lbl">Share a link</div>
+      <div class="lbl sec">Share a link</div>
       <div class="share-line">
         <button class="platbtn" type="button" data-share="Facebook" title="Facebook" aria-label="Share on Facebook">f</button>
         <button class="platbtn" type="button" data-share="LinkedIn" title="LinkedIn" aria-label="Share on LinkedIn">in</button>
@@ -1364,6 +1996,87 @@
     </div>
   </div>
 </div>
+
+<!-- ============ PROTOTYPE TOOLING (not part of the product) ============
+     A dev overlay: its own dark skin and system font, docked to the window edge,
+     so it can never be mistaken for product UI. -->
+<button class="simtab" id="simbtn" type="button" aria-expanded="false" aria-controls="simpanel">Prototype states</button>
+<aside class="simpanel" id="simpanel" aria-label="Prototype states" hidden>
+  <div class="sim-head">
+    <div>
+      <div class="sim-title">Prototype states</div>
+      <div class="sim-note">Not part of the product</div>
+    </div>
+    <button class="sim-x" type="button" id="simx" aria-label="Close">×</button>
+  </div>
+  <div class="sim-body">
+      <div class="sim-k">Making the billboard</div>
+      <button class="simrow" type="button" data-sim="gen"><b>Generation failed</b><span>A step fails. Try again resumes from that step.</span></button>
+      <button class="simrow" type="button" data-sim="badurl"><b>Not a website address</b><span>Format check, instant. Includes private addresses.</span></button>
+      <button class="simrow" type="button" data-sim="u1"><b>Site found, on leaving the field</b><span>Checked before the click. Make my billboard then starts at once.</span></button>
+      <button class="simrow" type="button" data-sim="u2"><b>Typo caught on leaving the field</b><span>Same check, failing: the error shows before any click.</span></button>
+      <button class="simrow" type="button" data-sim="u3"><b>Logo: wrong file type</b><span>Start-screen upload. Upload again; nothing else changes.</span></button>
+      <button class="simrow" type="button" data-sim="u4"><b>Photo: file too large</b><span>Over the size limit (placeholder 10 MB).</span></button>
+      <button class="simrow" type="button" data-sim="u5"><b>Logo: doesn’t look like a logo</b><span>A photo or social image was added instead.</span></button>
+      <button class="simrow" type="button" data-sim="u6"><b>Photo: too small for a billboard</b><span>Under the minimum width (placeholder 1200px).</span></button>
+      <button class="simrow" type="button" data-sim="dns"><b>Website not found</b><span>Reachability check before the run. Likely a typo.</span></button>
+      <button class="simrow" type="button" data-sim="down"><b>Website didn’t respond</b><span>Reachability check before the run. Site down or slow.</span></button>
+      <button class="simrow" type="button" data-sim="site"><b>Website couldn’t be read</b><span>Crawl inside the run got nothing usable. Back to the field.</span></button>
+      <button class="simrow" type="button" data-sim="runlogo"><b>Logo couldn’t be used</b><span>Continue without it, or try another.</span></button>
+      <div class="sim-k">Result</div>
+      <button class="simrow" type="button" data-sim="dl"><b>Download failed</b><span>Inline under the creative.</span></button>
+      <div class="sim-k">Changes</div>
+      <button class="simrow" type="button" data-sim="r1"><b>R1 · Change didn’t apply</b><span>Refine fails. Billboard unchanged, text kept.</span></button>
+      <button class="simrow" type="button" data-sim="r2"><b>R2 · Change was interrupted</b><span>Coming back after a refresh, result lost.</span></button>
+      <button class="simrow" type="button" data-sim="r3"><b>R3 · Still working after a refresh</b><span>Not an error. Picks the change back up.</span></button>
+      <button class="simrow" type="button" data-sim="r4"><b>R4 · Change can’t be made</b><span>Blocked by the content filter. Reword it.</span></button>
+      <button class="simrow" type="button" data-sim="r5"><b>R5 · Panel change didn’t apply</b><span>A layout switch fails. Selection reverts.</span></button>
+      <button class="simrow" type="button" data-sim="r6"><b>R6 · New logo can’t be used</b><span>Brand panel upload rejected. Current logo kept.</span></button>
+      <div class="sim-k">Sharing</div>
+      <button class="simrow" type="button" data-sim="s1"><b>S1 · Instagram picture didn’t save</b><span>Under “Post the picture”.</span></button>
+      <button class="simrow" type="button" data-sim="s2"><b>S2 · Picture download didn’t start</b><span>Same row, same pattern.</span></button>
+      <button class="simrow" type="button" data-sim="s3"><b>S3 · LinkedIn didn’t open</b><span>Same for Facebook and X. Try again or copy the link.</span></button>
+      <button class="simrow" type="button" data-sim="s4"><b>S4 · Link couldn’t be copied</b><span>Clipboard blocked. The link is shown, selected.</span></button>
+      <div class="sim-k">Exits and email</div>
+      <button class="simrow" type="button" data-sim="e1"><b>X1 · Download gate</b><span>First Download, no email yet.</span></button>
+      <button class="simrow" type="button" data-sim="e2"><b>X2 · Lead captured</b><span>Email given: download starts, next step offered.</span></button>
+      <button class="simrow" type="button" data-sim="e3"><b>X3 · Email didn’t send</b><span>Download still started. Send again.</span></button>
+      <button class="simrow" type="button" data-sim="e4"><b>X4 · Share sheet picture gate</b><span>Instagram save, same component.</span></button>
+      <button class="simrow" type="button" data-sim="e5"><b>X5 · Quota reached</b><span>Second billboard, no email yet.</span></button>
+      <button class="simrow" type="button" data-sim="e6"><b>X6 · Taking longer</b><span>Past the threshold: Email me, Keep waiting or Exit.</span></button>
+      <button class="simrow" type="button" data-sim="e7"><b>X7 · Email-me confirmation</b><span>Safe to close; the run keeps going.</span></button>
+      <button class="simrow" type="button" data-sim="e8"><b>X8 · Sign-in with email prefilled</b><span>After a captured email, Run this on billboards.</span></button>
+      <button class="simrow" type="button" data-sim="forget"><b>Reset email, quota and pause</b><span>Back to a first-time visitor.</span></button>
+      <div class="sim-k">Guardrails</div>
+      <button class="simrow" type="button" data-sim="g1"><b>G1 · Daily spend cap reached</b><span>On Make my billboard. Sign up to continue, or come back tomorrow.</span></button>
+      <button class="simrow" type="button" data-sim="g2"><b>G2 · Rate limit</b><span>Too many starts from this browser or IP. Wait, or sign up.</span></button>
+      <button class="simrow" type="button" data-sim="g3"><b>G3 · Promotion text blocked</b><span>Content filter, before the job. Field error on the promotion.</span></button>
+      <button class="simrow" type="button" data-sim="g4"><b>G4 · Billboard blocked</b><span>Content filter on the result, mid-run. Doesn’t use the free billboard.</span></button>
+      <button class="simrow" type="button" data-sim="g5"><b>G5 · Spend cap hit mid-session</b><span>On Refine. Everything that spends pauses; note stays on the result.</span></button>
+      <button class="simrow" type="button" data-sim="g6"><b>G6 · Website content blocked</b><span>During Checking site. Field error; nothing to retry.</span></button>
+      <div class="sim-k">Sign-in and claim</div>
+      <button class="simrow" type="button" data-sim="a1"><b>A1 · Email and password don’t match</b><span>Log in. Same words for an unknown email.</span></button>
+      <button class="simrow" type="button" data-sim="a2"><b>A2 · Email already has an account</b><span>Create account. Log in instead, email kept.</span></button>
+      <button class="simrow" type="button" data-sim="a3"><b>A3 · Forgot password</b><span>Reset link sent; the billboard stays ready to save.</span></button>
+      <button class="simrow" type="button" data-sim="a4"><b>A4 · Too many tries</b><span>Locked for a while. Wait or reset.</span></button>
+      <button class="simrow" type="button" data-sim="a5"><b>A5 · Sign-in didn’t go through</b><span>Service error. Nothing lost.</span></button>
+      <button class="simrow" type="button" data-sim="lib"><b>Landing in My Library</b><span>Where a new account arrives after the claim.</span></button>
+      <button class="simrow" type="button" data-sim="c1"><b>C1 · Billboard expired</b><span>Emailed link after 30 days. Said before sign-in.</span></button>
+      <button class="simrow" type="button" data-sim="c2"><b>C2 · Saved to another account</b><span>Emailed link already claimed. Log in with that account.</span></button>
+      <button class="simrow" type="button" data-sim="c3"><b>C3 · Claim didn’t finish</b><span>Account made, billboard not saved yet. Try saving again.</span></button>
+      <div class="sim-k">Coming back (refresh, close, second tab)</div>
+      <button class="simrow" type="button" data-sim="d1"><b>D1 · Run still going</b><span>Refresh mid-run. Same job, same step.</span></button>
+      <button class="simrow" type="button" data-sim="d2"><b>D2 · Finished while away</b><span>Lands on the result with a note.</span></button>
+      <button class="simrow" type="button" data-sim="d3"><b>D3 · Failed while away</b><span>E1, worded for being away. Resume from the step.</span></button>
+      <button class="simrow" type="button" data-sim="d4"><b>D4 · Opened in a second tab</b><span>Follows the same run. No duplicate job.</span></button>
+      <button class="simrow" type="button" data-sim="d5"><b>D5 · Back after Email me</b><span>Still running; email still on its way.</span></button>
+      <button class="simrow" type="button" data-sim="d6"><b>D6 · Expired after 30 days</b><span>Start screen, with a note.</span></button>
+      <button class="simrow" type="button" data-sim="d7"><b>D7 · Ready email, other device</b><span>Link opens the same billboard; no browser history needed.</span></button>
+      <div class="sim-k">Legal review</div>
+      <button class="simrow" type="button" data-sim="legal" id="legalrow"><b>Highlight legal placeholders</b><span>Outlines L1–L6 wherever they appear. Click again to hide.</span></button>
+  </div>
+  <p class="sim-foot">Each state plays once, then everything works normally, so Try again succeeds.</p>
+</aside>
 
 <script>
   const $ = id => document.getElementById(id);
@@ -1407,6 +2120,8 @@
     $("s-run").hidden   = which !== "run";
     $("s-done").hidden  = which !== "done";
     $("s-auth").hidden  = which !== "auth";
+    $("s-library").hidden = which !== "library";
+    document.querySelector(".bar").hidden = which === "library";   /* Marketplace has its own chrome */
     $("startover").hidden = which === "start" || which === "auth";
     window.scrollTo({ top: 0 });
   }
@@ -1460,12 +2175,77 @@
       timers.push(setTimeout(() => {
         if (i === 0 && takeFail("site")) return siteFail();
         if (i === 2 && takeFail("gen")) return runFail(i, "gen");
+        if (i === 2 && takeFail("slow")) return runSlow(i);
+        if (i === 2 && takeFail("outblock")) return runFail(i, "content");
         if (i === 3 && takeFail("runlogo")) return runFail(i, "logo");
         paintRun(i + 1);
         if (!STAGES[i + 1]) timers.push(setTimeout(finish, 900));
       }, (i - from + 1) * 1800));
     }
   }
+
+  /* ---------- long-running ----------
+     Past the threshold the run isn't broken, just slow. The step keeps spinning
+     and the visitor gets three ways forward: wait, get an email, or go. */
+  let slowAt = 2;
+  function runSlow(i) {
+    clearTimers();
+    slowAt = i;
+    document.querySelector(".run").classList.add("slow");
+    $("runk").textContent = "Taking longer than usual";
+    $("now").textContent = "Still on this step. Keep waiting, or get an email when it’s ready.";
+    $("runnotes").hidden = true;
+    $("runslow").hidden = false;
+    $("slowacts").hidden = false;
+    $("slowexit").hidden = false;
+    $("slowdone").hidden = true;
+    $("slowmail").focus();
+  }
+  /* the job carries on server-side in every branch; only what the page says changes */
+  function slowResume(delay) {
+    clearTimers();
+    timers.push(setTimeout(() => {
+      paintRun(slowAt + 1);
+      for (let n = slowAt + 1; n < STAGES.length; n++) {
+        timers.push(setTimeout(() => {
+          paintRun(n + 1);
+          if (!STAGES[n + 1]) timers.push(setTimeout(finish, 900));
+        }, (n - slowAt) * 1800));
+      }
+    }, delay));
+  }
+  function slowLeft(title, line) {
+    $("runk").textContent = title;
+    $("now").innerHTML = line;
+    $("slowacts").hidden = true;
+    $("slowexit").hidden = true;
+    $("slowdone").hidden = false;
+  }
+  $("slowwait").onclick = () => {
+    $("runslow").hidden = true;
+    $("runk").textContent = "Making your billboard";
+    $("now").textContent = "Still on this step";
+    slowResume(2600);
+  };
+  $("slowmail").onclick = () => {
+    if (capturedEmail) return slowEmailed();
+    openCapture("wait", slowEmailed);
+  };
+  function slowEmailed() {
+    slowLeft("Emailed when it’s ready",
+      "Sending to <b>" + capturedEmail + "</b>. Safe to close this page.");
+    slowResume(6000);
+  }
+  /* leaving without an email: the job still finishes, and this browser picks it back up */
+  $("slowexit").onclick = () => {
+    slowLeft("Safe to leave", "The billboard keeps being made. Opening this page again in this browser shows it.");
+    slowResume(6000);
+  };
+  $("slowwatch").onclick = () => {
+    $("runslow").hidden = true;
+    $("runk").textContent = "Making your billboard";
+    $("now").textContent = "Still on this step";
+  };
 
   function siteName() { return ($("url").value.trim() || "your site").replace(/^https?:\/\//, "").replace(/\/$/, ""); }
 
@@ -1494,6 +2274,15 @@
       $("runretry").textContent = "Continue without the logo";
       $("runalt").textContent = "Use a different logo";
       $("refnote").textContent = "";
+    } else if (kind === "content") {
+      /* the filter stopped the generated result: say so lightly, since rewording is the fix,
+         and give the run back so a blocked result never uses up the free billboard */
+      generations = Math.max(0, generations - 1);
+      $("runk").textContent = "This billboard couldn’t be finished";
+      $("now").textContent = "The result didn’t pass the content check. Rewording the promotion usually fixes it. This one doesn’t count as the free billboard.";
+      $("runretry").textContent = "Edit the promotion";
+      $("runalt").textContent = "Try again";
+      $("refnote").textContent = "Reference " + refId();
     } else {
       $("runk").textContent = "This billboard didn’t finish";
       $("now").textContent = "Nothing you entered was lost. Trying again picks up from this step.";
@@ -1505,16 +2294,28 @@
   }
 
   function clearRunFail() {
-    document.querySelector(".run").classList.remove("failed");
+    document.querySelector(".run").classList.remove("failed", "slow");
     $("runnotes").hidden = false;
     $("runfail").hidden = true;
+    $("runslow").hidden = true;
     $("runk").textContent = "Making your billboard";
     failKind = null;
   }
 
-  $("runretry").onclick = () => runFlow(failedAt);
+  $("runretry").onclick = () => {
+    if (paused && failKind !== "content") return hitCap("cap");
+    if (failKind === "content") {
+      clearRunFail();
+      show("start");
+      $("ctx").focus();
+      $("ctx").scrollIntoView({ block: "center" });
+      return;
+    }
+    runFlow(failedAt);
+  };
   $("runalt").onclick = () => {
     if (failKind === "logo") { runFlow(failedAt); return; }   /* prototype: the upload is assumed to work */
+    if (failKind === "content") { if (paused) return hitCap("cap"); generations++; runFlow(failedAt); return; }
     clearRunFail();
     show("start");
     $("url").focus();
@@ -1541,7 +2342,7 @@
     if (inputId) $(inputId).removeAttribute("aria-invalid");
   }
 
-  function finish() { clearTimers(); show("done"); versions = []; activeV = 0; snapshot("Original", "First generation"); }
+  function finish() { clearTimers(); $("runresume").hidden = true; show("done"); versions = []; activeV = 0; snapshot("Original", "First generation"); }
 
   /* ---------- option lists ---------- */
   function buildHeadlines() {
@@ -1653,6 +2454,7 @@
 
   function applyPending() {
     if (!pending) return;
+    if (paused || takeFail("cap")) return hitCap("capEdit");   /* the staged change stays staged */
     const p = pending;
     pending = null;
     $("confirmbar").hidden = true;
@@ -1870,18 +2672,181 @@
   }
 
   /* ---------- wiring ---------- */
-  /* checked before a job is created: a malformed address never starts a run */
-  $("go").onclick = () => {
+  /* Three checks, cheapest first. The first two run before a job exists, so a typo
+     or a dead site never costs a generation or counts against the quota.
+       1. format: is it an address at all, and a public one
+       2. reachability: does the domain exist, does the site answer
+       3. crawl: inside the run, see siteFail() */
+  function urlHost(v) {
+    return v.replace(/^https?:\/\//i, "").split(/[\/?#]/)[0].replace(/:\d+$/, "").toLowerCase();
+  }
+  function isPrivateHost(h) {
+    return h === "localhost" || /\.(local|internal|localhost)$/.test(h) ||
+           /^\d{1,3}(\.\d{1,3}){3}$/.test(h) || h.includes("[");
+  }
+
+  let checking = false;
+  function setChecking(on) {
+    checking = on;
+    $("go").disabled = on;
+    $("go").innerHTML = on ? '<span class="spin light" aria-hidden="true"></span>Checking site…' : "Make my billboard";
+    $("url").readOnly = on;
+    $("go").setAttribute("aria-busy", String(on));
+    $("go2").disabled = on;
+    $("go2").innerHTML = $("go").innerHTML;
+    $("go2").setAttribute("aria-busy", String(on));
+    if (on) urlStatus(null);   /* the button says "Checking site…"; one message at a time */
+  }
+
+  /* ---------- the website check ----------
+     Runs when the visitor leaves the field, or pauses typing on something that looks like an
+     address, so a typo or a dead site shows before anyone clicks. The result is kept for that
+     exact address: if it passed, "Make my billboard" starts straight away. */
+  const FORMAT = /^(https?:\/\/)?[^\s.\/]+(\.[^\s.\/]+)+(\/\S*)?$/i;
+  let urlCheck = { value: null, state: null };   // state: "checking" | "ok" | "bad"
+  let checkTimer = null, goWaiting = false;
+
+  function urlStatus(kind, html) {
+    const el = $("urlstatus");
+    if (!kind) { el.hidden = true; el.className = "urlstatus"; return; }
+    el.className = "urlstatus " + kind;
+    el.innerHTML = html;
+    el.hidden = false;
+  }
+  /* format problems: instant, and only said out loud on blur or click, never mid-typing */
+  function formatError(v, say) {
+    let msg = null;
+    if (!FORMAT.test(v)) msg = "<b>Enter a website address,</b> like yourbusiness.com.";
+    else if (isPrivateHost(urlHost(v))) msg = "<b>Enter a public website address,</b> like yourbusiness.com.";
+    if (msg && say) { urlStatus(null); fieldErr("url", "urlerr", msg); }
+    return msg;
+  }
+  /* the network check: in the product, a lookup plus a light read through the allow-listed fetcher */
+  function checkSite(v) {
+    const host = urlHost(v);
+    urlCheck = { value: v, state: "checking" };
+    clearFieldErr("url", "urlerr");
+    urlStatus("checking", '<span class="spin" aria-hidden="true"></span>Checking ' + host + "…");
+    clearTimeout(checkTimer);
+    checkTimer = setTimeout(() => {
+      if ($("url").value.trim() !== v) return;         // the visitor kept typing; a newer check wins
+      let err = null;
+      /* the site itself is outside the ad guidelines: nothing to retry, so leave the field open */
+      if (takeFail("sitebad")) err = "<b>This website can’t be used for a billboard.</b> The site’s content falls outside Blip’s <a href=\"#\" onclick=\"return false\" data-legal=\"L7\">ad guidelines</a>. If that’s the wrong site, check the address.";
+      else if (takeFail("dns")) err = "<b>Couldn’t find " + host + ".</b> Check the spelling of the address.";
+      else if (takeFail("down")) err = "<b>" + host + " didn’t respond.</b> Check the address, or try again in a moment.";
+      if (err) {
+        urlCheck.state = "bad";
+        urlStatus(null);
+        fieldErr("url", "urlerr", err);
+        if (goWaiting) { goWaiting = false; setChecking(false); $("url").focus(); }
+        return;
+      }
+      urlCheck.state = "ok";
+      urlStatus("ok", '<span class="ok" aria-hidden="true"></span>Site found');
+      if (goWaiting) { goWaiting = false; setChecking(false); proceed(); }
+    }, 1000);
+  }
+
+  $("url").oninput = () => {
+    clearFieldErr("url", "urlerr");
+    urlStatus(null);
+    urlCheck = { value: null, state: null };
+    clearTimeout(checkTimer);
     const v = $("url").value.trim();
-    if (!/^(https?:\/\/)?[^\s.\/]+(\.[^\s.\/]+)+(\/\S*)?$/i.test(v)) {
-      fieldErr("url", "urlerr", "<b>Enter a website address,</b> like yourbusiness.com.");
-      $("url").focus();
+    /* only check mid-typing once it already looks like a full address */
+    if (!formatError(v, false)) checkTimer = setTimeout(() => checkSite(v), 900);
+  };
+  $("url").onblur = () => {
+    const v = $("url").value.trim();
+    if (!v || goWaiting) return;
+    if (urlCheck.value === v && urlCheck.state) return;   // already checked or checking
+    if (formatError(v, true)) return;
+    clearTimeout(checkTimer);
+    checkSite(v);
+  };
+
+  $("go").onclick = () => {
+    if (checking) return;
+    const v = $("url").value.trim();
+    if (formatError(v, true)) { $("url").focus(); return; }
+
+    /* guardrails that need no network: the global spend cap and the per-browser/IP limit
+       pause everything, so they come before the visitor waits on any check */
+    if (paused || takeFail("cap")) return hitCap("cap");
+    if (takeFail("rate")) return openPaused("rate");
+
+    /* the promotion text is screened before a job exists, so a blocked phrase costs nothing
+       and is fixed in place, like any other field */
+    if (takeFail("ctxblock")) {
+      fieldErr("ctx", "ctxerr", "<b>That promotion can’t be used.</b> Describe your own offer, without other companies’ names or claims that can’t be backed up.");
+      $("ctx").focus();
       return;
     }
-    clearFieldErr("url", "urlerr");
-    runFlow(0);
+    clearFieldErr("ctx", "ctxerr");
+
+    /* the address already passed: start now. Still checking: wait for it. Not checked: check now. */
+    if (urlCheck.value === v && urlCheck.state === "ok") return proceed();
+    if (urlCheck.value === v && urlCheck.state === "bad") { $("url").focus(); return; }
+    setChecking(true);
+    goWaiting = true;
+    if (!(urlCheck.value === v && urlCheck.state === "checking")) checkSite(v);
   };
-  $("url").oninput = () => clearFieldErr("url", "urlerr");
+  /* quota last: only once the address is good does a second run ask for an email,
+     so nobody hands over an email for a typo */
+  $("go2").onclick = () => $("go").click();
+  function proceed() {
+    if (generations >= 1 && !capturedEmail) return openCapture("quota", startRun);
+    startRun();
+  }
+  function startRun() { generations++; $("startresume").hidden = true; runFlow(0); }
+  $("ctx").addEventListener("input", () => clearFieldErr("ctx", "ctxerr"));
+
+  /* ---------- paused: daily spend cap or rate limit ---------- */
+  const PAUSE = {
+    cap:  { title: "Free billboards are paused for today",
+            body: "Today’s free billboards have all been made. More open up tomorrow, or a free account can make one right now.",
+            later: "Come back tomorrow" },
+    capEdit: { title: "Changes are paused for today",
+            body: "Today’s free billboards and changes have all been used. This billboard and its versions are kept, and Download still works. A free account keeps editing right now.",
+            later: "Not now" },
+    rate: { title: "Too many billboards started at once",
+            body: "This connection started several billboards in a short time. Try again in about 10 minutes, or a free account can make one right now.",
+            later: "Try again later" }
+  };
+  let pauseOpener = null;
+  /* once the cap is hit, everything that spends is paused for the rest of the session:
+     new billboards, refines, panel changes and retries. Viewing, Download and
+     Run this on billboards cost nothing, so they keep working. */
+  let paused = false;
+  function hitCap(kind) {
+    paused = true;
+    $("pausednote").hidden = false;
+    openPaused(kind);
+  }
+  function openPaused(kind) {
+    const p = PAUSE[kind];
+    pauseOpener = document.activeElement;
+    $("pausetitle").textContent = p.title;
+    $("pausebody").textContent = p.body;
+    $("pauselater").textContent = p.later;
+    $("pauseoverlay").hidden = false;
+    $("pausejoin").focus();
+  }
+  function closePaused() {
+    $("pauseoverlay").hidden = true;
+    if (pauseOpener && pauseOpener.focus) pauseOpener.focus();
+  }
+  $("pausex").onclick = closePaused;
+  $("pauselater").onclick = closePaused;
+  $("pauseoverlay").onclick = e => { if (e.target === $("pauseoverlay")) closePaused(); };
+  /* after sign-up the visitor comes back to the same inputs and the run starts */
+  /* from the result, signing up claims the billboard on screen; from the start, it's a fresh account */
+  $("pausejoin").onclick = () => {
+    $("pauseoverlay").hidden = true;
+    $("s-done").hidden ? openAuth({ fresh: true }) : openAuth();
+  };
+  $("pausednotejoin").onclick = () => openAuth();
   $("url").onkeydown = e => { if (e.key === "Enter") $("go").click(); };
   $("skip").onclick = finish;
   /* start over asks first, and names exactly what it deletes */
@@ -1939,6 +2904,7 @@
   }
 
   function clearAllErrors() {
+    if (typeof clearResumeNotes === "function") clearResumeNotes();
     failNext = null;
     clearRunFail();
     clearFieldErr("url", "urlerr");
@@ -1948,6 +2914,12 @@
     $("changeerr").hidden = true;
     lastFailedChange = null;
     clearShareErrors();
+    clearFieldErr("ctx", "ctxerr");
+    clearFieldErr(null, "slogoerr");
+    clearFieldErr(null, "sproderr");
+    $("pauseoverlay").hidden = true;
+    $("capoverlay").hidden = true;
+    capMode = null;
   }
 
   /* ---------- start screen: optional detail ---------- */
@@ -1961,8 +2933,25 @@
     };
   });
 
+  /* start-screen uploads are checked as they're added, before any job exists, and said
+     under the button that took them. The visitor uploads again; nothing else is touched.
+     Limits (10 MB, 1200px) are placeholders for engineering to confirm. */
+  function uploadError(kind) {
+    if (takeFail("upType")) return "<b>That file type can’t be used.</b> Upload a PNG, JPG, SVG or WebP.";
+    if (takeFail("upBig"))  return "<b>That file is over 10 MB.</b> Try a smaller version of it.";
+    if (kind === "logo" && takeFail("upNotLogo")) return "<b>That doesn’t look like a logo.</b> Looks more like a photo or a social image. Try the logo file itself.";
+    if (kind === "prod" && takeFail("upSmall"))   return "<b>That photo is too small for a billboard.</b> Use one at least 1200 pixels wide.";
+    return null;
+  }
   document.querySelectorAll("[data-file]").forEach(b => {
     b.onclick = () => {
+      const k = b.dataset.file;
+      if (k === "logo" || k === "prod") {
+        const errId = k === "logo" ? "slogoerr" : "sproderr";
+        const msg = uploadError(k);
+        if (msg) { fieldErr(null, errId, msg); return; }
+        clearFieldErr(null, errId);
+      }
       /* R6: the rejected file never replaces anything; the logo already on the billboard comes back */
       if (b.dataset.file === "rlogo" && takeFail("logo")) {
         $("f-rlogo").hidden = false; b.hidden = true;
@@ -2060,7 +3049,13 @@
   };
 
   /* short prompt on phones so it fits the one-line field */
-  if (matchMedia("(max-width: 600px)").matches) $("refine").placeholder = "Describe a change";
+  /* the short prompt on phones, kept in step if the window is resized (it used to be set once, on load) */
+  const phoneMq = matchMedia("(max-width: 600px)");
+  function setRefinePlaceholder() {
+    $("refine").placeholder = phoneMq.matches ? "Describe a change" : "Describe a change, or ask for a different look";
+  }
+  setRefinePlaceholder();
+  phoneMq.addEventListener("change", setRefinePlaceholder);
   /* Refine is off until there's something to send, so an empty submit never needs a message */
   function syncRefine() {
     const has = !!$("refine").value.trim();
@@ -2086,6 +3081,7 @@
   function doRefine(msg) {
     const v = $("refine").value.trim();
     if (!v) return;
+    if (paused || takeFail("cap")) return hitCap("capEdit");
     hideRefineErr();
     lockRefine(true);
     showRedraw(msg || "Redrawing with your change");
@@ -2118,23 +3114,197 @@
   $("refineretry").onclick = () => doRefine();
 
   /* download: the icon is the only thing on screen that says it worked, so a failure is said right under it */
+  /* the first download asks for an email once; after that it's a plain download */
   function doDownload() {
+    if (!capturedEmail) return openCapture("dl", fileDownload);
+    fileDownload();
+  }
+  function fileDownload() {
     if (takeFail("dl")) {
       $("dlerr").hidden = false;
-      return;
+      return false;
     }
     $("dlerr").hidden = true;
-    toast("Downloaded billboard-1400x400.png, ready for the board");
+    if (!capMode) toast("Downloaded billboard-1400x400.png, ready for the board");
+    return true;
   }
   $("dl").onclick = doDownload;
+  $("dl2").onclick = doDownload;
   $("dlretry").onclick = doDownload;
+
+  /* ---------- the shared email capture ----------
+     Visitors can view everything without an email. It's asked for only when
+     something leaves the page (a file), when more is wanted (a second billboard),
+     or when the visitor wants to leave and be told later. */
+
+  let capturedEmail = null;   /* a lead, with the same consent rules wherever it came from */
+  let generations = 0;        /* started runs this browser; the quota counts starts, not finishes */
+  let capMode = null, capThen = null, capOpener = null;
+
+  const CAP = {
+    /* file modes lead with the file; the email is what it takes, not what it's about */
+    dl:    { title: "Download the billboard", sub: "Add an email and the download starts.",
+             go: "Download", legal: "Also used to send a copy of the file.", wm: true, file: true },
+    pic:   { title: "Save the picture", sub: "Add an email and the picture saves.",
+             go: "Save picture", legal: "Also used to send a copy of the picture.", wm: true, file: true },
+    quota: { title: "Make another billboard", sub: "The free billboard is used. Add an email to keep making them.",
+             go: "Continue", legal: "Used to keep the billboards made here.", alt: true },
+    wait:  { title: "Email it when it’s ready", sub: "The billboard keeps being made after this page closes. It arrives by email with a link back to it.",
+             go: "Email me when it’s ready", legal: "Used to send this billboard." }
+  };
+
+  function openCapture(mode, then) {
+    const c = CAP[mode];
+    capMode = mode; capThen = then || null;
+    capOpener = document.activeElement;
+    $("captitle").textContent = c.title;
+    $("capsub").textContent = c.sub;
+    $("capwm").hidden = !c.wm;
+    $("capgo").textContent = c.go;
+    $("caplegal").textContent = c.legal;
+    $("caplegalline").dataset.legal = c.file ? "L3" : "L5";
+    $("capalt").hidden = !c.alt;
+    $("capfilecard").hidden = !c.file;
+    $("capform").before($("capfilecard"));   /* back above the form if a previous success moved it */
+    if (c.file) {
+      paintThumb($("capthumb"));
+      $("capfilename").textContent = mode === "dl" ? "billboard-1400x400.png" : "billboard-on-a-board.png";
+      $("capfilemeta").textContent = mode === "dl" ? "1400 × 400 · PNG · “Made with Blip” mark" : "Board preview · PNG · for posting";
+    }
+    $("capform").hidden = false;
+    $("capdone").hidden = true;
+    document.querySelector(".capmodal").style.minHeight = "";
+    $("capoptin").checked = false;           /* marketing opt-in never starts checked */
+    clearFieldErr("capemail", "capemailerr");
+    $("capoverlay").hidden = false;
+    $("capemail").focus();
+  }
+  function closeCapture() {
+    $("capoverlay").hidden = true;
+    capMode = null;
+    if (capOpener && capOpener.focus) capOpener.focus();
+  }
+
+  $("capgo").onclick = () => {
+    const email = $("capemail").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      fieldErr("capemail", "capemailerr", "<b>Enter an email address,</b> like you@business.com.");
+      $("capemail").focus();
+      return;
+    }
+    capturedEmail = email;
+    const then = capThen, mode = capMode;
+
+    if (mode === "dl" || mode === "pic") {
+      /* the file goes first; the email is a copy, so a send failure never blocks it */
+      const got = then ? then() !== false : true;
+      if (!got) { closeCapture(); return; }
+      const mailFailed = takeFail("mail");
+      const box = document.querySelector(".capmodal");
+      box.style.minHeight = box.offsetHeight + "px";   /* hold the form's height */
+      $("capform").hidden = true;
+      $("capdone").hidden = false;
+      $("capmid").prepend($("capfilecard"));   /* the file joins the centred group */
+      $("capmanuallead").textContent = mode === "dl" ? "If the download doesn’t start," : "If the picture doesn’t save,";
+      $("capmanual").textContent = mode === "dl" ? "download the file directly" : "save it directly";
+      capManual = then;
+      $("captitle").textContent = mode === "dl" ? "Download started" : "Picture saved";
+      paintSent(mailFailed);
+      /* from the share sheet the next step is posting, so the CTA stays on the page instead */
+      $("caprun").hidden = mode !== "dl";
+      $("capclose").textContent = mode === "dl" ? "Done" : "Back to sharing";
+      (mode === "dl" ? $("caprun") : $("capclose")).focus();
+      return;
+    }
+    closeCapture();
+    if (then) then();
+  };
+  $("capemail").oninput = () => clearFieldErr("capemail", "capemailerr");
+  $("capemail").onkeydown = e => { if (e.key === "Enter") $("capgo").click(); };
+  $("capx").onclick = closeCapture;
+  $("capclose").onclick = closeCapture;
+  $("capoverlay").onclick = e => { if (e.target === $("capoverlay")) closeCapture(); };
+  /* the emailed copy, said quietly; a failed send stays small too, the file is already in hand */
+  function paintSent(failed) {
+    const what = capMode === "pic" ? "Picture" : "Creative";
+    const el = $("capsent");
+    el.classList.toggle("bad", failed);
+    el.innerHTML = failed
+      ? "Couldn’t send a copy to " + capturedEmail + '.<button class="linkbtn" type="button" id="capresend">Send again</button>'
+      : '<span class="ok" aria-hidden="true">&#10003;</span>' + what + " sent to " + capturedEmail;
+    if (failed) $("capresend").onclick = () => paintSent(false);
+  }
+  /* the fallback re-sends the same file; it never asks for the email again */
+  let capManual = null;
+  $("capmanual").onclick = () => {
+    if (capManual && capManual() === false) closeCapture();   /* a real failure shows its own inline error */
+  };
+  $("caprun").onclick = () => { closeCapture(); openAuth(); };
+
+  /* a small copy of the creative currently on screen */
+  function paintThumb(el) {
+    const v = versions[activeV] || { headIdx: headIdx, layIdx: layIdx, tweak: tweak };
+    const h = HEADLINES[v.headIdx];
+    el.innerHTML =
+      '<span class="vscale"><span class="creative ' + LAYOUTS[v.layIdx].cls + '">' +
+        '<span class="c-copy"><span class="c1">' + h.pre + '</span><span class="c2">' + h.hit + '</span>' +
+        '<span class="c3">' + h.support + '</span></span>' +
+        '<span class="c-art"><span class="apple"></span></span>' +
+        '<span class="wm wm-made wm-onart" aria-hidden="true">' + madeWith() + '</span></span></span>';
+    paintTweak(el.querySelector(".creative"), v.tweak || 0);
+  }
+  /* the mark on downloaded and shared files: small, bottom-right, readable on any art */
+  function madeWith() { return 'Made with <b>blip</b>'; }
+  $("capalt").onclick = () => { closeCapture(); openAuth({ fresh: true }); };
 
   /* ---------- sign in ----------
      The visitor has no account and no campaign yet, so the next step is an account.
      The billboard travels with them and is waiting in My Library after. */
   let authMode = "new";
 
-  function openAuth() {
+  /* fresh: opened from the quota gate, where there is no billboard on screen to claim */
+  let authFrom = "done";
+  function resetAuthStates() {
+    $("authgone").hidden = true;
+    $("autherr").hidden = true;
+    $("authreset").hidden = true;
+    $("claimerr").hidden = true;
+    $("authback").innerHTML = "&#8249; Back to the billboard";
+    clearFieldErr("authemail", "authemailerr");
+    clearFieldErr("authpw", "authpwerr");
+  }
+  function openAuth(opts) {
+    const fresh = !!(opts && opts.fresh);
+    authFrom = fresh ? "start" : "done";
+    resetAuthStates();
+    document.querySelector(".auth-claim").hidden = fresh;
+    /* arriving from an emailed link whose billboard can't be claimed */
+    if (opts && opts.claim) {
+      const gone = opts.claim === "expired";
+      document.querySelector(".auth-claim").hidden = true;
+      $("authgone").hidden = false;
+      $("authgonet").textContent = gone ? "This billboard is no longer available" : "This billboard is saved to another account";
+      $("authgones").textContent = gone
+        ? "Billboards that aren’t saved to an account are deleted after 30 days. Making a new one is free, and an account can still be created below."
+        : "Log in with that account to find it in My Library, or make a new one here.";
+      $("authnew").className = "btn sec sm";   /* one pink action per screen: the form's */
+      $("authpw").value = "";
+      setAuthMode(gone ? "new" : "old");
+      authFrom = "start";
+      $("authback").innerHTML = "&#8249; Go to Billboard Maker";
+      $("authform").hidden = false;
+      $("authdone").hidden = true;
+      show("auth");
+      return;
+    }
+    if (capturedEmail && !$("authemail").value) $("authemail").value = capturedEmail;
+    if (fresh) {
+      $("authform").hidden = false;
+      $("authdone").hidden = true;
+      show("auth");
+      $("authemail").value ? $("authpw").focus() : $("authemail").focus();
+      return;
+    }
     const v = versions[activeV] || { headIdx: headIdx, layIdx: layIdx, tweak: tweak };
     const h = HEADLINES[v.headIdx];
     $("auththumb").innerHTML =
@@ -2148,7 +3318,8 @@
     $("authback").hidden = false;
     show("auth");
     fitAuthThumb();
-    $("authemail").focus();
+    /* a captured email carries over, so the visitor starts at the password */
+    $("authemail").value ? $("authpw").focus() : $("authemail").focus();
   }
   function fitAuthThumb() {
     const s = $("auththumb").querySelector(".vscale");
@@ -2162,6 +3333,8 @@
     $("tab-old").setAttribute("aria-selected", String(m === "old"));
     $("authgo").textContent = m === "new" ? "Create account" : "Log in";
     $("authlegal").hidden = m !== "new";
+    $("authforgot").hidden = m !== "old";
+    $("autherr").hidden = true;
     $("authpw").autocomplete = m === "new" ? "new-password" : "current-password";
     clearFieldErr("authemail", "authemailerr");
     clearFieldErr("authpw", "authpwerr");
@@ -2181,16 +3354,109 @@
       ok = false;
     } else clearFieldErr("authpw", "authpwerr");
     if (!ok) return;
+
+    /* form-level answers from the account service */
+    if (takeFail("lock"))
+      return authErr("<b>Too many tries.</b><span>Wait about 15 minutes, or reset the password.</span>");
+    if (takeFail("authdown"))
+      return authErr("<b>Couldn’t sign in right now.</b><span>Nothing was lost. Try again in a moment.</span>");
+    /* wrong password and unknown email get the same words, so the form never confirms who has an account */
+    if (authMode === "old" && takeFail("badpw"))
+      return authErr("<b>That email and password don’t match.</b><span>Check both, or reset the password.</span>");
+    /* on Create account the email is already taken: the one place an account is confirmed,
+       because the visitor needs the way forward (log in) more than the form needs secrecy */
+    if (authMode === "new" && takeFail("exists")) {
+      fieldErr("authemail", "authemailerr", '<b>An account already uses this email.</b> <button class="linkbtn" type="button" id="existlogin">Log in instead</button>');
+      $("existlogin").onclick = () => { setAuthMode("old"); $("authpw").value = ""; $("authpw").focus(); };
+      return;
+    }
+
     $("authform").hidden = true;
     $("authdone").hidden = false;
+    if (authFrom !== "start" && takeFail("claimfail")) {
+      document.querySelector("#authdone .tick").hidden = true;
+      document.querySelector("#authdone .auth-k").textContent = "Account ready";
+      document.querySelector("#authdone .auth-s").textContent = "";
+      $("claimerr").hidden = false;
+      $("claimretry").focus();
+      return;
+    }
+    document.querySelector("#authdone .tick").hidden = false;
+    $("claimerr").hidden = true;
+    /* claiming a billboard ends in Marketplace, with it waiting in My Library */
+    if (authFrom !== "start") return toLibrary();
+    document.querySelector("#authdone .auth-k").textContent =
+      authFrom === "start" ? "Account ready" : "Saved to My Library";
+    document.querySelector("#authdone .auth-s").textContent = authFrom === "start"
+      ? "Prototype ends here. In the product, this returns to Billboard Maker signed in, with no limit on billboards."
+      : "Prototype ends here. In the product, this lands in Marketplace with the billboard in My Library.";
   };
-  $("authemail").oninput = () => clearFieldErr("authemail", "authemailerr");
-  $("authpw").oninput = () => clearFieldErr("authpw", "authpwerr");
-  $("authpw").onkeydown = e => { if (e.key === "Enter") $("authgo").click(); };
-  $("authback").onclick = () => show("done");
+  function authErr(html) {
+    $("autherrtext").innerHTML = html;
+    $("autherr").hidden = false;
+    if (authMode === "old") $("authforgot").hidden = false;
+  }
+  $("authemail").oninput = () => { clearFieldErr("authemail", "authemailerr"); $("autherr").hidden = true; };
+  $("authpw").oninput = () => { clearFieldErr("authpw", "authpwerr"); $("autherr").hidden = true; };
 
-  $("usecampaign").onclick = openAuth;
-  $("usecampaign2").onclick = openAuth;
+  /* forgot password: a side trip that keeps the claim */
+  $("authforgot").onclick = () => {
+    $("authform").hidden = true;
+    document.querySelector(".auth-claim").hidden = true;
+    $("authreset").hidden = false;
+    $("resetform").hidden = false;
+    $("resetsent").hidden = true;
+    $("resetemail").value = $("authemail").value;
+    clearFieldErr("resetemail", "resetemailerr");
+    $("resetemail").focus();
+  };
+  $("resetgo2").onclick = () => {
+    const e = $("resetemail").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
+      fieldErr("resetemail", "resetemailerr", "<b>Enter an email address,</b> like you@business.com.");
+      return;
+    }
+    /* sent whether or not an account exists, so the form never confirms one */
+    $("resetform").hidden = true;
+    $("resetsent").hidden = false;
+    $("resetsenttext").innerHTML = "If an account uses <b>" + e + "</b>, a reset link is on its way. The link comes back here, with this billboard still ready to save.";
+  };
+  $("resetemail").oninput = () => clearFieldErr("resetemail", "resetemailerr");
+  $("resetback").onclick = () => {
+    $("authreset").hidden = true;
+    $("authform").hidden = false;
+    document.querySelector(".auth-claim").hidden = authFrom === "start";
+    $("authpw").focus();
+  };
+  $("claimretry").onclick = () => {
+    $("claimerr").hidden = true;
+    toLibrary();
+  };
+  function toLibrary() {
+    paintThumb($("libthumb"));
+    const wm = $("libthumb").querySelector(".wm");
+    if (wm) wm.remove();                                   /* an account removes the mark */
+    const v = versions[activeV] || { headIdx: headIdx };
+    $("libname").textContent = HEADLINES[v.headIdx].pre + " " + HEADLINES[v.headIdx].hit;
+    show("library");
+    const sc = $("libthumb").querySelector(".vscale");
+    if (sc) sc.style.transform = "scale(" + ($("libthumb").clientWidth / 560) + ")";
+  }
+  window.addEventListener("resize", () => {
+    const sc = !$("s-library").hidden && $("libthumb").querySelector(".vscale");
+    if (sc) sc.style.transform = "scale(" + ($("libthumb").clientWidth / 560) + ")";
+  });
+  $("libuse").onclick = () => toast("Opens campaign setup with this creative");
+  $("libdl").onclick = () => toast("Downloaded billboard-1400x400.png, no mark");
+  $("libadd").onclick = () => toast("Opens the upload and Create with AI options");
+  /* the Marketplace bar reuses the real Blip mark */
+  (() => { const svg = document.querySelector(".bar .logo svg"); if (svg) $("mplogo").appendChild(svg.cloneNode(true)); })();
+  $("authnew").onclick = () => startOver();
+  $("authpw").onkeydown = e => { if (e.key === "Enter") $("authgo").click(); };
+  $("authback").onclick = () => show(authFrom);
+
+  $("usecampaign").onclick = () => openAuth();
+  $("usecampaign2").onclick = () => openAuth();
 
   let shareOpener = null;
   function openShare(e) {
@@ -2198,6 +3464,9 @@
     /* show exactly what is being shared, cloned from the live preview */
     const shot = document.querySelector(".card.tail .scene").cloneNode(true);
     shot.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
+    /* what gets posted is a file, so it carries the file mark, not the preview stamp */
+    const stamp = shot.querySelector(".wm-preview");
+    if (stamp) { stamp.className = "wm wm-made"; stamp.innerHTML = madeWith(); }
     $("sharepreview").innerHTML = "";
     $("sharepreview").appendChild(shot);
     $("shareoverlay").hidden = false;
@@ -2211,7 +3480,9 @@
   $("shareoverlay").onclick = e => { if (e.target === $("shareoverlay")) closeShare(); };
   document.addEventListener("keydown", e => {
     if (e.key !== "Escape") return;
-    if (!$("resetoverlay").hidden) closeReset();
+    if (!$("pauseoverlay").hidden) closePaused();
+    else if (!$("capoverlay").hidden) closeCapture();
+    else if (!$("resetoverlay").hidden) closeReset();
     else if (!$("zoomoverlay").hidden) closeZoom();
     else if (!$("shareoverlay").hidden) closeShare();
   });
@@ -2231,15 +3502,26 @@
     $("copyfield").hidden = true;
   }
 
+  /* the share sheet's file buttons hand over the file too, so they go through the same gate */
   function savePicture() {
-    if (takeFail("ig")) return picFail("<b>The picture didn’t save.</b><span>Nothing was posted.</span>", savePicture);
+    if (!capturedEmail) return openCapture("pic", savePictureNow);
+    savePictureNow();
+  }
+  function savePictureNow() {
+    if (takeFail("ig")) { picFail("<b>The picture didn’t save.</b><span>Nothing was posted.</span>", savePicture); return false; }
     $("picerr").hidden = true;
-    toast("Picture saved. Open Instagram to post it.");
+    if (!capMode) toast("Picture saved. Open Instagram to post it.");
+    return true;
   }
   function downloadPicture() {
-    if (takeFail("dl3")) return picFail("<b>The download didn’t start.</b>", downloadPicture);
+    if (!capturedEmail) return openCapture("pic", downloadPictureNow);
+    downloadPictureNow();
+  }
+  function downloadPictureNow() {
+    if (takeFail("dl3")) { picFail("<b>The download didn’t start.</b>", downloadPicture); return false; }
     $("picerr").hidden = true;
-    toast("Downloaded the picture, ready to post");
+    if (!capMode) toast("Downloaded the picture, ready to post");
+    return true;
   }
   $("ig").onclick = savePicture;
   $("dl3").onclick = downloadPicture;
@@ -2289,6 +3571,7 @@
   /* ---------- prototype control: play one state ---------- */
 
   function closeSim() { $("simpanel").hidden = true; $("simbtn").setAttribute("aria-expanded", "false"); }
+  $("simx").onclick = closeSim;
   $("simbtn").onclick = e => {
     e.stopPropagation();
     const open = $("simpanel").hidden;
@@ -2301,7 +3584,9 @@
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeSim(); });
 
   /* every play starts from a clean result screen, so states never stack */
+  function unpause() { paused = false; $("pausednote").hidden = true; }
   function toResult() {
+    unpause();
     if (!$("resetoverlay").hidden) $("resetoverlay").hidden = true;
     $("shareoverlay").hidden = true;
     clearTimers();
@@ -2312,6 +3597,116 @@
     if (pending) clearPending();
     if (!$("s-auth").hidden) show("done");
     else if ($("s-done").hidden) finish();
+  }
+  /* the sign-in screen for the billboard on screen, in a given tab, with fields filled */
+  function authAs(mode, email, pw) {
+    toResult();
+    openAuth();
+    setAuthMode(mode);
+    $("authemail").value = email;
+    $("authpw").value = pw;
+  }
+  function forget() {
+    capturedEmail = null;
+    generations = 0;
+    paused = false;
+    $("pausednote").hidden = true;
+    $("authemail").value = "";
+    $("capemail").value = "";
+  }
+  function fillCapture() {
+    $("capemail").value = "maya@brooklyncraftcompany.com";
+    $("capgo").click();
+  }
+  /* jump straight to a run that has passed the threshold on step 3 */
+  /* ---------- coming back (Journey D) ----------
+     The browser holds the anonymous job's ID, so a refresh, a closed tab or a second tab
+     opens the same job, never a new one. Each case says where things stand, in one line. */
+  function clearResumeNotes() {
+    ["startresume", "runresume", "doneresume"].forEach(id => $(id).hidden = true);
+  }
+  document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => $(b.dataset.close).hidden = true);
+  function resumeNote(id, html) {
+    $(id + "text").innerHTML = html;
+    $(id).hidden = false;
+  }
+  /* rebuild the run screen at step `at` without starting anything new */
+  function runAt(at) {
+    clearTimers();
+    show("run");
+    clearRunFail();
+    STAGES[0] = "Reading " + siteName();
+    $("queue").innerHTML = STAGES.map(s => '<li><span class="qi" aria-hidden="true"></span><span>' + s + '</span></li>').join("");
+    paintRun(at);
+  }
+  const RESUME = {
+    /* D1 */ running: () => {
+      runAt(2);
+      resumeNote("runresume", "<b>Picked up where it left off.</b> Started 4 minutes ago and still going. Nothing new was started.");
+      runFlow(2);
+    },
+    /* D2 */ finished: () => {
+      finish();
+      resumeNote("doneresume", "<b>Finished while away.</b> This is the billboard from " + siteName() + ", saved in this browser for 30 days.");
+    },
+    /* D3 */ failed: () => {
+      runAt(2);
+      runFail(2, "gen");
+      $("runk").textContent = "This billboard didn’t finish";
+      $("now").textContent = "Stopped while the page was closed. Nothing entered was lost, and trying again picks up from this step.";
+    },
+    /* D4 */ secondTab: () => {
+      runAt(1);
+      resumeNote("runresume", "<b>Already being made in another tab.</b> This tab follows the same billboard, so nothing new was started.");
+      runFlow(1);
+    },
+    /* D5 */ emailed: () => {
+      if (!capturedEmail) capturedEmail = "maya@brooklyncraftcompany.com";
+      runAt(2);
+      resumeNote("runresume", "<b>Still being made.</b> Also on its way to " + capturedEmail + " when it’s ready, so this page can close any time.");
+      runFlow(2);
+    },
+    /* D7: the email link carries the job ID, so another device opens the same billboard */
+    fromEmail: () => {
+      if (!capturedEmail) capturedEmail = "maya@brooklyncraftcompany.com";
+      finish();
+      resumeNote("doneresume", "<b>Opened from the email.</b> This is the billboard sent to " + capturedEmail + ". Kept for 30 days, or for good once it’s saved to a free account.");
+    },
+    /* D6 */ expired: () => {
+      show("start");
+      resumeNote("startresume", "<b>The last billboard made here was deleted.</b> Billboards that aren’t saved to an account are kept for 30 days. Make a new one below.");
+    }
+  };
+  function playResume(kind) {
+    toResult();
+    clearTimers();
+    clearResumeNotes();
+    fakeReload(() => RESUME[kind]());
+  }
+
+  function slowNow() {
+    $("shareoverlay").hidden = true;
+    clearTimers();
+    show("run");
+    clearRunFail();
+    STAGES[0] = "Reading " + siteName();
+    $("queue").innerHTML = STAGES.map(s => '<li><span class="qi" aria-hidden="true"></span><span>' + s + '</span></li>').join("");
+    paintRun(2);
+    runSlow(2);
+  }
+  /* the start screen with the visitor's other inputs left alone */
+  function toStart(url) {
+    unpause();
+    clearTimers();
+    clearAllErrors();
+    $("shareoverlay").hidden = true;
+    $("resetoverlay").hidden = true;
+    show("start");
+    $("url").value = url;
+    urlCheck = { value: null, state: null };
+    clearTimeout(checkTimer);
+    goWaiting = false;
+    urlStatus(null);
   }
   function toShare() {
     toResult();
@@ -2334,6 +3729,11 @@
   const PLAYS = {
     gen:     () => { clearAllErrors(); failNext = "gen"; runFlow(0); },
     site:    () => { clearAllErrors(); failNext = "site"; runFlow(0); },
+    badurl:  () => { toStart("brooklyncraftcompany"); $("go").click(); },
+    u1:      () => { toStart(""); $("url").value = "brooklyncraftcompany.com"; $("url").dispatchEvent(new Event("blur")); },
+    u2:      () => { toStart(""); $("url").value = "brooklyncraftcompnay.com"; failNext = "dns"; $("url").dispatchEvent(new Event("blur")); },
+    dns:     () => { toStart("brooklyncraftcompnay.com"); failNext = "dns"; $("go").click(); },
+    down:    () => { toStart("brooklyncraftcompany.com"); failNext = "down"; $("go").click(); },
     runlogo: () => { clearAllErrors(); failNext = "runlogo"; runFlow(0); },
     dl:      () => { toResult(); failNext = "dl"; doDownload(); $("dlerr").scrollIntoView({ block: "center" }); },
     r1:      () => { toResult(); setRefine("Make the background a darker green"); failNext = "r1"; doRefine(); },
@@ -2365,6 +3765,48 @@
     s3:      () => { toShare(); failNext = "platform"; sharePlatform("LinkedIn"); },
     s4:      () => { toShare(); failNext = "copy"; copyLink(); },
     r5:      () => { toResult(); openPanel("p-lay"); stage("lay", layIdx === 1 ? 2 : 1); failNext = "panel"; applyPending(); },
+
+    /* exits and the shared email capture */
+    e1:      () => { forget(); toResult(); doDownload(); },
+    e2:      () => { forget(); toResult(); doDownload(); fillCapture(); },
+    e3:      () => { forget(); toResult(); doDownload(); failNext = "mail"; fillCapture(); },
+    e4:      () => { forget(); toShare(); savePicture(); },
+    e5:      () => { forget(); generations = 1; toStart("brooklyncraftcompany.com"); $("go").click(); },
+    e6:      () => { clearAllErrors(); slowNow(); },
+    e7:      () => { clearAllErrors(); forget(); slowNow(); $("slowmail").click(); fillCapture(); },
+    e8:      () => { toResult(); if (!capturedEmail) capturedEmail = "maya@brooklyncraftcompany.com"; $("authemail").value = ""; openAuth(); },
+    forget:  () => { forget(); toast("Reset to a first-time visitor"); },
+    g1:      () => { toStart("brooklyncraftcompany.com"); failNext = "cap"; $("go").click(); },
+    g2:      () => { toStart("brooklyncraftcompany.com"); failNext = "rate"; $("go").click(); },
+    g3:      () => { toStart("brooklyncraftcompany.com"); $("ctx").value = "Better than Michaels, guaranteed lowest prices in NYC"; failNext = "ctxblock"; $("go").click(); $("ctx").scrollIntoView({ block: "center" }); },
+    g4:      () => { clearAllErrors(); failNext = "outblock"; generations = 1; runFlow(0); },
+    g5:      () => { toResult(); paused = false; $("pausednote").hidden = true; setRefine("Make the background a darker green"); failNext = "cap"; doRefine(); $("refine").scrollIntoView({ block: "center" }); },
+    g6:      () => { toStart("examplesite.com"); failNext = "sitebad"; $("go").click(); },
+    a1:      () => { authAs("old", "maya@brooklyncraftcompany.com", "wrongpass1"); failNext = "badpw"; $("authgo").click(); },
+    a2:      () => { authAs("new", "maya@brooklyncraftcompany.com", "newpassword1"); failNext = "exists"; $("authgo").click(); },
+    a3:      () => { authAs("old", "maya@brooklyncraftcompany.com", ""); $("authforgot").hidden = false; $("authforgot").click(); $("resetgo2").click(); },
+    a4:      () => { authAs("old", "maya@brooklyncraftcompany.com", "wrongpass9"); failNext = "lock"; $("authgo").click(); },
+    a5:      () => { authAs("new", "maya@brooklyncraftcompany.com", "newpassword1"); failNext = "authdown"; $("authgo").click(); },
+    c1:      () => { toResult(); openAuth({ claim: "expired" }); },
+    c2:      () => { toResult(); openAuth({ claim: "taken" }); },
+    c3:      () => { authAs("new", "maya@brooklyncraftcompany.com", "newpassword1"); failNext = "claimfail"; $("authgo").click(); },
+    d1:      () => playResume("running"),
+    d2:      () => playResume("finished"),
+    d3:      () => playResume("failed"),
+    d4:      () => playResume("secondTab"),
+    d5:      () => playResume("emailed"),
+    d6:      () => playResume("expired"),
+    d7:      () => playResume("fromEmail"),
+    u3:      () => { toStart("brooklyncraftcompany.com"); failNext = "upType"; document.querySelector('[data-file="logo"]').click(); $("slogoerr").scrollIntoView({ block: "center" }); },
+    u4:      () => { toStart("brooklyncraftcompany.com"); failNext = "upBig"; document.querySelector('[data-file="prod"]').click(); $("sproderr").scrollIntoView({ block: "center" }); },
+    u5:      () => { toStart("brooklyncraftcompany.com"); failNext = "upNotLogo"; document.querySelector('[data-file="logo"]').click(); $("slogoerr").scrollIntoView({ block: "center" }); },
+    u6:      () => { toStart("brooklyncraftcompany.com"); failNext = "upSmall"; document.querySelector('[data-file="prod"]').click(); $("sproderr").scrollIntoView({ block: "center" }); },
+    lib:     () => { toResult(); toLibrary(); },
+    legal:   () => {
+      const on = document.body.classList.toggle("showlegal");
+      $("legalrow").querySelector("b").textContent = on ? "Hide legal placeholders" : "Highlight legal placeholders";
+      if (on && !$("s-done").hidden) { toStart($("url").value || "brooklyncraftcompany.com"); }
+    },
     r6:      () => {
       toResult();
       openPanel("p-brand");
