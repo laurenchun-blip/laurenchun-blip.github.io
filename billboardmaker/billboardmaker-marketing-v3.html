@@ -477,8 +477,9 @@
     .board .creative .c3 { font-size: 5px; }
   }
 
+  /* the pill on the scene says it's a sample; the foot only carries Share */
   .payoff-foot {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; justify-content: flex-end;
     gap: 16px; flex-wrap: wrap; margin-top: 14px;
   }
   .payoff-foot p { margin: 0; font-size: 13px; color: var(--ink-50); white-space: nowrap; }
@@ -490,6 +491,7 @@
   }
   .iconbtn:hover { border-color: var(--ink-32); color: var(--ink); }
   .payoff-foot .actions { align-items: center; }
+  .sharebtn { display: inline-flex; align-items: center; gap: 7px; }
 
   /* ---------- share modal ---------- */
 
@@ -1111,7 +1113,7 @@
   .fielderr .linkbtn { color: var(--danger); font-size: inherit; padding: 0; margin-left: 2px; }
 
   /* ---------- watermarks ----------
-     "Preview only" = the on-screen mockup (it's not a real placement).
+     "Sample location" = the on-screen mockup (the scene isn't a real placement).
      "Made with Blip" = every file that leaves the page (download, share). */
   .scene, .creative { position: relative; }
   .wm {
@@ -1128,7 +1130,7 @@
     color: #fff; background: rgba(20,32,44,.55);
     -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
   }
-  .wm-made b { font-weight: 600; color: #FF5A93; letter-spacing: 0; }
+  .wm-made svg { display: block; height: 1.05em; width: auto; color: #fff; margin-left: 1px; }
   /* on a full-size creative (560px before the thumbnail scales it) the mark sits in its corner */
   .wm-onart { right: 16px; bottom: 14px; font-size: 19px; padding: 7px 13px; }
   .mscene .wm { display: none; }          /* too small to read in the phone's board row */
@@ -1738,18 +1740,17 @@
           <div class="legs"><span></span><span></span></div>
         </div>
         <!-- on screen it's a preview, never a placement; files that leave the page say "Made with Blip" instead -->
-        <span class="wm wm-preview" aria-hidden="true">Preview only</span>
+        <span class="wm wm-preview">Sample location</span>
       </div>
 
       <div class="payoff-foot">
-        <p>Preview only. Not a specific board. Art is AI-generated.</p>
         <div class="actions">
           <div class="sharewrap">
-            <button class="iconbtn" id="sharebtn" title="Share" aria-label="Share">
+            <button class="btn sec sm sharebtn" id="sharebtn" type="button">
               <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="12" cy="3.6" r="1.9"/><circle cx="4" cy="8" r="1.9"/><circle cx="12" cy="12.4" r="1.9"/>
                 <path d="M5.7 7.1 10.3 4.5"/><path d="M5.7 8.9l4.6 2.6"/>
-              </svg>
+              </svg>Share
             </button>
           </div>
         </div>
@@ -3389,7 +3390,14 @@
     paintTweak(el.querySelector(".creative"), v.tweak || 0);
   }
   /* the mark on downloaded and shared files: small, bottom-right, readable on any art */
-  function madeWith() { return 'Made with <b>blip</b>'; }
+  /* the real Blip logo in white, so the mark matches the rest of the pill */
+  function madeWith() {
+    const svg = document.querySelector(".bar .logo svg").cloneNode(true);
+    svg.removeAttribute("role"); svg.removeAttribute("aria-label");
+    svg.setAttribute("aria-hidden", "true");
+    svg.querySelectorAll("[fill]").forEach(el => { if (el.getAttribute("fill") !== "none") el.setAttribute("fill", "currentColor"); });
+    return 'Made with ' + svg.outerHTML;
+  }
   $("capalt").onclick = () => { closeCapture(); openAuth({ fresh: true }); };
 
   /* ---------- sign in ----------
