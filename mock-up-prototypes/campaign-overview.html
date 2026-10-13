@@ -342,12 +342,11 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
   .dfoot{padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
   .dfoot .btn{flex:1 1 0;min-width:0;padding:9px 10px}
   .dfoot .sp{display:none}
-  .dt-desk{display:none}
+  /* Details on phones (Option A): DETAILS header like Moderation, then a card whose summary row opens the rows */
   .dt-toggle{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r-lg);text-align:left}
-  .dt-toggle span{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
-  .dt-toggle b{font-size:14px;font-weight:600}
-  .dt-toggle small{font-size:12.5px;color:var(--text-2)}
-  .dt-toggle .icon{color:var(--text-2);transition:transform .15s}
+  .dt-toggle .dt-sum{flex:1;min-width:0;font-size:14px;line-height:20px;font-weight:600}
+  .dt-toggle .dt-sum.unset{color:var(--text-2)}
+  .dt-toggle .icon{width:16px;height:16px;color:var(--text-2);transition:transform .15s}
   .details.open .dt-toggle{border-radius:var(--r-lg) var(--r-lg) 0 0;border-bottom:0}
   .details.open .dt-toggle .icon{transform:rotate(180deg)}
   .details .facts{display:none}
@@ -475,7 +474,7 @@ const CAMPAIGNS = [
     alerts:[],
     mod:{state:'ok', rows:[['1400 × 400',8,8,0,0]]}},
   {id:'oil', tab:'active', name:'Oil change deal', status:'review', label:'In review', opt:true, cre:['oil'],
-    dates:'Starts Oct 15, 2026 · ends Nov 15', left:'Starts in 8 days', perDay:16, locs:10, where:'Orem and Lehi, UT', alerts:[],
+    dates:'Starts Oct 15, 2026 · ends Nov 15', span:'Oct 15 – Nov 15', left:'Starts in 8 days', perDay:16, locs:10, where:'Orem and Lehi, UT', alerts:[],
     mod:{state:'review', rows:[['1400 × 400',8,0,8,0],['840 × 400',2,0,2,0]]}},
   /* Drafts, matching the product's two draft states: setup not finished ("Complete campaign"), and finished but not launched ("Launch") */
   {id:'hours', tab:'draft', name:'Saturday hours', status:'draft', label:'Draft', opt:false, cre:['hours'], alerts:[],
@@ -618,9 +617,8 @@ function drawerHTML(){
       <li class="now"><span><b>Moderation</b>Each board reviews the creative. An email confirms approvals.</span></li>
       <li><span><b>Goes live Oct 15</b>Plays on each of the ${c.locs} boards across ${esc(c.where)} once it’s approved there.</span></li>
       <li><span><b>First numbers</b>Impressions and spend show here the day after it starts.</span></li></ol></section>` : '';
-  const summary = `${c.locs} boards · $${c.perDay}/day · ${c.cre.length} creative${c.cre.length>1?'s':''}`;
   const facts = `<section class="sec details ${state.details?'open':''}"><h3 class="dt-desk">Details</h3>
-      <button class="dt-toggle" data-act="details" aria-expanded="${!!state.details}"><span><b>Details</b><small>${summary}</small></span>${ic('down')}</button>
+      <button class="dt-toggle" data-act="details" aria-expanded="${!!state.details}"><span class="dt-sum">${esc(factsLine(c))}</span>${ic('down')}</button>
       <div class="facts">
       <div class="fact"><span>Locations</span><div><b>${c.locs} boards</b><small>${esc(c.where)}</small></div></div>
       <div class="fact"><span>Budget</span><div><b>$${c.perDay} per day</b></div></div>
@@ -648,20 +646,25 @@ function drawerHTML(){
   </aside></div>`;
 }
 
+/* Details summary line on phones: the campaign facts once there's something to summarize (no years, no counts of steps) */
+const span = c => c.span || String(c.dates || '').replace(/, \d{4}/g, '');
+const factsLine = c => `${c.locs} boards · $${c.perDay}/day · ${span(c)}`;
+
 /* ---------- Draft drawer ----------
    Same layout as every other drawer, so drafts don't look like a different product: Last 7 days (empty), the mockup,
-   Moderation (not started) and Details in the editor's order. A step that isn't filled in says "Not set" and links to it.
+   Moderation (not started) and Details in the editor's order. A step that isn't filled in says "Not set" (no link).
    The footer's one primary is the next step: Continue setup, or Launch campaign once everything is set. */
 function draftHTML(c, mock){
   const st = c.setup, keys = ['locations','budget','duration','creative'], ready = keys.every(k => st[k]);
-  const missing = label => `<div class="row"><span class="missing">Not set</span><button class="linkbtn" data-act="setupStep" data-step="${label}">Add ${label.toLowerCase()}</button></div>`;
+  /* Streamlined: "Not set" has no link; Continue setup in the footer is the one way forward */
+  const missing = () => `<span class="missing">Not set</span>`;
   const numbers = `<section class="sec"><div class="sec-h"><h3>Last 7 days</h3></div>
       <div class="kpis dash"><div class="kpi"><span>Impressions</span><b>–</b></div><div class="kpi"><span>Spend</span><b>–</b></div><div class="kpi"><span>Blips</span><b>–</b></div></div>
       <p class="nodata">No data yet. Launch the campaign to start moderation.</p></section>`;
   const mod = `<section class="sec"><div class="sec-h"><h3>Moderation</h3></div>
       <div class="mod"><div class="mod-top"><div class="mod-hl"><span class="mword none">Not started</span><span class="ln"><span class="nw">Starts after launch</span> · <span class="nw">Usually 1–2 business days</span></span></div></div></div></section>`;
   const facts = `<section class="sec details ${state.details?'open':''}"><h3 class="dt-desk">Details</h3>
-      <button class="dt-toggle" data-act="details" aria-expanded="${!!state.details}"><span><b>Details</b><small>${ready ? `${c.locs} boards · $${c.perDay}/day` : 'Not finished'}</small></span>${ic('down')}</button>
+      <button class="dt-toggle" data-act="details" aria-expanded="${!!state.details}"><span class="dt-sum ${ready ? '' : 'unset'}">${ready ? esc(factsLine(c)) : 'Not finished'}</span>${ic('down')}</button>
       <div class="facts">
       <div class="fact"><span>Locations</span><div>${st.locations ? `<b>${c.locs} boards</b><small>${esc(c.where)}</small>` : missing('Locations')}</div></div>
       <div class="fact"><span>Budget</span><div>${st.budget ? `<b>$${c.perDay} per day</b>` : missing('Budget')}</div></div>
@@ -669,8 +672,7 @@ function draftHTML(c, mock){
       <div class="fact"><span>Creative</span><div>${st.creative ? `<div class="cr1"><span class="t">${creative(c.cre[0])}</span><div><b>${esc(CRE[c.cre[0]].name)}</b><small>${c.dims || 1} sign dimension${(c.dims||1) > 1 ? 's' : ''}</small><button class="linkbtn" data-act="seeCre">See details</button></div></div>` : missing('Creative')}</div></div>
       </div></section>`;
   const empty = `<section class="sec"><h3>On a billboard</h3>
-      <div class="mock-empty"><span class="bb"></span><div class="mt"><b>No creative yet</b><p>Add one to see it on a billboard and finish setup.</p>
-      <button class="add" data-act="setupStep" data-step="Creative">Add creative</button></div></div></section>`;
+      <div class="mock-empty"><span class="bb"></span><div class="mt"><b>No creative yet</b><p>Add one in setup to see it on a billboard.</p></div></div></section>`;
   const body = numbers + (st.creative ? mock : empty) + mod + facts;
   const menu = state.menu ? `<div class="menu" role="menu"><button role="menuitem" data-act="duplicate">${ic('copy')}Duplicate</button><button role="menuitem" data-act="deleteDraft">${ic('archive')}Delete draft</button></div>` : '';
   const foot = ready
@@ -689,9 +691,16 @@ function draftHTML(c, mock){
 }
 
 /* ---------- Render + actions ---------- */
+/* Re-rendering rebuilds the drawer, which would reset its scroll. Keep the scroll position when the same drawer
+   view re-renders (toggles, toasts); reset only when moving somewhere else (another campaign or a share view). */
+let lastDrawerView = null;
 function render(){
+  const view = state.open ? `${state.open}|${state.sv || ''}` : null;
+  const prevBody = $('.dbody'), prevTop = prevBody ? prevBody.scrollTop : 0;
   $('#main').innerHTML = list();
   $('#drawer').innerHTML = drawerHTML();
+  if (view && view === lastDrawerView){ const b = $('.dbody'); if (b) b.scrollTop = prevTop; }
+  lastDrawerView = view;
   $('#toast').innerHTML = state.toast ? `<div class="toast" role="status">${esc(state.toast)}</div>` : '';
   document.documentElement.style.overflow = state.open ? 'hidden' : '';
   if(state.enter){ state.enter = false; const d = $('.drawer'); d && d.focus && d.setAttribute('tabindex','-1'); d && d.focus({preventScroll:true}); }
