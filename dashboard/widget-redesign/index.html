@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting Started Cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#131313; --ink2:#3D3D3D; --grey:#707070; --line:#BFBFBF; --soft:#E0E0E0; --track:#E5E5E5;
+  --page:#F2F2F2; --card:#FAFAFA; --white:#FFFFFF; --flat:#F0F0F0;
+  --blue:#176BF5; --blue-deep:#0F4FBF; --tint:#EAF1FE; --next-tint:#D6E4FD; --done-tint:#F4F8FF; --done-desc:#5A6B8C;
+  --wm-next:#5A6D94; --done-line:#CFDDF8; --next-line:#8DB3F7; --todo-line:#D6D6D6;
+  --amber:#B25E00; --amber-tint:#FFF4E0; --amber-line:#F0D29A; --amber-tag:#FBE3B8;
+  --green:#1E8E3E; --red:#C5221F; --red-tint:#FDF0EF; --red-line:#F2B8B5;
+  --r:8px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:#D9D9D9;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+
+/* ---------- prototype controls (not product UI) ---------- */
+.proto{position:sticky;top:0;z-index:50;background:#1F1F1F;color:#EDEDED;font-size:12px;padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
+.proto b{color:#fff;font-weight:600;margin-right:4px}
+.proto .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.proto .lbl{color:#9A9A9A;margin-right:2px}
+.proto button{background:#333;color:#EDEDED;border:1px solid #444;border-radius:6px;padding:5px 9px;font-size:12px}
+.proto button[aria-pressed="true"]{background:#176BF5;border-color:#176BF5;color:#fff}
+.proto button.go{background:#fff;color:#111;border-color:#fff;font-weight:600}
+.proto button:hover{border-color:#777}
+.proto .sep{width:1px;height:20px;background:#444}
+.proto .tbd{color:#E8A33D;font-size:11px}
+.hint{max-width:1440px;margin:12px auto 0;padding:0 16px;font-size:13px;color:#444}
+
+/* ---------- app shell ---------- */
+.viewport{margin:16px auto 40px;background:var(--white);box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.topnav{height:64px;border-bottom:1px solid #E0E0E0;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.topnav img{height:42px}
+.topnav .icons{display:flex;gap:16px;align-items:center}
+.iconbtn{width:36px;height:36px;border-radius:50%;border:0;background:transparent;display:grid;place-items:center;color:var(--ink)}
+.iconbtn:hover{background:#F0F0F0}
+.avatar{width:32px;height:32px;border-radius:50%;background:#A142F4;color:#fff;display:grid;place-items:center;font-weight:500;font-size:14px}
+.body{display:flex;min-height:900px}
+.rail{width:64px;border-right:1px solid #E0E0E0;display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:12px}
+.rail span{width:24px;height:24px;border-radius:6px;background:#E6E6E6}
+.rail span.on{background:#C9C9C9;outline:6px solid #E6E6E6}
+.content{flex:1;background:var(--page);padding:24px;min-width:0}
+.pagehead{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.pagehead h1{font-size:28px;font-weight:600;margin:0}
+.btn{border-radius:var(--r);height:40px;padding:0 16px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;border:0}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#0F5AD6}
+.btn-header{font-size:16px}
+.link{background:none;border:0;padding:0;color:var(--blue);font-weight:600;font-size:12px;text-decoration:underline;text-underline-offset:2px;text-align:left}
+.stack{display:flex;flex-direction:column;gap:24px}
+.cols{display:flex;gap:24px;align-items:flex-start}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;gap:24px}
+.side{width:404px;flex:none;display:flex;flex-direction:column;gap:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px}
+.card h2{font-size:16px;font-weight:600;margin:0 0 8px}
+.muted{color:var(--grey);font-size:12px;font-weight:500;line-height:1.5}
+
+/* ---------- performance ---------- */
+.perfhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.dd{border:1px solid var(--line);border-radius:6px;height:36px;padding:0 10px;display:inline-flex;align-items:center;gap:10px;font-size:14px;font-weight:500;background:#fff}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.stat{border:1px solid var(--line);border-radius:var(--r);padding:16px 24px;background:#fff}
+.stat .k{font-size:12px;font-weight:600;color:var(--grey)}
+.stat .v{font-size:24px;font-weight:600;margin-top:12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.empty{border:1px solid var(--line);height:258px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:0 24px;background:#fff}
+.empty h3{margin:0;font-size:16px;font-weight:600}
+.chart{height:258px;border:1px solid var(--line);background:#fff;padding:16px}
+.modrow{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #E5E5E5;padding-top:12px;margin-top:4px;font-size:14px;font-weight:500}
+.pill{font-size:12px;font-weight:600;padding:3px 8px;border-radius:999px}
+.pill.review{background:var(--amber-tint);color:var(--amber)}
+.pill.rejected{background:var(--red-tint);color:var(--red)}
+.pill.live{background:#E8F5EC;color:var(--green)}
+
+/* ---------- getting started: 4 cards ---------- */
+.gs{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 16px 16px 24px;display:flex;gap:12px}
+.prog{width:208px;flex:none;display:flex;flex-direction:column;gap:10px;padding:12px 12px 0 0}
+.prog h2{font-size:18px;font-weight:600;margin:0}
+.prog .grow{flex:1}
+.bar{height:6px;background:var(--track);border-radius:3px;overflow:hidden;width:196px}
+.bar i{display:block;height:100%;background:var(--blue);border-radius:3px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.status-amber{display:inline-flex;align-items:center;gap:6px;color:var(--amber)!important;font-weight:600}
+.status-amber::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--amber)}
+.status-red{color:var(--red)!important;font-weight:600}
+.row{flex:1;display:flex;gap:12px;min-width:0}
+.task{flex:1 1 0;min-width:0;height:176px;border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:8px;background:var(--white);border:1px solid var(--soft);position:relative;overflow:hidden}
+.task > *{position:relative;z-index:1}
+.task .top{display:flex;justify-content:space-between;align-items:center;height:20px}
+.task .meta{font-size:12px;font-weight:500;color:var(--grey)}
+.task h3{font-size:14px;font-weight:600;margin:0;line-height:20px}
+.task .desc{font-size:12px;font-weight:500;color:var(--grey);line-height:18px;padding-right:8px}
+.task .foot{margin-top:auto;font-size:12px;font-weight:500;color:var(--grey)}
+.task .btn{height:36px}
+.tag{font-size:10px;font-weight:700;letter-spacing:.04em;padding:2px 6px;border-radius:4px;background:var(--soft);color:var(--grey)}
+.ico{width:20px;height:20px;flex:none;display:block}
+.outcome{font-weight:600;color:var(--blue-deep)}
+/* states */
+.task.done{background:var(--done-tint);border-color:var(--done-line)}
+.task.done h3{color:var(--ink)}
+.task.done .desc{color:var(--done-desc)}
+.task.next{background:var(--next-tint);border-color:var(--next-line)}
+.task.next .tag{background:var(--white);color:var(--blue)}
+.task.todo{background:var(--flat);border-color:var(--todo-line)}
+.task.todo h3{color:var(--ink2)}
+.task.goal{background:var(--white);border-color:var(--soft)}
+.task.goal.review{background:var(--amber-tint);border-color:var(--amber-line)}
+.task.goal.review .tag{background:var(--amber-tag);color:var(--amber)}
+.task.goal.review .link{color:var(--amber)}
+.task.goal.live{background:var(--done-tint);border-color:var(--done-line)}
+.task.alert{background:var(--red-tint);border-color:var(--red-line)}
+.task.alert h3{color:var(--red)}
+/* watermark drawings */
+.wm{position:absolute;right:-14px;bottom:-16px;width:92px;height:92px;z-index:0;pointer-events:none;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.task.todo .wm, .task.goal .wm{stroke:#9A9A9A;opacity:.28}
+.task.done .wm{stroke:var(--blue);opacity:.3}
+.task.next .wm{stroke:var(--wm-next);opacity:.7}
+.task.goal.review .wm{stroke:var(--amber);opacity:.25}
+.task.alert .wm{stroke:var(--red);opacity:.2}
+/* reward animations */
+@keyframes pop{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.2);opacity:1}100%{transform:scale(1)}}
+@keyframes draw{from{stroke-dashoffset:16}to{stroke-dashoffset:0}}
+@keyframes sweep{from{background-size:0% 100%}to{background-size:100% 100%}}
+@keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes wmIn{from{transform:translateY(8px)}to{transform:none}}
+@keyframes tagIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+.just .ico{animation:pop .5s cubic-bezier(.2,.8,.2,1) both}
+.just .ico path{stroke-dasharray:16;animation:draw .35s .25s ease-out both}
+.just .outcome{animation:rise .4s .35s both}
+.just .wm{animation:wmIn .5s .2s both}
+.task.done.just{background:var(--white) linear-gradient(var(--done-tint),var(--done-tint)) no-repeat;background-size:100% 100%;animation:sweep .6s cubic-bezier(.4,0,.2,1) both}
+.newnext .tag{animation:tagIn .4s .3s both}
+
+.task .link, .task .results{font-size:13px;font-weight:700;text-decoration-thickness:1.5px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#1F1F1F;color:#fff;font-size:13px;padding:10px 16px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none;z-index:60}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.note{font-size:12px;color:#555;max-width:1440px;margin:0 auto 24px;padding:0 16px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="proto" role="region" aria-label="Prototype controls">
+  <div class="grp"><b>Prototype</b><button class="go" id="advance">Complete next step ▸</button></div>
+  <span class="sep"></span>
+  <div class="grp"><span class="lbl">Jump to</span>
+    <button data-preset="start">New account</button>
+    <button data-preset="payment">Payment added</button>
+    <button data-preset="creative">Creative added</button>
+    <button data-preset="review">In review</button>
+  </div>
+  <span class="sep"></span>
+  <div class="grp"><span class="lbl">Simulate review</span>
+    <button id="simApprove">Approve</button>
+    <button id="simReject">Reject</button>
+    <span class="tbd">rejected state is a rough proposal</span>
+  </div>
+  <span class="sep"></span>
+  <div class="grp"><span class="lbl">Width</span>
+    <button data-w="1440" aria-pressed="true">1440</button>
+    <button data-w="1280">1280</button>
+  </div>
+  <span class="sep"></span>
+  <div class="grp"><button id="reset">Reset</button></div>
+</div>
+<p class="hint">Use the card buttons and links, or "Complete next step", to move through the checklist. Approve or reject the review from the bar once a campaign is submitted.</p>
+
+<div class="viewport" id="vp">
+  <header class="topnav">
+    <img src="../assets/Blip.svg" alt="Blip">
+    <div class="icons">
+      <button class="iconbtn" aria-label="Help" data-toast="Help menu (unchanged)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4.5"/><circle cx="12" cy="17.5" r=".6" fill="currentColor"/></svg>
+      </button>
+      <button class="iconbtn" aria-label="Settings" data-toast="Settings (unchanged)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+      </button>
+      <span class="avatar">JD</span>
+    </div>
+  </header>
+  <div class="body">
+    <nav class="rail" aria-label="Primary"><span></span><span></span><span class="on"></span><span></span><span></span><span></span></nav>
+    <main class="content">
+      <div class="pagehead">
+        <h1>Blip Ads Manager</h1>
+        <button class="btn btn-primary btn-header" data-toast="Header Create: global, unchanged in every state">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Create</button>
+      </div>
+      <div class="stack">
+        <div id="gsSlot"></div>
+        <div class="cols">
+          <div class="main">
+            <section class="card" id="perf">
+              <div class="perfhead"><h2 style="margin:0">Campaign performance</h2>
+                <div style="display:flex;gap:16px"><span class="dd">All Campaign ▾</span><span class="dd">3 months ▾</span></div></div>
+              <div class="stats">
+                <div class="stat"><div class="k">Impressions</div><div class="v" id="impr">-</div></div>
+                <div class="stat"><div class="k">CPM</div><div class="v" id="cpm">-</div></div>
+              </div>
+              <div id="perfBody"></div>
+            </section>
+            <section class="card"><h2>Moderation</h2><div id="modBody"></div></section>
+          </div>
+          <aside class="side">
+            <section class="card"><h2>Recent activity</h2><div id="actBody"></div></section>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<p class="note">V5 cards fitted to the dashboard. Changes from V5: 4 cards, with "Learn how Blip works" moved to a link in the progress panel so the row fits at 1280. Finished cards fill with blue so the row turns blue as steps finish; the next step has a stronger blue fill; the goal card turns amber while the ad is in review, and offers the results once it's live. While Getting started shows, the performance empty state has no Create campaign link. Header Create never changes.<br>Open questions: count the goal in "of 4"? Filled or outline button next to header Create? Dismiss before done, and once live? The rejected state is a rough proposal.</p>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const ICON = {
+  done:'<svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#176BF5"/><path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  todo:'<svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="#BFBFBF" stroke-width="1.5"/></svg>',
+  next:'<svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="#176BF5" stroke-width="2"/></svg>',
+  goal:'<svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="3 3"/></svg>',
+  review:'<svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="#B25E00" stroke-width="1.5"/><path d="M10 5.5V10l3 2" fill="none" stroke="#B25E00" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  rejected:'<svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#C5221F"/><path d="M10 5v6" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="10" cy="14.5" r="1.2" fill="#fff"/></svg>',
+};
+const WM = {
+  payment:'<svg class="wm" viewBox="0 0 48 48"><rect x="5" y="12" width="38" height="26" rx="4"/><path d="M5 19h38"/><rect x="10" y="25" width="8" height="6" rx="1.5"/><path d="M24 31h12"/></svg>',
+  creative:'<svg class="wm" viewBox="0 0 48 48"><rect x="5" y="9" width="38" height="30" rx="4"/><path d="M8 35l11-11 8 8 5-4 11 7"/><circle cx="34" cy="18" r="4"/></svg>',
+  campaign:'<svg class="wm" viewBox="0 0 48 48"><rect x="5" y="8" width="38" height="25" rx="3"/><path d="M24 29c-4-4.4-6-7.4-6-10a6 6 0 0 1 12 0c0 2.6-2 5.6-6 10z"/><circle cx="24" cy="19" r="2"/><path d="M24 33v11M17 44h14"/></svg>',
+  goal:'<svg class="wm" viewBox="0 0 48 48"><path d="M10 6v38"/><path d="M10 8h26l-5 8 5 8H10"/></svg>',
+};
+const TASKS = [
+  {id:'payment', title:'Add payment method', desc:'A card on file so campaigns can spend.', time:'1 min', cta:'Add payment method', link:'Billing →', outcome:'Payment ready'},
+  {id:'creative', title:'Add creative', desc:'Upload an ad to reuse across campaigns.', time:'2 min', cta:'Upload creative', link:'Upload creative →', outcome:'1 creative ready'},
+  {id:'campaign', title:'Create your first campaign', desc:'Pick locations and budget, then submit for review.', time:'7 min', cta:'Create campaign', link:'Create campaign →', outcome:'Submitted for review'},
+];
+const START = {payment:false, creative:false, campaign:'none'};
+let S = {...START}, JUST = null, NEWNEXT = null;
+const PRESETS = {start:{}, payment:{payment:true}, creative:{payment:true,creative:true}, review:{payment:true,creative:true,campaign:'review'}};
+
+const isDone = id => id==='campaign' ? S.campaign!=='none' : S[id];
+const doneCount = () => TASKS.filter(t=>isDone(t.id)).length;
+const count4 = () => doneCount() + (S.campaign==='live'?1:0);
+const nextStep = () => TASKS.find(t=>!isDone(t.id))?.id || null;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2200);}
+
+const plus = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>';
+function taskCard(t){
+  const nx = nextStep(), done = isDone(t.id);
+  const cls = ['task', done?'done':t.id===nx?'next':'todo', JUST===t.id?'just':'', NEWNEXT===t.id?'newnext':''].join(' ');
+  if(done) return `<article class="${cls}">${WM[t.id]}<div class="top">${ICON.done}</div><h3>${t.title}</h3><div class="desc">${t.desc}</div><div class="foot"><span class="outcome">${t.outcome}</span></div></article>`;
+  if(t.id===nx) return `<article class="${cls}">${WM[t.id]}<div class="top">${ICON.next}<span class="tag">NEXT</span></div><h3>${t.title}</h3><div class="desc">${t.desc} About ${t.time}.</div>
+    <div class="foot"><button class="btn btn-primary" data-act="${t.id}">${plus}${t.cta}</button></div></article>`;
+  return `<article class="${cls}">${WM[t.id]}<div class="top">${ICON.todo}<span class="meta">${t.time}</span></div><h3>${t.title}</h3><div class="desc">${t.desc}</div><div class="foot"><button class="link" data-act="${t.id}">${t.link}</button></div></article>`;
+}
+function goalCard(){
+  const tag = '<span class="tag">GOAL</span>';
+  if(S.campaign==='live') return `<article class="task goal done live ${JUST==='goal'?'just':''}">${WM.goal}<div class="top">${ICON.done}${tag}</div><h3>First ad is live</h3><div class="desc">Grand Opening is playing on screens now.</div><div class="foot"><button class="link" data-act="results">Check out the results →</button></div></article>`;
+  if(S.campaign==='review') return `<article class="task goal review">${WM.goal}<div class="top">${ICON.review}${tag}</div><h3>In review</h3><div class="desc">Grand Opening starts playing once it passes review.</div><div class="foot"><button class="link" data-toast="Opens the campaign's moderation details">Track review status →</button></div></article>`;
+  if(S.campaign==='rejected') return `<article class="task alert">${WM.goal}<div class="top">${ICON.rejected}${tag}</div><h3>Needs changes</h3><div class="desc">Text is too small to read from the road.</div><div class="foot"><button class="btn btn-primary" data-act="fix">Fix creative</button></div></article>`;
+  return `<article class="task goal">${WM.goal}<div class="top">${ICON.goal}${tag}</div><h3>First ad goes live</h3><div class="desc">Happens on its own once the ad passes review and starts playing.</div><div class="foot">Not yet</div></article>`;
+}
+function progPanel(){
+  const n = count4();
+  const status = {review:'In review, not live yet', rejected:'Changes needed', live:'First ad is live'}[S.campaign] || 'Ad not live yet';
+  const scls = S.campaign==='review' ? 'status-amber' : S.campaign==='rejected' ? 'status-red' : '';
+  return `<div class="prog"><h2>Getting started</h2>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${n}"><i style="width:${n/4*100}%"></i></div>
+    <div class="muted">${n} of 4 steps done</div><div class="muted ${scls}">${status}</div><span class="grow"></span>
+    <button class="link" data-toast="Opens How Blip works in a new tab">New to Blip? How it works ↗</button></div>`;
+}
+function renderGS(prevN){
+  const slot = document.getElementById('gsSlot');
+  slot.innerHTML = `<section class="gs" aria-label="Getting started">${progPanel()}<div class="row">${TASKS.map(taskCard).join('')}${goalCard()}</div></section>`;
+  if(prevN!==undefined){
+    const bar=slot.querySelector('.bar i'), w=bar.style.width; bar.style.width=(prevN/4*100)+'%'; requestAnimationFrame(()=>requestAnimationFrame(()=>bar.style.width=w));
+  }
+}
+function renderDash(){
+  const live = S.campaign==='live', has = S.campaign!=='none';
+  document.getElementById('impr').textContent = live ? '12,480' : '-';
+  document.getElementById('cpm').textContent = live ? '$8.12' : '-';
+  const pb = document.getElementById('perfBody');
+  if(live){
+    pb.innerHTML = `<div class="chart"><div class="muted" style="color:var(--ink);font-weight:600">Impressions over time</div>
+      <svg viewBox="0 0 500 200" width="100%" height="210" preserveAspectRatio="none"><polyline fill="none" stroke="#176BF5" stroke-width="2.5" points="0,190 60,170 120,175 180,140 240,120 300,128 360,90 420,70 500,40"/></svg></div>`;
+  } else {
+    // Getting started is visible, so it owns the campaign CTA: the empty state explains only.
+    pb.innerHTML = `<div class="empty"><h3>No performance data yet</h3><div class="muted">Impressions and CPM appear here once the first ad passes review and starts playing.</div></div>`;
+  }
+  const pill = {review:'<span class="pill review">In review</span>', rejected:'<span class="pill rejected">Needs changes</span>', live:'<span class="pill live">Approved</span>'}[S.campaign];
+  document.getElementById('modBody').innerHTML = has ? `<div class="modrow"><span>Grand Opening</span>${pill}</div>` : `<div class="muted">Review status for submitted campaigns appears here.</div>`;
+  document.getElementById('actBody').innerHTML = `<div class="muted">${{none:'No campaigns running, start one to see activity.', review:'Grand Opening submitted for review · just now', rejected:'Grand Opening needs changes · just now', live:'Grand Opening started playing · just now'}[S.campaign]}</div>`;
+}
+function render(prevN){ renderGS(prevN); renderDash(); }
+
+function complete(id){
+  const prevN = count4();
+  if(id==='payment') S.payment=true;
+  if(id==='creative') S.creative=true;
+  if(id==='campaign'){ if(!S.payment||!S.creative) toast('Simulated: payment and creative added inside the campaign builder'); S.payment=true; S.creative=true; S.campaign='review'; }
+  JUST=id; NEWNEXT=nextStep(); render(prevN); JUST=null; NEWNEXT=null;
+}
+function goLive(){ const p=count4(); S.campaign='live'; JUST='goal'; render(p); JUST=null; toast('Simulated: review approved, ad is playing'); }
+
+document.addEventListener('click', e=>{
+  const t = e.target.closest('button'); if(!t) return;
+  if(t.dataset.toast) toast(t.dataset.toast);
+  const a = t.dataset.act;
+  if(a==='fix'){ S.campaign='review'; render(); toast('Simulated: creative fixed and resubmitted'); }
+  else if(a==='results'){ document.getElementById('perf').scrollIntoView({behavior:'smooth',block:'center'}); }
+  else if(a) complete(a);
+  if(t.dataset.preset){ S={...START, ...PRESETS[t.dataset.preset]}; render(); }
+  if(t.dataset.w){ VW=+t.dataset.w; fit(); document.querySelectorAll('[data-w]').forEach(b=>b.setAttribute('aria-pressed', b===t)); }
+});
+document.getElementById('advance').onclick=()=>{
+  const nx=nextStep();
+  if(nx) return complete(nx);
+  if(S.campaign==='review'||S.campaign==='rejected') return goLive();
+  S={...START}; render(); toast('Back to a new account');
+};
+document.getElementById('simApprove').onclick=()=>{ if(S.campaign==='none'){toast('Submit a campaign first');return;} goLive(); };
+document.getElementById('simReject').onclick=()=>{ if(S.campaign==='none'){toast('Submit a campaign first');return;} S.campaign='rejected'; render(); toast('Simulated: review rejected'); };
+document.getElementById('reset').onclick=()=>{ S={...START}; render(); };
+
+let VW=1440;
+function fit(){ const vp=document.getElementById('vp'); vp.style.width=VW+'px'; vp.style.zoom=Math.min(1,(window.innerWidth-32)/VW); }
+window.addEventListener('resize',fit);
+fit();
+render();
+</script>
+</body>
+</html>
