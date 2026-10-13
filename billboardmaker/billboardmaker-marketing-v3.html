@@ -96,9 +96,40 @@
     font-size: 13px; color: var(--ink-70); border: 1px solid var(--rule);
     border-radius: 999px; padding: 4px 11px; background: #fff;
   }
-  /* Start over is a real action with a confirm behind it, so it reads as a button,
-     not a chip: ink text, a firmer border, the CTA weight */
-  #startover { color: var(--ink); font-weight: 600; border-color: var(--ink-32); padding: 5px 13px; }
+  /* the header action: "New billboard" on the result (keeps this one, never deletes),
+     "Cancel" during the run (the only destructive case, with a confirm behind it).
+     It reads as a button, not a chip: ink text, a firmer border, the CTA weight */
+  #startover { color: var(--ink); font-weight: 600; border-color: var(--ink-32); padding: 5px 13px; gap: 6px; }
+  #startover svg { flex: none; }
+  /* phones: "+ New" so the header stays on one line */
+  #startover .nb-s { display: none; }
+  @media (max-width: 600px) {
+    .bar #startover .nb-l, .bar .freechip .nb-l { display: none; }
+    .bar #startover .nb-s, .bar .freechip .nb-s { display: inline; }
+    .bar .freechip { padding: 0 9px; gap: 5px; }
+    /* the logo, the chip and + New don't fit with the product name, so the name steps aside while the chip shows */
+    .bar.has-chip .logo-t { display: none; }
+    /* the subtitle's two sentences each get a line, so neither wraps a lone word */
+    #freeline { display: block; }
+    .card-sub { text-wrap: pretty; }
+  }
+  .bar-end { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  /* where the free billboard stands: a status, not a button style. Grey wash, thin border,
+     no brand colour (teal = helpers, pink = go). Tap or hover explains it */
+  .freewrap { position: relative; display: inline-flex; }
+  .freechip {
+    display: inline-flex; align-items: center; gap: 6px; height: var(--h-sm); padding: 0 11px;
+    border-radius: 999px; border: 1px solid var(--rule); background: var(--wash);
+    font-size: 13px; font-weight: 500; color: var(--ink-70); white-space: nowrap; cursor: help;
+  }
+  .freechip svg { flex: none; color: var(--ink-50); }
+  .freechip .nb-s { display: none; }
+  .freetip {
+    position: absolute; top: calc(100% + 6px); right: 0; z-index: 20; width: max-content; max-width: 220px;
+    padding: 8px 11px; border-radius: 8px; background: #fff; border: 1px solid var(--rule);
+    box-shadow: 0 6px 18px rgba(20,32,44,.12); font-size: 13px; line-height: 1.4; color: var(--ink);
+  }
+  .refinehint { margin: 6px 0 0; font-size: 13px; color: var(--ink-50); }
   #startover:hover { border-color: var(--ink); }
 
   /* ---------- cards ---------- */
@@ -280,14 +311,15 @@
   .dims { font-size: 13px; color: var(--ink-50); font-variant-numeric: tabular-nums; }
   .actions { display: flex; gap: 7px; }
 
-  /* room to actually describe a change, the same shape as the promo field */
+  /* changes are short, so one line the height of the Refine button; it grows with the text, up to 3 lines */
   .adjust textarea {
     width: 100%; font: inherit; font-size: 15px; line-height: 1.5; color: var(--ink);
-    border: 1px solid var(--rule); border-radius: 9px; padding: 11px 14px;
-    background: #fff; resize: vertical; min-height: 78px;
+    border: 1px solid var(--rule); border-radius: 9px; padding: 8px 14px;
+    background: #fff; resize: none; height: var(--h-md); min-height: var(--h-md); max-height: 96px;
+    box-sizing: border-box; overflow: hidden;
   }
   .adjust textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; }
-  .adjust { display: flex; gap: 10px; align-items: flex-end; }
+  .adjust { display: flex; gap: 10px; align-items: flex-start; }   /* Refine lines up with the top of the field */
   .adjust textarea { flex: 1; }
   .adjust-foot { flex: none; display: flex; }
   .attach {
@@ -325,8 +357,16 @@
   .opthead .t { font-weight: 600; font-size: 15px; }
   .opthead .s { font-size: 14px; color: var(--ink-50); }
 
-  .optgrid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 24px; align-items: start; }
-  @media (max-width: 800px) { .optgrid { grid-template-columns: 1fr; gap: 22px; } }
+  /* promotion leads; logo/photo and colors share the rest equally. minmax(0, …) stops the
+     colour field and Add button from pushing their column wider than the logo's */
+  .optgrid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  /* mid widths: promotion takes the full row, logo/photo and colors sit side by side below it */
+  @media (max-width: 900px) {
+    .optgrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px 20px; }
+    .optgrid > :first-child { grid-column: 1 / -1; }
+  }
+  /* phones: one column */
+  @media (max-width: 600px) { .optgrid { grid-template-columns: minmax(0, 1fr); } }
 
   .optgrid textarea {
     width: 100%; font: inherit; font-size: 14px; color: var(--ink);
@@ -637,7 +677,7 @@
      bar at the bottom of the screen, and every panel is compacted. */
 
   @media (max-width: 600px) {
-    .app { padding: 14px 16px 96px; }
+    .app { padding: 16px 16px 96px; }   /* 16px gutter on every side of the page content */
     .bar { margin-bottom: 14px; }
     .card { padding: 12px; }
 
@@ -671,21 +711,21 @@
     #s-done.editing > .card.current > .art-meta,
     #s-done.editing > .card.current > .versions { display: none; }
 
-    /* the edit card sits on the page, not as a card inside a card */
-    #s-done > .editcard { background: none; border: 0; padding: 0; }
+    /* the edit section is a white card like the others, so it doesn't read as grey on grey */
+    #s-done > .editcard { padding: 14px 12px; }
 
     /* refine: one line with the button inside, grows once you type */
     .adjust { position: relative; }
     .adjust textarea {
-      height: 50px; min-height: 50px; resize: none; line-height: 1.35; overflow: hidden;
-      padding: 13px 92px 13px 14px; transition: height .15s ease;
+      height: var(--h-lg); min-height: var(--h-lg); resize: none; line-height: 1.35; overflow: hidden;
+      padding: 13px 92px 13px 14px;
     }
-    .adjust textarea:focus, .adjust textarea.has { height: 92px; overflow: auto; }
-    .adjust-foot { position: absolute; right: 6px; bottom: 6px; }
+    .adjust-foot { position: absolute; right: 4px; top: 4px; }   /* pinned to the top as the field grows */
     .adjust-foot .btn { font-size: 14px; padding: 7px 15px; }
 
     /* made from: a segmented control instead of three stacked cards */
-    .editcard > .lbl { margin-top: 14px !important; }
+    .editcard > .subhead { margin-top: 14px !important; }
+    .editcard > .lbl { margin-top: 0 !important; }
     .ingrow { flex-wrap: nowrap; gap: 3px; padding: 3px; border-radius: 10px; background: rgba(48,64,106,.07); }
     .ingchip {
       flex: 1 1 0; justify-content: center; min-height: 40px; padding: 6px 4px;
@@ -962,6 +1002,12 @@
   .auth-done { display: flex; gap: 11px; align-items: flex-start; }
   .auth-done .tick { margin-top: 4px; }
   .auth-back { display: block; margin: 16px auto 0; }
+  .authalt { width: 100%; height: var(--h-lg); display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 15px; }
+  .auth-or { display: flex; align-items: center; gap: 10px; margin: 14px 0; font-size: 13px; color: var(--ink-50); }
+  .auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+  .authlinkbtn { display: block; margin: 12px auto 0; }
+  .authlinkopen { margin: 14px 0 0 30px; }
+  .authnext { margin-top: 12px; }
 
   @media (max-width: 600px) {
     .runcta { display: none; }            /* phones keep it in the pinned bottom bar */
@@ -1017,7 +1063,7 @@
   /* phones: mid-edge would sit on content, so it docks in the empty end of the header row */
   @media (max-width: 600px) {
     .simtab {
-      top: 14px; right: 8px; transform: none; writing-mode: horizontal-tb;
+      top: auto; bottom: 120px; right: 8px; transform: none; writing-mode: horizontal-tb;   /* off the header, which now has actions on the right */
       width: 32px; height: 32px; padding: 0; border: 1px solid #374151; border-radius: 999px;
       font-size: 0; display: flex; align-items: center; justify-content: center;   /* label stays as the accessible name */
     }
@@ -1117,6 +1163,8 @@
   .auth-gone .auth-k, .auth-done .auth-k, .auth-sent .auth-k, #authreset .auth-k { font-size: 18px; }
   /* section labels become real headers: sentence case, not uppercase micro-labels */
   .lbl.sec { font-size: 17px; text-transform: none; letter-spacing: -.005em; margin-bottom: 10px; }
+  /* a second way inside the same section: below the section header, above field labels */
+  .subhead { font-size: 14px; font-weight: 600; color: var(--ink-70); margin-bottom: 8px; }
   .btn { font-family: var(--display); font-weight: 500; letter-spacing: 0; }
   #startover { font-family: var(--display); font-weight: 500; }
   @media (max-width: 600px) {
@@ -1331,8 +1379,15 @@
 <div class="app">
 
   <div class="bar">
-    <span class="logo"><svg viewBox="0 0 97 46" fill="none" role="img" aria-label="Blip"><path d="M58.6674 8.73141C58.6674 9.42073 58.1504 9.88028 57.5185 9.88028H53.038C52.4061 9.88028 51.8891 9.42073 51.8891 8.73141V6.77833C51.8891 6.14645 52.4061 5.68691 53.038 5.68691H57.5185C58.1504 5.68691 58.6674 6.14645 58.6674 6.77833V8.73141ZM58.6674 30.1578C58.6674 30.7323 58.1504 31.1918 57.5185 31.1918H53.038C52.4061 31.1918 51.8891 30.7323 51.8891 30.1578V14.8779C51.8891 14.3034 52.4061 13.7864 53.038 13.7864H57.5185C58.1504 13.7864 58.6674 14.3034 58.6674 14.8779V30.1578ZM45.4555 0V29.9281C45.4555 30.6174 44.8236 30.9046 44.1917 30.9046H39.7686C39.1942 30.9046 38.6772 30.6174 38.6772 29.9281V0H16.3892V10.1675H26.7864C30.0032 10.1675 31.8989 11.9482 31.8989 15.1076V25.9645C31.8989 29.1813 30.0032 30.9046 26.7864 30.9046H11.3342C10.4151 30.9046 9.61089 30.3302 9.61089 29.4111V0H0.879517V40.2104H65.1011V11.661C65.1011 10.7994 65.6755 10.1675 66.5946 10.1675H82.1617C85.3785 10.1675 87.389 11.9482 87.389 15.1076V25.9645C87.389 29.1813 85.3785 30.9046 82.1617 30.9046H71.8793V45.7825H78.313V40.2104H96.1204V0H45.4555ZM80.6107 15.797H71.8793V25.3326H80.6107V15.797ZM25.1206 15.797H16.3892V25.3326H25.1206V15.797Z" fill="#FF0C68"/></svg>Billboard Maker</span>
-    <button class="ghost" id="startover" hidden>Start over</button>
+    <span class="logo"><svg viewBox="0 0 97 46" fill="none" role="img" aria-label="Blip"><path d="M58.6674 8.73141C58.6674 9.42073 58.1504 9.88028 57.5185 9.88028H53.038C52.4061 9.88028 51.8891 9.42073 51.8891 8.73141V6.77833C51.8891 6.14645 52.4061 5.68691 53.038 5.68691H57.5185C58.1504 5.68691 58.6674 6.14645 58.6674 6.77833V8.73141ZM58.6674 30.1578C58.6674 30.7323 58.1504 31.1918 57.5185 31.1918H53.038C52.4061 31.1918 51.8891 30.7323 51.8891 30.1578V14.8779C51.8891 14.3034 52.4061 13.7864 53.038 13.7864H57.5185C58.1504 13.7864 58.6674 14.3034 58.6674 14.8779V30.1578ZM45.4555 0V29.9281C45.4555 30.6174 44.8236 30.9046 44.1917 30.9046H39.7686C39.1942 30.9046 38.6772 30.6174 38.6772 29.9281V0H16.3892V10.1675H26.7864C30.0032 10.1675 31.8989 11.9482 31.8989 15.1076V25.9645C31.8989 29.1813 30.0032 30.9046 26.7864 30.9046H11.3342C10.4151 30.9046 9.61089 30.3302 9.61089 29.4111V0H0.879517V40.2104H65.1011V11.661C65.1011 10.7994 65.6755 10.1675 66.5946 10.1675H82.1617C85.3785 10.1675 87.389 11.9482 87.389 15.1076V25.9645C87.389 29.1813 85.3785 30.9046 82.1617 30.9046H71.8793V45.7825H78.313V40.2104H96.1204V0H45.4555ZM80.6107 15.797H71.8793V25.3326H80.6107V15.797ZM25.1206 15.797H16.3892V25.3326H25.1206V15.797Z" fill="#FF0C68"/></svg><span class="logo-t">Billboard Maker</span></span>
+    <!-- page-level actions sit on the right: where the free billboard stands, then the way to make another -->
+    <span class="bar-end">
+      <span class="freewrap">
+        <button class="freechip" id="freechip" type="button" aria-expanded="false" aria-controls="freetip" hidden><span class="nb-l">1 of 1 free used</span><span class="nb-s">1/1 free</span><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.3"/><path d="M8 7.3v3.8"/><path d="M8 4.9v.1"/></svg></button>
+        <span class="freetip" id="freetip" role="tooltip" hidden>Create a free account to make more billboards.</span>
+      </span>
+      <button class="ghost" id="startover" hidden>New billboard</button>
+    </span>
   </div>
 
   <!-- ============ SCREEN 1 : START ============ -->
@@ -1347,12 +1402,12 @@
       <div class="card-top" style="margin-bottom:14px">
         <div>
           <div class="card-name">Your business</div>
-          <div class="card-sub">A finished billboard, sized for your boards.</div>
+          <div class="card-sub">A finished billboard from a website.<span id="freeline"></span></div>
         </div>
       </div>
 
       <div class="lbl">Business website</div>
-      <p class="hint fieldhelp">We’ll pull your logo, colors, and what you do from your site. You can change any of it.</p>
+      <p class="hint fieldhelp">Logo, colors, and business details come from this site. Everything stays editable.</p>
       <div class="hero">
         <span class="urlwrap">
           <svg class="urlglobe" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M1.8 8h12.4M8 1.8c1.8 1.9 2.6 4 2.6 6.2S9.8 12.3 8 14.2M8 1.8C6.2 3.7 5.4 5.8 5.4 8s.8 4.3 2.6 6.2"/></svg>
@@ -1367,7 +1422,7 @@
            the line sits right by it, links visible, shown once. In the product the links open in a
            new tab, and agreeing is logged on the job with the Terms version and a timestamp. -->
       <p class="termsline" data-legal="L1">By making a billboard, you agree to the <a href="#" onclick="return false" title="Opens in a new tab">Terms of Service</a> and <a href="#" onclick="return false" title="Opens in a new tab">Privacy Policy</a>.</p>
-      <p class="tip tip-help"><span class="i"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.7a4.2 4.2 0 0 0-2.4 7.6c.5.4.8 1 .8 1.6v.3h3.2v-.3c0-.6.3-1.2.8-1.6A4.2 4.2 0 0 0 8 1.7z"/><path d="M6.5 13.2h3"/><path d="M7.1 14.7h1.8"/></svg></span><span>If you’re promoting one thing, link that page rather than your homepage. Works with the homepage too.</span></p>
+      <p class="tip tip-help"><span class="i"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.7a4.2 4.2 0 0 0-2.4 7.6c.5.4.8 1 .8 1.6v.3h3.2v-.3c0-.6.3-1.2.8-1.6A4.2 4.2 0 0 0 8 1.7z"/><path d="M6.5 13.2h3"/><path d="M7.1 14.7h1.8"/></svg></span><span>Promoting one thing? Link its page. A homepage works too.</span></p>
 
       <div class="optblock">
       <div class="opthead">
@@ -1379,7 +1434,7 @@
 
         <div>
           <div class="lbl">What are you promoting?</div>
-          <textarea id="ctx" placeholder="20% off workshops through Labor Day" aria-describedby="ctxguide"></textarea>
+          <textarea id="ctx" placeholder="e.g. 20% off workshops through Labor Day" aria-describedby="ctxguide"></textarea>
           <!-- L2 · LEGAL PLACEHOLDER. The content rule said where people type, so the filter
                (R4, and blocked first generations) is hit less. A hint, not an agreement. -->
           <p class="guideline" id="ctxguide" data-legal="L2">Keep it to your own business: no other companies’ logos or names, and no claims that can’t be backed up.</p>
@@ -1394,7 +1449,7 @@
         </div>
 
         <div>
-          <div class="lbl">Your logo</div>
+          <div class="lbl">Logo</div>
           <button class="filebtn" data-file="logo">+ Upload logo</button>
           <div class="filedone" id="f-logo" hidden>
             <span class="thumb alpha"><span class="mark">BCC</span></span>
@@ -1498,7 +1553,7 @@
     </div>
 
     <div class="card current">
-      <div class="lbl sec">Creative</div>
+      <div class="lbl sec">Your billboard</div>
       <div class="creative split zoomable" id="creative" role="button" tabindex="0" aria-label="View full size">
         <div class="c-copy">
           <span class="c1" id="cr1">Crafting Comes to</span>
@@ -1510,7 +1565,7 @@
       <p class="redrawnote" id="redrawnote" hidden><span class="spin"></span><span id="redrawtext">Redrawing with your change</span></p>
 
       <div class="art-meta">
-        <span class="dims">1400 × 400<span class="dims-x"> · 3.5:1 · bulletin</span></span>
+        <span class="dims">1400 × 400<span class="dims-x"> · standard billboard size</span></span>
         <button class="vtoggle" type="button" id="vtoggle" aria-expanded="false" aria-controls="versions" hidden></button>
         <span class="actions">
           <button class="iconbtn" type="button" id="zoombtn" title="View full size" aria-label="View full size">
@@ -1543,23 +1598,27 @@
 
     <!-- change it: free text on top, the parts underneath -->
     <div class="card editcard">
+      <!-- one job, two ways: describe it, or change a part it was made from -->
+      <div class="lbl sec">Make changes</div>
       <!-- shown once the daily spend cap is hit: says up front that changes are paused,
            so the sheet on Refine or Apply is never a surprise -->
       <div class="tip pausednote" id="pausednote" role="status" hidden>
         <span class="i" aria-hidden="true">&#9208;</span>
-        <span>Changes are paused for today. This billboard and its versions are kept, and Download still works. <button class="linkbtn" type="button" id="pausednotejoin">Create a free account</button> to keep editing.</span>
+        <span>Changes are paused for today. This billboard is kept, and Download still works. <button class="linkbtn" type="button" id="pausednotejoin">Create a free account</button> to keep editing.</span>
       </div>
       <div class="adjust">
-        <textarea id="refine" placeholder="Describe a change, or ask for a different look"></textarea>
+        <textarea id="refine" rows="1" placeholder="Describe a change, like “darker background”"></textarea>
         <div class="adjust-foot"><button class="btn ink" id="do-refine" disabled>Refine</button></div>
       </div>
+      <!-- said where the worry happens: before anyone refines, before an account -->
+      <p class="refinehint" id="refinehint" hidden>Changes are free.</p>
       <div class="inlerr" id="refineerr" role="alert" hidden>
         <span class="erri" aria-hidden="true">!</span>
         <span class="et" id="refineerrtext"></span>
         <button class="linkbtn" type="button" id="refineretry">Try again</button>
       </div>
 
-      <div class="lbl sec" style="margin-top:17px">Made from</div>
+      <div class="subhead" style="margin-top:17px">Or change what it’s made from</div>
       <div class="ingrow">
         <button class="ingchip" type="button" data-panel="p-brand" aria-expanded="false">
           <span class="thumb sm alpha"><span class="mark">BCC</span></span>
@@ -1578,7 +1637,7 @@
       </div>
 
       <div class="panel" id="p-brand" hidden>
-        <p class="cascade">Changing anything here rewrites the message, the layout and the artwork.</p>
+        <p class="cascade">Changes here redo the message, layout and artwork.</p>
         <div class="pgrid">
           <div>
             <div class="lbl">Listing</div>
@@ -1623,21 +1682,21 @@
           </div>
         </div>
         <div class="gist" id="gist">
-          <button class="lbl gist-t" type="button" id="gist-t" aria-expanded="false">What we read from your site<span class="gist-chev" aria-hidden="true">&#9662;</span></button>
+          <button class="lbl gist-t" type="button" id="gist-t" aria-expanded="false">What the site says<span class="gist-chev" aria-hidden="true">&#9662;</span></button>
           <p>A modern craft store and DIY workshop space in Greenpoint, Brooklyn, selling fabric, yarn and craft supplies in store and online. Runs beginner friendly classes in sewing, knitting, crochet, embroidery and quilting, plus kids classes and private events.</p>
         </div>
       </div>
 
       <div class="panel" id="p-head" hidden>
-        <p class="cascade">A different message redraws the layout and the artwork.</p>
-        <p class="reason" id="head-reason" style="margin-top:0">Picked because your site leads with classes and events, and you mentioned a dated pop-up.</p>
+        <p class="cascade">A new message redraws the layout and artwork.</p>
+        <p class="reason" id="head-reason" style="margin-top:0">Picked because your site’s Events page announces a summer pop-up at 225 Broadway, in Manhattan.</p>
         <div class="options" id="opt-head"></div>
-        <p class="valueline"><span class="vl-long">A billboard gets about seven words. The line underneath carries the where and when:</span><span class="vl-short">Line underneath:</span> <b id="supportline">Summer Pop-Up &#183; 225 Broadway, New York</b></p>
+        <p class="valueline"><span class="vl-long">Billboards fit about seven words. The line underneath holds the where and when:</span><span class="vl-short">Line underneath:</span> <b id="supportline">Summer Pop-Up &#183; 225 Broadway, New York</b></p>
       </div>
 
       <div class="panel" id="p-lay" hidden>
         <p class="cascade">A different layout redraws the artwork.</p>
-        <p class="reason" id="lay-reason" style="margin-top:0">Picked because a four word headline leaves room for a product shot beside it.</p>
+        <p class="reason" id="lay-reason" style="margin-top:0">Picked because a four-word headline leaves room for a product photo.</p>
         <div class="options" id="opt-lay"></div>
       </div>
 
@@ -1683,7 +1742,7 @@
       </div>
 
       <div class="payoff-foot">
-        <p>Preview only. Not a specific board, and the art is AI-generated.</p>
+        <p>Preview only. Not a specific board. Art is AI-generated.</p>
         <div class="actions">
           <div class="sharewrap">
             <button class="iconbtn" id="sharebtn" title="Share" aria-label="Share">
@@ -1724,8 +1783,8 @@
       <div class="auth-claim">
         <div class="auth-thumb" id="auththumb" aria-hidden="true"></div>
         <div>
-          <div class="auth-k">This billboard is ready to run</div>
-          <p class="auth-s">An account saves it to My Library, where a campaign can be set up with it. Nothing to download or upload.</p>
+          <div class="auth-k" id="authclaimk">This billboard is ready to run</div>
+          <p class="auth-s" id="authclaims">An account saves it to My Library, where a campaign can be set up with it. Nothing to download or upload.</p>
         </div>
       </div>
 
@@ -1735,6 +1794,13 @@
           <button class="segbtn" type="button" role="tab" id="tab-old" aria-selected="false">Log in</button>
         </div>
 
+        <!-- PROPOSED, pending PM/engineering: no-password ways in, so an account costs the visitor
+             no more than an email did. The password form stays as the fallback. -->
+        <button class="btn sec authalt" type="button" id="authgoogle">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="#4285F4" d="M15.7 8.2c0-.6-.1-1.1-.2-1.6H8v3h4.3a3.7 3.7 0 0 1-1.6 2.4v2h2.6c1.5-1.4 2.4-3.4 2.4-5.8z"/><path fill="#34A853" d="M8 16c2.2 0 4-.7 5.3-2l-2.6-2c-.7.5-1.6.8-2.7.8-2.1 0-3.9-1.4-4.5-3.3H.8v2.1A8 8 0 0 0 8 16z"/><path fill="#FBBC05" d="M3.5 9.5a4.8 4.8 0 0 1 0-3V4.4H.8a8 8 0 0 0 0 7.2z"/><path fill="#EA4335" d="M8 3.2c1.2 0 2.3.4 3.1 1.2l2.3-2.3A8 8 0 0 0 .8 4.4l2.7 2.1C4.1 4.6 5.9 3.2 8 3.2z"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-or"><span>or</span></div>
         <label class="field">
           <span>Email</span>
           <input id="authemail" type="email" autocomplete="email" placeholder="you@business.com">
@@ -1755,6 +1821,20 @@
 
         <button class="btn authgo" type="button" id="authgo">Create account</button>
         <p class="auth-legal" id="authlegal" data-legal="L6">By creating an account, you agree to the <a href="#" onclick="return false">Terms</a> and <a href="#" onclick="return false">Privacy Policy</a>.</p>
+        <button class="linkbtn authlinkbtn" type="button" id="authlinkbtn">Send a sign-in link instead</button>
+      </div>
+
+      <!-- the sign-in link: the job ID rides along, so opening it saves this billboard -->
+      <div id="authlink" hidden>
+        <div class="auth-sent" role="status">
+          <span class="tick">&#10003;</span>
+          <div>
+            <div class="auth-k">Check your email</div>
+            <p class="auth-s" id="authlinktext"></p>
+          </div>
+        </div>
+        <button class="btn sec sm authlinkopen" type="button" id="authlinkopen">Prototype: open the link</button>
+        <button class="linkbtn auth-back" type="button" id="authlinkback">&#8249; Use a password instead</button>
       </div>
 
       <!-- A3: reset without losing the claim; the job ID rides along in the reset link -->
@@ -1781,6 +1861,7 @@
         <div>
           <div class="auth-k">Saved to My Library</div>
           <p class="auth-s">Prototype ends here. In the product, this lands in Marketplace with the billboard in My Library.</p>
+          <button class="btn sm authnext" type="button" id="authnext" hidden>Make the next billboard</button>
           <!-- C3: the account exists, the claim didn't land. The job is still there, so retry is safe -->
           <div class="inlerr" id="claimerr" role="alert" hidden>
             <span class="erri" aria-hidden="true">!</span>
@@ -2042,7 +2123,8 @@
       <button class="simrow" type="button" data-sim="e2"><b>X2 · Lead captured</b><span>Email given: download starts, next step offered.</span></button>
       <button class="simrow" type="button" data-sim="e3"><b>X3 · Email didn’t send</b><span>Download still started. Send again.</span></button>
       <button class="simrow" type="button" data-sim="e4"><b>X4 · Share sheet picture gate</b><span>Instagram save, same component.</span></button>
-      <button class="simrow" type="button" data-sim="e5"><b>X5 · Quota reached</b><span>Second billboard, no email yet.</span></button>
+      <button class="simrow" type="button" data-sim="e5"><b>X5 · Quota reached</b><span>Second billboard from the start screen. Sign-up, not an email.</span></button>
+      <button class="simrow" type="button" data-sim="e9"><b>X9 · New billboard, no account</b><span>Sign-up first; it saves this one.</span></button>
       <button class="simrow" type="button" data-sim="e6"><b>X6 · Taking longer</b><span>Past the threshold: Email me, Keep waiting or Exit.</span></button>
       <button class="simrow" type="button" data-sim="e7"><b>X7 · Email-me confirmation</b><span>Safe to close; the run keeps going.</span></button>
       <button class="simrow" type="button" data-sim="e8"><b>X8 · Sign-in with email prefilled</b><span>After a captured email, Run this on billboards.</span></button>
@@ -2082,34 +2164,36 @@
   const $ = id => document.getElementById(id);
 
   const HEADLINES = [
-    { pre: "Crafting Comes to", hit: "Manhattan", label: "“Crafting Comes to Manhattan”", meta: "Event angle · 4 words",
+    { pre: "Crafting Comes to", hit: "Manhattan", label: "“Crafting Comes to Manhattan”", meta: "Event · 4 words",
       support: "Summer Pop-Up · 225 Broadway, New York", tags: ["event", "dated", "new market"],
-      why: "Picked because your site leads with classes and events, and you mentioned a dated pop-up." },
-    { pre: "20% Off All", hit: "Workshops", label: "“20% Off All Workshops”", meta: "Offer angle · 4 words",
+      why: "Picked because your site’s Events page announces a summer pop-up at 225 Broadway, in Manhattan." },
+    { pre: "20% Off All", hit: "Workshops", label: "“20% Off All Workshops”", meta: "Offer · 4 words",
       support: "Through Labor Day · 225 Broadway, New York", tags: ["offer", "discount", "urgency"],
-      why: "You mentioned a Labor Day discount, and a clear offer reads fastest at speed." },
-    { pre: "Learn To Sew", hit: "This Summer", label: "“Learn To Sew This Summer”", meta: "Problem-solution angle · 5 words",
+      why: "The site’s Workshops page lists 20% off through Labor Day, and a clear offer reads fastest at speed." },
+    { pre: "Learn To Sew", hit: "This Summer", label: "“Learn To Sew This Summer”", meta: "Outcome · 5 words",
       support: "Beginner classes · 225 Broadway, New York", tags: ["beginner", "outcome", "classes"],
-      why: "Your classes are beginner focused, so this speaks to what someone walks away with." },
-    { pre: "Brooklyn’s Craft Studio,", hit: "Now Downtown", label: "“Brooklyn’s Craft Studio, Now Downtown”", meta: "Brand-awareness angle · 5 words",
-      support: "Now open · 225 Broadway, New York", tags: ["name-led", "awareness", "new market"],
-      why: "Useful in a market that does not know the name yet, which Manhattan is for you." },
-    { pre: "1,200 Five-Star Makers", hit: "Can’t Be Wrong", label: "“1,200 Five-Star Makers Can’t Be Wrong”", meta: "Reputation angle · 6 words",
-      support: "1,200 five-star reviews · 225 Broadway, New York", tags: ["proof", "reviews", "trust"],
-      why: "Your listing shows a high review count, and proof travels well on a board." }
+      why: "The site’s Classes page is beginner focused, so this speaks to what someone walks away with." },
+    { pre: "Brooklyn’s Craft Studio,", hit: "Now in Manhattan", label: "“Brooklyn’s Craft Studio, Now in Manhattan”", meta: "Name-led · 6 words",
+      support: "Summer Pop-Up · 225 Broadway, New York", tags: ["name-led", "awareness", "new market"],
+      why: "The site places the studio in Brooklyn, so the name is new to Manhattan. This leads with it." },
+    /* proof claims are never invented: this angle only appears when a number is found on the
+       visitor's own site or listing, the reason names that source, and the support line repeats it */
+    { pre: "1,200 Five-Star Makers", hit: "Can’t Be Wrong", label: "“1,200 Five-Star Makers Can’t Be Wrong”", meta: "Reviews · 6 words",
+      support: "1,200 five-star Google reviews · 225 Broadway", tags: ["proof", "reviews", "trust"],
+      why: "The business’s Google listing shows 1,200 five-star reviews. Check the number is still current before it runs." }
   ];
 
 
   const LAYOUTS = [
-    { cls: "split", name: "Split image", meta: "Copy left, product right. Reads in one pass at speed.", wf: [46, 54],
+    { cls: "split", name: "Split image", meta: "Words left, photo right. Reads in one glance.", wf: [46, 54],
       desc: "An oversized yarn ball over the skyline, headline beside it.",
-      why: "Picked because a four word headline leaves room for a product shot beside it." },
-    { cls: "photo", name: "Photo-led", meta: "Product dominant, copy on a panel. Strongest at distance.", wf: [34, 66],
+      why: "Picked because a four-word headline leaves room for a product photo." },
+    { cls: "photo", name: "Photo-led", meta: "Big product photo, words on a panel. Strongest from far away.", wf: [34, 66],
       desc: "A hand-cut Manhattan silhouette takes the board.",
-      why: "Works when the product is recognizable from far away, so the image does the selling." },
-    { cls: "centred", name: "Logo-led", meta: "Centered copy, no product shot. Best when the name is the message.", wf: [100],
+      why: "Best when the product is easy to recognize from far away." },
+    { cls: "centred", name: "Logo-led", meta: "Centered words, no photo. Best when the name is the message.", wf: [100],
       desc: "Stitched lettering carries it, no image.",
-      why: "Best when the name itself is the message and there is no product worth showing." }
+      why: "Best when the name is well known, or there’s no product to show." }
   ];
 
   let headIdx = 0, layIdx = 0;
@@ -2123,6 +2207,10 @@
     $("s-library").hidden = which !== "library";
     document.querySelector(".bar").hidden = which === "library";   /* Marketplace has its own chrome */
     $("startover").hidden = which === "start" || which === "auth";
+    $("startover").innerHTML = which === "run" ? "Cancel"
+      : PLUS_ICON + '<span class="nb-l">New billboard</span><span class="nb-s">New</span>';
+    $("startover").setAttribute("aria-label", which === "run" ? "Cancel this billboard" : "New billboard");
+    syncFree();
     window.scrollTo({ top: 0 });
   }
 
@@ -2328,7 +2416,7 @@
     clearRunFail();
     show("start");
     fieldErr("url", "urlerr",
-      "<b>Couldn’t read " + siteName() + ".</b> Check the address, or link a page that says more about the business, like an About page.");
+      "<b>Couldn’t read " + siteName() + ".</b> Check the address, or try the About page.");
     $("url").focus();
   }
 
@@ -2342,7 +2430,7 @@
     if (inputId) $(inputId).removeAttribute("aria-invalid");
   }
 
-  function finish() { clearTimers(); $("runresume").hidden = true; show("done"); versions = []; activeV = 0; snapshot("Original", "First generation"); }
+  function finish() { clearTimers(); $("runresume").hidden = true; show("done"); versions = []; activeV = 0; snapshot("Original", "First version"); }
 
   /* ---------- option lists ---------- */
   function buildHeadlines() {
@@ -2384,9 +2472,9 @@
 
   let pending = null;
   const CASCADE = {
-    head:  { text: "redraws the layout and the artwork", mins: "about 5 minutes", chips: ["p-lay"] },
+    head:  { text: "redraws the layout and artwork", mins: "about 5 minutes", chips: ["p-lay"] },
     lay:   { text: "redraws the artwork", mins: "about 3 minutes", chips: [] },
-    brand: { text: "rewrite the message, the layout and the artwork", mins: "about 8 minutes", chips: ["p-head", "p-lay"] }
+    brand: { text: "redo the message, layout and artwork", mins: "about 8 minutes", chips: ["p-head", "p-lay"] }
   };
 
   /* a panel open or a change waiting: pin the creative, swap the bottom bar */
@@ -2435,7 +2523,7 @@
     $("changeerr").hidden = true;
     pending = { kind: kind, idx: idx };
     const c = CASCADE[kind];
-    const label = kind === "head" ? HEADLINES[idx].label : kind === "lay" ? LAYOUTS[idx].name : "Your brand changes";
+    const label = kind === "head" ? HEADLINES[idx].label : kind === "lay" ? LAYOUTS[idx].name : "Brand changes";
     $("confirmtext").innerHTML = "<b>" + label + "</b> " + c.text + ", " + c.mins + ".";
     $("confirmbar").hidden = false;
     paintWillUpdate(c.chips);
@@ -2470,7 +2558,7 @@
         if (p.kind === "brand") restoreBrand(brandCommitted);
         buildHeadlines(); buildLayouts();
         const what = p.kind === "head" ? "<b>" + HEADLINES[p.idx].label + "</b>"
-                   : p.kind === "lay" ? "<b>" + LAYOUTS[p.idx].name + "</b>" : "<b>your brand changes</b>";
+                   : p.kind === "lay" ? "<b>" + LAYOUTS[p.idx].name + "</b>" : "<b>the brand changes</b>";
         $("changeerrtext").innerHTML = "Couldn’t switch to " + what + ". The billboard is unchanged.";
         $("changeerr").hidden = false;
         lastFailedChange = { p: p, brand: attempt };
@@ -2732,8 +2820,8 @@
       if ($("url").value.trim() !== v) return;         // the visitor kept typing; a newer check wins
       let err = null;
       /* the site itself is outside the ad guidelines: nothing to retry, so leave the field open */
-      if (takeFail("sitebad")) err = "<b>This website can’t be used for a billboard.</b> The site’s content falls outside Blip’s <a href=\"#\" onclick=\"return false\" data-legal=\"L7\">ad guidelines</a>. If that’s the wrong site, check the address.";
-      else if (takeFail("dns")) err = "<b>Couldn’t find " + host + ".</b> Check the spelling of the address.";
+      if (takeFail("sitebad")) err = "<b>This site can’t be used.</b> Content on it falls outside Blip’s <a href=\"#\" onclick=\"return false\" data-legal=\"L7\">ad guidelines</a>. Wrong site? Check the address.";
+      else if (takeFail("dns")) err = "<b>Couldn’t find " + host + ".</b> Check the spelling.";
       else if (takeFail("down")) err = "<b>" + host + " didn’t respond.</b> Check the address, or try again in a moment.";
       if (err) {
         urlCheck.state = "bad";
@@ -2779,7 +2867,7 @@
     /* the promotion text is screened before a job exists, so a blocked phrase costs nothing
        and is fixed in place, like any other field */
     if (takeFail("ctxblock")) {
-      fieldErr("ctx", "ctxerr", "<b>That promotion can’t be used.</b> Describe your own offer, without other companies’ names or claims that can’t be backed up.");
+      fieldErr("ctx", "ctxerr", "<b>That promotion can’t be used.</b> Describe your own offer, with no other brands or unproven claims.");
       $("ctx").focus();
       return;
     }
@@ -2796,7 +2884,8 @@
      so nobody hands over an email for a typo */
   $("go2").onclick = () => $("go").click();
   function proceed() {
-    if (generations >= 1 && !capturedEmail) return openCapture("quota", startRun);
+    /* past the free billboard: an account, not an email. The site check has already passed */
+    if (generations >= 1 && !signedIn) return openAuth({ fresh: true, more: true });
     startRun();
   }
   function startRun() { generations++; $("startresume").hidden = true; runFlow(0); }
@@ -2822,6 +2911,7 @@
   function hitCap(kind) {
     paused = true;
     $("pausednote").hidden = false;
+    syncFree();
     openPaused(kind);
   }
   function openPaused(kind) {
@@ -2854,10 +2944,14 @@
     const running = !$("s-run").hidden;
     const n = versions.length;
     if (running) {
-      $("resettext").textContent = "This stops making your billboard and clears:";
+      $("resettitle").textContent = "Cancel this billboard?";
+      $("resetcancel").textContent = "Keep going";
+      $("resettext").textContent = "This stops it and clears:";
       $("resetlist").innerHTML = "<li>The billboard in progress</li><li>The promotion details, logo, photo and colors you added</li>";
-      $("resetgo").textContent = "Stop and start over";
+      $("resetgo").textContent = "Cancel billboard";
     } else {
+      $("resettitle").textContent = "Start over?";
+      $("resetcancel").textContent = "Keep working";
       $("resettext").textContent = "This permanently deletes:";
       $("resetlist").innerHTML =
         "<li>" + (n > 1 ? "Your billboard and all " + n + " versions" : "Your billboard") + "</li>" +
@@ -2870,11 +2964,42 @@
   }
   function closeReset() { $("resetoverlay").hidden = true; $("startover").focus(); }
 
-  $("startover").onclick = openReset;
+  /* result: New billboard keeps this one. With no email yet, the gate comes first and says why,
+     so nobody re-fills the form only to be stopped. Run: Cancel, with the confirm. */
+  $("startover").onclick = () => {
+    if (!$("s-run").hidden) return openReset();
+    if (!signedIn && generations >= 1) return openAuth({ more: true });
+    newBillboard();
+  };
+  /* same website, everything else fresh. The last billboard isn't deleted: it stays at its link
+     (and with the email). Engineering: tie anonymous jobs to the captured email, or hold several IDs. */
+  function newBillboard() {
+    const url = $("url").value;
+    startOver();
+    $("url").value = url;
+    if (signedIn) toast("Last billboard saved to My Library");
+  }
+  const PLUS_ICON = '<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>';
+  /* the one free billboard: said up front on the start screen, and on the result before any gate */
+  function syncFree() {
+    const used = generations >= 1 && !signedIn;
+    $("freeline").textContent = signedIn ? "" : used ? " Free billboard used. More with an account." : " First one free, no sign-up.";
+    const onPage = !$("s-done").hidden || !$("s-start").hidden;
+    $("freechip").hidden = !used || !onPage;
+    document.querySelector(".bar").classList.toggle("has-chip", !$("freechip").hidden);
+    if ($("freechip").hidden) closeFreeTip();
+    $("refinehint").hidden = signedIn || paused;
+  }
   $("resetcancel").onclick = closeReset;
   $("resetx").onclick = closeReset;
   $("resetoverlay").onclick = e => { if (e.target === $("resetoverlay")) closeReset(); };
-  $("resetgo").onclick = () => { $("resetoverlay").hidden = true; startOver(); toast("Started over"); };
+  $("resetgo").onclick = () => {
+    const running = !$("s-run").hidden;
+    $("resetoverlay").hidden = true;
+    if (running) generations = Math.max(0, generations - 1);   /* a cancelled run doesn't use the free billboard */
+    startOver();
+    toast(running ? "Billboard cancelled" : "Started over");
+  };
 
   function startOver() {
     clearTimers(); headIdx = 0; layIdx = 0; tweak = 0;
@@ -2896,6 +3021,7 @@
     $("gist-t").setAttribute("aria-expanded", "false");
     clearTimeout(refineTimer);
     $("refine").value = "";
+    $("refine").style.height = "";
     lockRefine(false);
     hideRedraw();
     clearAllErrors();
@@ -2937,9 +3063,9 @@
      under the button that took them. The visitor uploads again; nothing else is touched.
      Limits (10 MB, 1200px) are placeholders for engineering to confirm. */
   function uploadError(kind) {
-    if (takeFail("upType")) return "<b>That file type can’t be used.</b> Upload a PNG, JPG, SVG or WebP.";
-    if (takeFail("upBig"))  return "<b>That file is over 10 MB.</b> Try a smaller version of it.";
-    if (kind === "logo" && takeFail("upNotLogo")) return "<b>That doesn’t look like a logo.</b> Looks more like a photo or a social image. Try the logo file itself.";
+    if (takeFail("upType")) return "<b>That file type can’t be used.</b> Use a PNG, JPG, SVG or WebP.";
+    if (takeFail("upBig"))  return "<b>That file is over 10 MB.</b> Try a smaller version.";
+    if (kind === "logo" && takeFail("upNotLogo")) return "<b>That looks like a photo, not a logo.</b> Try the logo file itself.";
     if (kind === "prod" && takeFail("upSmall"))   return "<b>That photo is too small for a billboard.</b> Use one at least 1200 pixels wide.";
     return null;
   }
@@ -3052,7 +3178,7 @@
   /* the short prompt on phones, kept in step if the window is resized (it used to be set once, on load) */
   const phoneMq = matchMedia("(max-width: 600px)");
   function setRefinePlaceholder() {
-    $("refine").placeholder = phoneMq.matches ? "Describe a change" : "Describe a change, or ask for a different look";
+    $("refine").placeholder = phoneMq.matches ? "Describe a change" : "Describe a change, like “darker background”";
   }
   setRefinePlaceholder();
   phoneMq.addEventListener("change", setRefinePlaceholder);
@@ -3062,7 +3188,16 @@
     $("refine").classList.toggle("has", has);
     $("do-refine").disabled = !has || $("refine").disabled;
   }
-  $("refine").oninput = () => { hideRefineErr(); syncRefine(); };
+  /* grows with what's typed, from one line up to the max-height */
+  function fitRefine() {
+    const t = $("refine");
+    t.style.height = ""; t.style.overflowY = "";
+    if (t.scrollHeight <= t.clientHeight + 3) return;        /* fits on one line (with rounding): stays at its base height */
+    const want = t.scrollHeight + 2;                         /* + the 1px borders */
+    t.style.height = Math.min(want, 96) + "px";
+    t.style.overflowY = want > 96 ? "auto" : "hidden";
+  }
+  $("refine").oninput = () => { hideRefineErr(); syncRefine(); fitRefine(); };
 
   let refineTimer = null;
   function lockRefine(on) {
@@ -3105,8 +3240,9 @@
       snapshot("Refined", "“" + v + "”");
       $("refine").value = "";
       syncRefine();
+      fitRefine();
       $("refine").blur();
-      toast("Applied. Saved as a new version.");
+      toast("Saved as a new version");
     }, blocked ? 1100 : 2200);
   }
 
@@ -3125,7 +3261,7 @@
       return false;
     }
     $("dlerr").hidden = true;
-    if (!capMode) toast("Downloaded billboard-1400x400.png, ready for the board");
+    if (!capMode) toast("Downloaded billboard-1400x400.png");
     return true;
   }
   $("dl").onclick = doDownload;
@@ -3147,8 +3283,6 @@
              go: "Download", legal: "Also used to send a copy of the file.", wm: true, file: true },
     pic:   { title: "Save the picture", sub: "Add an email and the picture saves.",
              go: "Save picture", legal: "Also used to send a copy of the picture.", wm: true, file: true },
-    quota: { title: "Make another billboard", sub: "The free billboard is used. Add an email to keep making them.",
-             go: "Continue", legal: "Used to keep the billboards made here.", alt: true },
     wait:  { title: "Email it when it’s ready", sub: "The billboard keeps being made after this page closes. It arrives by email with a link back to it.",
              go: "Email me when it’s ready", legal: "Used to send this billboard." }
   };
@@ -3193,6 +3327,7 @@
       return;
     }
     capturedEmail = email;
+    syncFree();
     const then = capThen, mode = capMode;
 
     if (mode === "dl" || mode === "pic") {
@@ -3264,20 +3399,40 @@
 
   /* fresh: opened from the quota gate, where there is no billboard on screen to claim */
   let authFrom = "done";
+  let authMore = false;     /* opened from New billboard or the quota, not Run this on billboards */
+  let signedIn = false;     /* prototype: set once any sign-up or log-in succeeds */
   function resetAuthStates() {
     $("authgone").hidden = true;
     $("autherr").hidden = true;
     $("authreset").hidden = true;
     $("claimerr").hidden = true;
     $("authback").innerHTML = "&#8249; Back to the billboard";
+    $("authlink").hidden = true;
+    $("authnext").hidden = true;
+    $("auththumb").hidden = false;
+    $("authclaimk").textContent = "This billboard is ready to run";
+    $("authclaims").textContent = "An account saves it to My Library, where a campaign can be set up with it. Nothing to download or upload.";
     clearFieldErr("authemail", "authemailerr");
     clearFieldErr("authpw", "authpwerr");
   }
   function openAuth(opts) {
     const fresh = !!(opts && opts.fresh);
     authFrom = fresh ? "start" : "done";
+    authMore = !!(opts && opts.more);
     resetAuthStates();
-    document.querySelector(".auth-claim").hidden = fresh;
+    /* past the free billboard: the same sign-up, said as what it gets them */
+    if (authMore) {
+      $("authclaimk").textContent = "Make more billboards";
+      $("authclaims").textContent = "Free billboard used. A free account saves this one and makes more.";
+      setAuthMode("new");
+    }
+    document.querySelector(".auth-claim").hidden = fresh && !authMore;
+    /* from the start screen there's no billboard on screen, so the reason stands alone */
+    if (fresh && authMore) {
+      $("auththumb").hidden = true;
+      $("authclaims").textContent = "Free billboard used. A free account makes more.";
+      $("authback").innerHTML = "&#8249; Back";
+    }
     /* arriving from an emailed link whose billboard can't be claimed */
     if (opts && opts.claim) {
       const gone = opts.claim === "expired";
@@ -3371,7 +3526,13 @@
       return;
     }
 
+    authSuccess();
+  };
+  function authSuccess() {
+    signedIn = true;
+    syncFree();
     $("authform").hidden = true;
+    $("authlink").hidden = true;
     $("authdone").hidden = false;
     if (authFrom !== "start" && takeFail("claimfail")) {
       document.querySelector("#authdone .tick").hidden = true;
@@ -3383,6 +3544,16 @@
     }
     document.querySelector("#authdone .tick").hidden = false;
     $("claimerr").hidden = true;
+    /* asked for more: this one is saved, and the next step is the next billboard */
+    if (authMore) {
+      document.querySelector("#authdone .auth-k").textContent = authFrom === "start" ? "Account ready" : "Saved to My Library";
+      document.querySelector("#authdone .auth-s").textContent = "Prototype: in the product, this returns to Billboard Maker signed in, with no limit on billboards.";
+      document.querySelector(".auth-claim").hidden = true;   /* "Make more" is done; the result says it */
+      $("authnext").hidden = false;
+      $("authback").hidden = true;
+      $("authnext").focus();
+      return;
+    }
     /* claiming a billboard ends in Marketplace, with it waiting in My Library */
     if (authFrom !== "start") return toLibrary();
     document.querySelector("#authdone .auth-k").textContent =
@@ -3390,7 +3561,23 @@
     document.querySelector("#authdone .auth-s").textContent = authFrom === "start"
       ? "Prototype ends here. In the product, this returns to Billboard Maker signed in, with no limit on billboards."
       : "Prototype ends here. In the product, this lands in Marketplace with the billboard in My Library.";
+  }
+  $("authgoogle").onclick = () => authSuccess();
+  $("authlinkbtn").onclick = () => {
+    const email = $("authemail").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      fieldErr("authemail", "authemailerr", "<b>Enter an email address,</b> like you@business.com.");
+      $("authemail").focus();
+      return;
+    }
+    $("authlinktext").innerHTML = "A sign-in link is on its way to <b>" + email + "</b>. Opening it saves this billboard, no password needed.";
+    $("authform").hidden = true;
+    $("authlink").hidden = false;
+    $("authlinkopen").focus();
   };
+  $("authlinkopen").onclick = () => authSuccess();
+  $("authlinkback").onclick = () => { $("authlink").hidden = true; $("authform").hidden = false; $("authpw").focus(); };
+  $("authnext").onclick = () => { $("authback").hidden = false; newBillboard(); };
   function authErr(html) {
     $("autherrtext").innerHTML = html;
     $("autherr").hidden = false;
@@ -3425,7 +3612,7 @@
   $("resetback").onclick = () => {
     $("authreset").hidden = true;
     $("authform").hidden = false;
-    document.querySelector(".auth-claim").hidden = authFrom === "start";
+    document.querySelector(".auth-claim").hidden = authFrom === "start" && !authMore;
     $("authpw").focus();
   };
   $("claimretry").onclick = () => {
@@ -3584,7 +3771,7 @@
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeSim(); });
 
   /* every play starts from a clean result screen, so states never stack */
-  function unpause() { paused = false; $("pausednote").hidden = true; }
+  function unpause() { paused = false; $("pausednote").hidden = true; syncFree(); }
   function toResult() {
     unpause();
     if (!$("resetoverlay").hidden) $("resetoverlay").hidden = true;
@@ -3608,11 +3795,13 @@
   }
   function forget() {
     capturedEmail = null;
+    signedIn = false;
     generations = 0;
     paused = false;
     $("pausednote").hidden = true;
     $("authemail").value = "";
     $("capemail").value = "";
+    syncFree();
   }
   function fillCapture() {
     $("capemail").value = "maya@brooklyncraftcompany.com";
@@ -3647,7 +3836,7 @@
     },
     /* D2 */ finished: () => {
       finish();
-      resumeNote("doneresume", "<b>Finished while away.</b> This is the billboard from " + siteName() + ", saved in this browser for 30 days.");
+      resumeNote("doneresume", "<b>Finished while away.</b> Saved in this browser for 30 days.");
     },
     /* D3 */ failed: () => {
       runAt(2);
@@ -3670,11 +3859,11 @@
     fromEmail: () => {
       if (!capturedEmail) capturedEmail = "maya@brooklyncraftcompany.com";
       finish();
-      resumeNote("doneresume", "<b>Opened from the email.</b> This is the billboard sent to " + capturedEmail + ". Kept for 30 days, or for good once it’s saved to a free account.");
+      resumeNote("doneresume", "<b>Opened from the email.</b> Kept for 30 days, or for good with a free account.");
     },
     /* D6 */ expired: () => {
       show("start");
-      resumeNote("startresume", "<b>The last billboard made here was deleted.</b> Billboards that aren’t saved to an account are kept for 30 days. Make a new one below.");
+      resumeNote("startresume", "<b>The last billboard made here has expired.</b> Unsaved billboards are kept for 30 days.");
     }
   };
   function playResume(kind) {
@@ -3718,7 +3907,7 @@
     if ($(id).hidden) chip.click();
     chip.scrollIntoView({ block: "center" });
   }
-  function setRefine(v) { $("refine").value = v; syncRefine(); }
+  function setRefine(v) { $("refine").value = v; syncRefine(); fitRefine(); }
   function fakeReload(then) {
     document.body.classList.remove("reloadflash");
     void document.body.offsetWidth;
@@ -3771,6 +3960,7 @@
     e2:      () => { forget(); toResult(); doDownload(); fillCapture(); },
     e3:      () => { forget(); toResult(); doDownload(); failNext = "mail"; fillCapture(); },
     e4:      () => { forget(); toShare(); savePicture(); },
+    e9:      () => { forget(); toResult(); generations = 1; syncFree(); $("startover").click(); },
     e5:      () => { forget(); generations = 1; toStart("brooklyncraftcompany.com"); $("go").click(); },
     e6:      () => { clearAllErrors(); slowNow(); },
     e7:      () => { clearAllErrors(); forget(); slowNow(); $("slowmail").click(); fillCapture(); },
@@ -3825,6 +4015,16 @@
   });
 
   applyHeadline(); applyLayout(); buildHeadlines(); buildLayouts();
+  /* the free chip's explanation: tap on phones, hover or focus on desktop; Escape or a tap elsewhere closes it */
+  function openFreeTip() { $("freetip").hidden = false; $("freechip").setAttribute("aria-expanded", "true"); }
+  function closeFreeTip() { $("freetip").hidden = true; $("freechip").setAttribute("aria-expanded", "false"); }
+  $("freechip").onclick = e => { e.stopPropagation(); $("freetip").hidden ? openFreeTip() : closeFreeTip(); };
+  $("freechip").onmouseenter = openFreeTip;
+  $("freechip").onmouseleave = closeFreeTip;
+  $("freechip").onblur = closeFreeTip;
+  document.addEventListener("click", closeFreeTip);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeFreeTip(); });
+  syncFree();   /* after every let it reads is declared */
 </script>
 
 </body>
