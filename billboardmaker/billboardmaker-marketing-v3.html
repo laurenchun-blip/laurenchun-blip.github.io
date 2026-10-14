@@ -1443,9 +1443,161 @@
     .lib-head .btn { padding: 0 12px; font-size: 14px; }
   }
 
+  /* ---------- prototype states bar (not part of the product) ----------
+     Deliberately off-brand: dark, system mono, so it reads as a dev toolbar. Sticks to the top. */
+  .protobar {
+    position: sticky; top: 0; z-index: 95; display: flex; align-items: center; gap: 14px;
+    padding: 6px 14px; background: #111827; border-bottom: 1px solid #374151; color: #E5E7EB;
+    font: 500 12px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .pb-label { flex: none; text-transform: uppercase; letter-spacing: .12em; font-size: 11px; font-weight: 600; color: #F3F4F6; }
+  .pb-note { margin-left: 8px; text-transform: none; letter-spacing: 0; font-weight: 400; color: #9CA3AF; }
+  .pb-items { display: flex; gap: 6px; flex-wrap: nowrap; }
+  .pb-btn { white-space: nowrap; }
+  @media (max-width: 1000px) { .pb-note { display: none; } }   /* one line: the dropdowns matter more than the note */
+  .pb-item { position: relative; }
+  .pb-btn {
+    display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 6px;
+    background: #1F2937; border: 1px solid #374151; color: #F3F4F6; font: inherit; cursor: pointer;
+  }
+  .pb-btn:hover, .pb-btn[aria-expanded="true"] { background: #374151; }
+  .pb-btn:focus-visible { outline: 2px solid #9CA3AF; outline-offset: 1px; }
+  .pb-n { color: #9CA3AF; }
+  .pb-menu {
+    position: absolute; top: calc(100% + 6px); left: 0; width: 340px; max-height: min(70vh, 560px); overflow: auto;
+    padding: 6px 8px 10px; background: #111827; border: 1px solid #374151; border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(0,0,0,.35); font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  /* the last two open leftwards, so no menu runs off the right edge */
+  .pb-item:nth-last-child(-n+2) .pb-menu { left: auto; right: 0; }
+  .pb-menu .sim-k {
+    margin: 10px 4px 4px; font-size: 10.5px; text-transform: uppercase; letter-spacing: .12em; color: #9CA3AF; font-weight: 600;
+  }
+  .pb-menu .simrow { display: block; width: 100%; text-align: left; border-radius: 6px; padding: 7px 8px; color: inherit; font-family: inherit; background: none; border: 0; cursor: pointer; }
+  .pb-menu .simrow:hover, .pb-menu .simrow:focus-visible { background: #1F2937; outline: none; }
+  .pb-menu .simrow b { display: block; font-size: 12.5px; font-weight: 500; line-height: 1.35; color: #F3F4F6; }
+  .pb-menu .simrow span { display: block; margin-top: 2px; font-size: 11.5px; line-height: 1.4; color: #9CA3AF; }
+  .pb-menu .simrow[aria-pressed="true"] { background: #1F2937; box-shadow: inset 2px 0 0 #9CA3AF; }
+  @media (max-width: 600px) {
+    .protobar { gap: 8px; padding: 6px 10px; overflow-x: auto; scrollbar-width: none; }
+    .protobar::-webkit-scrollbar { display: none; }
+    .pb-note { display: none; }
+    .pb-items { flex-wrap: nowrap; }
+    .pb-btn { white-space: nowrap; }
+    .pb-item { position: static; }
+    .pb-menu { position: fixed; top: 42px; left: 8px; right: 8px; width: auto; max-height: 72vh; }
+  }
 </style>
 </head>
 <body class="layout-joined">
+<!-- PROTOTYPE CONTROLS · not part of the product. One dropdown per page, so every state for a page sits together. -->
+<div class="protobar" id="protobar">
+  <span class="pb-label">Prototype states <span class="pb-note">Not part of the product</span></span>
+  <div class="pb-items">
+    <div class="pb-item">
+      <button class="pb-btn" type="button" aria-expanded="false" aria-controls="pbm0">Start page <span class="pb-n">18</span><svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
+      <div class="pb-menu" id="pbm0" hidden>
+        <div class="sim-k">Website field</div>
+        <button class="simrow" type="button" data-sim="badurl"><b>Not a website address</b><span>Format check, instant. Includes private addresses.</span></button>
+        <button class="simrow" type="button" data-sim="u1"><b>Site found, on leaving the field</b><span>Checked before the click. Make my billboard then starts at once.</span></button>
+        <button class="simrow" type="button" data-sim="u2"><b>Typo caught on leaving the field</b><span>Same check, failing: the error shows before any click.</span></button>
+        <button class="simrow" type="button" data-sim="dns"><b>Website not found</b><span>Reachability check before the run. Likely a typo.</span></button>
+        <button class="simrow" type="button" data-sim="down"><b>Website didn’t respond</b><span>Reachability check before the run. Site down or slow.</span></button>
+        <button class="simrow" type="button" data-sim="site"><b>Website couldn’t be read</b><span>Crawl inside the run got nothing usable. Back to the field.</span></button>
+        <div class="sim-k">Uploads</div>
+        <button class="simrow" type="button" data-sim="u3"><b>Logo: wrong file type</b><span>Start-screen upload. Upload again; nothing else changes.</span></button>
+        <button class="simrow" type="button" data-sim="u4"><b>Photo: file too large</b><span>Over the size limit (placeholder 10 MB).</span></button>
+        <button class="simrow" type="button" data-sim="u5"><b>Logo: doesn’t look like a logo</b><span>A photo or social image was added instead.</span></button>
+        <button class="simrow" type="button" data-sim="u6"><b>Photo: too small for a billboard</b><span>Under the minimum width (placeholder 1200px).</span></button>
+        <div class="sim-k">Guardrails</div>
+        <button class="simrow" type="button" data-sim="g3"><b>G3 · Promotion text blocked</b><span>Content filter, before the job. Field error on the promotion.</span></button>
+        <button class="simrow" type="button" data-sim="g6"><b>G6 · Website content blocked</b><span>During Checking site. Field error; nothing to retry.</span></button>
+        <button class="simrow" type="button" data-sim="g7"><b>G7 · Political website</b><span>Campaign or cause site. Field error, before anything is spent.</span></button>
+        <button class="simrow" type="button" data-sim="g8"><b>G8 · Political promotion text</b><span>Candidate, party or ballot measure in the promotion field.</span></button>
+        <button class="simrow" type="button" data-sim="g1"><b>G1 · Daily spend cap reached</b><span>On Make my billboard. Sign up to continue, or come back tomorrow.</span></button>
+        <button class="simrow" type="button" data-sim="g2"><b>G2 · Rate limit</b><span>Too many starts from this browser or IP. Wait, or sign up.</span></button>
+        <div class="sim-k">Limits and coming back</div>
+        <button class="simrow" type="button" data-sim="e5"><b>X5 · Quota reached</b><span>Second billboard from the start screen. Sign-up, not an email.</span></button>
+        <button class="simrow" type="button" data-sim="d6"><b>D6 · Expired after 30 days</b><span>Start screen, with a note.</span></button>
+      </div>
+    </div>
+    <div class="pb-item">
+      <button class="pb-btn" type="button" aria-expanded="false" aria-controls="pbm1">Making it <span class="pb-n">9</span><svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
+      <div class="pb-menu" id="pbm1" hidden>
+        <div class="sim-k">Problems</div>
+        <button class="simrow" type="button" data-sim="gen"><b>Generation failed</b><span>A step fails. Try again resumes from that step.</span></button>
+        <button class="simrow" type="button" data-sim="runlogo"><b>Logo couldn’t be used</b><span>Continue without it, or try another.</span></button>
+        <button class="simrow" type="button" data-sim="g4"><b>G4 · Billboard blocked</b><span>Content filter on the result, mid-run. Doesn’t use the free billboard.</span></button>
+        <div class="sim-k">Taking a while</div>
+        <button class="simrow" type="button" data-sim="e6"><b>X6 · Taking longer</b><span>Past the threshold: Email me, Keep waiting or Exit.</span></button>
+        <button class="simrow" type="button" data-sim="e7"><b>X7 · Email-me confirmation</b><span>Safe to close; the run keeps going.</span></button>
+        <div class="sim-k">Coming back</div>
+        <button class="simrow" type="button" data-sim="d1"><b>D1 · Run still going</b><span>Refresh mid-run. Same job, same step.</span></button>
+        <button class="simrow" type="button" data-sim="d3"><b>D3 · Failed while away</b><span>E1, worded for being away. Resume from the step.</span></button>
+        <button class="simrow" type="button" data-sim="d4"><b>D4 · Opened in a second tab</b><span>Follows the same run. No duplicate job.</span></button>
+        <button class="simrow" type="button" data-sim="d5"><b>D5 · Back after Email me</b><span>Still running; email still on its way.</span></button>
+      </div>
+    </div>
+    <div class="pb-item">
+      <button class="pb-btn" type="button" aria-expanded="false" aria-controls="pbm2">Result page <span class="pb-n">21</span><svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
+      <div class="pb-menu" id="pbm2" hidden>
+        <div class="sim-k">Layout</div>
+        <button class="simrow" type="button" data-sim="layjoin" aria-pressed="true"><b>A · Joined, quieter edit</b><span>Billboard and Make changes in one card, a divider between, smaller edit label.</span></button>
+        <button class="simrow" type="button" data-sim="laysep" aria-pressed="false"><b>B · Separate cards</b><span>The earlier version: two cards, Make changes as a full section header.</span></button>
+        <div class="sim-k">Changes</div>
+        <button class="simrow" type="button" data-sim="r1"><b>R1 · Change didn’t apply</b><span>Refine fails. Billboard unchanged, text kept.</span></button>
+        <button class="simrow" type="button" data-sim="r2"><b>R2 · Change was interrupted</b><span>Coming back after a refresh, result lost.</span></button>
+        <button class="simrow" type="button" data-sim="r3"><b>R3 · Still working after a refresh</b><span>Not an error. Picks the change back up.</span></button>
+        <button class="simrow" type="button" data-sim="r4"><b>R4 · Change can’t be made</b><span>Blocked by the content filter. Reword it.</span></button>
+        <button class="simrow" type="button" data-sim="r5"><b>R5 · Panel change didn’t apply</b><span>A layout switch fails. Selection reverts.</span></button>
+        <button class="simrow" type="button" data-sim="r6"><b>R6 · New logo can’t be used</b><span>Brand panel upload rejected. Current logo kept.</span></button>
+        <div class="sim-k">Downloads and email</div>
+        <button class="simrow" type="button" data-sim="dl"><b>Download failed</b><span>Inline under the creative.</span></button>
+        <button class="simrow" type="button" data-sim="e1"><b>X1 · Download gate</b><span>First Download, no email yet.</span></button>
+        <button class="simrow" type="button" data-sim="e2"><b>X2 · Lead captured</b><span>Email given: download starts, next step offered.</span></button>
+        <button class="simrow" type="button" data-sim="e3"><b>X3 · Email didn’t send</b><span>Download still started. Send again.</span></button>
+        <div class="sim-k">Sharing</div>
+        <button class="simrow" type="button" data-sim="e4"><b>X4 · Share sheet picture gate</b><span>Instagram save, same component.</span></button>
+        <button class="simrow" type="button" data-sim="s1"><b>S1 · Instagram picture didn’t save</b><span>Under “Post the picture”.</span></button>
+        <button class="simrow" type="button" data-sim="s2"><b>S2 · Picture download didn’t start</b><span>Same row, same pattern.</span></button>
+        <button class="simrow" type="button" data-sim="s3"><b>S3 · LinkedIn didn’t open</b><span>Same for Facebook and X. Try again or copy the link.</span></button>
+        <button class="simrow" type="button" data-sim="s4"><b>S4 · Link couldn’t be copied</b><span>Clipboard blocked. The link is shown, selected.</span></button>
+        <div class="sim-k">Next billboard and limits</div>
+        <button class="simrow" type="button" data-sim="e9"><b>X9 · New billboard, no account</b><span>Sign-up first; it saves this one.</span></button>
+        <button class="simrow" type="button" data-sim="g5"><b>G5 · Spend cap hit mid-session</b><span>On Refine. Everything that spends pauses; note stays on the result.</span></button>
+        <div class="sim-k">Coming back</div>
+        <button class="simrow" type="button" data-sim="d2"><b>D2 · Finished while away</b><span>Lands on the result with a note.</span></button>
+        <button class="simrow" type="button" data-sim="d7"><b>D7 · Ready email, other device</b><span>Link opens the same billboard; no browser history needed.</span></button>
+      </div>
+    </div>
+    <div class="pb-item">
+      <button class="pb-btn" type="button" aria-expanded="false" aria-controls="pbm3">Sign-in and Library <span class="pb-n">10</span><svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
+      <div class="pb-menu" id="pbm3" hidden>
+        <div class="sim-k">Sign-in</div>
+        <button class="simrow" type="button" data-sim="e8"><b>X8 · Sign-in with email prefilled</b><span>After a captured email, Run this on billboards.</span></button>
+        <button class="simrow" type="button" data-sim="a1"><b>A1 · Email and password don’t match</b><span>Log in. Same words for an unknown email.</span></button>
+        <button class="simrow" type="button" data-sim="a2"><b>A2 · Email already has an account</b><span>Create account. Log in instead, email kept.</span></button>
+        <button class="simrow" type="button" data-sim="a3"><b>A3 · Forgot password</b><span>Reset link sent; the billboard stays ready to save.</span></button>
+        <button class="simrow" type="button" data-sim="a4"><b>A4 · Too many tries</b><span>Locked for a while. Wait or reset.</span></button>
+        <button class="simrow" type="button" data-sim="a5"><b>A5 · Sign-in didn’t go through</b><span>Service error. Nothing lost.</span></button>
+        <div class="sim-k">Saving the billboard</div>
+        <button class="simrow" type="button" data-sim="c1"><b>C1 · Billboard expired</b><span>Emailed link after 30 days. Said before sign-in.</span></button>
+        <button class="simrow" type="button" data-sim="c2"><b>C2 · Saved to another account</b><span>Emailed link already claimed. Log in with that account.</span></button>
+        <button class="simrow" type="button" data-sim="c3"><b>C3 · Claim didn’t finish</b><span>Account made, billboard not saved yet. Try saving again.</span></button>
+        <button class="simrow" type="button" data-sim="lib"><b>Landing in My Library</b><span>Where a new account arrives after the claim.</span></button>
+      </div>
+    </div>
+    <div class="pb-item">
+      <button class="pb-btn" type="button" aria-expanded="false" aria-controls="pbm4">Tools <span class="pb-n">2</span><svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
+      <div class="pb-menu" id="pbm4" hidden>
+        <div class="sim-k">Reset and review</div>
+        <button class="simrow" type="button" data-sim="forget"><b>Reset email, quota and pause</b><span>Back to a first-time visitor.</span></button>
+        <button class="simrow" type="button" data-sim="legal" id="legalrow"><b>Highlight legal placeholders</b><span>Outlines L1–L10 wherever they appear. Click again to hide.</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <div class="app">
 
@@ -2182,87 +2334,7 @@
 <!-- ============ PROTOTYPE TOOLING (not part of the product) ============
      A dev overlay: its own dark skin and system font, docked to the window edge,
      so it can never be mistaken for product UI. -->
-<button class="simtab" id="simbtn" type="button" aria-expanded="false" aria-controls="simpanel">Prototype states</button>
-<aside class="simpanel" id="simpanel" aria-label="Prototype states" hidden>
-  <div class="sim-head">
-    <div>
-      <div class="sim-title">Prototype states</div>
-      <div class="sim-note">Not part of the product</div>
-    </div>
-    <button class="sim-x" type="button" id="simx" aria-label="Close">×</button>
-  </div>
-  <div class="sim-body">
-      <div class="sim-k">Layout options (result screen)</div>
-      <button class="simrow" type="button" data-sim="layjoin" aria-pressed="true"><b>A · Joined, quieter edit</b><span>Billboard and Make changes in one card, a divider between, smaller edit label.</span></button>
-      <button class="simrow" type="button" data-sim="laysep" aria-pressed="false"><b>B · Separate cards</b><span>The earlier version: two cards, Make changes as a full section header.</span></button>
-      <div class="sim-k">Making the billboard</div>
-      <button class="simrow" type="button" data-sim="gen"><b>Generation failed</b><span>A step fails. Try again resumes from that step.</span></button>
-      <button class="simrow" type="button" data-sim="badurl"><b>Not a website address</b><span>Format check, instant. Includes private addresses.</span></button>
-      <button class="simrow" type="button" data-sim="u1"><b>Site found, on leaving the field</b><span>Checked before the click. Make my billboard then starts at once.</span></button>
-      <button class="simrow" type="button" data-sim="u2"><b>Typo caught on leaving the field</b><span>Same check, failing: the error shows before any click.</span></button>
-      <button class="simrow" type="button" data-sim="u3"><b>Logo: wrong file type</b><span>Start-screen upload. Upload again; nothing else changes.</span></button>
-      <button class="simrow" type="button" data-sim="u4"><b>Photo: file too large</b><span>Over the size limit (placeholder 10 MB).</span></button>
-      <button class="simrow" type="button" data-sim="u5"><b>Logo: doesn’t look like a logo</b><span>A photo or social image was added instead.</span></button>
-      <button class="simrow" type="button" data-sim="u6"><b>Photo: too small for a billboard</b><span>Under the minimum width (placeholder 1200px).</span></button>
-      <button class="simrow" type="button" data-sim="dns"><b>Website not found</b><span>Reachability check before the run. Likely a typo.</span></button>
-      <button class="simrow" type="button" data-sim="down"><b>Website didn’t respond</b><span>Reachability check before the run. Site down or slow.</span></button>
-      <button class="simrow" type="button" data-sim="site"><b>Website couldn’t be read</b><span>Crawl inside the run got nothing usable. Back to the field.</span></button>
-      <button class="simrow" type="button" data-sim="runlogo"><b>Logo couldn’t be used</b><span>Continue without it, or try another.</span></button>
-      <div class="sim-k">Result</div>
-      <button class="simrow" type="button" data-sim="dl"><b>Download failed</b><span>Inline under the creative.</span></button>
-      <div class="sim-k">Changes</div>
-      <button class="simrow" type="button" data-sim="r1"><b>R1 · Change didn’t apply</b><span>Refine fails. Billboard unchanged, text kept.</span></button>
-      <button class="simrow" type="button" data-sim="r2"><b>R2 · Change was interrupted</b><span>Coming back after a refresh, result lost.</span></button>
-      <button class="simrow" type="button" data-sim="r3"><b>R3 · Still working after a refresh</b><span>Not an error. Picks the change back up.</span></button>
-      <button class="simrow" type="button" data-sim="r4"><b>R4 · Change can’t be made</b><span>Blocked by the content filter. Reword it.</span></button>
-      <button class="simrow" type="button" data-sim="r5"><b>R5 · Panel change didn’t apply</b><span>A layout switch fails. Selection reverts.</span></button>
-      <button class="simrow" type="button" data-sim="r6"><b>R6 · New logo can’t be used</b><span>Brand panel upload rejected. Current logo kept.</span></button>
-      <div class="sim-k">Sharing</div>
-      <button class="simrow" type="button" data-sim="s1"><b>S1 · Instagram picture didn’t save</b><span>Under “Post the picture”.</span></button>
-      <button class="simrow" type="button" data-sim="s2"><b>S2 · Picture download didn’t start</b><span>Same row, same pattern.</span></button>
-      <button class="simrow" type="button" data-sim="s3"><b>S3 · LinkedIn didn’t open</b><span>Same for Facebook and X. Try again or copy the link.</span></button>
-      <button class="simrow" type="button" data-sim="s4"><b>S4 · Link couldn’t be copied</b><span>Clipboard blocked. The link is shown, selected.</span></button>
-      <div class="sim-k">Exits and email</div>
-      <button class="simrow" type="button" data-sim="e1"><b>X1 · Download gate</b><span>First Download, no email yet.</span></button>
-      <button class="simrow" type="button" data-sim="e2"><b>X2 · Lead captured</b><span>Email given: download starts, next step offered.</span></button>
-      <button class="simrow" type="button" data-sim="e3"><b>X3 · Email didn’t send</b><span>Download still started. Send again.</span></button>
-      <button class="simrow" type="button" data-sim="e4"><b>X4 · Share sheet picture gate</b><span>Instagram save, same component.</span></button>
-      <button class="simrow" type="button" data-sim="e5"><b>X5 · Quota reached</b><span>Second billboard from the start screen. Sign-up, not an email.</span></button>
-      <button class="simrow" type="button" data-sim="e9"><b>X9 · New billboard, no account</b><span>Sign-up first; it saves this one.</span></button>
-      <button class="simrow" type="button" data-sim="e6"><b>X6 · Taking longer</b><span>Past the threshold: Email me, Keep waiting or Exit.</span></button>
-      <button class="simrow" type="button" data-sim="e7"><b>X7 · Email-me confirmation</b><span>Safe to close; the run keeps going.</span></button>
-      <button class="simrow" type="button" data-sim="e8"><b>X8 · Sign-in with email prefilled</b><span>After a captured email, Run this on billboards.</span></button>
-      <button class="simrow" type="button" data-sim="forget"><b>Reset email, quota and pause</b><span>Back to a first-time visitor.</span></button>
-      <div class="sim-k">Guardrails</div>
-      <button class="simrow" type="button" data-sim="g1"><b>G1 · Daily spend cap reached</b><span>On Make my billboard. Sign up to continue, or come back tomorrow.</span></button>
-      <button class="simrow" type="button" data-sim="g2"><b>G2 · Rate limit</b><span>Too many starts from this browser or IP. Wait, or sign up.</span></button>
-      <button class="simrow" type="button" data-sim="g3"><b>G3 · Promotion text blocked</b><span>Content filter, before the job. Field error on the promotion.</span></button>
-      <button class="simrow" type="button" data-sim="g4"><b>G4 · Billboard blocked</b><span>Content filter on the result, mid-run. Doesn’t use the free billboard.</span></button>
-      <button class="simrow" type="button" data-sim="g5"><b>G5 · Spend cap hit mid-session</b><span>On Refine. Everything that spends pauses; note stays on the result.</span></button>
-      <button class="simrow" type="button" data-sim="g6"><b>G6 · Website content blocked</b><span>During Checking site. Field error; nothing to retry.</span></button>
-      <div class="sim-k">Sign-in and claim</div>
-      <button class="simrow" type="button" data-sim="a1"><b>A1 · Email and password don’t match</b><span>Log in. Same words for an unknown email.</span></button>
-      <button class="simrow" type="button" data-sim="a2"><b>A2 · Email already has an account</b><span>Create account. Log in instead, email kept.</span></button>
-      <button class="simrow" type="button" data-sim="a3"><b>A3 · Forgot password</b><span>Reset link sent; the billboard stays ready to save.</span></button>
-      <button class="simrow" type="button" data-sim="a4"><b>A4 · Too many tries</b><span>Locked for a while. Wait or reset.</span></button>
-      <button class="simrow" type="button" data-sim="a5"><b>A5 · Sign-in didn’t go through</b><span>Service error. Nothing lost.</span></button>
-      <button class="simrow" type="button" data-sim="lib"><b>Landing in My Library</b><span>Where a new account arrives after the claim.</span></button>
-      <button class="simrow" type="button" data-sim="c1"><b>C1 · Billboard expired</b><span>Emailed link after 30 days. Said before sign-in.</span></button>
-      <button class="simrow" type="button" data-sim="c2"><b>C2 · Saved to another account</b><span>Emailed link already claimed. Log in with that account.</span></button>
-      <button class="simrow" type="button" data-sim="c3"><b>C3 · Claim didn’t finish</b><span>Account made, billboard not saved yet. Try saving again.</span></button>
-      <div class="sim-k">Coming back (refresh, close, second tab)</div>
-      <button class="simrow" type="button" data-sim="d1"><b>D1 · Run still going</b><span>Refresh mid-run. Same job, same step.</span></button>
-      <button class="simrow" type="button" data-sim="d2"><b>D2 · Finished while away</b><span>Lands on the result with a note.</span></button>
-      <button class="simrow" type="button" data-sim="d3"><b>D3 · Failed while away</b><span>E1, worded for being away. Resume from the step.</span></button>
-      <button class="simrow" type="button" data-sim="d4"><b>D4 · Opened in a second tab</b><span>Follows the same run. No duplicate job.</span></button>
-      <button class="simrow" type="button" data-sim="d5"><b>D5 · Back after Email me</b><span>Still running; email still on its way.</span></button>
-      <button class="simrow" type="button" data-sim="d6"><b>D6 · Expired after 30 days</b><span>Start screen, with a note.</span></button>
-      <button class="simrow" type="button" data-sim="d7"><b>D7 · Ready email, other device</b><span>Link opens the same billboard; no browser history needed.</span></button>
-      <div class="sim-k">Legal review</div>
-      <button class="simrow" type="button" data-sim="legal" id="legalrow"><b>Highlight legal placeholders</b><span>Outlines L1–L9 wherever they appear. Click again to hide.</span></button>
-  </div>
-  <p class="sim-foot">Each state plays once, then everything works normally, so Try again succeeds.</p>
-</aside>
+
 
 <script>
   const $ = id => document.getElementById(id);
@@ -2921,7 +2993,10 @@
       if ($("url").value.trim() !== v) return;         // the visitor kept typing; a newer check wins
       let err = null;
       /* the site itself is outside the ad guidelines: nothing to retry, so leave the field open */
-      if (takeFail("sitebad")) err = "<b>This site can’t be used.</b> Content on it falls outside Blip’s <a href=\"#\" onclick=\"return false\" data-legal=\"L7\">ad guidelines</a>. Wrong site? Check the address.";
+      /* G7: political campaigns and causes. The image generator can't make political ads, so the site is
+         stopped at the field, before anything is spent. L10 · LEGAL PLACEHOLDER: the political-ads policy */
+      if (takeFail("political")) err = "<b>Political ads can’t be made here.</b> This site looks like a political campaign or cause, and Billboard Maker doesn’t create <a href=\"#\" onclick=\"return false\" data-legal=\"L10\">political ads</a>. Wrong site? Check the address.";
+      else if (takeFail("sitebad")) err = "<b>This site can’t be used.</b> Content on it falls outside Blip’s <a href=\"#\" onclick=\"return false\" data-legal=\"L7\">ad guidelines</a>. Wrong site? Check the address.";
       else if (takeFail("dns")) err = "<b>Couldn’t find " + host + ".</b> Check the spelling.";
       else if (takeFail("down")) err = "<b>" + host + " didn’t respond.</b> Check the address, or try again in a moment.";
       if (err) {
@@ -2967,6 +3042,12 @@
 
     /* the promotion text is screened before a job exists, so a blocked phrase costs nothing
        and is fixed in place, like any other field */
+    /* G8: a political message in the promotion field, caught the same way as G3 */
+    if (takeFail("ctxpolitic")) {
+      fieldErr("ctx", "ctxerr", "<b>Political messages can’t be made here.</b> Billboard Maker doesn’t create ads for candidates, parties or ballot measures.");
+      $("ctx").focus();
+      return;
+    }
     if (takeFail("ctxblock")) {
       fieldErr("ctx", "ctxerr", "<b>That promotion can’t be used.</b> Describe your own offer, with no other brands or unproven claims.");
       $("ctx").focus();
@@ -3873,17 +3954,22 @@
 
   /* ---------- prototype control: play one state ---------- */
 
-  function closeSim() { $("simpanel").hidden = true; $("simbtn").setAttribute("aria-expanded", "false"); }
-  $("simx").onclick = closeSim;
-  $("simbtn").onclick = e => {
-    e.stopPropagation();
-    const open = $("simpanel").hidden;
-    $("simpanel").hidden = !open;
-    $("simbtn").setAttribute("aria-expanded", String(open));
-  };
-  document.addEventListener("click", e => {
-    if (!$("simpanel").hidden && !$("simpanel").contains(e.target)) closeSim();
+  /* the states bar: one dropdown open at a time; a tap elsewhere or Escape closes it */
+  function closeSim() {
+    document.querySelectorAll(".pb-menu").forEach(m => m.hidden = true);
+    document.querySelectorAll(".pb-btn").forEach(b => b.setAttribute("aria-expanded", "false"));
+  }
+  document.querySelectorAll(".pb-btn").forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      const menu = $(btn.getAttribute("aria-controls"));
+      const open = menu.hidden;
+      closeSim();
+      menu.hidden = !open;
+      btn.setAttribute("aria-expanded", String(open));
+    };
   });
+  document.addEventListener("click", e => { if (!e.target.closest(".pb-menu")) closeSim(); });
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeSim(); });
 
   /* every play starts from a clean result screen, so states never stack */
@@ -4097,6 +4183,8 @@
     g4:      () => { clearAllErrors(); failNext = "outblock"; generations = 1; runFlow(0); },
     g5:      () => { toResult(); paused = false; $("pausednote").hidden = true; setRefine("Make the background a darker green"); failNext = "cap"; doRefine(); $("refine").scrollIntoView({ block: "center" }); },
     g6:      () => { toStart("examplesite.com"); failNext = "sitebad"; $("go").click(); },
+    g7:      () => { toStart("jordanforcouncil.com"); failNext = "political"; $("go").click(); },
+    g8:      () => { toStart("brooklyncraftcompany.com"); $("ctx").value = "Vote yes on Measure 12"; failNext = "ctxpolitic"; $("go").click(); $("ctx").scrollIntoView({ block: "center" }); },
     a1:      () => { authAs("old", "maya@brooklyncraftcompany.com", "wrongpass1"); failNext = "badpw"; $("authgo").click(); },
     a2:      () => { authAs("new", "maya@brooklyncraftcompany.com", "newpassword1"); failNext = "exists"; $("authgo").click(); },
     a3:      () => { authAs("old", "maya@brooklyncraftcompany.com", ""); $("authforgot").hidden = false; $("authforgot").click(); $("resetgo2").click(); },
