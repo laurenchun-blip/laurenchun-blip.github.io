@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Billboard Maker v3 Exits</title>
+<title>Billboard Maker v4 Mockups</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
@@ -459,6 +459,11 @@
     padding: 7% 9% 0;
     display: flex; flex-direction: column; align-items: center;
   }
+  /* the rendered photo mockup: the file is already framed on the board */
+  .scene.photo { padding: 0; background: #C9D5DF; display: block; }
+  .payoff-foot .scene-sub { margin: 0; flex: 1; min-width: 0; font-size: 14px; color: var(--ink-70); white-space: normal; text-wrap: pretty; }
+  .scene-img { display: block; width: 100%; height: auto; aspect-ratio: 1170 / 658; object-fit: cover; }
+  .modal .scene.photo { padding: 0; }
   .board { width: 100%; max-width: 520px; display: flex; flex-direction: column; align-items: center; }
   .board .creative {
     width: 100%; border: 5px solid #71808C; border-radius: 3px;
@@ -477,9 +482,9 @@
     .board .creative .c3 { font-size: 5px; }
   }
 
-  /* the pill on the scene says it's a sample; the foot only carries Share */
+  /* under the photo: what the board is on the left, Share on the right */
   .payoff-foot {
-    display: flex; align-items: center; justify-content: flex-end;
+    display: flex; align-items: center; justify-content: space-between;
     gap: 16px; flex-wrap: wrap; margin-top: 14px;
   }
   .payoff-foot p { margin: 0; font-size: 13px; color: var(--ink-50); white-space: nowrap; }
@@ -490,6 +495,7 @@
     display: inline-flex; align-items: center; justify-content: center;
   }
   .iconbtn:hover { border-color: var(--ink-32); color: var(--ink); }
+  .art-meta .iconbtn { width: var(--h-md); height: var(--h-md); }   /* same height as Run this on billboards */
   .payoff-foot .actions { align-items: center; }
   .sharebtn { display: inline-flex; align-items: center; gap: 7px; }
 
@@ -594,6 +600,19 @@
   #s-done > .card.current > .lbl { padding-left: 6px; }
   #s-done > .card.current > .art-meta,
   #s-done > .card.current > .versions { padding: 0 6px; }
+  /* LAYOUT OPTION (prototype drawer): body.layout-joined = the billboard and "Make changes" read as one card,
+     square where they meet, one hairline between them, and "Make changes" quieter (a sub-label, not a section
+     header), so the billboard stays the main thing. Without the class = the separate cards. */
+  body.layout-joined #s-done > .card.current { border-bottom: 0; border-radius: 12px 12px 0 0; box-shadow: none; }
+  body.layout-joined #s-done > .editcard {
+    position: relative; margin-top: -10px;           /* cancels the column gap */
+    border-top: 0; border-radius: 0 0 12px 12px; box-shadow: 0 1px 3px rgba(20,32,44,.05);
+    padding-top: 14px;
+  }
+  body.layout-joined #s-done > .editcard::before {
+    content: ""; position: absolute; top: 0; left: 18px; right: 18px; height: 1px; background: var(--rule);
+  }
+  body.layout-joined .editcard > .lbl.sec { font-size: 14px; font-weight: 600; color: var(--ink-70); margin-bottom: 8px; }
 
   /* the parts the creative was made from, one click each */
   .ingrow { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -715,6 +734,10 @@
 
     /* the edit section is a white card like the others, so it doesn't read as grey on grey */
     #s-done > .editcard { padding: 14px 12px; }
+    body.layout-joined #s-done > .editcard::before { left: 12px; right: 12px; }
+    body.layout-joined .editcard > .lbl.sec { font-size: 14px; }
+    /* pinned while editing, the billboard floats on its own again */
+    body.layout-joined #s-done.editing > .card.current { border-bottom: 1px solid var(--rule); border-radius: 12px; }
 
     /* refine: one line with the button inside, grows once you type */
     .adjust { position: relative; }
@@ -899,6 +922,57 @@
   .guideline { margin: 6px 0 0; font-size: 12px; line-height: 1.45; color: var(--ink-50); }
   @media (max-width: 560px) { .termsline { text-align: center; } }
 
+
+  /* ---------- footer ---------- */
+  /* ---------- end of page: the band (a card, like the ones above), then the footer ---------- */
+  .footbandwrap { margin-top: 40px; }
+  .footband {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 16px 18px; border-radius: 12px; background: var(--card); border: 1px solid var(--rule);
+    color: var(--ink); text-decoration: none;
+  }
+  .footband:hover { border-color: var(--ink-32); }
+  .fb-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .fb-t { font-weight: 600; font-size: 16px; color: var(--navy); }
+  .fb-s { font-size: 14px; color: var(--ink-70); }
+  .fb-go {
+    flex: none; width: var(--h-md); height: var(--h-md); border-radius: 999px; border: 1px solid var(--ink-32);
+    display: inline-flex; align-items: center; justify-content: center; color: var(--ink);
+  }
+  /* a pale tint of the brand's deep teal (#2F8696): quieter than navy, warmer than white, and it picks up
+     the teal glow in the page ground. Ink greys keep their contrast on it (links ~6:1, fine print ~4.8:1) */
+  .sitefoot {
+    background: #E4EEF0; border-top: 1px solid #CBDDE0; color: var(--ink-70); text-align: center;
+    padding: 28px 16px 26px;
+  }
+  .footmain { max-width: 1060px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .footlogo { display: inline-flex; color: var(--ink); border-radius: 4px; }   /* one-colour mark in the text navy, not the pink */
+  .footlogo:hover { color: var(--navy); }
+  .footlogo svg { display: block; height: 20px; width: auto; }
+  .footlogo:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+  .footlinks { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 20px; }
+  .footlinks a, .footsite { font-size: 13px; color: var(--ink-70); text-decoration: none; }
+  .footlinks a:hover, .footsite:hover { color: var(--ink); text-decoration: underline; }
+  .footsite { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .footfine {
+    max-width: 1060px; margin: 16px auto 0; padding-top: 14px; border-top: 1px solid #CBDDE0;
+    display: flex; justify-content: center; gap: 4px 16px; flex-wrap: wrap;
+    font-size: 12px; color: var(--ink-50);
+  }
+  .app:has(~ .sitefoot:not([hidden])) { padding-bottom: 40px; }
+  @media (max-width: 600px) {
+    .footbandwrap { margin-top: 28px; }
+    .footband { padding: 14px; }
+    .fb-t { font-size: 15px; }
+    .footlinks { gap: 12px 20px; }
+    .footlinks a, .footsite { font-size: 14px; }   /* tap-sized on phones */
+    .footfine { flex-direction: column; align-items: center; }
+    /* the pinned bars sit over the footer's end, so it runs on under them */
+    .app:has(~ .sitefoot:not([hidden])) { padding-bottom: 28px; }
+    .sitefoot { padding-bottom: 96px; }
+    body:has(#s-start:not([hidden])) .sitefoot { padding-bottom: 136px; }
+  }
+
   /* prototype only: outline every legal placeholder with its L-number for review */
   body.showlegal [data-legal] { outline: 1.5px dashed #B26B00; outline-offset: 3px; border-radius: 2px; position: relative; }
   body.showlegal [data-legal]::after {
@@ -909,7 +983,6 @@
 
   /* ---------- exits and the shared email capture ---------- */
 
-  .dlbtn { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
 
   .capoverlay { z-index: 45; }                 /* sits above the share sheet when opened from it */
   .capmodal { max-width: 420px; position: relative; }
@@ -961,7 +1034,7 @@
   .run.slow .run-art::after { animation-duration: 3.2s; }
 
   @media (max-width: 600px) {
-    .dlbtn { display: none; }               /* phones: both exits live in the pinned bar */
+    #dl { display: none; }                  /* phones: both exits live in the pinned bar */
     .mbar:not([hidden]) { display: flex; gap: 8px; }
     .mbar .btn { flex: 1; width: auto; padding: 11px 12px; white-space: nowrap; }
     .mbar .btn.sec { flex: 0 0 auto; }
@@ -1091,6 +1164,7 @@
   }
   .simrow { display: block; width: 100%; text-align: left; border-radius: 6px; padding: 7px 8px; color: inherit; font-family: inherit; }
   .simrow:hover, .simrow:focus-visible { background: #1F2937; outline: none; }
+  .simrow[aria-pressed="true"] { background: #1F2937; box-shadow: inset 2px 0 0 #9CA3AF; }
   .simrow b { display: block; font-size: 13px; font-weight: 500; line-height: 1.35; color: #F3F4F6; }
   .simrow span { display: block; font-size: 12px; line-height: 1.4; color: #9CA3AF; }
   .simpanel .sim-foot { margin: 0; padding: 10px 16px 14px; border-top: 1px solid #1F2937; font-size: 11px; line-height: 1.45; color: #6B7280; }
@@ -1206,7 +1280,7 @@
     .capgo, .authgo, .capdone-acts .btn { height: var(--h-lg); font-size: 15px; padding: 0 16px; }
     /* phones: both exits live in the pinned bar, so the action-bar copies stay hidden
        (the size rule above is more specific than the original hide, so restate it) */
-    .art-meta .btn.dlbtn, .art-meta .btn.runcta { display: none; }
+    .art-meta #dl, .art-meta .btn.runcta { display: none; }
     /* Refine sits inside the field, so it keeps the default height */
     .adjust-foot .btn { height: var(--h-md); padding: 0 16px; font-size: 14px; }
     .bar .ghost { padding: 0 10px; }
@@ -1250,17 +1324,12 @@
     .chip, .tagchip { height: var(--h-sm); padding: 0 12px; font-size: 13px; }
   }
 
-  /* ---------- phone bottom bar: two equal halves ----------
-     The full label needs ~185px and half the bar is ~167px, so phones say "Run on billboards"
-     (same meaning, no promise of when or where) and the narrowest phones "Run this ad". */
-  .lbl-xs { display: none; }
+  /* ---------- phone bottom bar: a Download icon, then the next step taking the rest ----------
+     With Download as an icon, the full "Run this on billboards" fits even on 320px phones. */
   @media (max-width: 600px) {
-    .mbar:not([hidden]) { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .mbar:not([hidden]) { display: grid; grid-template-columns: var(--h-lg) minmax(0, 1fr); gap: 8px; }
     .mbar .btn, .mbar .btn.sec { width: 100%; min-width: 0; padding: 0 12px; }
-  }
-  @media (max-width: 359px) {
-    .mbar .lbl-m { display: none; }
-    .mbar .lbl-xs { display: inline; }
+    .mbar .mbar-dl { padding: 0; display: inline-flex; align-items: center; justify-content: center; }
   }
 
   /* ---------- coming back: one quiet line, never a modal ---------- */
@@ -1374,9 +1443,75 @@
     .lib-head .btn { padding: 0 12px; font-size: 14px; }
   }
 
+
+  /* ================= v4 · MOCKUP-FIRST RESULT =================
+     The real-board scenes are the hero (left, ~60%); the billboard file, its actions and changes sit right. */
+  .app { max-width: 1240px; }
+  .scenepick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+  .scenethumb {
+    display: flex; flex-direction: column; gap: 2px; text-align: left; padding: 0 0 2px; border-radius: 9px;
+    background: none; color: inherit; font-family: inherit;
+  }
+  .scenethumb img {
+    display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px;
+    outline: 1px solid var(--rule); outline-offset: -1px; margin-bottom: 4px;
+  }
+  .scenethumb[aria-pressed="true"] img { outline: 2px solid var(--teal); outline-offset: 1px; }
+  .scenethumb:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .st-k { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+  .st-s { font-size: 12px; color: var(--ink-50); }
+
+  /* the Make changes dropdown */
+  .edit-toggle {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;
+    padding: 2px 0; text-align: left; background: none; color: inherit; font-family: inherit;
+  }
+  .edit-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 6px; }
+  .et-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .et-k { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .et-s { font-size: 13px; color: var(--ink-50); }
+  .edit-chev { flex: none; color: var(--ink-50); transition: transform .15s ease; }
+  .edit-toggle[aria-expanded="true"] .edit-chev { transform: rotate(180deg); }
+  .edit-toggle[aria-expanded="true"] .et-s { display: none; }
+  .editbody { padding-top: 12px; }
+  body.layout-joined .editcard > .lbl.sec { display: none; }
+  @media (min-width: 901px) {
+    #s-done {
+      display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); column-gap: 16px; row-gap: 10px;
+      grid-template-areas: "note note" "file scene" "edit scene" ". scene"; align-items: start;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    }
+    #s-done > .resume-note { grid-area: note; }
+    #s-done > .card.tail { grid-area: scene; }
+    #s-done > .card.current { grid-area: file; }
+    #s-done > .editcard { grid-area: edit; }
+    #s-done > .card.current .dims-x { display: none; }   /* the narrower column keeps just the size */
+    /* the parts sit in one row: three equal chips, no thumbnails */
+    #s-done .ingrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    #s-done .ingchip { min-width: 0; }
+    #s-done .ingchip .thumb, #s-done .ingchip .wf { display: none; }
+  }
+  /* the billboard's type follows the billboard's width (the column is narrower than the old full-width card) */
+  #creative .c1 { font-size: 3.5cqw; }
+  #creative .c2 { font-size: 4.2cqw; }
+  @media (max-width: 900px) {
+    /* stacked: the billboard and its changes first, then the boards */
+    #s-done { display: flex; flex-direction: column; }
+  }
+  @media (max-width: 600px) {
+    .card.tail > .lbl, .card.tail > .scene, .card.tail > .payoff-foot { display: block; }
+    .card.tail > .payoff-foot { display: flex; }
+    .card.tail > .boardrow { display: none; }
+    .scenepick { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; scrollbar-width: none; }
+    .scenepick::-webkit-scrollbar { display: none; }
+    .scenethumb { flex: 0 0 42%; scroll-snap-align: start; }
+    .card.tail > .payoff-foot { flex-direction: column; align-items: stretch; gap: 10px; }
+    .payoff-foot .scene-sub { font-size: 13px; }
+    .payoff-foot .actions { justify-content: flex-end; }
+  }
 </style>
 </head>
-<body>
+<body class="layout-joined">
 
 <div class="app">
 
@@ -1576,10 +1711,9 @@
             </svg>
           </button>
           <!-- two exits, side by side: take the file, or take it further -->
-          <button class="btn sec sm dlbtn" type="button" id="dl">
-            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M8 2v8"/><path d="M4.6 7 8 10.4 11.4 7"/><path d="M2.6 13.2h10.8"/>
-            </svg>Download
+          <!-- Download is an icon, like full screen beside it, so the one labelled action is the next step -->
+          <button class="iconbtn" type="button" id="dl" title="Download" aria-label="Download">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8"/><path d="M4.6 7 8 10.4 11.4 7"/><path d="M2.6 13.2h10.8"/></svg>
           </button>
           <!-- the next step, beside the creative it acts on; never promises when or where it shows -->
           <button class="btn sm runcta" type="button" id="usecampaign">Run this on billboards</button>
@@ -1600,16 +1734,21 @@
 
     <!-- change it: free text on top, the parts underneath -->
     <div class="card editcard">
-      <!-- one job, two ways: describe it, or change a part it was made from -->
-      <div class="lbl sec">Make changes</div>
+      <!-- v4: "Make changes" is a dropdown, closed by default, so the billboard and the boards lead.
+           It opens on its own whenever a change, an error or a panel needs it. -->
+      <button class="edit-toggle" type="button" id="edittoggle" aria-expanded="false" aria-controls="editbody">
+        <span class="et-txt"><span class="et-k">Make changes</span><span class="et-s">Describe a change, or swap the brand, message or layout</span></span>
+        <svg class="edit-chev" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+      </button>
       <!-- shown once the daily spend cap is hit: says up front that changes are paused,
            so the sheet on Refine or Apply is never a surprise -->
       <div class="tip pausednote" id="pausednote" role="status" hidden>
         <span class="i" aria-hidden="true">&#9208;</span>
         <span>Changes are paused for today. This billboard is kept, and Download still works. <button class="linkbtn" type="button" id="pausednotejoin">Create a free account</button> to keep editing.</span>
       </div>
+      <div class="editbody" id="editbody" hidden>
       <div class="adjust">
-        <textarea id="refine" rows="1" placeholder="Describe a change, like “darker background”"></textarea>
+        <textarea id="refine" rows="1" placeholder="Describe a change"></textarea>
         <div class="adjust-foot"><button class="btn ink" id="do-refine" disabled>Refine</button></div>
       </div>
       <!-- said where the worry happens: before anyone refines, before an account -->
@@ -1717,33 +1856,47 @@
           <button class="btn ink sm" type="button" id="changeretry">Try again</button>
         </span>
       </div>
+      </div>
     </div>
 
     <!-- Everything below the ingredients -->
     <div class="card tail">
       <button class="boardrow" type="button" id="boardrow">
         <span class="mscene" id="mscene" aria-hidden="true"></span>
-        <span class="br-txt"><span class="br-t">See it on a board</span><span class="br-s">Preview and share</span></span>
+        <span class="br-txt"><span class="br-t">See it on a board</span><span class="br-s">On a real marketplace board</span></span>
         <span class="br-go" aria-hidden="true">&#8250;</span>
       </button>
-      <div class="lbl sec">See it on a board</div>
-      <div class="scene">
-        <div class="board">
-          <div class="creative split" id="mockart">
-            <div class="c-copy">
-              <span class="c1" id="mk1">Crafting Comes to</span>
-              <span class="c2" id="mk2">Manhattan</span>
-              <span class="c3" id="mk3">Summer Pop-Up · 225 Broadway, New York</span>
-            </div>
-            <div class="c-art"><span class="apple"></span></div>
-          </div>
-          <div class="legs"><span></span><span></span></div>
-        </div>
+      <div class="lbl sec">See it on real boards</div>
+      <!-- v4 · MOCKUP-FIRST: the scene is the hero. Each mockup is a pre-rendered file: the creative is laid out
+           at that board's own shape (3.5:1, 3:1, 2.3:1; never stretched) and placed on a real inventory photo
+           ahead of time. In the product, one set is rendered per version. -->
+      <div class="scene photo">
+        <img class="scene-img" id="sceneimg" src="assets/mockup-IL-19809-framed.jpg" alt="The billboard on a digital board beside a highway, Chicago skyline behind it" width="1170" height="658">
         <!-- on screen it's a preview, never a placement; files that leave the page say "Made with Blip" instead -->
         <span class="wm wm-preview">Sample location</span>
       </div>
+      <!-- three boards, three shapes: the same billboard re-laid out for each, which is the point -->
+      <div class="scenepick" role="group" aria-label="Choose a board">
+        <button class="scenethumb" type="button" aria-pressed="true" data-src="assets/mockup-IL-19809-framed.jpg"
+                data-alt="The billboard on a digital board beside a highway, Chicago skyline behind it">
+          <img src="assets/mockup-IL-19809-framed.jpg" alt="" width="1170" height="658">
+          <span class="st-k">Highway · Chicago</span><span class="st-s">Wide board</span>
+        </button>
+        <button class="scenethumb" type="button" aria-pressed="false" data-src="assets/mockup-UT-16158-framed.jpg"
+                data-alt="The billboard on a tall roadside board by an interstate, mountains behind it">
+          <img src="assets/mockup-UT-16158-framed.jpg" alt="" width="1170" height="658">
+          <span class="st-k">Interstate · Salt Lake City</span><span class="st-s">Roadside board</span>
+        </button>
+        <button class="scenethumb" type="button" aria-pressed="false" data-src="assets/mockup-CHI-night-framed.jpg"
+                data-alt="The billboard lit up at night over a highway, the Chicago skyline behind it">
+          <img src="assets/mockup-CHI-night-framed.jpg" alt="" width="1170" height="659">
+          <span class="st-k">Night · Chicago</span><span class="st-s">Taller board</span>
+        </button>
+      </div>
 
       <div class="payoff-foot">
+        <!-- the board is real (a marketplace board), so say so, and say how running works, without promising this board -->
+        <p class="scene-sub">Real boards in the Blip marketplace, each with this billboard laid out for its shape. Ads run in open slots on boards like these.</p>
         <div class="actions">
           <div class="sharewrap">
             <button class="btn sec sm sharebtn" id="sharebtn" type="button">
@@ -1759,8 +1912,8 @@
 
     <!-- phones: the primary action, always reachable -->
     <div class="mbar" id="mbar">
-      <button class="btn sec" type="button" id="dl2">Download</button>
-      <button class="btn" type="button" id="usecampaign2" aria-label="Run this on billboards"><span class="lbl-m">Run on billboards</span><span class="lbl-xs">Run this ad</span></button>
+      <button class="btn sec mbar-dl" type="button" id="dl2" title="Download" aria-label="Download"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8"/><path d="M4.6 7 8 10.4 11.4 7"/><path d="M2.6 13.2h10.8"/></svg></button>
+      <button class="btn" type="button" id="usecampaign2">Run this on billboards</button>
     </div>
 
   </div>
@@ -1914,7 +2067,44 @@
     <p class="proto-end">Prototype ends here. “Use in a campaign” opens campaign setup with this creative (a P1 item in the brief).</p>
   </div>
 
+
+
+  <!-- ============ END OF PAGE ============
+       The page is public (no sign-in, linked from marketing, indexed), so it ends with the trust basics:
+       one band that answers "what does running one involve?", then the footer. Links are placeholders. -->
+  <div class="footbandwrap" id="footbandwrap">
+    <a class="footband" href="#" onclick="return false">
+      <span class="fb-txt">
+        <span class="fb-t">How running a billboard works</span>
+        <span class="fb-s">Budget, locations and timing, explained.</span>
+      </span>
+      <span class="fb-go"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10"/><path d="M9 4l4 4-4 4"/></svg></span>
+    </a>
+  </div>
+
 </div>
+
+<footer class="sitefoot" id="sitefoot">
+    <div class="footmain">
+      <a class="footlogo" id="footlogo" href="https://www.blipbillboards.com/" aria-label="Blip home"></a>
+      <nav class="footlinks" aria-label="Footer">
+        <a href="#" onclick="return false">How Blip works</a>
+        <a href="#" onclick="return false">Pricing</a>
+        <a href="#" onclick="return false">Help</a>
+        <a href="#" onclick="return false" data-legal="L7">Ad guidelines</a>
+        <a href="#" onclick="return false" data-legal="L1">Terms of Service</a>
+        <a href="#" onclick="return false" data-legal="L1">Privacy Policy</a>
+        <!-- L8 · LEGAL PLACEHOLDER: cookie choices; legal to confirm whether a "Do not sell or share" link is also needed -->
+        <a href="#" onclick="return false" data-legal="L8">Cookie settings</a>
+      </nav>
+      <a class="footsite" href="https://www.blipbillboards.com/">blipbillboards.com <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3H3v10h10v-3"/><path d="M9 3h4v4"/><path d="M13 3 7.5 8.5"/></svg></a>
+    </div>
+    <div class="footfine">
+      <!-- L9 · LEGAL PLACEHOLDER: the AI disclosure, moved here from the board preview -->
+      <span data-legal="L9">Billboards here are made with AI. Review before running.</span>
+      <span>© 2026 Blip</span>
+    </div>
+</footer>
 
 <!-- ============ FULL SCREEN CREATIVE ============ -->
 <div class="overlay" id="zoomoverlay" hidden>
@@ -2021,7 +2211,7 @@
     </div>
 
     <div id="sharepreview"></div>
-    <p class="note share-note">Shared with a “Made with Blip” mark. AI-generated art, not a real board.</p>
+    <p class="note share-note">Shared with a “Made with Blip” mark.</p>
 
     <div class="share-row">
       <div class="lbl sec">Post the picture</div>
@@ -2092,6 +2282,9 @@
     <button class="sim-x" type="button" id="simx" aria-label="Close">×</button>
   </div>
   <div class="sim-body">
+      <div class="sim-k">Layout options (result screen)</div>
+      <button class="simrow" type="button" data-sim="layjoin" aria-pressed="true"><b>A · Joined, quieter edit</b><span>Billboard and Make changes in one card, a divider between, smaller edit label.</span></button>
+      <button class="simrow" type="button" data-sim="laysep" aria-pressed="false"><b>B · Separate cards</b><span>The earlier version: two cards, Make changes as a full section header.</span></button>
       <div class="sim-k">Making the billboard</div>
       <button class="simrow" type="button" data-sim="gen"><b>Generation failed</b><span>A step fails. Try again resumes from that step.</span></button>
       <button class="simrow" type="button" data-sim="badurl"><b>Not a website address</b><span>Format check, instant. Includes private addresses.</span></button>
@@ -2156,7 +2349,7 @@
       <button class="simrow" type="button" data-sim="d6"><b>D6 · Expired after 30 days</b><span>Start screen, with a note.</span></button>
       <button class="simrow" type="button" data-sim="d7"><b>D7 · Ready email, other device</b><span>Link opens the same billboard; no browser history needed.</span></button>
       <div class="sim-k">Legal review</div>
-      <button class="simrow" type="button" data-sim="legal" id="legalrow"><b>Highlight legal placeholders</b><span>Outlines L1–L6 wherever they appear. Click again to hide.</span></button>
+      <button class="simrow" type="button" data-sim="legal" id="legalrow"><b>Highlight legal placeholders</b><span>Outlines L1–L9 wherever they appear. Click again to hide.</span></button>
   </div>
   <p class="sim-foot">Each state plays once, then everything works normally, so Try again succeeds.</p>
 </aside>
@@ -2207,6 +2400,8 @@
     $("s-auth").hidden  = which !== "auth";
     $("s-library").hidden = which !== "library";
     document.querySelector(".bar").hidden = which === "library";   /* Marketplace has its own chrome */
+    $("sitefoot").hidden = which === "library";
+    $("footbandwrap").hidden = which === "library";
     $("startover").hidden = which === "start" || which === "auth";
     $("startover").innerHTML = which === "run" ? "Cancel"
       : PLUS_ICON + '<span class="nb-l">New billboard</span><span class="nb-s">New</span>';
@@ -2601,11 +2796,8 @@
     $("chip-h").textContent = h.label;
     $("head-reason").textContent = h.why;
     $("cr3").textContent = h.support;
-    $("mk3").textContent = h.support;
     $("supportline").textContent = h.support;
 
-    $("mk1").textContent = h.pre;
-    $("mk2").textContent = h.hit;
     refreshMini();
   }
 
@@ -2624,9 +2816,7 @@
     $("lay-reason").textContent = l.why;
     $("chip-wf").innerHTML = l.wf.map(w => '<i style="width:' + w + '%"></i>').join("");
 
-    $("mockart").className = "creative " + l.cls;
     paintTweak($("creative"), tweak);
-    paintTweak($("mockart"), tweak);
     refreshMini();
   }
 
@@ -3179,7 +3369,7 @@
   /* the short prompt on phones, kept in step if the window is resized (it used to be set once, on load) */
   const phoneMq = matchMedia("(max-width: 600px)");
   function setRefinePlaceholder() {
-    $("refine").placeholder = phoneMq.matches ? "Describe a change" : "Describe a change, like “darker background”";
+    $("refine").placeholder = "Describe a change";   /* v4: the field sits in the narrower column */
   }
   setRefinePlaceholder();
   phoneMq.addEventListener("change", setRefinePlaceholder);
@@ -3646,6 +3836,14 @@
   $("libadd").onclick = () => toast("Opens the upload and Create with AI options");
   /* the Marketplace bar reuses the real Blip mark */
   (() => { const svg = document.querySelector(".bar .logo svg"); if (svg) $("mplogo").appendChild(svg.cloneNode(true)); })();
+  /* the footer logo is the same mark in one colour (text navy), and goes to the main site */
+  (() => {
+    const svg = document.querySelector(".bar .logo svg"); if (!svg) return;
+    const c = svg.cloneNode(true);
+    c.setAttribute("aria-hidden", "true"); c.removeAttribute("role"); c.removeAttribute("aria-label");
+    c.querySelectorAll("[fill]").forEach(el => { if (el.getAttribute("fill") !== "none") el.setAttribute("fill", "currentColor"); });
+    $("footlogo").appendChild(c);
+  })();
   $("authnew").onclick = () => startOver();
   $("authpw").onkeydown = e => { if (e.key === "Enter") $("authgo").click(); };
   $("authback").onclick = () => show(authFrom);
@@ -3915,7 +4113,7 @@
     if ($(id).hidden) chip.click();
     chip.scrollIntoView({ block: "center" });
   }
-  function setRefine(v) { $("refine").value = v; syncRefine(); fitRefine(); }
+  function setRefine(v) { openEdit(); $("refine").value = v; syncRefine(); fitRefine(); }
   function fakeReload(then) {
     document.body.classList.remove("reloadflash");
     void document.body.offsetWidth;
@@ -3923,7 +4121,16 @@
     setTimeout(then, 220);
   }
 
+  /* layout option: a class on the body, so it survives every state played after it */
+  function setLayout(joined) {
+    document.body.classList.toggle("layout-joined", joined);
+    document.querySelector('[data-sim="layjoin"]').setAttribute("aria-pressed", String(joined));
+    document.querySelector('[data-sim="laysep"]').setAttribute("aria-pressed", String(!joined));
+    if ($("s-done").hidden) toResult();
+  }
   const PLAYS = {
+    layjoin: () => setLayout(true),
+    laysep:  () => setLayout(false),
     gen:     () => { clearAllErrors(); failNext = "gen"; runFlow(0); },
     site:    () => { clearAllErrors(); failNext = "site"; runFlow(0); },
     badurl:  () => { toStart("brooklyncraftcompany"); $("go").click(); },
@@ -4032,6 +4239,26 @@
   $("freechip").onblur = closeFreeTip;
   document.addEventListener("click", closeFreeTip);
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeFreeTip(); });
+  /* v4: pick a board; the share sheet clones whichever scene is showing */
+  document.querySelectorAll(".scenethumb").forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll(".scenethumb").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      $("sceneimg").src = b.dataset.src;
+      $("sceneimg").alt = b.dataset.alt;
+    };
+  });
+  /* v4: the Make changes dropdown; anything that needs the edit area opens it */
+  function setEditOpen(open) {
+    $("editbody").hidden = !open;
+    $("edittoggle").setAttribute("aria-expanded", String(open));
+  }
+  function openEdit() { if ($("editbody").hidden) setEditOpen(true); }
+  $("edittoggle").onclick = () => setEditOpen($("editbody").hidden);
+  /* errors, paused notes and staged changes all live inside it */
+  new MutationObserver(() => {
+    if (["refineerr", "changeerr", "confirmbar", "rlogoerr"].some(id => !$(id).hidden) ||
+        [...document.querySelectorAll(".editcard .panel")].some(p => !p.hidden)) openEdit();
+  }).observe(document.querySelector(".editcard"), { subtree: true, attributes: true, attributeFilter: ["hidden"] });
   syncFree();   /* after every let it reads is declared */
 </script>
 
