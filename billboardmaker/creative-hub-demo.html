@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Blip</title>
+<title>Blip · Creative hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -120,7 +120,7 @@
   .meter i{display:block;height:100%;background:var(--accent);border-radius:var(--r-pill);transition:width .9s cubic-bezier(.22,.61,.36,1);}
   .meterhead .why.good.arrive{animation:fadein .35s ease .8s both;}
   @media (prefers-reduced-motion:reduce){ .meter i{transition:none;} .meterhead .why.good.arrive{animation:none;} }
-  .dropregion{position:relative;cursor:pointer;}
+  .dropregion{position:relative;}
   .dveil{position:absolute;inset:0;z-index:20;border-radius:var(--r-md);background:var(--accent-bg);
          border:var(--stroke) dashed var(--border-2);display:none;align-items:center;justify-content:center;
          flex-direction:column;gap:5px;pointer-events:none;}
@@ -128,11 +128,13 @@
   .dropregion.dragging .inner{visibility:hidden;}
   .dveil .vt{font-size:var(--fs-md);font-weight:600;}
   .dveil .vs{font-size:var(--fs-sm);font-weight:500;color:var(--text-3);}
-  .dz{border:var(--stroke) dashed var(--dash);border-radius:var(--r-md);background:var(--surface);
-      display:flex;align-items:center;justify-content:center;gap:var(--sp-4);flex-wrap:wrap;padding:16px 18px;}
-  .dz .lbl{font-size:var(--fs-md);font-weight:600;}
-  .dz .hint{font-size:var(--fs-sm);color:var(--text-3);font-weight:500;width:100%;text-align:center;margin-top:-2px;}
-  .dz .hint a{color:var(--accent);font-weight:600;}
+  .addbar{margin-bottom:var(--sp-4);}
+  .addhint{font-size:12.5px;color:var(--text-3);font-weight:500;margin:8px 0 0;}
+  /* row shortcuts: text links, so the section keeps one button */
+  .rowadd{font-family:inherit;font-size:13px;font-weight:600;color:var(--accent);background:transparent;border:0;padding:4px 2px;
+          cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;}
+  .rowadd .pl{font-size:15px;line-height:1;font-weight:500;}
+  .rowadd:hover{color:var(--accent-2);text-decoration:underline;}
   .rows{margin-top:var(--sp-4);display:flex;flex-direction:column;gap:var(--sp-2);}
   .srow{background:var(--surface);border:var(--hair) solid var(--border);border-radius:var(--r-md);}
   .srow .line{display:flex;align-items:center;gap:var(--sp-3);padding:9px 12px;min-height:54px;}
@@ -176,13 +178,6 @@
   .askchip{display:inline-flex;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:var(--r-pill);
            background:var(--surface-3);color:var(--text-3);border:var(--hair) solid var(--border-2);white-space:nowrap;}
   .grouplab{font-size:12px;font-weight:600;color:var(--text-3);margin:var(--sp-3) 0 4px 2px;}
-  .dzmini{display:flex;align-items:center;gap:9px;border:var(--hair) dashed var(--border-2);border-radius:var(--r-md);
-          padding:11px 14px;background:var(--surface);margin-bottom:var(--sp-4);}
-  .dzmini .up{color:var(--text-2);font-size:13px;}
-  .dzmini .lbl{font-size:13.5px;font-weight:600;}
-  .dzmini .sp{flex:1;}
-  .dzmini a{color:var(--accent);font-size:13.5px;font-weight:600;text-decoration:none;cursor:pointer;}
-  .dzmini .sep{color:var(--border-2);font-size:13px;}
   .srow .line.head{cursor:pointer;}
   .srow .line.head:hover{background:var(--surface-2);border-radius:var(--r-md);}
   .rowbody{border-top:var(--hair) solid var(--border);padding:12px;}
@@ -472,6 +467,40 @@
   .nlcard .errline svg{flex:none;}
 
   /* simulated system file picker (prototype stand-in for the OS dialog, deliberately generic) */
+
+
+  /* ---------- phones have no file dialog: the iOS upload menu, then Photos or Files (from add-creative-demo-v2) ---------- */
+  .iosveil{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.14);
+           font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,Helvetica,Arial,sans-serif;color:#000;}
+  .iosveil.dim{background:rgba(0,0,0,.34);}
+  .iosmenu{position:absolute;width:250px;border-radius:13px;overflow:hidden;background:rgba(246,246,246,.94);
+           -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 10px 40px rgba(0,0,0,.24);}
+  .iosmenu button{display:flex;align-items:center;justify-content:space-between;width:100%;height:46px;padding:0 16px;
+                  background:transparent;border:0;border-top:.5px solid rgba(60,60,67,.29);font:inherit;font-size:17px;color:#000;cursor:pointer;}
+  .iosmenu button:first-child{border-top:0;}
+  .iosmenu button:active{background:rgba(0,0,0,.08);}
+  .iosmenu svg{flex:none;}
+  .iossheet{position:absolute;left:0;right:0;bottom:0;top:44px;background:#fff;border-radius:12px 12px 0 0;
+            display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -6px 30px rgba(0,0,0,.18);}
+  .ioshd{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 16px 10px;}
+  .ioshd .cx{justify-self:start;color:#007aff;font:inherit;font-size:17px;background:none;border:0;padding:0;cursor:pointer;}
+  .ioshd .tt{font-size:17px;font-weight:600;}
+  .iosseg{margin:0 16px 10px;background:#eeeef0;border-radius:9px;padding:2px;display:flex;}
+  .iosseg span{flex:1;text-align:center;font-size:13px;font-weight:600;padding:6px;border-radius:7px;color:#000;}
+  .iosseg .on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.14);}
+  .iosgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;overflow:auto;align-content:start;flex:1;}
+  .iosgrid button{aspect-ratio:1;border:0;padding:0;background-color:#e5e5ea;background-size:cover;background-position:center;cursor:pointer;}
+  .iossearch{display:flex;align-items:center;gap:6px;margin:0 16px 8px;background:#eeeef0;border-radius:10px;padding:8px 10px;color:#8e8e93;font-size:16px;}
+  .ioslist{overflow:auto;flex:1;}
+  .iosrow{display:flex;align-items:center;gap:12px;padding:9px 16px;border:0;background:none;width:100%;text-align:left;font:inherit;cursor:pointer;color:#000;}
+  .iosrow + .iosrow{box-shadow:inset 72px .5px 0 #fff, inset 0 .5px 0 rgba(60,60,67,.22);}
+  .iosrow .th{width:44px;height:44px;flex:none;display:grid;place-items:center;background:#f2f2f7;border-radius:6px;}
+  .iosrow .th span{display:block;background-size:100% 100%;border-radius:2px;}
+  .iosrow .th .doc{width:26px;height:32px;background:#fff;border:1px solid #c7c7cc;border-radius:3px;}
+  .iosrow .tx{min-width:0;display:flex;flex-direction:column;gap:2px;}
+  .iosrow .n{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .iosrow .m{font-size:13px;color:#8e8e93;}
+  .iosrow.off{opacity:.4;cursor:default;}
   .fpveil{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.16);}
   .fp{width:100%;max-width:700px;height:440px;max-height:100%;display:flex;flex-direction:column;overflow:hidden;
       background:#fbfbfb;color:#1d1d1f;font-size:13px;border-radius:12px;border:1px solid rgba(0,0,0,.2);box-shadow:0 24px 64px rgba(0,0,0,.36);}
@@ -570,7 +599,16 @@
   .lpk .dm{font-size:12px;color:var(--text-2);font-weight:500;margin:-4px 0 0;}
   .lpempty{background:var(--surface);border:var(--hair) dashed var(--border-2);border-radius:var(--r-md);padding:56px 24px;text-align:center;}
   .lpempty h3{font-size:var(--fs-lg);font-weight:600;margin:0 0 5px;}
-  .lpempty p{font-size:13.5px;color:var(--text-2);font-weight:500;margin:0 auto 16px;max-width:44ch;}
+  .lpempty p{font-size:13.5px;color:var(--text-2);font-weight:500;margin:0 auto 16px;max-width:46ch;}
+  .md.hub .lpempty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;box-sizing:border-box;}
+  .lpempty .lpico{display:inline-grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--accent-bg);color:var(--accent);margin-bottom:14px;}
+  .lpempty p.lpdrag{font-size:12.5px;color:var(--text-3);font-weight:500;margin:8px auto 0;}
+  .lpempty p.lprules{font-size:12.5px;color:var(--text-2);font-weight:500;margin:10px auto 0;}
+  .lpempty.dragging{border-color:var(--accent);background:var(--accent-bg);}
+  .lpempty.tap{cursor:pointer;}
+  .lpempty.tap:hover,.lpempty.tap:active{border-color:var(--accent);background:var(--accent-bg);}
+  .lpemptyup{min-width:180px;justify-content:center;}
+  @media (max-width:699px){ .lpempty{padding:40px 16px;} .lpemptyup{width:100%;} .lpempty p.lpdrag{display:none;} }
   @media (max-width:760px){ .lpgrid{grid-template-columns:1fr 1fr;} }
 
   /* a stretched card the advertiser chose to regenerate: selected, not yet made */
@@ -606,9 +644,6 @@
   @keyframes toastin{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
   @media (prefers-reduced-motion:reduce){ .toast{animation:none;} }
   @media (max-width:699px){ .toast{bottom:92px;width:calc(100% - 32px);max-width:343px;justify-content:space-between;gap:12px;} }
-  /* the compact drop strip is a click and drag target too */
-  #dropmini{cursor:pointer;}
-  #dropmini.dragging{background:var(--accent-bg);border-color:var(--accent);border-style:dashed;}
   /* Add creative and Add another: the library picker's first tile uploads from the computer */
   .lpk.lpup .pv{background:var(--surface);border:var(--stroke) dashed var(--dash);}
   .lpk.lpup .upi{width:40px;height:40px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:grid;place-items:center;font-size:18px;font-weight:600;}
@@ -637,7 +672,6 @@
     .tn-title{font-size:14px;}
     .step i{display:none;}
     .pcard{padding:16px 14px 18px;}
-    .dz{gap:10px;padding:14px 12px;}
     .srow .line{flex-wrap:wrap;}
     .needcard{gap:10px;}
   }
@@ -665,11 +699,11 @@
     .pcard{border:0;border-radius:0;background:var(--surface-2);padding:18px 16px 22px;}
     .meterhead{flex-wrap:wrap;gap:4px 14px;}
 
-    .dz{flex-direction:column;align-items:stretch;gap:10px;padding:16px 14px;}
-    .dz .lbl{display:none;}
-    .dz .btn{width:100%;justify-content:center;padding:12px 14px;font-size:15px;border-radius:8px;}
+    .addbar .btn{width:100%;justify-content:center;padding:12px 14px;font-size:15px;border-radius:8px;}
+    /* 1px stroke reads lighter; the extra 1px of padding keeps the button the same height */
+    .addbar .btn.is-applied,.addbar .btn.is-applied:hover{background:var(--surface);color:var(--accent);border-color:var(--accent);border-width:1px;padding:13px 15px;}
+    .addhint{line-height:1.6;}
     .btn .lg{display:none;} .btn .sm{display:inline;}
-    .dz .hint{margin-top:2px;line-height:1.7;}
 
     .srow .line{display:grid;grid-template-columns:auto minmax(0,1fr) auto;
                 grid-template-areas:'sw dim cnt' 'sw ori act';column-gap:12px;row-gap:2px;align-items:center;padding:11px 12px;}
@@ -720,8 +754,7 @@
      ===================================================================== */
 
   /* prototype harness, above the product */
-  body{padding-top:0;}
-  .harness{display:none !important;}
+  body{padding-top:40px;}
   .harness{position:fixed;top:0;left:0;right:0;height:40px;z-index:95;display:flex;align-items:center;gap:14px;padding:0 14px;
            background:#1b1f25;color:#c9ced6;font-size:12px;font-weight:500;overflow-x:auto;white-space:nowrap;}
   .harness .hl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8a919c;}
@@ -776,6 +809,41 @@
   /* the hub keeps one height across tabs, so switching never makes it jump */
   .md.hub .mdbody{padding-top:14px;height:min(560px, calc(100vh - 230px));min-height:300px;max-height:none;scrollbar-gutter:stable;}
   @media (max-width:699px){ .md.hub .mdbody{height:auto;} }
+  /* Upload said out loud at the top of Library, phones only (prototype bar → Upload: Button + or) */
+  .mbonly{display:none;}
+  .upor{flex:none;margin-bottom:4px;}
+  .uporbtn{width:100%;justify-content:center;gap:8px;padding:12px 14px;font-size:15px;font-weight:600;background:var(--surface);
+           color:var(--accent);border:var(--hair) solid var(--accent);border-radius:8px;}
+  .uporbtn:hover{background:var(--accent-bg);}
+  .uprules{margin:7px 0 0;font-size:12.5px;color:var(--text-3);font-weight:500;text-align:center;}
+  .upordiv{flex:none;align-items:center;gap:10px;margin:14px 0 12px;font-size:12.5px;font-weight:500;color:var(--text-3);white-space:nowrap;}
+  .upordiv::before,.upordiv::after{content:"";flex:1;height:1px;background:var(--border);}
+  @media (max-width:699px){
+    .upor.mbonly{display:block;}
+    .upordiv.mbonly{display:flex;}
+    .lptools.fewtools{display:none;}
+    .md.hub.uprowon .lpk.lpup{display:none;}
+    /* Row mode: one full-width Add in every footer, any note on its own line above it */
+    .md.hub.uprowon .mdft{flex-wrap:wrap;row-gap:8px;}
+    .md.hub.uprowon .mdft .note,.md.hub.uprowon .mdft .note.info{display:block;width:100%;flex:none;white-space:normal;}
+    .md.hub.uprowon .mdft .sp{display:none;}
+    .md.hub.uprowon .mdft .btn{flex:1;justify-content:center;padding:11px 14px;font-size:15px;border-radius:8px;}
+  }
+  /* the hub opened from the page on phones (see libHTML): full screen like every other modal, no swipe sheet (boss, 2026-10-14).
+     The class only carries the phone Library layout: Upload pinned beside Add, full-width footer buttons */
+  .md .shup{display:none;}
+  @media (max-width:699px){
+    .md.sheet .lpk.lpup{display:none;}
+    .md.sheet .shup{display:inline-flex;}
+    .md.sheet.t-lib:not(.uprowon) .mdft .note,.md.sheet.t-lib:not(.uprowon) .mdft .sp{display:none;}
+    .md.hub .lpgrid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .md.hub .lpk{min-width:0;}
+    /* the How it works note wraps beside Add instead of running under it */
+    .md.hub .mdft .note.info{display:block;flex:1;white-space:normal;line-height:1.45;}
+    .md.hub .mdft .note.info .bminfo{margin-left:4px;}
+    .md.hub .mdft .note.info + .sp{display:none;}
+    .md.sheet.t-lib .mdft .shup,.md.sheet.t-lib .mdft .hubadd{flex:1;justify-content:center;padding:11px 14px;font-size:15px;border-radius:8px;}
+  }
   /* hub tabs, under the modal title */
   .mdhd.tabbed{border-bottom:0;padding-bottom:6px;}
   .hubtabs{display:flex;gap:22px;padding:0 20px;border-bottom:var(--hair) solid var(--border);background:var(--surface);}
@@ -922,8 +990,14 @@
   .bmright > .bmsec.acc.parts.open{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;}
   .bmsec.acc.parts.open > .acchd,.bmsec.acc.parts.open > .accsub,.bmsec.acc.parts.open > .qseg{flex:none;}
   .bmsec.acc.parts.open > .qopts{flex:1 1 auto;min-height:0;overflow:auto;margin:10px -8px 0 0;padding:0 8px 2px 0;}
-  .bmsec.acc.parts.open > .stagebar{flex:none;}
-  @media (max-width:860px){ .bmed .bmright{overflow:visible;} .bmsec.acc.parts.open > .qopts{overflow:visible;} }
+  /* the one Apply sits under both sections at the rail's bottom edge, wherever the open section ends */
+  .bmright > .rfoot{flex:none;margin-top:auto;padding-top:10px;border-top:var(--hair) solid var(--border);}
+  .rfoot .bmhint b{color:var(--text-2);font-weight:600;}
+  /* on phones the editor scrolls with the sheet: nothing in it may shrink, or the open Rework card squashes and its options spill over the Apply row */
+  @media (max-width:860px){ .bmed{flex:1 0 auto;min-height:auto;grid-template-rows:auto 1fr;} .bmed .bmright{overflow:visible;}
+    .bmright > .bmsec.acc.parts.open,.bmsec.acc.parts.open > .qopts{flex:none;min-height:auto;overflow:visible;}
+    /* the page scrolls, so Apply sticks to the bottom of the view, just above the footer, instead of ending up below the fold */
+    .bmright > .rfoot{position:sticky;bottom:-12px;z-index:2;margin:auto -20px -12px;padding:10px 20px 12px;background:var(--surface-2);} }
   .stagebar{display:flex;align-items:center;gap:12px;margin-top:10px;background:var(--surface-2);border-radius:var(--r-md);
             padding:9px 10px 9px 12px;font-size:12.5px;color:var(--text-2);font-weight:500;line-height:1.45;}
   .stagebar > span{flex:1;min-width:0;}
@@ -1258,8 +1332,6 @@
   .bmstrip{padding:9px 12px;}
   .bmstrip.ready{background:var(--surface);border-color:var(--accent-border);box-shadow:0 0 0 1px var(--accent-border);}
   .bmstrip.ready .stthumb{width:128px;height:40px;}
-  /* toast with the billboard */
-  .toast .tthumb{display:block;flex:none;background-size:100% 100%;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.18);}
   /* browser notification stand-in */
   .osnote{position:fixed;top:52px;right:16px;z-index:96;width:330px;display:flex;align-items:flex-start;gap:10px;text-align:left;font-family:inherit;
           padding:11px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.08);background:rgba(246,246,246,.97);box-shadow:0 10px 30px rgba(0,0,0,.18);
@@ -1303,7 +1375,6 @@
   .hx b{font-size:14px;font-weight:600;}
   .hx .hs{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text-2);font-weight:500;}
   .hx .hm{font-size:12.5px;color:var(--text-3);font-weight:500;line-height:1.45;}
-  .dzmini.alt{background:transparent;}
   .srow.pend .swatch .tn.skel{display:grid;place-items:center;background:transparent;border:0;}
   .srow.pend .swatch i.dash{display:block;border:1.5px dashed var(--border-2);border-radius:2px;background:var(--surface-2);}
   .pstat{font-size:12.5px;font-weight:500;color:var(--text-3);white-space:nowrap;margin-right:12px;}
@@ -1508,6 +1579,11 @@
       ]}
   };
   var LIB_ORDER = ['ridge','vera','hall','pike'];
+  /* prototype bar → Library: Empty starts a new advertiser with nothing saved yet */
+  var LIB_SEED = LIB_ORDER.slice(), EMPTYLIB = false;
+  /* prototype bar → Upload (phones only; desktop is the same either way): Button + or puts Upload at the top
+     of Library and leaves Add alone in every footer; Current keeps the Upload + Add footer pair */
+  var UPROW = true;
   var DESIGN = 'ridge';
 
   /* ---------------- files uploaded from the computer: concept-flow-v2's artwork, unchanged ---------------- */
@@ -1709,6 +1785,18 @@
   }
 
   /* ================= section ================= */
+  /* one Add creative leads the section with the rules line under it (matches add-creative-demo-v2).
+     On phones it steps down to the secondary style once something is added, where Next leads */
+  function addBar(){
+    return '<div class="addbar"><button class="btn pri'+(S.applied.length ? ' is-applied' : '')+'" data-a="addcreative">Add creative</button>'+
+      '<p class="addhint">PNG, JPG, JPEG &nbsp;·&nbsp; 5MB max per file &nbsp;·&nbsp; Up to 10 files per sign dimension</p></div>';
+  }
+  /* the button and the rows take a dropped file; the veil shows only while one is dragged over them */
+  function dropRegion(rows){
+    return '<div class="dropregion'+(S.showDrag?' dragging':'')+'" id="region">'+
+      '<div class="dveil"><span class="vt">Drag file here to upload your creative</span>'+
+      '<span class="vs">PNG, JPG, JPEG · Up to 10 files per sign dimension</span></div><div class="inner">'+addBar()+rows+'</div></div>';
+  }
   function sectionHTML(){
     /* the step shows everything already added to the campaign, whichever source it came from */
     var applied = S.applied.length>0, p = plan(), SZ = sizes(), T = total();
@@ -1726,27 +1814,18 @@
         '<span class="why">Every sign is covered once you add your billboard.</span></div>'+
         '<div class="meter"><i id="meterfill" style="width:'+(S.signsShown/T*100)+'%"></i></div>'+
         bmHeroHTML()+
-        '<div class="dzmini alt" id="dropmini"><span class="up">&#8593;</span><span class="lbl">Have your own creative? Drag it here</span>'+
-          '<span class="sp"></span><a data-a="addcreative">Add creative</a></div>'+
-        '<div class="rows" style="margin-top:0">'+SZ.slice().sort(function(a,b){ return b[2]-a[2]; }).map(pendRow).join('')+'</div>';
+        dropRegion('<div class="rows" style="margin-top:0">'+SZ.slice().sort(function(a,b){ return b[2]-a[2]; }).map(pendRow).join('')+'</div>');
     } else if(!applied){
       var shown = SZ.slice().sort(function(a,b){ return b[2]-a[2]; }), hid = [];
       S.signsTarget = 0;
       h += '<div class="meterhead"><span class="n">0 of '+T+' signs</span>'+
         '<span class="why">Each size unlocks more impressions.</span></div>'+
         '<div class="meter"><i id="meterfill" style="width:'+(S.signsShown/T*100)+'%"></i></div>'+
-        '<div class="dropregion'+(S.showDrag?' dragging':'')+'" id="region">'+
-        '<div class="dveil"><span class="vt">Drag file here to upload your creative</span>'+
-        '<span class="vs">PNG, JPG, JPEG · up to 10 files per size</span></div><div class="inner">'+
-        '<div class="dz"><span class="lbl">Drag file here to upload your creative</span>'+
-        /* one way in: the hub holds upload, My Library and Create with AI */
-        '<button class="btn pri" data-a="addcreative">Add creative</button>'+
-        '<span class="hint">PNG, JPG, JPEG&nbsp; · &nbsp;up to 10 files per size&nbsp;&nbsp; Need more? <a data-a="noop">Contact support</a></span></div>'+
-        '<div class="rows">'+shown.map(emptyRow).join('')+
+        dropRegion('<div class="rows" style="margin-top:0">'+shown.map(emptyRow).join('')+
         (hid.length?'<div class="fold" data-a="fold">&#9662; <span>Show '+hid.length+' size'+(hid.length>1?'s':'')+'</span>'+
           '<span class="c">'+sg(hid.reduce(function(a,d){return a+d[2];},0))+'</span></div>'+
           (S.folded?'':hid.map(emptyRow).join('')):'')+
-        '</div></div></div>';
+        '</div>');
     } else {
       /* only what was applied is filled: crops, AI layouts that were made, and uploads, from every creative added */
       var has = function(i){ return !!byDim[kOf(i.d)] && !rz[kOf(i.d)]; };
@@ -1758,17 +1837,15 @@
         (complete ? '<span class="why good">&#10003; Your creative is ready for every selected sign</span>'
                   : nRz ? '<span class="why">Resizing for the other sign dimensions…</span>'
                   : '<span class="why">Each size unlocks more impressions.</span>')+'</div>'+
-        '<div class="meter"><i id="meterfill" style="width:'+(S.signsShown/T*100)+'%"></i></div>'+
-        '<div class="dzmini" id="dropmini"><span class="up">&#8593;</span><span class="lbl">Drag more files here</span>'+
-        '<span class="sp"></span><a data-a="addcreative">Add creative</a></div>';
+        '<div class="meter"><i id="meterfill" style="width:'+(S.signsShown/T*100)+'%"></i></div>';
 
       var shownR = p.items.slice().sort(function(a,b){ return b.d[2]-a.d[2]; }), hidR = [];
-      h += '<div class="rows" style="margin-top:0">'+shownR.map(function(i){ return rz[kOf(i.d)] ? resizingRow(i.d, byDim[kOf(i.d)]) : has(i) ? filledRow(i, byDim[kOf(i.d)]) : emptyRow(i.d); }).join('')+
+      h += dropRegion('<div class="rows" style="margin-top:0">'+shownR.map(function(i){ return rz[kOf(i.d)] ? resizingRow(i.d, byDim[kOf(i.d)]) : has(i) ? filledRow(i, byDim[kOf(i.d)]) : emptyRow(i.d); }).join('')+
         (hidR.length ? '<div class="fold" data-a="fold">'+(S.folded?'&#9662;':'&#9652;')+
           ' <span>'+(S.folded?'Show':'Hide')+' '+hidR.length+' size'+(hidR.length>1?'s':'')+'</span>'+
           '<span class="c">'+sg(hidR.reduce(function(a,i){return a+i.d[2];},0))+'</span></div>'+
           (S.folded?'':hidR.map(filledRow).join('')) : '')+
-        '</div>';
+        '</div>');
     }
     h += '<p class="foot">Blip and sign owners approve creatives within 48 hours. Once approved, the campaign goes live at the scheduled time and a '+
       'confirmation email is sent. <span class="foot2">Sign owners set their own content exclusions, so some placements may not be available.</span></p>';
@@ -1843,8 +1920,8 @@
       'px;height:'+bx.h+'px"></i></span>'+
       '<span class="sdim">'+d[0]+' × '+d[1]+' px</span><span class="sori">'+oriName(d)+'</span>'+
       '<span class="sgrow"></span><span class="scount offer">+'+sg(d[2])+'</span>'+
-      /* opens the one picker that holds both sources, so the button carries no menu caret */
-      '<span class="sacts"><button class="btn acc" data-a="addcreative" data-k="'+kOf(d)+'">Add creative</button>'+
+      /* a shortcut to the same picker as the main button, so it is a quiet link, not a second button */
+      '<span class="sacts"><button class="rowadd" data-a="addcreative" data-k="'+kOf(d)+'"><span class="pl">+</span> Add creative</button>'+
       '</span></div></div>';
   }
   function filledRow(i, list){
@@ -1876,7 +1953,7 @@
               '<span class="img" style="width:'+tb.w+'px;height:'+tb.h+'px;'+entryBG(e,tb.w)+'"></span></div>';
           }).join('')+
           /* Add more opens the same picker as Add creative; whatever is added lands on every dimension it fits, this one included */
-          '</div><button class="btn acc addmore" data-a="addcreative">Add more</button></div>'+
+          '</div><button class="rowadd addmore" data-a="addcreative"><span class="pl">+</span> Add more</button></div>'+
         '<div class="cinfo"><div class="cmeta"><span class="fn">'+fn+'</span><span class="sp"></span><a data-a="removecreative" data-k="'+k+'" data-n="'+si+'">Remove</a></div>'+
           '<div class="rdy">&#10003; Passed content check</div></div>'+
       '</div>' : '')+'</div>';
@@ -2320,17 +2397,45 @@
     if(!ids.length) tiles += '<p class="lpnone">'+(q ? 'No creatives match that search.' : 'No saved creatives at this dimension yet. Any creative can be fitted to your sign dimensions.')+'</p>';
     return tiles;
   }
+  /* nothing saved yet: the first-upload screen (matches add-creative-demo-v2), built around uploading
+     rather than around an empty library */
+  var RULES = 'PNG, JPG, JPEG, WEBP · up to 5MB', LIMIT = 'Up to 10 creatives per sign dimension';
+  function libEmpty(){ return !LIB_ORDER.length; }
+  /* in the hub the footer holds Upload (like Add on every other tab), so the block only explains; on the
+     Design page there is no footer, so the block keeps its own button and rules */
+  function firstUploadHTML(act, id, inHub){
+    /* in the hub the whole block is tappable too: it opens the same upload as the footer's Upload */
+    return '<div class="lpempty'+(inHub ? ' tap' : '')+'"'+(id ? ' id="'+id+'"' : '')+
+      (inHub ? ' data-a="'+act+'" role="button" tabindex="0" aria-label="Upload your first creative"' : '')+'><span class="lpico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20">'+
+        '<path d="M10 14V4.5M5.8 8.6 10 4.4l4.2 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'+
+        '<path d="M4 15.5h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>'+
+      '<h3>Upload your first creative</h3>'+
+      '<p>Saved to My Library, ready for your next campaign.</p>'+
+      (inHub ? '<p class="lpdrag">Drag a file here, or use Upload below.</p></div>'
+        : '<button class="btn pri lpemptyup" data-a="'+act+'">Upload</button><p class="lpdrag">or drag a file here</p>'+
+          '<p class="lprules">'+RULES+'<br>'+LIMIT+'</p></div>');
+  }
+  /* phones only (option D): Upload said out loud at the top of Library, a short rules line, then
+     "or choose a saved creative". Choosing a file starts the scan straight away. Search, dimension and sort
+     only appear on phones once the library is big enough to need them. Desktop keeps its Library as it was:
+     the Upload from computer card first in the grid, with the tools above */
+  var LIB_TOOLS_MIN = 9;
+  function upRowHTML(){
+    return '<div class="upor mbonly" id="uprow">'+
+      '<button class="btn uporbtn" data-a="srcupload"><svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true">'+
+          '<path d="M10 14V4.5M5.8 8.6 10 4.4l4.2 4.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>'+
+          '<path d="M4 15.5h12" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>Upload a photo or file</button>'+
+      '<p class="uprules">'+RULES+'</p></div><div class="upordiv mbonly">or choose a saved creative</div>';
+  }
   function libHTML(){
     var L = S.lib;
     var dimOpts = '<option value="all">All dimensions</option>'+sizes().map(function(d){
       var k = d[0]+'x'+d[1]; return '<option value="'+k+'"'+(LIBQ.dim===k?' selected':'')+'>'+d[0]+'×'+d[1]+' · '+oriName(d)+'</option>'; }).join('');
     var sortOpts = [['new','Newest first'],['old','Oldest first'],['name','Name A–Z']].map(function(o){
       return '<option value="'+o[0]+'"'+(LIBQ.sort===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
-    var body = L.empty
-      ? '<div class="lpempty"><h3>Nothing in your library yet</h3>'+
-        '<p>Uploaded creatives stay here, ready for the next campaign.</p>'+
-        '<button class="btn pri" data-a="up">Upload from computer</button></div>'
-      : '<div class="lptools"><div class="lpsearch"><span>&#9906;</span><input id="libq" placeholder="Search creatives" value="'+LIBQ.q.replace(/"/g,'&quot;')+'" /></div>'+
+    var body = libEmpty()
+      ? firstUploadHTML('srcupload', 'firstup', true)
+      : (UPROW ? upRowHTML() : '')+'<div class="lptools'+(UPROW && LIB_ORDER.length < LIB_TOOLS_MIN ? ' fewtools' : '')+'"><div class="lpsearch"><span>&#9906;</span><input id="libq" placeholder="Search creatives" value="'+LIBQ.q.replace(/"/g,'&quot;')+'" /></div>'+
           '<label class="lpsel"><span>Dimension</span><select data-libf="dim">'+dimOpts+'</select></label>'+
           '<label class="lpsel"><span>Sort</span><select data-libf="sort">'+sortOpts+'</select></label></div>'+
         '<div class="lpgrid" id="lpgrid">'+libGrid()+'</div>';
@@ -2339,7 +2444,11 @@
        The hub: My Library and Create with AI are tabs of this one screen. On the My Library page it opens solo, as Create with AI */
     var inFlow = L.mode==='another' || L.mode==='replace';
     var tab = L.tab || 'lib', solo = !!L.solo, ai = solo || tab==='ai';
-    return '<div class="veil"><div class="md hub">'+hubHeader(tab, solo, inFlow)+
+    /* on phones the hub is always full screen (no swipe sheet). Opened from the page, it keeps the phone Library
+       layout (Upload pinned beside Add); inside the Add creative flow it doesn't, as in add-creative-demo-v2 */
+    var sheet = !inFlow && !solo;
+    return '<div class="veil"><div class="md hub'+(sheet?' sheet'+(ai?' t-ai':' t-lib'):'')+(libEmpty() && !ai?' isempty':'')+(UPROW?' uprowon':'')+'">'+
+      hubHeader(tab, solo, inFlow)+
       '<div class="mdbody'+(ai?' bmb':'')+'">'+(ai ? bmBody() : body)+'</div>'+
       '<div class="mdft">'+hubFoot(ai)+'</div>'+
       (S.confirm ? confirmHTML() : '')+(ai ? bmOverlay() : '')+'</div></div>';
@@ -2415,7 +2524,7 @@
     /* people switch tabs during a 5 to 20 minute run; the tab title is what they'll see */
     document.title = BM.status==='running' ? (BM.job.kind==='make' ? 'Billboard in progress\u2026 · Blip' : 'Redrawing billboard\u2026 · Blip')
       : BM.status==='ready' ? '\u2713 Billboard ready · Blip'
-      : BM.failed ? '! '+(BM.failed==='redraw' ? 'Change' : 'Billboard')+' didn\u2019t finish · Blip' : 'Blip';
+      : BM.failed ? '! '+(BM.failed==='redraw' ? 'Change' : 'Billboard')+' didn\u2019t finish · Blip' : 'Blip · Creative hub';
     document.body.classList.toggle('ctx-lib', BM.ctx==='library');
     document.getElementById('libmain').innerHTML = libPageHTML();
     document.getElementById('card').innerHTML = sectionHTML();
@@ -2424,7 +2533,7 @@
     /* ticking a box repaints the modal, so hold the reader's place in it */
     var key = S.v+'|'+S.zoom+'|'+(S.lib?S.lib.mode+(S.lib.tab||''):''), prev = st.querySelector('.veil .mdbody');
     var keep = (prev && key===paintedKey) ? prev.scrollTop : 0;
-    st.querySelectorAll('.veil,.fpveil').forEach(function(n){ n.remove(); });
+    st.querySelectorAll('.veil,.fpveil,.iosveil').forEach(function(n){ n.remove(); });
     if(S.zoom){ var z=mdZoom(); if(z){ st.insertAdjacentHTML('beforeend', z); } else { S.zoom=null; } }
     /* the picker opened from inside the modal is a screen of that modal, not a second layer on top of it */
     if(!S.zoom && !(S.lib && S.lib.mode!=='new')){
@@ -2466,7 +2575,44 @@
       {n:'Q3 media plan.pdf', doc:true, when:'Aug 11, 2026 at 10:02 AM', size:'412 KB'}
     ];
   }
+  /* ---- phones have no file dialog. Like iOS, the file input opens a menu beside what was tapped:
+     Photo Library and Choose File open their own pickers; Take Photo returns a picture straight away ---- */
+  var ANCHOR = null;
+  function isPhone(){ return window.matchMedia('(max-width:699px)').matches; }
+  var IC = {
+    photos:'<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2.5" fill="none" stroke="#000" stroke-width="1.6"/><path d="M5.5 17l4.5-5 3.2 3.4 2.3-2.4 3 4" fill="none" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/><circle cx="15.5" cy="9" r="1.5" fill="#000"/></svg>',
+    camera:'<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3l1.4-2h5.6l1.4 2h2.3A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z" fill="none" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12.8" r="3.4" fill="none" stroke="#000" stroke-width="1.6"/></svg>',
+    files:'<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7A1.5 1.5 0 0 1 5 5.5h4.3l1.8 2H19A1.5 1.5 0 0 1 20.5 9v8.5A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z" fill="none" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/></svg>'
+  };
+  function iosPickerHTML(){
+    var P = S.picker, list = pickerFiles(P.k), mode = P.mob || 'menu';
+    if(mode==='menu'){
+      var r = ANCHOR || {top:innerHeight/2, bottom:innerHeight/2, left:innerWidth/2, right:innerWidth/2, width:0}, h = 138, w = 250;
+      var top = r.center ? Math.max(12, r.y - h/2) : (r.bottom + 8 + h < innerHeight - 12) ? r.bottom + 8 : Math.max(12, r.top - 8 - h);
+      var left = Math.min(innerWidth - w - 12, Math.max(12, r.center ? r.x - w/2 : r.left + r.width/2 - w/2));
+      return '<div class="iosveil" data-a="fpcancel"><div class="iosmenu" role="menu" style="top:'+top+'px;left:'+left+'px">'+
+        '<button role="menuitem" data-a="iosopt" data-o="photos">Photo Library'+IC.photos+'</button>'+
+        '<button role="menuitem" data-a="iosopt" data-o="camera">Take Photo'+IC.camera+'</button>'+
+        '<button role="menuitem" data-a="iosopt" data-o="files">Choose File'+IC.files+'</button></div></div>';
+    }
+    var head = function(t){ return '<div class="ioshd"><button class="cx" data-a="fpcancel">Cancel</button><span class="tt">'+t+'</span><span></span></div>'; };
+    if(mode==='photos')
+      return '<div class="iosveil dim"><div class="iossheet" role="dialog" aria-label="Photos">'+head('Photos')+
+        '<div class="iosseg"><span class="on">Photos</span><span>Albums</span></div><div class="iosgrid">'+
+        list.map(function(f, n){ return f.doc ? '' :
+          '<button data-a="iospick" data-f="'+n+'" aria-label="'+f.n+'" style="background-image:'+f.art+'"></button>'; }).join('')+
+        '</div></div></div>';
+    return '<div class="iosveil dim"><div class="iossheet" role="dialog" aria-label="Files">'+head('Recents')+
+      '<div class="iossearch">&#9906; Search</div><div class="ioslist">'+
+      list.map(function(f, n){
+        var th = f.doc ? '<span class="doc"></span>'
+          : (function(){ var b = fitBox(f.d, 38, 38); return '<span style="width:'+b.w+'px;height:'+b.h+'px;background-image:'+f.art+'"></span>'; })();
+        return '<button class="iosrow'+(f.doc?' off':'')+'"'+(f.doc?' disabled':' data-a="iospick" data-f="'+n+'"')+'>'+
+          '<span class="th">'+th+'</span><span class="tx"><span class="n">'+f.n+'</span><span class="m">'+f.when+' – '+f.size+'</span></span></button>';
+      }).join('')+'</div></div></div>';
+  }
   function pickerHTML(){
+    if(isPhone()) return iosPickerHTML();
     var P = S.picker, files = pickerFiles(P.k), enter = !P.shown; P.shown = true;
     return '<div class="fpveil"><div class="fp'+(enter?' enter':'')+'" role="dialog" aria-label="Choose a file">'+
       '<div class="fp-top"><span class="fp-dots"><i></i><i></i><i></i></span><span class="fp-nav">&#8249; &#8250;</span>'+
@@ -2635,6 +2781,13 @@
     var pk=e.target.closest('[data-pick]');
     if(pk){ var k=pk.getAttribute('data-pick'); selSet(plan()); S.sel[k]=pk.checked; paint(); return; }
     var a=e.target.closest('[data-a]');
+    /* the iOS menu opens beside whatever was tapped */
+    var tapped = e.target.closest && e.target.closest('button,a,[role="button"]');
+    if(tapped && !e.target.closest('.iosveil')){
+      var tr = tapped.getBoundingClientRect();
+      /* a large tap area (the empty library) opens the menu centred in it, wherever the finger landed */
+      ANCHOR = tapped.getAttribute('role')==='button' ? {center:true, x:tr.left + tr.width/2, y:tr.top + tr.height/2} : tr;
+    }
     if(a){
       var act=a.getAttribute('data-a'), k=a.getAttribute('data-k');
       if(act==='noop') return;
@@ -2702,6 +2855,14 @@
       if(act==='fpsel'){ var fi=+a.getAttribute('data-f'); if(pickerFiles(S.picker.k)[fi].doc) return; S.picker.sel=fi; paint(); return; }
       if(act==='fpcancel'){ S.picker=null; paint(); return; }
       if(act==='fpopen'){ openPicked(); return; }
+      if(act==='iosopt'){
+        var o = a.getAttribute('data-o'), fl = pickerFiles(S.picker.k);
+        if(o==='camera'){
+          /* a photo of the finished artwork: the campaign file, or one at this dimension when filling a single slot */
+          var want = S.picker.k==='__new' ? fl.map(function(f){ return f.fid; }).indexOf('wide') : 0;
+          S.picker.sel = Math.max(0, want); openPicked(); return; }
+        S.picker.mob = o; paint(); return; }
+      if(act==='iospick'){ S.picker.sel = +a.getAttribute('data-f'); openPicked(); return; }
       if(act==='saveadjust'){ leaveEditor(); return; }
       if(act==='back'){ goBack(); return; }
       if(act==='zoom'){ S.zoom=k; S.zoomFrom=S.v; paint(); return; }
@@ -2725,10 +2886,10 @@
         go('applied'); return; }
       return;
     }
-    /* clicking the drop area anywhere outside its buttons opens the picker that holds both sources */
-    if((S.v==='section' || S.v==='applied') && e.target.closest('#region, #dropmini')){ S.lib={mode:'new', upload:true}; paint(); }
   });
 
+  var SUPPRESS = false;
+  document.addEventListener('click', function(e){ if(SUPPRESS){ e.stopImmediatePropagation(); e.preventDefault(); } }, true);
   document.addEventListener('pointerdown', function(e){
     var hd=e.target.closest('.hnd'), fr=e.target.closest('#cframe');
     if(!hd && !fr) return;
@@ -2784,16 +2945,33 @@
   var onPage = function(){ return BM.ctx==='campaign' && (S.v==='section' || S.v==='applied') && !S.lib && !S.picker; };
   ['dragenter','dragover'].forEach(function(ev){
     document.addEventListener(ev, function(e){
-      var r=e.target.closest && e.target.closest('#region, #dropmini');
+      var r=e.target.closest && e.target.closest('#region');
       if(r && onPage()){ e.preventDefault(); r.classList.add('dragging'); }
     });
   });
   document.addEventListener('dragleave', function(e){
-    var r=e.target.closest && e.target.closest('#region, #dropmini');
+    var r=e.target.closest && e.target.closest('#region');
+    if(r && !(e.relatedTarget && r.contains(e.relatedTarget))) r.classList.remove('dragging');
+  });
+  ['dragenter','dragover'].forEach(function(ev){
+    document.addEventListener(ev, function(e){
+      var r=e.target.closest && e.target.closest('#firstup, #uprow');
+      if(r && S.lib && !S.picker){ e.preventDefault(); r.classList.add('dragging'); }
+    });
+  });
+  document.addEventListener('dragleave', function(e){
+    var r=e.target.closest && e.target.closest('#firstup, #uprow');
     if(r && !(e.relatedTarget && r.contains(e.relatedTarget))) r.classList.remove('dragging');
   });
   document.addEventListener('drop', function(e){
-    var r=e.target.closest && e.target.closest('#region, #dropmini');
+    var r=e.target.closest && e.target.closest('#firstup, #uprow');
+    if(!r || !S.lib || S.picker) return;
+    e.preventDefault(); r.classList.remove('dragging');
+    S.batches=[]; S.tileSel={}; S.src={kind:'upload', id:'wide'}; S.editSize=null; S.aiEditSize=null;
+    runCheck();
+  });
+  document.addEventListener('drop', function(e){
+    var r=e.target.closest && e.target.closest('#region');
     if(!r || !onPage()) return;
     e.preventDefault(); r.classList.remove('dragging');
     S.batches=[]; S.tileSel={}; S.src={kind:'upload', id:'wide'}; S.editSize=null; S.aiEditSize=null;
@@ -3200,17 +3378,16 @@
       return '<button class="'+(q===t[0]?'on':'')+'" role="tab" aria-selected="'+(q===t[0])+'" data-a="bmqtab" data-q="'+t[0]+'"'+(wc?' title="Will update"':'')+'>'+t[1]+
         (wc ? '<span class="wcdot" aria-label="will update"></span>' : '')+'</button>'; }).join('');
 
-    var stageBar = '';
-    if(BM.stage){
-      var st = BM.stage, nm = st.kind==='message' ? '\u201C'+msgName(MSGS[st.i])+'\u201D' : st.kind==='layout' ? LAYS.filter(function(l){ return l.id===st.i; })[0].name : 'Brand changes';
-      var cascade = st.kind==='brand' ? ' rewrite the headline, the layout and the artwork' : st.kind==='message' ? ' redraws the layout and the artwork' : ' redraws the artwork';
-      /* in the flow of the section, never over it; picking the current option again is the cancel */
-      /* the pick is already highlighted above, so the bar only says what it costs */
-      stageBar = '<div class="stagebar"><span>About '+MIN[st.kind]+' minutes</span>'+
-        '<button class="blink" data-a="bmapply">Apply</button></div>';
-    }
     /* two ways to change it, one open at a time so the open one gets the room */
     var rp = BM.rpanel || 'quick';
+    /* one Apply, pinned to the bottom of the rail in the same spot for both. It applies the open section only:
+       the hint names what it applies and what it costs. A pending change in the closed section is kept, not applied */
+    var KN = {brand:'Brand', message:'Headline', layout:'Layout'};
+    var applyBar = rp==='quick'
+      ? {what:'Tweak', min:MIN.refine, act:'bmrefine', on:!!BM.refine.trim()}
+      : {what:BM.stage ? KN[BM.stage.kind] : '', min:BM.stage ? MIN[BM.stage.kind] : 0, act:'bmapply', on:!!BM.stage};
+    var stageBar = '<div class="rrow rfoot"><span class="bmhint">'+(applyBar.min ? '<b>'+applyBar.what+'</b> · About '+applyBar.min+' minutes' : '')+'</span><span class="sp"></span>'+
+      '<button class="btn sm" data-a="'+applyBar.act+'"'+(applyBar.on && !redraw ? '' : ' disabled')+'>Apply</button></div>';
     var chev = function(open){ return '<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="'+(open ? 'M3.5 10 8 5.5l4.5 4.5' : 'M3.5 6 8 10.5 12.5 6')+'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'; };
     var acc = function(key, title, sum){ var open = rp===key;
       return '<button class="acchd" data-a="bmrpanel" data-p="'+key+'" aria-expanded="'+open+'"><span class="acct">'+title+'</span>'+
@@ -3219,13 +3396,11 @@
     var cascadeLine = 'Changes update every part to its right.';
     var right = '<div class="bmright"><p class="edhd">Edit</p>'+
       '<div class="bmsec acc'+(rp==='quick'?' open':'')+'">'+acc('quick', 'Tweak', 'Free-text instructions')+
-        (rp==='quick' ? '<textarea id="bmrefine" class="inp" rows="3" aria-label="Tweak" placeholder="Describe a change, or ask for a different look"'+(redraw?' disabled':'')+'>'+esc(BM.refine)+'</textarea>'+
-          '<div class="rrow"><span class="bmhint">About '+MIN.refine+' minutes</span><span class="sp"></span>'+
-          '<button class="btn sm" data-a="bmrefine"'+(BM.refine.trim() && !redraw ? '' : ' disabled')+'>Refine</button></div>' : '')+'</div>'+
+        (rp==='quick' ? '<textarea id="bmrefine" class="inp" rows="3" aria-label="Tweak" placeholder="Describe a change, or ask for a different look"'+(redraw?' disabled':'')+'>'+esc(BM.refine)+'</textarea>' : '')+'</div>'+
       '<div class="bmsec acc parts'+(rp==='parts'?' open':'')+'">'+acc('parts', 'Rework', 'Brand, headline, layout')+
         (rp==='parts' ? '<p class="accsub">'+cascadeLine+'</p><div class="qseg" role="tablist">'+seg+'</div>'+
-          '<div class="qopts'+(q==='brand'?' qbrand':'')+'">'+list+'</div>'+stageBar : '')+'</div>'+
-      '</div>';
+          '<div class="qopts'+(q==='brand'?' qbrand':'')+'">'+list+'</div>' : '')+'</div>'+
+      stageBar+'</div>';
     return '<div class="bmed">'+left+right+'</div>';
   }
   /* one footer for every tab: what will be added, and the one button that adds it.
@@ -3249,6 +3424,10 @@
         : busy ? (BM.stage ? 'Apply the change, or pick the current option to cancel.' : 'Redrawing. About '+BM.job.min+' minutes.')
         : bmCommitNote();
     } else {
+      /* an empty library has nothing to pick yet: the footer's one button is Upload, where Add sits on every other tab */
+      if(libEmpty()) return '<span class="note">'+RULES+'</span><span class="sp"></span>'+
+        '<button class="btn pri sm hubadd" data-a="srcupload">Upload</button>';
+      var up = UPROW ? '' : '<button class="btn sm shup" data-a="srcupload">Upload</button>';
       var sel = S.lib.sel && DESIGNS[S.lib.sel];
       ok = !!sel;
       note = sel ? '<b>'+sel.name.replace('&','&amp;')+'</b> selected' : 'Any creative can be fitted to your sign dimensions.';
@@ -3256,7 +3435,7 @@
     /* the How it works note opens a popover upward, so it can't clip */
     /* on the result, the two ways to finish a draft sit together: throw it away, or add it */
     var disc = ai && bmInEditor() ? '<button class="btn sm" data-a="bmdiscard"'+(BM.status==='running'?' disabled':'')+'>Discard</button>' : '';
-    return '<span class="note'+(note.indexOf('bminfo')>-1 ? ' info' : '')+'">'+note+'</span><span class="sp"></span>'+disc+
+    return '<span class="note'+(note.indexOf('bminfo')>-1 ? ' info' : '')+'">'+note+'</span><span class="sp"></span>'+disc+(ai ? '' : up)+
       '<button class="btn pri sm hubadd" data-a="hubadd"'+(ok?'':' disabled')+'>'+lab+'</button>';
   }
   /* save sheet and discard confirm sit over the modal, like Exit without applying */
@@ -3320,11 +3499,13 @@
       return '<div class="lbcard'+(S.fresh && S.fresh[id] ? ' landed' : '')+'"><div class="lbpv"><i style="width:'+b.w+'px;height:'+b.h+'px;background-image:'+ART[id]+'"></i></div>'+
         '<p class="nm">'+ds.name.replace('&','&amp;')+'</p><p class="mt">'+dimsOf(ds)+madeTag(ds)+'</p><p class="mt dt">'+ds.created+'</p></div>';
     }).join('');
+    /* with nothing saved, the first-upload block holds Upload, so the row keeps only Billboard Maker */
+    var none = !pend && libEmpty();
     return '<h2>My Library</h2><div class="lbrow">'+
-      '<button class="btn pri" data-a="noop">&#8593; Upload</button>'+
+      (none ? '' : '<button class="btn pri" data-a="noop">&#8593; Upload</button>')+
       '<button class="btn acc" data-a="createai">Billboard Maker'+BETA+'</button><span class="sp"></span>'+
-      '<span class="lbcount">'+LIB_ORDER.length+' creatives</span></div>'+
-      '<div class="lbgrid">'+pend+cards+'</div>';
+      (none ? '' : '<span class="lbcount">'+LIB_ORDER.length+' creatives</span>')+'</div>'+
+      (none ? firstUploadHTML('noop') : '<div class="lbgrid">'+pend+cards+'</div>');
   }
 
   /* ---- prototype harness ---- */
@@ -3333,6 +3514,8 @@
       return '<button class="hb'+(cur===o[0]?' on':'')+'" data-a="'+act+'" data-v="'+o[0]+'">'+o[1]+'</button>'; }).join('')+'</span>'; }
     return '<span class="hl">Prototype</span>'+
       grp('View', [['campaign','Campaign · Creative step'],['library','Design page · My Library']], BM.ctx, 'hctx')+
+      grp('Library', [['full','Has creatives'],['empty','Empty']], EMPTYLIB ? 'empty' : 'full', 'hlib')+
+      grp('Upload', [['row','Button + or'],['current','Current']], UPROW ? 'row' : 'current', 'hup')+
       grp('Website', [['scanned','Read at sign-up'],['none','Not provided']], BM.site, 'hsite')+
       grp('AI run', [['ok','Succeeds'],['fail','Fails']], BM.outcome || 'ok', 'hout')+
       '<button class="hb" data-a="hfinish"'+(BM.job?'':' disabled')+'>Finish AI run now</button>'+
@@ -3359,7 +3542,7 @@
       if(!BM.job) return;
       if(BM.job.kind==='make'){ BM.job.step++; if(BM.job.step>=4){ bmFinish(); return; } paint(); bmTick(); }
       else bmFinish();
-    }, BM.job.kind==='make' ? 6500 : 8000);
+    }, BM.job.kind==='make' ? 3200 : 2800);
   }
   function clockLabel(){ return new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}); }
   function viewingAI(){ return !!(S.lib && (S.lib.tab==='ai' || S.lib.solo)); }
@@ -3419,10 +3602,10 @@
   /* the toast that stays until they act on it: they may be anywhere in the product when the run lands */
   function showReady(msg){
     hideToast();
-    var d = dimOf(BM.target), tb = fitBox(d, 84, 24);
+    /* text only: a billboard shrunk to toast size doesn't read (removed the thumbnail, 2026-10-14) */
     var el = document.createElement('div');
     el.className = 'toast ready'; el.id = 'toast'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite');
-    el.innerHTML = '<span class="lead"><span class="tthumb" style="width:'+tb.w+'px;height:'+tb.h+'px;background-image:'+bmART(curV(), d)+'"></span><span>'+msg+'</span></span>'+
+    el.innerHTML = '<span class="lead"><span>'+msg+'</span></span>'+
       '<button class="undo" data-a="bmopen">Open</button><button class="tx" data-a="toastclose" aria-label="Dismiss">&#10005;</button>';
     document.body.appendChild(el);
     /* the banner is the lasting record, so the toast can go; not while they're reading it */
@@ -3578,7 +3761,7 @@
       case 'bmunstage':
         if(BM.stage && BM.stage.kind==='brand' && BM.brandSnap){ BM.logo = BM.brandSnap.logo; BM.photo = BM.brandSnap.photo; BM.colors = BM.brandSnap.colors; BM.brandSnap = null; }
         BM.stage = null; paint(); return true;
-      case 'bmapply':
+      case 'bmapply': if(!BM.stage) return true;
         var st = BM.stage, v = curV(), nv = {msg:v.msg, lay:v.lay, P:v.P, min:st.kind};
         BM.undo = {cur:BM.cur, brand: st.kind==='brand' ? BM.brandSnap : null};
         if(st.kind==='message'){ nv.msg = st.i; nv.kind = 'New headline'; nv.detail = msgName(MSGS[st.i])+' · layout redrawn'; }
@@ -3648,6 +3831,10 @@
       case 'bmzoomx': BM.zoom = false; paint(); return true;
       case 'bminfo': BM.info = !BM.info; paint(); return true;
       case 'bmbrand': BM.bopen = !BM.bopen; paint(); return true;
+      case 'hup': UPROW = a.getAttribute('data-v')==='row'; paint(); return true;
+      case 'hlib': EMPTYLIB = a.getAttribute('data-v')==='empty'; LIB_ORDER.length = 0;
+        if(!EMPTYLIB) LIB_SEED.forEach(function(id){ LIB_ORDER.push(id); });
+        if(S.lib) S.lib.sel = null; paint(); return true;
       case 'hsite': BM.site = a.getAttribute('data-v'); bmBrandDefaults(); paint(); return true;
       case 'hout': BM.outcome = a.getAttribute('data-v'); paint(); return true;
       case 'hfinish': if(BM.job) bmFinish(); return true;
@@ -3656,20 +3843,6 @@
     return false;
   }
   BM.target = '1400x400';   /* the only size Billboard Maker makes */
-  /* usability build: no prototype bar. The facilitator sets the session up with the URL instead:
-     ?view=library   start on the Design page (My Library)
-     ?site=none      no website on the account (asks for one)
-     ?run=fail       Billboard Maker runs fail
-     and during the session:  Shift+Alt+F finish the run now · Shift+Alt+R start over */
-  var Q = new URLSearchParams(location.search);
-  if(Q.get('view')==='library') BM.ctx = 'library';
-  if(Q.get('site')==='none') BM.site = 'none';
-  if(Q.get('run')==='fail') BM.outcome = 'fail';
-  document.addEventListener('keydown', function(e){
-    if(!(e.shiftKey && e.altKey)) return;
-    if(e.code==='KeyF'){ e.preventDefault(); if(BM.job) bmFinish(); }
-    if(e.code==='KeyR'){ e.preventDefault(); location.reload(); }
-  });
   bmBrandDefaults();
 
   paint();
