@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Billboard Maker v4 Mockups</title>
+<title>Billboard Maker v3 Exits</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
@@ -1443,72 +1443,6 @@
     .lib-head .btn { padding: 0 12px; font-size: 14px; }
   }
 
-
-  /* ================= v4 · MOCKUP-FIRST RESULT =================
-     The real-board scenes are the hero (left, ~60%); the billboard file, its actions and changes sit right. */
-  .app { max-width: 1240px; }
-  .scenepick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
-  .scenethumb {
-    display: flex; flex-direction: column; gap: 2px; text-align: left; padding: 0 0 2px; border-radius: 9px;
-    background: none; color: inherit; font-family: inherit;
-  }
-  .scenethumb img {
-    display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px;
-    outline: 1px solid var(--rule); outline-offset: -1px; margin-bottom: 4px;
-  }
-  .scenethumb[aria-pressed="true"] img { outline: 2px solid var(--teal); outline-offset: 1px; }
-  .scenethumb:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-  .st-k { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.3; }
-  .st-s { font-size: 12px; color: var(--ink-50); }
-
-  /* the Make changes dropdown */
-  .edit-toggle {
-    display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;
-    padding: 2px 0; text-align: left; background: none; color: inherit; font-family: inherit;
-  }
-  .edit-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 6px; }
-  .et-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .et-k { font-size: 15px; font-weight: 600; color: var(--ink); }
-  .et-s { font-size: 13px; color: var(--ink-50); }
-  .edit-chev { flex: none; color: var(--ink-50); transition: transform .15s ease; }
-  .edit-toggle[aria-expanded="true"] .edit-chev { transform: rotate(180deg); }
-  .edit-toggle[aria-expanded="true"] .et-s { display: none; }
-  .editbody { padding-top: 12px; }
-  body.layout-joined .editcard > .lbl.sec { display: none; }
-  @media (min-width: 901px) {
-    #s-done {
-      display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); column-gap: 16px; row-gap: 10px;
-      grid-template-areas: "note note" "file scene" "edit scene" ". scene"; align-items: start;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
-    }
-    #s-done > .resume-note { grid-area: note; }
-    #s-done > .card.tail { grid-area: scene; }
-    #s-done > .card.current { grid-area: file; }
-    #s-done > .editcard { grid-area: edit; }
-    #s-done > .card.current .dims-x { display: none; }   /* the narrower column keeps just the size */
-    /* the parts sit in one row: three equal chips, no thumbnails */
-    #s-done .ingrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-    #s-done .ingchip { min-width: 0; }
-    #s-done .ingchip .thumb, #s-done .ingchip .wf { display: none; }
-  }
-  /* the billboard's type follows the billboard's width (the column is narrower than the old full-width card) */
-  #creative .c1 { font-size: 3.5cqw; }
-  #creative .c2 { font-size: 4.2cqw; }
-  @media (max-width: 900px) {
-    /* stacked: the billboard and its changes first, then the boards */
-    #s-done { display: flex; flex-direction: column; }
-  }
-  @media (max-width: 600px) {
-    .card.tail > .lbl, .card.tail > .scene, .card.tail > .payoff-foot { display: block; }
-    .card.tail > .payoff-foot { display: flex; }
-    .card.tail > .boardrow { display: none; }
-    .scenepick { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; scrollbar-width: none; }
-    .scenepick::-webkit-scrollbar { display: none; }
-    .scenethumb { flex: 0 0 42%; scroll-snap-align: start; }
-    .card.tail > .payoff-foot { flex-direction: column; align-items: stretch; gap: 10px; }
-    .payoff-foot .scene-sub { font-size: 13px; }
-    .payoff-foot .actions { justify-content: flex-end; }
-  }
 </style>
 </head>
 <body class="layout-joined">
@@ -1734,21 +1668,16 @@
 
     <!-- change it: free text on top, the parts underneath -->
     <div class="card editcard">
-      <!-- v4: "Make changes" is a dropdown, closed by default, so the billboard and the boards lead.
-           It opens on its own whenever a change, an error or a panel needs it. -->
-      <button class="edit-toggle" type="button" id="edittoggle" aria-expanded="false" aria-controls="editbody">
-        <span class="et-txt"><span class="et-k">Make changes</span><span class="et-s">Describe a change, or swap the brand, message or layout</span></span>
-        <svg class="edit-chev" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
-      </button>
+      <!-- one job, two ways: describe it, or change a part it was made from -->
+      <div class="lbl sec">Make changes</div>
       <!-- shown once the daily spend cap is hit: says up front that changes are paused,
            so the sheet on Refine or Apply is never a surprise -->
       <div class="tip pausednote" id="pausednote" role="status" hidden>
         <span class="i" aria-hidden="true">&#9208;</span>
         <span>Changes are paused for today. This billboard is kept, and Download still works. <button class="linkbtn" type="button" id="pausednotejoin">Create a free account</button> to keep editing.</span>
       </div>
-      <div class="editbody" id="editbody" hidden>
       <div class="adjust">
-        <textarea id="refine" rows="1" placeholder="Describe a change"></textarea>
+        <textarea id="refine" rows="1" placeholder="Describe a change, like “darker background”"></textarea>
         <div class="adjust-foot"><button class="btn ink" id="do-refine" disabled>Refine</button></div>
       </div>
       <!-- said where the worry happens: before anyone refines, before an account -->
@@ -1856,7 +1785,6 @@
           <button class="btn ink sm" type="button" id="changeretry">Try again</button>
         </span>
       </div>
-      </div>
     </div>
 
     <!-- Everything below the ingredients -->
@@ -1866,37 +1794,19 @@
         <span class="br-txt"><span class="br-t">See it on a board</span><span class="br-s">On a real marketplace board</span></span>
         <span class="br-go" aria-hidden="true">&#8250;</span>
       </button>
-      <div class="lbl sec">See it on real boards</div>
-      <!-- v4 · MOCKUP-FIRST: the scene is the hero. Each mockup is a pre-rendered file: the creative is laid out
-           at that board's own shape (3.5:1, 3:1, 2.3:1; never stretched) and placed on a real inventory photo
-           ahead of time. In the product, one set is rendered per version. -->
+      <div class="lbl sec">See it on a board</div>
+      <!-- the mockup is a rendered file, not composed in the browser: the creative is placed on a real
+           inventory photo (board IL-19809) ahead of time, so any board photo can be swapped in.
+           In the product, one is rendered per version. -->
       <div class="scene photo">
-        <img class="scene-img" id="sceneimg" src="assets/mockup-IL-19809-framed.jpg" alt="The billboard on a digital board beside a highway, Chicago skyline behind it" width="1170" height="658">
+        <img class="scene-img" src="assets/mockup-IL-19809-framed.jpg" alt="The billboard on a digital board beside a highway, Chicago skyline behind it" width="1170" height="658">
         <!-- on screen it's a preview, never a placement; files that leave the page say "Made with Blip" instead -->
         <span class="wm wm-preview">Sample location</span>
-      </div>
-      <!-- three boards, three shapes: the same billboard re-laid out for each, which is the point -->
-      <div class="scenepick" role="group" aria-label="Choose a board">
-        <button class="scenethumb" type="button" aria-pressed="true" data-src="assets/mockup-IL-19809-framed.jpg"
-                data-alt="The billboard on a digital board beside a highway, Chicago skyline behind it">
-          <img src="assets/mockup-IL-19809-framed.jpg" alt="" width="1170" height="658">
-          <span class="st-k">Highway · Chicago</span><span class="st-s">Wide board</span>
-        </button>
-        <button class="scenethumb" type="button" aria-pressed="false" data-src="assets/mockup-UT-16158-framed.jpg"
-                data-alt="The billboard on a tall roadside board by an interstate, mountains behind it">
-          <img src="assets/mockup-UT-16158-framed.jpg" alt="" width="1170" height="658">
-          <span class="st-k">Interstate · Salt Lake City</span><span class="st-s">Roadside board</span>
-        </button>
-        <button class="scenethumb" type="button" aria-pressed="false" data-src="assets/mockup-CHI-night-framed.jpg"
-                data-alt="The billboard lit up at night over a highway, the Chicago skyline behind it">
-          <img src="assets/mockup-CHI-night-framed.jpg" alt="" width="1170" height="659">
-          <span class="st-k">Night · Chicago</span><span class="st-s">Taller board</span>
-        </button>
       </div>
 
       <div class="payoff-foot">
         <!-- the board is real (a marketplace board), so say so, and say how running works, without promising this board -->
-        <p class="scene-sub">Real boards in the Blip marketplace, each with this billboard laid out for its shape. Ads run in open slots on boards like these.</p>
+        <p class="scene-sub">A real board in the Blip marketplace. Ads run in open slots on boards like this.</p>
         <div class="actions">
           <div class="sharewrap">
             <button class="btn sec sm sharebtn" id="sharebtn" type="button">
@@ -3369,7 +3279,7 @@
   /* the short prompt on phones, kept in step if the window is resized (it used to be set once, on load) */
   const phoneMq = matchMedia("(max-width: 600px)");
   function setRefinePlaceholder() {
-    $("refine").placeholder = "Describe a change";   /* v4: the field sits in the narrower column */
+    $("refine").placeholder = phoneMq.matches ? "Describe a change" : "Describe a change, like “darker background”";
   }
   setRefinePlaceholder();
   phoneMq.addEventListener("change", setRefinePlaceholder);
@@ -4113,7 +4023,7 @@
     if ($(id).hidden) chip.click();
     chip.scrollIntoView({ block: "center" });
   }
-  function setRefine(v) { openEdit(); $("refine").value = v; syncRefine(); fitRefine(); }
+  function setRefine(v) { $("refine").value = v; syncRefine(); fitRefine(); }
   function fakeReload(then) {
     document.body.classList.remove("reloadflash");
     void document.body.offsetWidth;
@@ -4239,26 +4149,6 @@
   $("freechip").onblur = closeFreeTip;
   document.addEventListener("click", closeFreeTip);
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeFreeTip(); });
-  /* v4: pick a board; the share sheet clones whichever scene is showing */
-  document.querySelectorAll(".scenethumb").forEach(b => {
-    b.onclick = () => {
-      document.querySelectorAll(".scenethumb").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
-      $("sceneimg").src = b.dataset.src;
-      $("sceneimg").alt = b.dataset.alt;
-    };
-  });
-  /* v4: the Make changes dropdown; anything that needs the edit area opens it */
-  function setEditOpen(open) {
-    $("editbody").hidden = !open;
-    $("edittoggle").setAttribute("aria-expanded", String(open));
-  }
-  function openEdit() { if ($("editbody").hidden) setEditOpen(true); }
-  $("edittoggle").onclick = () => setEditOpen($("editbody").hidden);
-  /* errors, paused notes and staged changes all live inside it */
-  new MutationObserver(() => {
-    if (["refineerr", "changeerr", "confirmbar", "rlogoerr"].some(id => !$(id).hidden) ||
-        [...document.querySelectorAll(".editcard .panel")].some(p => !p.hidden)) openEdit();
-  }).observe(document.querySelector(".editcard"), { subtree: true, attributes: true, attributeFilter: ["hidden"] });
   syncFree();   /* after every let it reads is declared */
 </script>
 
