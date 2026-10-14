@@ -496,7 +496,8 @@
   }
   .iconbtn:hover { border-color: var(--ink-32); color: var(--ink); }
   .art-meta .iconbtn { width: var(--h-md); height: var(--h-md); }   /* same height as Run this on billboards */
-  .payoff-foot .actions { align-items: center; }
+  .payoff-foot .actions { align-items: center; gap: 8px; }
+  .tailcta { height: var(--h-md); }
   .sharebtn { display: inline-flex; align-items: center; gap: 7px; }
 
   /* ---------- share modal ---------- */
@@ -954,6 +955,7 @@
   .footlinks a, .footsite { font-size: 13px; color: var(--ink-70); text-decoration: none; }
   .footlinks a:hover, .footsite:hover { color: var(--ink); text-decoration: underline; }
   .footsite { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .footsites { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; }
   .footfine {
     max-width: 1060px; margin: 16px auto 0; padding-top: 14px; border-top: 1px solid #CBDDE0;
     display: flex; justify-content: center; gap: 4px 16px; flex-wrap: wrap;
@@ -1968,6 +1970,8 @@
               </svg>Share
             </button>
           </div>
+          <!-- the next step, also where the preview ends (same action as the button by the billboard) -->
+          <button class="btn sm runcta tailcta" type="button" id="usecampaign3">Run this on billboards</button>
         </div>
       </div>
     </div>
@@ -2159,7 +2163,10 @@
         <!-- L8 · LEGAL PLACEHOLDER: cookie choices; legal to confirm whether a "Do not sell or share" link is also needed -->
         <a href="#" onclick="return false" data-legal="L8">Cookie settings</a>
       </nav>
-      <a class="footsite" href="https://www.blipbillboards.com/">blipbillboards.com <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3H3v10h10v-3"/><path d="M9 3h4v4"/><path d="M13 3 7.5 8.5"/></svg></a>
+      <span class="footsites">
+        <a class="footsite" href="https://www.blipbillboards.com/">blipbillboards.com <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3H3v10h10v-3"/><path d="M9 3h4v4"/><path d="M13 3 7.5 8.5"/></svg></a>
+        <a class="footsite" href="https://marketplace.blipbillboards.com/">Blip Marketplace <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3H3v10h10v-3"/><path d="M9 3h4v4"/><path d="M13 3 7.5 8.5"/></svg></a>
+      </span>
     </div>
     <div class="footfine">
       <!-- L9 · LEGAL PLACEHOLDER: the AI disclosure, moved here from the board preview -->
@@ -3841,6 +3848,7 @@
 
   $("usecampaign").onclick = () => openAuth();
   $("usecampaign2").onclick = () => openAuth();
+  $("usecampaign3").onclick = () => openAuth();
 
   let shareOpener = null;
   function openShare(e) {
