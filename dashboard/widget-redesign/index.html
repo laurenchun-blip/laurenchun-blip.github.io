@@ -80,65 +80,46 @@ button{font:inherit;cursor:pointer}
 .pill.rejected{background:var(--red-tint);color:var(--red)}
 .pill.live{background:#E8F5EC;color:var(--green)}
 
-/* ---------- getting started: 4 cards ---------- */
-.gs{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 16px 16px 24px;display:flex;gap:12px}
-.prog{width:208px;flex:none;display:flex;flex-direction:column;gap:10px;padding:12px 12px 0 0}
-.prog h2{font-size:18px;font-weight:600;margin:0}
-.prog .grow{flex:1}
-.bar{height:6px;background:var(--track);border-radius:3px;overflow:hidden;width:196px}
+/* ---------- campaign metrics strip (right-now counts; ignores the chart's date filter) ---------- */
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;min-height:20px}
+.mhead h2{margin:0}
+.mhead .link{font-size:14px}
+.mgrid{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--white);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.mseg{background:none;border:0;border-left:1px solid var(--soft);padding:16px 24px;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:100px;color:var(--ink)}
+.mseg:first-child{border-left:0}
+.mseg:hover{background:#F7F7F7}
+.mseg:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.mseg .k{font-size:12px;font-weight:600;color:var(--grey);display:flex;align-items:center;gap:6px}
+.mseg .v{font-size:24px;font-weight:600;line-height:32px}
+.mseg .v.zero{color:var(--grey)}
+.mseg .s{font-size:12px;font-weight:500;color:var(--grey);line-height:18px}
+.mseg .dot{width:8px;height:8px;border-radius:50%;flex:none}
+.dot.running{background:var(--green)} .dot.review{background:#E8A33D} .dot.attn{background:var(--red)}
+.mseg.hot .s{color:var(--red);font-weight:600}
+.viewport.m .mhead{margin-bottom:12px}
+.viewport.m .mgrid{grid-auto-flow:row}
+.viewport.m .mseg{display:grid;grid-template-columns:1fr auto;column-gap:12px;row-gap:2px;align-items:center;min-height:0;padding:12px 16px;border-left:0;border-top:1px solid var(--soft)}
+.viewport.m .mseg:first-child{border-top:0}
+.viewport.m .mseg .k{grid-column:1}
+.viewport.m .mseg .s{grid-column:1}
+.viewport.m .mseg .v{grid-column:2;grid-row:1 / span 2;font-size:20px}
+
+
+/* ---------- getting started: shared ---------- */
+.bar{height:6px;background:var(--track);border-radius:3px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--blue);border-radius:3px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
-.status-amber{display:inline-flex;align-items:center;gap:6px;color:var(--amber)!important;font-weight:600}
-.status-amber::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--amber)}
-.status-red{color:var(--red)!important;font-weight:600}
 .row{flex:1;display:flex;gap:12px;min-width:0}
-.task{flex:1 1 0;min-width:0;height:176px;border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:8px;background:var(--white);border:1px solid var(--soft);position:relative;overflow:hidden}
-.task > *{position:relative;z-index:1}
-.task .top{display:flex;justify-content:space-between;align-items:center;height:20px}
-.task .meta{font-size:12px;font-weight:500;color:var(--grey)}
-.task h3{font-size:14px;font-weight:600;margin:0;line-height:20px}
-.task .desc{font-size:12px;font-weight:500;color:var(--grey);line-height:18px;padding-right:8px}
-.task .foot{margin-top:auto;font-size:12px;font-weight:500;color:var(--grey)}
-.task .btn{height:36px}
-.tag{font-size:10px;font-weight:700;letter-spacing:.04em;padding:2px 6px;border-radius:4px;background:var(--soft);color:var(--grey)}
 .ico{width:20px;height:20px;flex:none;display:block}
 .outcome{font-weight:600;color:var(--blue-deep)}
-/* states */
-.task.done{background:var(--done-tint);border-color:var(--done-line)}
-.task.done h3{color:var(--ink)}
-.task.done .desc{color:var(--done-desc)}
-.task.next{background:var(--next-tint);border-color:var(--next-line)}
-.task.next .tag{background:var(--white);color:var(--blue)}
-.task.todo{background:var(--flat);border-color:var(--todo-line)}
-.task.todo h3{color:var(--ink2)}
-.task.goal{background:var(--white);border-color:var(--soft)}
-.task.goal.review{background:var(--amber-tint);border-color:var(--amber-line)}
-.task.goal.review .tag{background:var(--amber-tag);color:var(--amber)}
-.task.goal.review .link{color:var(--amber)}
-.task.goal.live{background:var(--done-tint);border-color:var(--done-line)}
-.task.alert{background:var(--red-tint);border-color:var(--red-line)}
-.task.alert h3{color:var(--red)}
-/* watermark drawings */
-.wm{position:absolute;right:-14px;bottom:-16px;width:92px;height:92px;z-index:0;pointer-events:none;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.task.todo .wm, .task.goal .wm{stroke:#9A9A9A;opacity:.28}
-.task.done .wm{stroke:var(--blue);opacity:.3}
-.task.next .wm{stroke:var(--wm-next);opacity:.7}
-.task.goal.review .wm{stroke:var(--amber);opacity:.25}
-.task.alert .wm{stroke:var(--red);opacity:.2}
 /* reward animations */
 @keyframes pop{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.2);opacity:1}100%{transform:scale(1)}}
 @keyframes draw{from{stroke-dashoffset:16}to{stroke-dashoffset:0}}
 @keyframes sweep{from{background-size:0% 100%}to{background-size:100% 100%}}
 @keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-@keyframes wmIn{from{transform:translateY(8px)}to{transform:none}}
 @keyframes tagIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
 .just .ico{animation:pop .5s cubic-bezier(.2,.8,.2,1) both}
 .just .ico path{stroke-dasharray:16;animation:draw .35s .25s ease-out both}
 .just .outcome{animation:rise .4s .35s both}
-.just .wm{animation:wmIn .5s .2s both}
-.task.done.just{background:var(--white) linear-gradient(var(--done-tint),var(--done-tint)) no-repeat;background-size:100% 100%;animation:sweep .6s cubic-bezier(.4,0,.2,1) both}
-.newnext .tag{animation:tagIn .4s .3s both}
-
-.task .link, .task .results{font-size:13px;font-weight:700;text-decoration-thickness:1.5px}
 /* ---------- mobile (375) ---------- */
 .viewport.m .rail, .viewport.m .only-desk{display:none}
 .viewport:not(.m) .only-m{display:none}
@@ -161,36 +142,7 @@ button{font:inherit;cursor:pointer}
 .viewport.m .empty{height:auto;padding:24px 16px}
 .viewport.m .chart{height:180px}
 .viewport.m .chart svg{height:140px}
-.gsm{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
-.gsm .hd{display:flex;justify-content:space-between;align-items:baseline}
-.gsm .hd h2{font-size:16px;font-weight:600;margin:0}
-.gsm .hd span{font-size:12px;font-weight:600;color:var(--grey)}
-.gsm .bar{width:100%}
-.gsm .list{display:flex;flex-direction:column;gap:8px}
-.mrow{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--r);border:1px solid var(--soft);background:var(--white)}
-.mrow .col{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.mrow h3, .mcard h3{font-size:14px;font-weight:600;margin:0;line-height:20px}
-.mrow .sub{font-size:12px;font-weight:500;color:var(--grey)}
-.mrow.done{background:var(--done-tint);border-color:var(--done-line)}
-.mrow.done .sub{font-weight:600;color:var(--blue-deep)}
-.mrow.todo{background:var(--flat);border-color:var(--todo-line)}
-.mrow.todo h3{color:var(--ink2)}
-.mrow.live{background:var(--done-tint);border-color:var(--done-line)}
-.mrow.done.just, .mrow.live.just{background:var(--white) linear-gradient(var(--done-tint),var(--done-tint)) no-repeat;background-size:100% 100%;animation:sweep .6s cubic-bezier(.4,0,.2,1) both}
-.just .sub{animation:rise .4s .35s both}
-.mcard{display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:var(--r);border:1px solid var(--soft)}
-.mcard .top{display:flex;justify-content:space-between;align-items:center}
-.mcard .desc{font-size:12px;font-weight:500;color:var(--grey);line-height:18px}
-.mcard .btn{width:100%}
-.mcard.next{background:var(--next-tint);border-color:var(--next-line)}
-.mcard.next .tag{background:var(--white);color:var(--blue)}
-.mcard.review{background:var(--amber-tint);border-color:var(--amber-line)}
-.mcard.review .tag{background:var(--amber-tag);color:var(--amber)}
-.mcard.review .link{color:var(--amber)}
-.mcard.alert{background:var(--red-tint);border-color:var(--red-line)}
-.mcard.alert h3{color:var(--red)}
-.mcard .link, .mrow .link{font-size:13px;font-weight:700;text-decoration-thickness:1.5px}
-/* ---------- Style=Neutral (matches Figma Style=Neutral variants) ---------- */
+/* ---------- getting started cards (match Figma Style=Neutral) ---------- */
 .vgs{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;display:flex;gap:24px}
 .vprog{width:184px;flex:none;display:flex;flex-direction:column;gap:12px}
 .vprog h2{font-size:16px;font-weight:600;margin:0}
@@ -247,13 +199,26 @@ button{font:inherit;cursor:pointer}
     <button data-preset="start">New account</button>
     <button data-preset="payment">Payment added</button>
     <button data-preset="creative">Creative added</button>
+    <button data-preset="draft">Campaign draft</button>
     <button data-preset="review">In review</button>
+    <button data-preset="established">Widget done (established)</button>
   </div>
   <span class="sep"></span>
-  <div class="grp"><span class="lbl">Simulate review</span>
+  <div class="grp"><span class="lbl">Needs attention</span>
+    <button data-attn="0" aria-pressed="true">Off</button>
+    <button data-attn="1">On</button>
+  </div>
+  <span class="sep"></span>
+  <div class="grp"><span class="lbl">Simulate</span>
+    <button id="simDraft">Save as draft</button>
     <button id="simApprove">Approve</button>
     <button id="simReject">Reject</button>
-    <span class="tbd">rejected state is a rough proposal</span>
+    <button id="simIssue">Payment issue</button>
+  </div>
+  <span class="sep"></span>
+  <div class="grp"><span class="lbl">Drafts</span>
+    <button data-drafts="1" aria-pressed="true">1</button>
+    <button data-drafts="3">3</button>
   </div>
   <span class="sep"></span>
   <div class="grp"><span class="lbl">Width</span>
@@ -262,18 +227,13 @@ button{font:inherit;cursor:pointer}
     <button data-w="375">Mobile 375</button>
   </div>
   <span class="sep"></span>
-  <div class="grp"><span class="lbl">Style</span>
-    <button data-style="v5">V5</button>
-    <button data-style="neutral" aria-pressed="true">Neutral</button>
-  </div>
-  <span class="sep"></span>
   <div class="grp"><button id="reset">Reset</button></div>
 </div>
-<p class="hint">Use the card buttons and links, or "Complete next step", to move through the checklist. Switch to Mobile 375 for the phone layout. Approve or reject the review from the bar once a campaign is submitted.</p>
+<p class="hint">Use the card buttons and links, or "Complete next step", to move through the checklist. "Save as draft" leaves the first campaign unsubmitted; "Drafts" sets how many drafts exist. "Payment issue" simulates any problem with the card on file after it was added (declined, expired, and so on). Switch to Mobile 375 for the phone layout.</p>
 
 <div class="viewport" id="vp">
   <header class="topnav">
-    <div class="brand"><button class="iconbtn only-m" aria-label="Menu" data-toast="Opens navigation (unchanged)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><img src="../assets/Blip.svg" alt="Blip"></div>
+    <div class="brand"><button class="iconbtn only-m" aria-label="Menu" data-toast="Opens navigation (unchanged)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><img src="assets/Blip.svg" alt="Blip"></div>
     <div class="icons">
       <button class="iconbtn" aria-label="Help" data-toast="Help menu (unchanged)">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4.5"/><circle cx="12" cy="17.5" r=".6" fill="currentColor"/></svg>
@@ -296,6 +256,7 @@ button{font:inherit;cursor:pointer}
         <div id="gsSlot"></div>
         <div class="cols">
           <div class="main">
+            <section class="card" id="metrics" aria-label="Campaigns"></section>
             <section class="card" id="perf">
               <div class="perfhead"><h2 style="margin:0">Campaign performance</h2>
                 <div style="display:flex;gap:16px"><span class="dd">All Campaign ▾</span><span class="dd">3 months ▾</span></div></div>
@@ -315,124 +276,110 @@ button{font:inherit;cursor:pointer}
     </main>
   </div>
 </div>
-<p class="note"><b>Neutral (default, matches Figma Style=Neutral):</b> step cards are white with the page's 1px grey border; finished steps get a faint blue tint; the next step has a 2px blue border, a Next pill with the time beside it, and a full-width button; in review and needs changes show as pills on the goal card; illustrations sit in 32px icon tiles; the progress panel shows only the bar, count and How Blip works link.<br><b>V5:</b> V5 cards fitted to the dashboard. Changes from V5: 4 cards, with "Learn how Blip works" moved to a link in the progress panel so the row fits at 1280. Finished cards fill with blue so the row turns blue as steps finish; the next step has a stronger blue fill; the goal card turns amber while the ad is in review, and offers the results once it's live. While Getting started shows, the performance empty state has no Create campaign link. Header Create is the only filled button; card buttons are secondary (white with blue text and outline). On mobile the steps stack: finished and upcoming steps are compact rows, and the next step expands with a full-width button.<br>Open questions: count the goal in "of 4"? Dismiss before done, and once live? The rejected state is a rough proposal.</p>
+
+<p class="note">Matches the Figma Style=Neutral components. Step cards are white with the page's 1px grey border; finished steps get a faint blue tint; the next step has a 2px blue border, a Next pill and a full-width button; illustrations sit in 32px icon tiles. While Getting started shows, the performance empty state has no Create campaign link; header Create is the only filled button.<br>
+<b>Draft:</b> the first-campaign step completes only when any campaign is submitted for review. While a draft exists the card reads "Finish your first campaign" and "Finish campaign" reopens the most recently edited draft in the builder where it was left. With several drafts the card names that draft and the count; all drafts stay in Campaigns.<br>
+<b>Payment issue:</b> one generic state for any card problem (declined, expired, and so on), so the widget never has to know the reason. The payment card owns it: "Action needed" pill, "Update payment method", "There was an issue with the card on file." and an "Update payment" button that opens Update payment on the Billing page. It drops out of the done count; the goal card only reflects the effect ("On hold", no second button). Card details never show on the widget.<br>
+<b>Campaigns strip:</b> right-now counts above the chart (they ignore the chart's date filter). Running and In review are the requested scope; "Needs attention" (toggle in the bar) is optional and counts only campaigns that should be running but can't (rejected creative, payment issue), never ended or archived ones, capped at "9+". Each count opens the Campaigns list at that section. "View all campaigns" hides only when no campaign or draft exists. "Widget done" shows an established account after Getting started has gone.<br>
+Open questions: count the goal in "of 4"? Dismiss before done, and once live? Does the widget hide the payment issue once an account-level payment banner exists? "Needs changes" stays generic on the widget: "See details" opens the campaign details drawer, which owns the reason and the fix, so any rejection reason works. Use Approve in the bar to continue.</p>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const ICON = {
   done:'<svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#176BF5"/><path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  todo:'<svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="#BFBFBF" stroke-width="1.5"/></svg>',
-  next:'<svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="#176BF5" stroke-width="2"/></svg>',
-  goal:'<svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="3 3"/></svg>',
-  review:'<svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="#B25E00" stroke-width="1.5"/><path d="M10 5.5V10l3 2" fill="none" stroke="#B25E00" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  rejected:'<svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#C5221F"/><path d="M10 5v6" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="10" cy="14.5" r="1.2" fill="#fff"/></svg>',
 };
-const WM = {
-  payment:'<svg class="wm" viewBox="0 0 48 48"><rect x="5" y="12" width="38" height="26" rx="4"/><path d="M5 19h38"/><rect x="10" y="25" width="8" height="6" rx="1.5"/><path d="M24 31h12"/></svg>',
-  creative:'<svg class="wm" viewBox="0 0 48 48"><rect x="5" y="9" width="38" height="30" rx="4"/><path d="M8 35l11-11 8 8 5-4 11 7"/><circle cx="34" cy="18" r="4"/></svg>',
-  campaign:'<svg class="wm" viewBox="0 0 48 48"><rect x="5" y="8" width="38" height="25" rx="3"/><path d="M24 29c-4-4.4-6-7.4-6-10a6 6 0 0 1 12 0c0 2.6-2 5.6-6 10z"/><circle cx="24" cy="19" r="2"/><path d="M24 33v11M17 44h14"/></svg>',
-  goal:'<svg class="wm" viewBox="0 0 48 48"><path d="M10 6v38"/><path d="M10 8h26l-5 8 5 8H10"/></svg>',
+const DRAW = {
+  payment:'<rect x="5" y="12" width="38" height="26" rx="4"/><path d="M5 19h38"/><rect x="10" y="25" width="8" height="6" rx="1.5"/><path d="M24 31h12"/>',
+  creative:'<rect x="5" y="9" width="38" height="30" rx="4"/><path d="M8 35l11-11 8 8 5-4 11 7"/><circle cx="34" cy="18" r="4"/>',
+  campaign:'<rect x="5" y="8" width="38" height="25" rx="3"/><path d="M24 29c-4-4.4-6-7.4-6-10a6 6 0 0 1 12 0c0 2.6-2 5.6-6 10z"/><circle cx="24" cy="19" r="2"/><path d="M24 33v11M17 44h14"/>',
+  goal:'<path d="M10 6v38"/><path d="M10 8h26l-5 8 5 8H10"/>',
+};
+const tile = id => `<span class="tile"><svg class="glyph" viewBox="0 0 48 48">${DRAW[id]}</svg></span>`;
+const PILL = {
+  next:'<span class="pill next">Next</span>', goal:'<span class="pill goal">Goal</span>', hold:'<span class="pill goal">On hold</span>',
+  review:'<span class="pill review">In review</span>', alert:'<span class="pill alert">Needs changes</span>', issue:'<span class="pill alert">Action needed</span>',
 };
 const TASKS = [
   {id:'payment', title:'Add payment method', desc:'A card on file so campaigns can spend.', time:'1 min', cta:'Add payment method', link:'Billing →', outcome:'Payment ready'},
   {id:'creative', title:'Add creative', desc:'Upload an ad to reuse across campaigns.', time:'2 min', cta:'Upload creative', link:'Upload creative →', outcome:'1 creative ready'},
   {id:'campaign', title:'Create your first campaign', desc:'Pick locations and budget, then submit for review.', time:'7 min', cta:'Create campaign', link:'Create campaign →', outcome:'Submitted for review'},
 ];
+// payment: false | true | 'issue' (any card problem: declined, expired…)   campaign: 'none' | 'draft' | 'review' | 'rejected' | 'live'
 const START = {payment:false, creative:false, campaign:'none'};
-let S = {...START}, JUST = null, NEWNEXT = null;
-const PRESETS = {start:{}, payment:{payment:true}, creative:{payment:true,creative:true}, review:{payment:true,creative:true,campaign:'review'}};
+let S = {...START}, DRAFTS = 1, JUST = null, NEWNEXT = null;
+// EST: an established account, first campaign has run so Getting started is gone. ATTN: show the optional Needs attention count.
+let EST = false, ATTN = false;
+const PRESETS = {start:{}, payment:{payment:true}, creative:{payment:true,creative:true}, draft:{payment:true,creative:true,campaign:'draft'}, review:{payment:true,creative:true,campaign:'review'}};
 
-const isDone = id => id==='campaign' ? S.campaign!=='none' : S[id];
-const doneCount = () => TASKS.filter(t=>isDone(t.id)).length;
-const count4 = () => doneCount() + (S.campaign==='live'?1:0);
+const submitted = () => !['none','draft'].includes(S.campaign);
+const isDone = id => id==='campaign' ? submitted() : S[id]===true;
+const onHold = () => S.payment==='issue' && ['review','live'].includes(S.campaign);
+const count4 = () => TASKS.filter(t=>isDone(t.id)).length + (S.campaign==='live' && !onHold() ? 1 : 0);
 const nextStep = () => TASKS.find(t=>!isDone(t.id))?.id || null;
-function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2200);}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2600);}
 
-const plus = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>';
-function taskCard(t){
-  const nx = nextStep(), done = isDone(t.id);
-  const cls = ['task', done?'done':t.id===nx?'next':'todo', JUST===t.id?'just':'', NEWNEXT===t.id?'newnext':''].join(' ');
-  if(done) return `<article class="${cls}">${WM[t.id]}<div class="top">${ICON.done}</div><h3>${t.title}</h3><div class="desc">${t.desc}</div><div class="foot"><span class="outcome">${t.outcome}</span></div></article>`;
-  if(t.id===nx) return `<article class="${cls}">${WM[t.id]}<div class="top">${ICON.next}<span class="tag">NEXT</span></div><h3>${t.title}</h3><div class="desc">${t.desc} About ${t.time}.</div>
-    <div class="foot"><button class="btn btn-secondary" data-act="${t.id}">${plus}${t.cta}</button></div></article>`;
-  return `<article class="${cls}">${WM[t.id]}<div class="top">${ICON.todo}<span class="meta">${t.time}</span></div><h3>${t.title}</h3><div class="desc">${t.desc}</div><div class="foot"><button class="link" data-act="${t.id}">${t.link}</button></div></article>`;
+/* Copy that changes with state. Only the first submitted campaign completes the step; drafts never do. */
+function taskCopy(t){
+  if(t.id==='payment' && S.payment==='issue') return {...t, title:'Update payment method', desc:'There was an issue with the card on file.', cta:'Update payment'};
+  if(t.id==='campaign' && S.campaign==='draft') return {...t, title:'Finish your first campaign',
+    desc: DRAFTS>1 ? `${DRAFTS} drafts saved. Grand Opening was edited last.` : 'Grand Opening is saved as a draft.',
+    time:'Draft', cta:'Finish campaign', link:'Finish campaign →'};
+  return t;
+}
+function cardState(t){
+  if(t.id==='payment' && S.payment==='issue') return 'issue';
+  if(isDone(t.id)) return 'done';
+  return t.id===nextStep() ? 'next' : 'todo';
+}
+function goalState(){
+  if(onHold()) return 'hold';
+  return {review:'review', rejected:'rejected', live:'live'}[S.campaign] || 'notyet';
+}
+
+/* ---------- desktop ---------- */
+function taskCard(raw){
+  const t = taskCopy(raw), st = cardState(raw);
+  const j = JUST===t.id ? ' just' : '', nn = NEWNEXT===t.id ? ' newnext' : '';
+  const copy = `<div class="copy"><h3>${t.title}</h3><div class="desc">${t.desc}</div></div>`;
+  if(st==='issue') return `<article class="vt alert"><div class="top">${tile(t.id)}${PILL.issue}</div>${copy}<button class="btn btn-secondary" data-act="fixpay">${t.cta}</button></article>`;
+  if(st==='done') return `<article class="vt done${j}"><div class="top">${tile(t.id)}${ICON.done}</div>${copy}<span class="outcome muted">${t.outcome}</span></article>`;
+  if(st==='next') return `<article class="vt next${nn}"><div class="top">${tile(t.id)}<span class="right"><span class="meta">${t.time}</span>${PILL.next}</span></div>${copy}<button class="btn btn-secondary" data-act="${t.id}">${t.cta}</button></article>`;
+  return `<article class="vt todo"><div class="top">${tile(t.id)}<span class="meta">${t.time}</span></div>${copy}<span><button class="link" data-act="${t.id}">${t.link}</button></span></article>`;
 }
 function goalCard(){
-  const tag = '<span class="tag">GOAL</span>';
-  if(S.campaign==='live') return `<article class="task goal done live ${JUST==='goal'?'just':''}">${WM.goal}<div class="top">${ICON.done}${tag}</div><h3>First ad is live</h3><div class="desc">Grand Opening is playing on screens now.</div><div class="foot"><button class="link" data-act="results">Check out the results →</button></div></article>`;
-  if(S.campaign==='review') return `<article class="task goal review">${WM.goal}<div class="top">${ICON.review}${tag}</div><h3>In review</h3><div class="desc">Grand Opening starts playing once it passes review.</div><div class="foot"><button class="link" data-toast="Opens the campaign's moderation details">Track review status →</button></div></article>`;
-  if(S.campaign==='rejected') return `<article class="task alert">${WM.goal}<div class="top">${ICON.rejected}${tag}</div><h3>Needs changes</h3><div class="desc">Text is too small to read from the road.</div><div class="foot"><button class="btn btn-secondary" data-act="fix">Fix creative</button></div></article>`;
-  return `<article class="task goal">${WM.goal}<div class="top">${ICON.goal}${tag}</div><h3>First ad goes live</h3><div class="desc">Happens on its own once the ad passes review and starts playing.</div><div class="foot">Not yet</div></article>`;
-}
-function progPanel(){
-  const n = count4();
-  const status = {review:'In review, not live yet', rejected:'Changes needed', live:'First ad is live'}[S.campaign] || 'Ad not live yet';
-  const scls = S.campaign==='review' ? 'status-amber' : S.campaign==='rejected' ? 'status-red' : '';
-  return `<div class="prog"><h2>Getting started</h2>
-    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${n}"><i style="width:${n/4*100}%"></i></div>
-    <div class="muted">${n} of 4 steps done</div><div class="muted ${scls}">${status}</div><span class="grow"></span>
-    <button class="link" data-toast="Opens How Blip works in a new tab">New to Blip? How it works ↗</button></div>`;
-}
-function mobileGS(){
-  const n = count4();
-  const status = {review:'In review, not live yet', rejected:'Changes needed', live:'First ad is live'}[S.campaign] || 'Ad not live yet';
-  const scls = S.campaign==='review' ? 'status-amber' : S.campaign==='rejected' ? 'status-red' : '';
-  const nx = nextStep(), tag = '<span class="tag">GOAL</span>';
-  const rows = TASKS.map(t=>{
-    const j = JUST===t.id ? ' just' : '';
-    if(isDone(t.id)) return `<div class="mrow done${j}">${ICON.done}<div class="col"><h3>${t.title}</h3><span class="sub">${t.outcome}</span></div></div>`;
-    if(t.id===nx) return `<div class="mcard next${NEWNEXT===t.id?' newnext':''}"><div class="top">${ICON.next}<span class="tag">NEXT</span></div><h3>${t.title}</h3><div class="desc">${t.desc} About ${t.time}.</div><button class="btn btn-secondary" data-act="${t.id}">${plus}${t.cta}</button></div>`;
-    return `<div class="mrow todo">${ICON.todo}<div class="col"><h3>${t.title}</h3><button class="link" data-act="${t.id}">${t.link}</button></div></div>`;
-  });
-  let goal;
-  if(S.campaign==='live') goal = `<div class="mrow live${JUST==='goal'?' just':''}">${ICON.done}<div class="col"><h3>First ad is live</h3><button class="link" data-act="results">Check out the results →</button></div>${tag}</div>`;
-  else if(S.campaign==='review') goal = `<div class="mcard review"><div class="top">${ICON.review}${tag}</div><h3>In review</h3><div class="desc">Grand Opening starts playing once it passes review.</div><button class="link" data-toast="Opens the campaign's moderation details">Track review status →</button></div>`;
-  else if(S.campaign==='rejected') goal = `<div class="mcard alert"><div class="top">${ICON.rejected}${tag}</div><h3>Needs changes</h3><div class="desc">Text is too small to read from the road.</div><button class="btn btn-secondary" data-act="fix">Fix creative</button></div>`;
-  else goal = `<div class="mrow goal">${ICON.goal}<div class="col"><h3>First ad goes live</h3><span class="sub">Not yet</span></div>${tag}</div>`;
-  return `<section class="gsm" aria-label="Getting started">
-    <div class="hd"><h2>Getting started</h2><span>${n} of 4 done</span></div>
-    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${n}"><i style="width:${n/4*100}%"></i></div>
-    <div class="muted ${scls}">${status}</div>
-    <div class="list">${rows.join('')}${goal}</div>
-    <button class="link" data-toast="Opens How Blip works in a new tab">New to Blip? How it works ↗</button>
-  </section>`;
-}
-/* ----- Style=Neutral: white cards, state in icon tile + pill + one border ----- */
-const tile = id => `<span class="tile"><svg class="glyph" viewBox="0 0 48 48">${WM[id].replace(/^<svg[^>]*>|<\/svg>$/g,'')}</svg></span>`;
-const PILL = {next:'<span class="pill next">Next</span>', goal:'<span class="pill goal">Goal</span>', review:'<span class="pill review">In review</span>', alert:'<span class="pill alert">Needs changes</span>'};
-function nTaskCard(t){
-  const nx = nextStep(), done = isDone(t.id);
-  const j = JUST===t.id ? ' just' : '', nn = NEWNEXT===t.id ? ' newnext' : '';
-  if(done) return `<article class="vt done${j}"><div class="top">${tile(t.id)}${ICON.done}</div><div class="copy"><h3>${t.title}</h3><div class="desc">${t.desc}</div></div><span class="outcome muted">${t.outcome}</span></article>`;
-  if(t.id===nx) return `<article class="vt next${nn}"><div class="top">${tile(t.id)}<span class="right"><span class="meta">${t.time}</span>${PILL.next}</span></div><div class="copy"><h3>${t.title}</h3><div class="desc">${t.desc}</div></div><button class="btn btn-secondary" data-act="${t.id}">${t.cta}</button></article>`;
-  return `<article class="vt todo"><div class="top">${tile(t.id)}<span class="meta">${t.time}</span></div><div class="copy"><h3>${t.title}</h3><div class="desc">${t.desc}</div></div><span><button class="link" data-act="${t.id}">${t.link}</button></span></article>`;
-}
-function nGoalCard(){
-  if(S.campaign==='live') return `<article class="vt done${JUST==='goal'?' just':''}"><div class="top">${tile('goal')}${ICON.done}</div><div class="copy"><h3>First ad is live</h3><div class="desc">Grand Opening is playing on screens now.</div></div><span><button class="link" data-act="results">Check out the results →</button></span></article>`;
-  if(S.campaign==='review') return `<article class="vt review"><div class="top">${tile('goal')}${PILL.review}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Grand Opening starts playing once it passes review.</div></div><span><button class="link amber" data-toast="Opens the campaign's moderation details">Track review status →</button></span></article>`;
-  if(S.campaign==='rejected') return `<article class="vt alert"><div class="top">${tile('goal')}${PILL.alert}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Text is too small to read from the road.</div></div><button class="btn btn-secondary" data-act="fix">Fix creative</button></article>`;
+  const g = goalState();
+  if(g==='live') return `<article class="vt done${JUST==='goal'?' just':''}"><div class="top">${tile('goal')}${ICON.done}</div><div class="copy"><h3>First ad is live</h3><div class="desc">Grand Opening is playing on screens now.</div></div><span><button class="link" data-act="results">Check out the results →</button></span></article>`;
+  if(g==='hold') return `<article class="vt goal"><div class="top">${tile('goal')}${PILL.hold}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Grand Opening resumes once payment is updated.</div></div><span class="vnote">Waiting on payment</span></article>`;
+  if(g==='review') return `<article class="vt review"><div class="top">${tile('goal')}${PILL.review}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Grand Opening starts playing once it passes review.</div></div><span><button class="link amber" data-toast="Opens the campaign's moderation details">Track review status →</button></span></article>`;
+  if(g==='rejected') return `<article class="vt alert"><div class="top">${tile('goal')}${PILL.alert}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Grand Opening needs changes before it can go live.</div></div><button class="btn btn-secondary" data-act="details">See details</button></article>`;
   return `<article class="vt goal"><div class="top">${tile('goal')}${PILL.goal}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Happens on its own once the ad passes review and starts playing.</div></div><span class="vnote">Not yet</span></article>`;
 }
-function nProgPanel(){
+function progPanel(){
   const n = count4();
   return `<div class="vprog"><h2>Getting started</h2>
     <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${n}"><i style="width:${n/4*100}%"></i></div>
     <div class="muted">${n} of 4 done</div><span class="grow"></span>
     <button class="link" data-toast="Opens How Blip works in a new tab">How Blip works</button></div>`;
 }
-function nMobileGS(){
-  const n = count4(), nx = nextStep();
-  const rows = TASKS.map(t=>{
-    const j = JUST===t.id ? ' just' : '';
-    if(isDone(t.id)) return `<div class="vrow done${j}">${tile(t.id)}<div class="col"><h3>${t.title}</h3><span class="outcome muted">${t.outcome}</span></div>${ICON.done}</div>`;
-    if(t.id===nx) return `<div class="vcard next${NEWNEXT===t.id?' newnext':''}"><div class="top">${tile(t.id)}<span class="right"><span class="meta">${t.time}</span>${PILL.next}</span></div><div class="copy"><h3>${t.title}</h3><div class="desc">${t.desc}</div></div><button class="btn btn-secondary" data-act="${t.id}">${t.cta}</button></div>`;
+
+/* ---------- mobile ---------- */
+function mobileGS(){
+  const n = count4();
+  const rows = TASKS.map(raw=>{
+    const t = taskCopy(raw), st = cardState(raw), j = JUST===t.id ? ' just' : '';
+    const copy = `<div class="copy"><h3>${t.title}</h3><div class="desc">${t.desc}</div></div>`;
+    if(st==='issue') return `<div class="vcard alert"><div class="top">${tile(t.id)}${PILL.issue}</div>${copy}<button class="btn btn-secondary" data-act="fixpay">${t.cta}</button></div>`;
+    if(st==='done') return `<div class="vrow done${j}">${tile(t.id)}<div class="col"><h3>${t.title}</h3><span class="outcome muted">${t.outcome}</span></div>${ICON.done}</div>`;
+    if(st==='next') return `<div class="vcard next${NEWNEXT===t.id?' newnext':''}"><div class="top">${tile(t.id)}<span class="right"><span class="meta">${t.time}</span>${PILL.next}</span></div>${copy}<button class="btn btn-secondary" data-act="${t.id}">${t.cta}</button></div>`;
     return `<div class="vrow todo">${tile(t.id)}<div class="col"><h3>${t.title}</h3><button class="link" data-act="${t.id}">${t.link}</button></div><span class="meta">${t.time}</span></div>`;
   });
+  const g = goalState();
   let goal;
-  if(S.campaign==='live') goal = `<div class="vrow done${JUST==='goal'?' just':''}">${tile('goal')}<div class="col"><h3>First ad is live</h3><button class="link" data-act="results">Check out the results →</button></div>${ICON.done}</div>`;
-  else if(S.campaign==='review') goal = `<div class="vcard review"><div class="top">${tile('goal')}${PILL.review}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Grand Opening starts playing once it passes review.</div></div><span><button class="link amber" data-toast="Opens the campaign's moderation details">Track review status →</button></span></div>`;
-  else if(S.campaign==='rejected') goal = `<div class="vcard alert"><div class="top">${tile('goal')}${PILL.alert}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Text is too small to read from the road.</div></div><button class="btn btn-secondary" data-act="fix">Fix creative</button></div>`;
+  if(g==='live') goal = `<div class="vrow done${JUST==='goal'?' just':''}">${tile('goal')}<div class="col"><h3>First ad is live</h3><button class="link" data-act="results">Check out the results →</button></div>${ICON.done}</div>`;
+  else if(g==='hold') goal = `<div class="vrow goal">${tile('goal')}<div class="col"><h3>First ad goes live</h3><span class="vnote">Waiting on payment</span></div>${PILL.hold}</div>`;
+  else if(g==='review') goal = `<div class="vcard review"><div class="top">${tile('goal')}${PILL.review}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Grand Opening starts playing once it passes review.</div></div><span><button class="link amber" data-toast="Opens the campaign's moderation details">Track review status →</button></span></div>`;
+  else if(g==='rejected') goal = `<div class="vcard alert"><div class="top">${tile('goal')}${PILL.alert}</div><div class="copy"><h3>First ad goes live</h3><div class="desc">Grand Opening needs changes before it can go live.</div></div><button class="btn btn-secondary" data-act="details">See details</button></div>`;
   else goal = `<div class="vrow goal">${tile('goal')}<div class="col"><h3>First ad goes live</h3><span class="vnote">Not yet</span></div>${PILL.goal}</div>`;
   return `<section class="vgsm" aria-label="Getting started">
     <div class="hd"><h2>Getting started</h2><span>${n} of 4 done</span></div>
@@ -443,16 +390,43 @@ function nMobileGS(){
 }
 function renderGS(prevN){
   const slot = document.getElementById('gsSlot');
-  if(STYLE==='neutral') slot.innerHTML = VW===375 ? nMobileGS() : `<section class="vgs" aria-label="Getting started">${nProgPanel()}<div class="row">${TASKS.map(nTaskCard).join('')}${nGoalCard()}</div></section>`;
-  else slot.innerHTML = VW===375 ? mobileGS() : `<section class="gs" aria-label="Getting started">${progPanel()}<div class="row">${TASKS.map(taskCard).join('')}${goalCard()}</div></section>`;
+  slot.hidden = EST;
+  if(EST){ slot.innerHTML=''; return; }
+  if(VW===375) slot.innerHTML = mobileGS();
+  else slot.innerHTML = `<section class="vgs" aria-label="Getting started">${progPanel()}<div class="row">${TASKS.map(t=>taskCard(t)).join('')}${goalCard()}</div></section>`;
   if(prevN!==undefined){
     const bar=slot.querySelector('.bar i'), w=bar.style.width; bar.style.width=(prevN/4*100)+'%'; requestAnimationFrame(()=>requestAnimationFrame(()=>bar.style.width=w));
   }
 }
+/* Right-now counts. Needs attention = campaigns that should be running but can't (rejected creative, payment issue),
+   never ended/archived ones, so older accounts don't carry a backlog. Over 9 shows "9+". */
+function metricCounts(){
+  if(EST) return {running:12, boards:148, review:3, attn:2};
+  const live = S.campaign==='live' && !onHold();
+  return {running: live?1:0, boards: live?2:0, review: S.campaign==='review' && !onHold() ? 1 : 0,
+    attn: (S.campaign==='rejected' || onHold()) ? 1 : 0};
+}
+function renderMetrics(){
+  const c = metricCounts(), fmt = n => n>9 ? '9+' : String(n);
+  const seg = (key, label, n, sub, toastMsg, hot) => `<button class="mseg${hot?' hot':''}" data-toast="${toastMsg}">
+      <span class="k">${n>0?`<span class="dot ${key}"></span>`:''}${label}</span>
+      <span class="v${n===0?' zero':''}">${fmt(n)}</span>
+      <span class="s">${sub}</span></button>`;
+  const segs = [
+    seg('running','Running', c.running, c.running ? `On ${c.boards} billboards` : '', 'Opens Campaigns at the Active section'),
+    seg('review','In review', c.review, '', 'Opens Campaigns filtered to In review'),
+  ];
+  if(ATTN) segs.push(seg('attn','Needs attention', c.attn, c.attn ? `Can't run until fixed` : '', 'Opens Campaigns at the Needs attention section', c.attn>0));
+  // No campaigns at all (not even a draft) → nothing to view, so the link hides.
+  const anyCampaign = EST || S.campaign!=='none';
+  document.getElementById('metrics').innerHTML = `<div class="mhead"><h2>Campaigns</h2>${anyCampaign?'<button class="link" data-toast="Opens the Campaigns list">View all campaigns</button>':''}</div>
+    <div class="mgrid">${segs.join('')}</div>`;
+}
 function renderDash(){
-  const live = S.campaign==='live', has = S.campaign!=='none';
-  document.getElementById('impr').textContent = live ? '12,480' : '-';
-  document.getElementById('cpm').textContent = live ? '$8.12' : '-';
+  renderMetrics();
+  const live = EST || S.campaign==='live', has = EST || submitted();
+  document.getElementById('impr').textContent = EST ? '1,284,600' : live ? '12,480' : '-';
+  document.getElementById('cpm').textContent = EST ? '$7.40' : live ? '$8.12' : '-';
   const pb = document.getElementById('perfBody');
   if(live){
     pb.innerHTML = `<div class="chart"><div class="muted" style="color:var(--ink);font-weight:600">Impressions over time</div>
@@ -462,8 +436,16 @@ function renderDash(){
     pb.innerHTML = `<div class="empty"><h3>No performance data yet</h3><div class="muted">Impressions and CPM appear here once the first ad passes review and starts playing.</div></div>`;
   }
   const pill = {review:'<span class="pill review">In review</span>', rejected:'<span class="pill rejected">Needs changes</span>', live:'<span class="pill live">Approved</span>'}[S.campaign];
+  if(EST){
+    document.getElementById('modBody').innerHTML = [['Fall Menu','review'],['Weekend Sale','review'],['Holiday Hours','rejected'],['Grand Opening','live']]
+      .map(([n,k])=>`<div class="modrow"><span>${n}</span>${({review:'<span class="pill review">In review</span>', rejected:'<span class="pill rejected">Needs changes</span>', live:'<span class="pill live">Approved</span>'})[k]}</div>`).join('');
+    document.getElementById('actBody').innerHTML = `<div class="muted">Fall Menu submitted for review · 2h ago<br>Holiday Hours needs changes · yesterday<br>Grand Opening budget updated · 3 days ago</div>`;
+    return;
+  }
   document.getElementById('modBody').innerHTML = has ? `<div class="modrow"><span>Grand Opening</span>${pill}</div>` : `<div class="muted">Review status for submitted campaigns appears here.</div>`;
-  document.getElementById('actBody').innerHTML = `<div class="muted">${{none:'No campaigns running, start one to see activity.', review:'Grand Opening submitted for review · just now', rejected:'Grand Opening needs changes · just now', live:'Grand Opening started playing · just now'}[S.campaign]}</div>`;
+  const act = S.payment==='issue' ? 'Issue with the card on file, ads paused · just now'
+    : {none:'No campaigns running, start one to see activity.', draft:'Grand Opening saved as a draft · just now', review:'Grand Opening submitted for review · just now', rejected:'Grand Opening needs changes · just now', live:'Grand Opening started playing · just now'}[S.campaign];
+  document.getElementById('actBody').innerHTML = `<div class="muted">${act}</div>`;
 }
 function render(prevN){ renderGS(prevN); renderDash(); }
 
@@ -471,33 +453,48 @@ function complete(id){
   const prevN = count4();
   if(id==='payment') S.payment=true;
   if(id==='creative') S.creative=true;
-  if(id==='campaign'){ if(!S.payment||!S.creative) toast('Simulated: payment and creative added inside the campaign builder'); S.payment=true; S.creative=true; S.campaign='review'; }
+  if(id==='campaign'){
+    if(S.campaign==='draft') toast(DRAFTS>1 ? 'Simulated: opens Grand Opening (last edited of '+DRAFTS+' drafts) where it was left, then submitted' : 'Simulated: opens the Grand Opening draft where it was left, then submitted');
+    else if(S.payment!==true||!S.creative) toast('Simulated: payment and creative added inside the campaign builder');
+    if(S.payment!=='issue') S.payment=true;
+    S.creative=true; S.campaign='review';
+  }
   JUST=id; NEWNEXT=nextStep(); render(prevN); JUST=null; NEWNEXT=null;
 }
+function fixPayment(){ const p=count4(); S.payment=true; JUST='payment'; render(p); JUST=null; toast('Simulated: Billing › Update payment, card updated, ads resume'); }
 function goLive(){ const p=count4(); S.campaign='live'; JUST='goal'; render(p); JUST=null; toast('Simulated: review approved, ad is playing'); }
 
 document.addEventListener('click', e=>{
   const t = e.target.closest('button'); if(!t) return;
   if(t.dataset.toast) toast(t.dataset.toast);
   const a = t.dataset.act;
-  if(a==='fix'){ S.campaign='review'; render(); toast('Simulated: creative fixed and resubmitted'); }
+  if(a==='details'){ toast('Opens the Grand Opening details drawer at Moderation: the reason and what to replace'); }
+  else if(a==='fixpay') fixPayment();
   else if(a==='results'){ document.getElementById('perf').scrollIntoView({behavior:'smooth',block:'center'}); }
   else if(a) complete(a);
-  if(t.dataset.preset){ S={...START, ...PRESETS[t.dataset.preset]}; render(); }
-  if(t.dataset.style){ STYLE=t.dataset.style; render(); document.querySelectorAll('[data-style]').forEach(b=>b.setAttribute('aria-pressed', b===t)); }
+  if(t.dataset.preset){ EST = t.dataset.preset==='established'; S={...START, ...(PRESETS[t.dataset.preset]||{})}; render(); }
+  if(t.dataset.attn){ ATTN = t.dataset.attn==='1'; renderDash(); document.querySelectorAll('[data-attn]').forEach(b=>b.setAttribute('aria-pressed', b===t)); }
+  if(t.dataset.drafts){ DRAFTS=+t.dataset.drafts; render(); document.querySelectorAll('[data-drafts]').forEach(b=>b.setAttribute('aria-pressed', b===t)); }
   if(t.dataset.w){ VW=+t.dataset.w; fit(); render(); document.querySelectorAll('[data-w]').forEach(b=>b.setAttribute('aria-pressed', b===t)); }
 });
+// Simulations drive the onboarding checklist; from the established view they start a new account first.
+['advance','simDraft','simApprove','simReject','simIssue'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{
+  if(EST){ e.stopImmediatePropagation(); EST=false; S={...START}; render(); toast('Back to a new account (simulations apply to Getting started)'); }
+}, true));
 document.getElementById('advance').onclick=()=>{
+  if(S.payment==='issue') return fixPayment();
   const nx=nextStep();
   if(nx) return complete(nx);
   if(S.campaign==='review'||S.campaign==='rejected') return goLive();
   S={...START}; render(); toast('Back to a new account');
 };
-document.getElementById('simApprove').onclick=()=>{ if(S.campaign==='none'){toast('Submit a campaign first');return;} goLive(); };
-document.getElementById('simReject').onclick=()=>{ if(S.campaign==='none'){toast('Submit a campaign first');return;} S.campaign='rejected'; render(); toast('Simulated: review rejected'); };
-document.getElementById('reset').onclick=()=>{ S={...START}; render(); };
+document.getElementById('simDraft').onclick=()=>{ if(submitted()){toast('First campaign already submitted; later drafts don\'t change the checklist');return;} S.campaign='draft'; render(); toast('Simulated: campaign saved as a draft, not submitted'); };
+document.getElementById('simApprove').onclick=()=>{ if(!submitted()){toast('Submit a campaign first');return;} goLive(); };
+document.getElementById('simReject').onclick=()=>{ if(!submitted()){toast('Submit a campaign first');return;} S.campaign='rejected'; render(); toast('Simulated: review rejected'); };
+document.getElementById('simIssue').onclick=()=>{ if(S.payment!==true){toast('Add a payment method first');return;} const p=count4(); S.payment='issue'; render(p); toast('Simulated: issue with the card on file, ads paused'); };
+document.getElementById('reset').onclick=()=>{ EST=false; S={...START}; render(); };
 
-let VW=1440, STYLE='neutral';
+let VW=1440;
 function fit(){ const vp=document.getElementById('vp'); vp.classList.toggle('m', VW===375); vp.style.width=VW+'px'; vp.style.zoom=Math.min(1,(window.innerWidth-32)/VW); }
 window.addEventListener('resize',fit);
 fit();
