@@ -185,6 +185,115 @@ button{font:inherit;cursor:pointer}
 .vcard{display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:var(--r);border:1px solid var(--line);background:var(--white)}
 .vcard .copy{display:flex;flex-direction:column;gap:4px}
 .vcard .btn{width:100%;height:40px}
+/* mobile: finished steps fold into one summary row (direction A) */
+.vsum{display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:var(--r);border:1px solid #D3E0F7;background:#F8FAFF;width:100%;text-align:left;color:var(--ink)}
+.vsum .col{flex:1;min-width:0;display:flex;flex-direction:column}
+.vsum .h{font-size:14px;font-weight:600;line-height:20px}
+.vsum .outcome{font-size:12px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vsum .chev{flex:none;transition:transform .2s}
+.vsum[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.vsum:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+/* ---------- billing (Settings › Billing, from Marketplace – Billing Figma) ---------- */
+.viewport{position:relative}
+.content.bill{padding:0;display:flex}
+#billView{flex:1;display:flex;min-width:0}
+.snav{width:232px;flex:none;background:#fff;border-right:1px solid #E0E0E0;padding:20px 12px;display:flex;flex-direction:column;gap:2px;font-size:14px}
+.snav .back{display:flex;align-items:center;gap:28px;font-size:16px;font-weight:500;padding:0 8px 20px}
+.snav .grp{font-size:14px;font-weight:600;color:var(--ink2);padding:12px 8px 8px}
+.snav .grp:not(:first-of-type){border-top:1px solid #E0E0E0;margin-top:8px}
+.snav button{background:none;border:0;text-align:left;padding:8px 12px;border-radius:6px;font-size:14px;color:var(--ink2);display:flex;justify-content:space-between}
+.snav button:hover{background:#F5F5F5}
+.snav button.on{background:#E3EDFB;color:var(--blue);font-weight:500}
+.bmain{flex:1;min-width:0;background:var(--page);padding:20px 24px 40px}
+.bmain h1{font-size:22px;font-weight:600;margin:0 0 16px}
+.crumb{font-size:16px;font-weight:600;margin:0 0 20px}
+.crumb span{color:var(--grey);font-weight:500}
+.bcols{display:flex;gap:16px;align-items:flex-start}
+.bleft{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+.bright{width:316px;flex:none;display:flex;flex-direction:column;gap:12px}
+.bc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.bc .lab{font-size:11px;font-weight:600;color:var(--grey);letter-spacing:.03em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.bc .lab .link{font-size:13px;text-transform:none;letter-spacing:0;text-decoration:none;font-weight:500}
+.bhero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:20px 0 28px}
+.bhero .tile{background:var(--tint);border:1px solid #CFDDF8}
+.bhero b{font-size:14px;font-weight:600;margin-top:4px}
+.bhero p{margin:0 0 10px;font-size:13px;color:var(--ink2);max-width:330px;line-height:1.45}
+.big{font-size:28px;font-weight:600}
+.sm{font-size:12px;color:var(--ink2)}
+.btn-sm{height:32px;padding:0 12px;font-size:13px;font-weight:500;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:6px;display:inline-flex;align-items:center;gap:6px}
+.rowc{display:flex;align-items:center;gap:12px;padding:8px 0}
+.rowc + .rowc{border-top:1px solid var(--soft)}
+.rowc .col{flex:1;min-width:0;font-size:13px}
+.rowc .col b{font-weight:500}
+.visa{width:32px;height:20px;border:1px solid #E0E0E0;border-radius:3px;background:#fff;display:grid;place-items:center;font-size:8px;font-weight:800;font-style:italic;color:#1A1F71;flex:none;position:relative;overflow:hidden}
+.visa::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#F7B600}
+.pill.def{background:#fff;color:var(--ink2);border:1px solid var(--ink2);padding:2px 7px}
+.qa a,.qa li{font-size:13px;color:var(--blue)}
+.qa ul{margin:6px 0 0;padding-left:16px;display:flex;flex-direction:column;gap:6px}
+.pmlist{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:0 16px}
+.pmrow{display:flex;align-items:center;gap:12px;padding:14px 0}
+.pmrow .col{flex:1;min-width:0}
+.pmrow .col b{font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px}
+.pmrow .bad{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:12px;color:var(--red);font-weight:500}
+.btn-red{height:28px;padding:0 12px;border-radius:6px;background:var(--red);color:#fff;border:0;font-size:12px;font-weight:600}
+.pmrow .acts{display:flex;gap:8px;align-items:center}
+.kebab{width:32px;height:32px;border:1px solid var(--line);border-radius:6px;background:#fff;display:grid;place-items:center}
+.addpm{width:100%;margin-top:10px;height:40px;border:1px solid var(--blue);border-radius:var(--r);background:#EDF3FE;color:var(--blue);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px}
+.sec{font-size:11px;font-weight:600;color:var(--grey);letter-spacing:.03em;text-transform:uppercase;margin:0 0 8px}
+.how{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:4px 16px}
+.how div{display:flex;gap:16px;padding:12px 0;font-size:13px}
+.how div + div{border-top:1px solid var(--soft)}
+.how b{font-weight:500;display:block}
+.how span{color:var(--ink2);font-size:12px}
+.flag{outline:2px solid var(--red);outline-offset:3px;border-radius:4px}
+/* add-card modal */
+.overlay{position:absolute;inset:0;background:rgba(19,19,19,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+.modal{width:360px;max-width:100%;background:#FAFAFA;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.25);padding:16px;display:flex;flex-direction:column;gap:14px}
+.stepper{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2)}
+.stepper .s{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.stepper .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:600;background:var(--tint);color:var(--blue)}
+.stepper .s.cur .n{background:var(--blue);color:#fff}
+.stepper .s.ok .n{background:#3E8E41;color:#fff} .stepper .s.ok{color:#3E8E41;font-weight:500}
+.stepper .ln{flex:1;height:1px;background:var(--line)}
+.modal h3{margin:0;font-size:15px;font-weight:600}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:8px}
+.opt .radio{width:14px;height:14px;border-radius:50%;border:4px solid var(--blue);flex:none;margin-top:10px}
+.opt b{font-size:13px;font-weight:600;display:block;margin-bottom:2px}
+.opt span{font-size:12px;color:var(--ink2);line-height:1.4}
+.secure{display:flex;gap:10px;align-items:center;background:#F0F0F0;border-radius:6px;padding:8px 10px;font-size:12px;color:var(--ink2);line-height:1.4}
+.in{height:34px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:0 10px;display:flex;align-items:center;gap:8px;font-size:12px;color:#9A9A9A}
+.in.v{color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mf{display:flex;justify-content:flex-end;align-items:center;gap:12px}
+.mf .btn{height:34px;font-size:13px}
+.backbtn{background:none;border:0;color:var(--grey);font-size:12px}
+.ccard{width:240px;height:150px;margin:0 auto;border-radius:10px;background:linear-gradient(135deg,#F0067A,#B8006A);color:#fff;position:relative;padding:14px 16px;font-family:ui-monospace,Menlo,monospace}
+.ccard .vs{position:absolute;right:14px;top:10px;font:italic 800 22px Inter,sans-serif}
+.ccard .chip{position:absolute;left:18px;top:56px;width:30px;height:24px;border-radius:5px;background:linear-gradient(#F6C445,#E2A417)}
+.ccard .num{position:absolute;left:16px;right:16px;top:92px;display:flex;justify-content:space-between;font-size:14px;letter-spacing:2px}
+.ccard .nm{position:absolute;left:16px;bottom:12px;font-size:11px}
+.kv{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--soft)}
+.kv:first-of-type{border-top:0}
+.okbig{width:56px;height:56px;border-radius:50%;background:#2DA44E;display:grid;place-items:center;margin:8px auto 0}
+.done-t{text-align:center;display:flex;flex-direction:column;gap:6px}
+.done-t b{font-size:14px;font-weight:600}
+.done-t p{margin:0;font-size:12px;color:var(--ink2);line-height:1.45}
+.cardrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#F5F5F5;border-radius:6px;padding:8px 10px;width:100%;max-width:280px;margin:0 auto;font-size:12px;white-space:nowrap}
+.cardrow .col{flex:1}
+.nextline{background:var(--tint);color:var(--blue-deep);border-radius:6px;padding:8px 10px;font-size:12px;font-weight:600;text-align:center}
+.modal .btn.full{width:100%;height:36px;font-size:13px}
+.stay{background:none;border:0;color:var(--grey);font-size:12px;font-weight:500;text-decoration:underline;text-underline-offset:2px;align-self:center}
+.xbtn{width:24px;height:24px;border:0;background:none;display:grid;place-items:center;border-radius:6px;color:var(--ink);flex:none}
+.xbtn:hover{background:rgba(0,0,0,.06)}
+.viewport.m .snav{display:none}
+.viewport.m .bmain{padding:20px 16px 32px}
+.viewport.m .bcols{flex-direction:column;align-items:stretch}
+.viewport.m .bright{width:auto}
+/* mobile: each step is a full screen under the top bar, like the billing file's mobile flow */
+.viewport.m .overlay{align-items:flex-start;padding:56px 0 0;background:var(--page)}
+.viewport.m .modal{width:100%;border-radius:0;box-shadow:none;padding:20px 16px 24px;background:var(--page)}
+.viewport.m .pmrow{flex-wrap:wrap}
+.viewport.m .pmrow .acts{width:100%;display:flex;gap:8px;justify-content:flex-end}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#1F1F1F;color:#fff;font-size:13px;padding:10px 16px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none;z-index:60}
 .toast.show{opacity:1;transform:translateX(-50%)}
 .note{font-size:12px;color:#555;max-width:1440px;margin:0 auto 24px;padding:0 16px;line-height:1.5}
@@ -199,7 +308,9 @@ button{font:inherit;cursor:pointer}
     <button data-preset="start">New account</button>
     <button data-preset="payment">Payment added</button>
     <button data-preset="creative">Creative added</button>
-    <button data-preset="draft">Campaign draft</button>
+    <button data-preset="draft1">Draft · locations set</button>
+    <button data-preset="draft2">Draft · creative added</button>
+    <button data-preset="draft">Draft · ready to submit</button>
     <button data-preset="review">In review</button>
     <button data-preset="established">Widget done (established)</button>
   </div>
@@ -229,7 +340,7 @@ button{font:inherit;cursor:pointer}
   <span class="sep"></span>
   <div class="grp"><button id="reset">Reset</button></div>
 </div>
-<p class="hint">Use the card buttons and links, or "Complete next step", to move through the checklist. "Save as draft" leaves the first campaign unsubmitted; "Drafts" sets how many drafts exist. "Payment issue" simulates any problem with the card on file after it was added (declined, expired, and so on). Switch to Mobile 375 for the phone layout.</p>
+<p class="hint">Use the card buttons and links, or "Complete next step", to move through the checklist. "Save as draft" saves the first campaign wherever the checklist is (try it on a new account: a draft with only locations set); "Drafts" sets how many drafts exist. "Payment issue" simulates any problem with the card on file after it was added (declined, expired, and so on). Switch to Mobile 375 for the phone layout.</p>
 
 <div class="viewport" id="vp">
   <header class="topnav">
@@ -247,6 +358,7 @@ button{font:inherit;cursor:pointer}
   <div class="body">
     <nav class="rail" aria-label="Primary"><span></span><span></span><span class="on"></span><span></span><span></span><span></span></nav>
     <main class="content">
+      <div id="homeView">
       <div class="pagehead">
         <h1>Blip Ads Manager</h1>
         <button class="btn btn-primary btn-header" data-toast="Header Create: global, unchanged in every state">
@@ -273,12 +385,17 @@ button{font:inherit;cursor:pointer}
           </aside>
         </div>
       </div>
+      </div>
+      <div id="billView" hidden></div>
     </main>
   </div>
 </div>
 
 <p class="note">Matches the Figma Style=Neutral components. Step cards are white with the page's 1px grey border; finished steps get a faint blue tint; the next step has a 2px blue border, a Next pill and a full-width button; illustrations sit in 32px icon tiles. While Getting started shows, the performance empty state has no Create campaign link; header Create is the only filled button.<br>
-<b>Draft:</b> the first-campaign step completes only when any campaign is submitted for review. While a draft exists the card reads "Finish your first campaign" and "Finish campaign" reopens the most recently edited draft in the builder where it was left. With several drafts the card names that draft and the count; all drafts stay in Campaigns.<br>
+<b>Draft:</b> the builder asks for locations first, so a draft can exist before a creative or payment method. Once a draft exists it becomes the next step (2px blue border, "Draft" pill) even if payment and creative are still open, because finishing it collects both. The card reads "Finish your first campaign", says which builder step the draft picks up at (Creative, Payment, or ready to submit) with the time left, and "Finish campaign" reopens it there. Payment and creative cards stay to do and still work on their own. The step completes only when a campaign is submitted for review. With several drafts the card names the last-edited one and the count; all drafts stay in Campaigns.<br>
+<b>Add payment method:</b> the card button and link open Settings › Billing › Overview with the existing 3-step add modal already up (Method → Details → Review), matching the Marketplace – Billing Figma. The success step keeps its confirmation and card row, adds the next open step ("Next on Getting started: add a creative"), and its primary button is "Back to home", which lands on the dashboard with the payment card freshly checked. "Stay in Billing" closes the modal. Arriving any other way, the success step keeps its usual "Done".<br>
+<b>Update payment:</b> in the payment-issue state it opens Billing › Payment methods, where the default card shows "Payment declined" with Retry and Update. Either fix ends on the same success step with "Back to home".<br>
+<b>Mobile finished steps:</b> fold into one summary row ("2 done", then the outcomes). Tapping it expands the full rows. A step finished a moment ago shows in full once with its check animation, then folds.<br>
 <b>Payment issue:</b> one generic state for any card problem (declined, expired, and so on), so the widget never has to know the reason. The payment card owns it: "Action needed" pill, "Update payment method", "There was an issue with the card on file." and an "Update payment" button that opens Update payment on the Billing page. It drops out of the done count; the goal card only reflects the effect ("On hold", no second button). Card details never show on the widget.<br>
 <b>Campaigns strip:</b> right-now counts above the chart (they ignore the chart's date filter). Running and In review are the requested scope; "Needs attention" (toggle in the bar) is optional and counts only campaigns that should be running but can't (rejected creative, payment issue), never ended or archived ones, capped at "9+". Each count opens the Campaigns list at that section. "View all campaigns" hides only when no campaign or draft exists. "Widget done" shows an established account after Getting started has gone.<br>
 Open questions: count the goal in "of 4"? Dismiss before done, and once live? Does the widget hide the payment issue once an account-level payment banner exists? "Needs changes" stays generic on the widget: "See details" opens the campaign details drawer, which owns the reason and the fix, so any rejection reason works. Use Approve in the bar to continue.</p>
@@ -298,10 +415,10 @@ const DRAW = {
 const tile = id => `<span class="tile"><svg class="glyph" viewBox="0 0 48 48">${DRAW[id]}</svg></span>`;
 const PILL = {
   next:'<span class="pill next">Next</span>', goal:'<span class="pill goal">Goal</span>', hold:'<span class="pill goal">On hold</span>',
-  review:'<span class="pill review">In review</span>', alert:'<span class="pill alert">Needs changes</span>', issue:'<span class="pill alert">Action needed</span>',
+  draft:'<span class="pill next">Draft</span>', review:'<span class="pill review">In review</span>', alert:'<span class="pill alert">Needs changes</span>', issue:'<span class="pill alert">Action needed</span>',
 };
 const TASKS = [
-  {id:'payment', title:'Add payment method', desc:'A card on file so campaigns can spend.', time:'1 min', cta:'Add payment method', link:'Billing →', outcome:'Payment ready'},
+  {id:'payment', title:'Add payment method', desc:'A card on file so campaigns can spend.', time:'1 min', cta:'Add payment method', link:'Add payment method →', outcome:'Payment ready'},
   {id:'creative', title:'Add creative', desc:'Upload an ad to reuse across campaigns.', time:'2 min', cta:'Upload creative', link:'Upload creative →', outcome:'1 creative ready'},
   {id:'campaign', title:'Create your first campaign', desc:'Pick locations and budget, then submit for review.', time:'7 min', cta:'Create campaign', link:'Create campaign →', outcome:'Submitted for review'},
 ];
@@ -310,21 +427,33 @@ const START = {payment:false, creative:false, campaign:'none'};
 let S = {...START}, DRAFTS = 1, JUST = null, NEWNEXT = null;
 // EST: an established account, first campaign has run so Getting started is gone. ATTN: show the optional Needs attention count.
 let EST = false, ATTN = false;
-const PRESETS = {start:{}, payment:{payment:true}, creative:{payment:true,creative:true}, draft:{payment:true,creative:true,campaign:'draft'}, review:{payment:true,creative:true,campaign:'review'}};
+// VIEW: 'home' | 'billing'. BILL: the Billing visit that "Add payment method" / "Update payment" opens.
+// EXPANDED: mobile summary row of finished steps is open.
+let VIEW = 'home', BILL = null, EXPANDED = false;
+const PRESETS = {start:{}, payment:{payment:true}, creative:{payment:true,creative:true}, draft1:{campaign:'draft'}, draft2:{creative:true,campaign:'draft'}, draft:{payment:true,creative:true,campaign:'draft'}, review:{payment:true,creative:true,campaign:'review'}};
 
 const submitted = () => !['none','draft'].includes(S.campaign);
 const isDone = id => id==='campaign' ? submitted() : S[id]===true;
 const onHold = () => S.payment==='issue' && ['review','live'].includes(S.campaign);
 const count4 = () => TASKS.filter(t=>isDone(t.id)).length + (S.campaign==='live' && !onHold() ? 1 : 0);
-const nextStep = () => TASKS.find(t=>!isDone(t.id))?.id || null;
+// A draft jumps the queue: the builder asks for locations first, so a draft can exist before
+// creative or payment, and resuming it collects whatever is still missing.
+const nextStep = () => S.campaign==='draft' ? 'campaign' : (TASKS.find(t=>!isDone(t.id))?.id || null);
+// Where the draft picks up in the builder (locations → creative → payment → submit).
+const draftStage = () => !S.creative ? 'creative' : S.payment!==true ? 'payment' : 'submit';
+const nextPill = id => id==='campaign' && S.campaign==='draft' ? PILL.draft : PILL.next;
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2600);}
 
 /* Copy that changes with state. Only the first submitted campaign completes the step; drafts never do. */
 function taskCopy(t){
   if(t.id==='payment' && S.payment==='issue') return {...t, title:'Update payment method', desc:'There was an issue with the card on file.', cta:'Update payment'};
-  if(t.id==='campaign' && S.campaign==='draft') return {...t, title:'Finish your first campaign',
-    desc: DRAFTS>1 ? `${DRAFTS} drafts saved. Grand Opening was edited last.` : 'Grand Opening is saved as a draft.',
-    time:'Draft', cta:'Finish campaign', link:'Finish campaign →'};
+  if(t.id==='campaign' && S.campaign==='draft'){
+    const st = draftStage();
+    const where = st==='submit' ? 'Grand Opening is ready to submit.' : `Grand Opening picks up at ${st==='creative'?'Creative':'Payment'}.`;
+    return {...t, title:'Finish your first campaign',
+      desc: DRAFTS>1 ? `${DRAFTS} drafts. ${where}` : where,
+      time:{creative:'~5 min left', payment:'~2 min left', submit:'~1 min left'}[st], cta:'Finish campaign', link:'Finish campaign →'};
+  }
   return t;
 }
 function cardState(t){
@@ -344,7 +473,7 @@ function taskCard(raw){
   const copy = `<div class="copy"><h3>${t.title}</h3><div class="desc">${t.desc}</div></div>`;
   if(st==='issue') return `<article class="vt alert"><div class="top">${tile(t.id)}${PILL.issue}</div>${copy}<button class="btn btn-secondary" data-act="fixpay">${t.cta}</button></article>`;
   if(st==='done') return `<article class="vt done${j}"><div class="top">${tile(t.id)}${ICON.done}</div>${copy}<span class="outcome muted">${t.outcome}</span></article>`;
-  if(st==='next') return `<article class="vt next${nn}"><div class="top">${tile(t.id)}<span class="right"><span class="meta">${t.time}</span>${PILL.next}</span></div>${copy}<button class="btn btn-secondary" data-act="${t.id}">${t.cta}</button></article>`;
+  if(st==='next') return `<article class="vt next${nn}"><div class="top">${tile(t.id)}<span class="right"><span class="meta">${t.time}</span>${nextPill(t.id)}</span></div>${copy}<button class="btn btn-secondary" data-act="${t.id}">${t.cta}</button></article>`;
   return `<article class="vt todo"><div class="top">${tile(t.id)}<span class="meta">${t.time}</span></div>${copy}<span><button class="link" data-act="${t.id}">${t.link}</button></span></article>`;
 }
 function goalCard(){
@@ -364,14 +493,20 @@ function progPanel(){
 }
 
 /* ---------- mobile ---------- */
+const CHEV = '<svg class="chev" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#707070" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>';
 function mobileGS(){
   const n = count4();
+  // Finished steps fold into one summary row. A step finished this render shows in full once
+  // (with the check animation), then folds on the next render.
+  const folded = TASKS.filter(t=>cardState(t)==='done' && JUST!==t.id);
+  const summary = folded.length ? `<button class="vsum" data-sum aria-expanded="${EXPANDED}">${ICON.done}<span class="col"><span class="h">${folded.length} done</span><span class="outcome muted">${folded.map(t=>t.outcome).join(' · ')}</span></span>${CHEV}</button>` : '';
   const rows = TASKS.map(raw=>{
     const t = taskCopy(raw), st = cardState(raw), j = JUST===t.id ? ' just' : '';
+    if(st==='done' && JUST!==t.id && !EXPANDED) return '';
     const copy = `<div class="copy"><h3>${t.title}</h3><div class="desc">${t.desc}</div></div>`;
     if(st==='issue') return `<div class="vcard alert"><div class="top">${tile(t.id)}${PILL.issue}</div>${copy}<button class="btn btn-secondary" data-act="fixpay">${t.cta}</button></div>`;
     if(st==='done') return `<div class="vrow done${j}">${tile(t.id)}<div class="col"><h3>${t.title}</h3><span class="outcome muted">${t.outcome}</span></div>${ICON.done}</div>`;
-    if(st==='next') return `<div class="vcard next${NEWNEXT===t.id?' newnext':''}"><div class="top">${tile(t.id)}<span class="right"><span class="meta">${t.time}</span>${PILL.next}</span></div>${copy}<button class="btn btn-secondary" data-act="${t.id}">${t.cta}</button></div>`;
+    if(st==='next') return `<div class="vcard next${NEWNEXT===t.id?' newnext':''}"><div class="top">${tile(t.id)}<span class="right"><span class="meta">${t.time}</span>${nextPill(t.id)}</span></div>${copy}<button class="btn btn-secondary" data-act="${t.id}">${t.cta}</button></div>`;
     return `<div class="vrow todo">${tile(t.id)}<div class="col"><h3>${t.title}</h3><button class="link" data-act="${t.id}">${t.link}</button></div><span class="meta">${t.time}</span></div>`;
   });
   const g = goalState();
@@ -384,7 +519,7 @@ function mobileGS(){
   return `<section class="vgsm" aria-label="Getting started">
     <div class="hd"><h2>Getting started</h2><span>${n} of 4 done</span></div>
     <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${n}"><i style="width:${n/4*100}%"></i></div>
-    <div class="list">${rows.join('')}${goal}</div>
+    <div class="list">${summary}${rows.join('')}${goal}</div>
     <span><button class="link" data-toast="Opens How Blip works in a new tab">How Blip works</button></span>
   </section>`;
 }
@@ -447,14 +582,130 @@ function renderDash(){
     : {none:'No campaigns running, start one to see activity.', draft:'Grand Opening saved as a draft · just now', review:'Grand Opening submitted for review · just now', rejected:'Grand Opening needs changes · just now', live:'Grand Opening started playing · just now'}[S.campaign];
   document.getElementById('actBody').innerHTML = `<div class="muted">${act}</div>`;
 }
-function render(prevN){ renderGS(prevN); renderDash(); }
+const X_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+const OK_ICON = '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" style="flex:none"><circle cx="10" cy="10" r="10" fill="#1E8E3E"/><path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+/* Billing (Settings › Billing), matching the Marketplace – Billing Figma.
+   "Add payment method" opens Overview with the 3-step add modal up (Method → Details → Review → success).
+   "Update payment" opens the Payment methods page, where the declined card has Retry and Update.
+   Arriving from Getting started, the success step's primary action is "Back to home". */
+const VISA = '<span class="visa" aria-hidden="true">VISA</span>';
+function snav(){
+  const it = (k,l) => `<button class="${BILL.page===k?'on':''}" ${['overview','methods'].includes(k)?`data-bpage="${k}"`:`data-toast="${l} (unchanged)"`}>${l}</button>`;
+  return `<nav class="snav" aria-label="Settings"><div class="back"><span aria-hidden="true">←</span>Settings</div>
+    <div class="grp">Organization</div>${it('people','People')}${it('plans','Plans')}
+    <div class="grp">Billing</div>${it('overview','Overview')}${it('methods','Payment methods')}${it('tx','Transactions')}${it('camps','Campaigns')}${it('prefs','Preferences')}
+    <div class="grp">Personal</div>${it('notif','Notifications')}${it('profile','Profile')}${it('rewards','Rewards')}${it('learn','Learn')}</nav>`;
+}
+function overviewPage(){
+  const has = S.payment!==false;
+  const balance = has ? `<div class="big">$0.00</div><div class="sm">Amount owed • Auto-pay</div>`
+    : `<div class="bhero">${tile('payment')}<b>No payment method yet</b><p>Add a card or bank account to start running campaigns. The balance appears here once billing is active.</p><button class="btn btn-primary" data-bill="add">+ Add payment method</button></div>`;
+  const pm = has ? `<div class="rowc">${VISA}<div class="col"><b>•••• 4242</b> <span class="pill def">Default</span><div class="sm">Exp 08/28</div></div></div><div class="rowc" style="justify-content:flex-end"><button class="link" style="font-size:13px;text-decoration:none;font-weight:500;color:var(--ink)" data-bill="add">+ Add payment method</button></div>`
+    : `<div style="font-size:13px;font-weight:500">No payment method</div><div class="sm" style="color:var(--grey)">Add one to run campaigns</div>`;
+  const camps = submitted() ? `<div class="rowc"><div class="col"><b>Grand Opening</b><div class="sm">${{review:'In review',rejected:'Needs changes',live:'Running'}[S.campaign]}</div></div></div>`
+    : `<div style="text-align:center;padding:16px 0"><div class="sm" style="margin-bottom:10px">No campaigns running</div><button class="btn-sm" data-toast="Opens the campaign builder">Start a campaign</button></div>`;
+  return `<h1>Billing</h1><div class="bcols"><div class="bleft">
+    <section class="bc"><div class="lab">Balance</div>${balance}</section>
+    <section class="bc"><div class="lab">Payment methods <button class="link" data-bpage="methods">${has?'View all':'Manage payment'} →</button></div>${pm}</section>
+    <section class="bc"><div class="lab">Prepaid balance</div><div style="display:flex;align-items:center;gap:16px"><div class="big" style="flex:1">$0.00</div><button class="btn-sm" data-toast="Add funds (unchanged)">Add funds</button><button class="link" style="font-size:13px" data-toast="Add credit (unchanged)">Add credit</button></div></section>
+    <section class="bc"><div class="lab">Recent transactions</div><div class="sm" style="text-align:center;padding:20px 0;color:var(--grey)">No transactions yet</div></section>
+  </div><div class="bright">
+    <section class="bc"><div class="lab">Plans</div><div class="sm" style="margin-bottom:8px">No plan activated</div><button class="btn-sm" data-toast="Add plan (unchanged)">Add plan</button></section>
+    <section class="bc"><div class="lab">Recent campaigns</div>${camps}</section>
+    <section class="bc qa"><div class="lab">Quick actions</div><div style="font-size:13px">Preferences →</div><div style="font-size:13px;font-weight:600;margin-top:12px">Need help?</div><ul><li>How does Billing work?</li><li>How to add payment method</li><li>Payment issues</li></ul></section>
+  </div></div>`;
+}
+function methodsPage(){
+  const issue = S.payment==='issue';
+  const card = S.payment===false ? `<div class="pmlist"><div class="pmrow"><div class="col sm" style="color:var(--grey)">No payment method on file.</div></div></div>`
+    : `<div class="pmlist"><div class="pmrow">${VISA}<div class="col"><b>Visa •••• 4242 <span class="pill def">Default</span></b><div class="sm" style="color:var(--grey)">Expires 08/28</div>${issue?`<div class="bad">Payment declined <button class="btn-red" data-bill="retry">Retry</button></div>`:''}</div><span class="acts"><button class="btn-sm" data-bill="update">Update</button> <button class="kebab" aria-label="More actions" data-toast="Card actions: rename, make default, remove (unchanged)">⋮</button></span></div></div>`;
+  return `<div class="crumb"><span>Billing /</span> Payment methods</div>
+    <div class="sec">Default card</div>${card}
+    <button class="addpm" data-bill="add"><span aria-hidden="true">＋</span>Add payment method</button>
+    <div class="sec" style="margin-top:24px">How it works</div>
+    <div class="how"><div>${tile('payment')}<p style="margin:0"><b>Backup payments keep campaigns running</b><span>If the default card fails, the next saved payment method is tried so the campaign keeps running.</span></p></div>
+      <div>${tile('payment')}<p style="margin:0"><b>Pay with card or prepaid credit</b><span>Use prepaid account credit or a saved payment method to cover campaign spend.</span></p></div>
+      <div>${tile('payment')}<p style="margin:0"><b>Charges start as a hold, then adjust to actual spend</b><span>An authorization hold covers potential spend first, then captures the actual amount.</span></p></div></div>`;
+}
+function stepper(n){
+  const st = (i,l) => `<span class="s ${i<n?'ok':i===n?'cur':''}"><span class="n">${i<n?'✓':i}</span>${l}</span>`;
+  return `<div class="stepper">${st(1,'Method')}<span class="ln"></span>${st(2,'Details')}<span class="ln"></span>${st(3,'Review')}<button class="xbtn" data-bill="close" aria-label="Close" style="margin-left:4px">${X_ICON}</button></div>`;
+}
+const SECURE = '<div class="secure"><span aria-hidden="true">🛡</span><span>Payment information is protected every step of the way.</span></div>';
+function modalHTML(){
+  const m = BILL.step; if(!m) return '';
+  let body;
+  if(m===1) body = `${stepper(1)}<h3 id="mTitle">Add a payment method</h3>
+    <div class="opt"><span class="radio" aria-hidden="true"></span>${tile('payment')}<div><b>Credit/debit card</b><span>Visa, Mastercard, Amex, Discover. Charges processed automatically.</span></div></div>${SECURE}
+    <div class="mf"><button class="btn btn-primary" data-bill="next">Continue</button></div>`;
+  else if(m===2) body = `${BILL.mode==='update' ? `<div class="stepper" style="justify-content:space-between"><h3 id="mTitle">Update card</h3><button class="xbtn" data-bill="close" aria-label="Close">${X_ICON}</button></div>` : `${stepper(2)}<h3 id="mTitle">Card details</h3>`}
+    <div class="in v">Jane Smith</div><div class="in"><span aria-hidden="true">▭</span>1234 1234 1234 1234</div>
+    <div class="two"><div class="in">MM / YY</div><div class="in">CVC</div></div><div class="two"><div class="in">Zip code</div><span></span></div>
+    <div class="secure"><span aria-hidden="true">🛡</span><span>Card numbers are handled securely by the payment processor. <u>Privacy policy</u></span></div>
+    <div class="mf">${BILL.mode==='update'?'<button class="backbtn" data-bill="close">Cancel</button><button class="btn btn-primary" data-bill="save">Save card</button>':'<button class="backbtn" data-bill="back">← Back</button><button class="btn btn-primary" data-bill="next">Continue</button>'}</div>`;
+  else if(m===3) body = `${stepper(3)}<h3 id="mTitle">Review</h3>
+    <div class="ccard" aria-hidden="true"><span class="vs">VISA</span><span class="chip"></span><span class="num"><span>••••</span><span>••••</span><span>••••</span><span>4242</span></span><span class="nm">Jane Smith</span></div>
+    <div><div class="kv"><span>Card holder</span><span>Jane Smith</span></div><div class="kv"><span>Card number</span><span>•••• 4242</span></div><div class="kv"><span>Expires</span><span>08 / 28</span></div><div class="kv"><span>Zip code</span><span>62704</span></div></div>
+    <div class="mf"><button class="backbtn" data-bill="back">← Back</button><button class="btn btn-primary" data-bill="save">Add card</button></div>`;
+  else {
+    const t = {add:['Successfully added payment method','Visa ending in 4242 is now the default payment method.'],
+      update:['Payment method updated','Visa ending in 4242 is updated. Paused ads resume automatically.'],
+      retry:['Payment went through','The retry on Visa ending in 4242 succeeded. Paused ads resume automatically.']}[BILL.mode];
+    const nx = nextStep();
+    const next = {creative:'add a creative', campaign: S.campaign==='draft' ? 'finish Grand Opening' : 'create your first campaign'}[nx];
+    body = `<div style="display:flex;justify-content:flex-end;margin-bottom:-14px"><button class="xbtn" data-bill="stay" aria-label="Close">${X_ICON}</button></div>
+      <div class="okbig" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <div class="done-t"><b id="mTitle">${t[0]}</b><p>${t[1]}</p></div>
+      <div class="cardrow">${VISA}<div class="col">Visa ending in 4242<div class="sm" style="color:var(--grey)">Expires 08/28</div></div><span class="pill def">Default</span></div>
+      ${next?`<div class="nextline">Next on Getting started: ${next}</div>`:''}
+      <button class="btn btn-primary full" data-bill="home">Back to home</button>
+      <button class="stay" data-bill="stay">Stay in Billing</button>`;
+  }
+  return `<div class="overlay"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">${body}</div></div>`;
+}
+function renderBilling(){
+  document.getElementById('billView').innerHTML = snav() + `<div class="bmain">${BILL.page==='methods'?methodsPage():overviewPage()}</div>`;
+  const vp = document.getElementById('vp'); vp.querySelector('.overlay')?.remove();
+  const m = modalHTML(); if(m) vp.insertAdjacentHTML('beforeend', m);
+  if(m && VW===375) window.scrollTo({top: vp.getBoundingClientRect().top + scrollY - document.querySelector('.proto').offsetHeight - 8});
+}
+function render(prevN){
+  const bill = VIEW==='billing';
+  document.getElementById('homeView').hidden = bill;
+  document.getElementById('billView').hidden = !bill;
+  document.querySelector('.content').classList.toggle('bill', bill);
+  if(bill) return renderBilling();
+  document.getElementById('vp').querySelector('.overlay')?.remove();
+  renderGS(prevN); renderDash();
+}
+// From Getting started: add → Overview with the add modal at step 1; update → Payment methods page.
+function openBilling(mode){
+  VIEW='billing';
+  BILL = mode==='update' ? {page:'methods', step:0, mode:'update', prevN:count4()} : {page:'overview', step:1, mode:'add', prevN:count4()};
+  render(); window.scrollTo({top:0});
+}
+function billAction(k){
+  const b = BILL;
+  if(k==='add'){ b.mode='add'; b.step=1; }
+  else if(k==='update'){ b.mode='update'; b.step=2; }
+  else if(k==='retry'){ b.mode='retry'; S.payment=true; b.saved=true; b.step='done'; }
+  else if(k==='next') b.step++;
+  else if(k==='back') b.step--;
+  else if(k==='close') b.step=0;
+  else if(k==='save'){ S.payment=true; b.saved=true; b.step='done'; }
+  else if(k==='stay'){ b.step=0; }
+  else if(k==='home'){ VIEW='home'; BILL=null;
+    if(b.saved){ JUST='payment'; NEWNEXT=nextStep(); render(b.prevN); JUST=null; NEWNEXT=null; } else render();
+    return; }
+  render();
+}
 
 function complete(id){
   const prevN = count4();
   if(id==='payment') S.payment=true;
   if(id==='creative') S.creative=true;
   if(id==='campaign'){
-    if(S.campaign==='draft') toast(DRAFTS>1 ? 'Simulated: opens Grand Opening (last edited of '+DRAFTS+' drafts) where it was left, then submitted' : 'Simulated: opens the Grand Opening draft where it was left, then submitted');
+    if(S.campaign==='draft') toast('Simulated: opens Grand Opening'+(DRAFTS>1?' (last edited of '+DRAFTS+' drafts)':'')+' at '+{creative:'Creative',payment:'Payment',submit:'Review'}[draftStage()]+', then submitted');
     else if(S.payment!==true||!S.creative) toast('Simulated: payment and creative added inside the campaign builder');
     if(S.payment!=='issue') S.payment=true;
     S.creative=true; S.campaign='review';
@@ -469,20 +720,30 @@ document.addEventListener('click', e=>{
   if(t.dataset.toast) toast(t.dataset.toast);
   const a = t.dataset.act;
   if(a==='details'){ toast('Opens the Grand Opening details drawer at Moderation: the reason and what to replace'); }
-  else if(a==='fixpay') fixPayment();
+  else if(a==='fixpay') openBilling('update');
+  else if(a==='payment') openBilling('add');
   else if(a==='results'){ document.getElementById('perf').scrollIntoView({behavior:'smooth',block:'center'}); }
   else if(a) complete(a);
-  if(t.dataset.preset){ EST = t.dataset.preset==='established'; S={...START, ...(PRESETS[t.dataset.preset]||{})}; render(); }
+  if(t.dataset.bill) billAction(t.dataset.bill);
+  if(t.dataset.bpage){ BILL.page=t.dataset.bpage; BILL.step=0; render(); }
+  if(t.hasAttribute('data-sum')){ EXPANDED=!EXPANDED; renderGS(); }
+  if(t.dataset.preset){ VIEW='home'; BILL=null; EST = t.dataset.preset==='established'; S={...START, ...(PRESETS[t.dataset.preset]||{})}; render(); }
   if(t.dataset.attn){ ATTN = t.dataset.attn==='1'; renderDash(); document.querySelectorAll('[data-attn]').forEach(b=>b.setAttribute('aria-pressed', b===t)); }
   if(t.dataset.drafts){ DRAFTS=+t.dataset.drafts; render(); document.querySelectorAll('[data-drafts]').forEach(b=>b.setAttribute('aria-pressed', b===t)); }
   if(t.dataset.w){ VW=+t.dataset.w; fit(); render(); document.querySelectorAll('[data-w]').forEach(b=>b.setAttribute('aria-pressed', b===t)); }
 });
 // Simulations drive the onboarding checklist; from the established view they start a new account first.
 ['advance','simDraft','simApprove','simReject','simIssue'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{
+  if(VIEW!=='home'){ VIEW='home'; BILL=null; }
   if(EST){ e.stopImmediatePropagation(); EST=false; S={...START}; render(); toast('Back to a new account (simulations apply to Getting started)'); }
 }, true));
 document.getElementById('advance').onclick=()=>{
   if(S.payment==='issue') return fixPayment();
+  // In a draft, step through the builder one screen at a time so each draft stage shows.
+  if(S.campaign==='draft' && draftStage()!=='submit'){
+    const p=count4(), st=draftStage(); S[st]=true; JUST=st; render(p); JUST=null;
+    return toast(st==='creative' ? 'Simulated: creative added inside the draft' : 'Simulated: payment added inside the draft');
+  }
   const nx=nextStep();
   if(nx) return complete(nx);
   if(S.campaign==='review'||S.campaign==='rejected') return goLive();
@@ -492,7 +753,7 @@ document.getElementById('simDraft').onclick=()=>{ if(submitted()){toast('First c
 document.getElementById('simApprove').onclick=()=>{ if(!submitted()){toast('Submit a campaign first');return;} goLive(); };
 document.getElementById('simReject').onclick=()=>{ if(!submitted()){toast('Submit a campaign first');return;} S.campaign='rejected'; render(); toast('Simulated: review rejected'); };
 document.getElementById('simIssue').onclick=()=>{ if(S.payment!==true){toast('Add a payment method first');return;} const p=count4(); S.payment='issue'; render(p); toast('Simulated: issue with the card on file, ads paused'); };
-document.getElementById('reset').onclick=()=>{ EST=false; S={...START}; render(); };
+document.getElementById('reset').onclick=()=>{ VIEW='home'; BILL=null; EXPANDED=false; EST=false; S={...START}; render(); };
 
 let VW=1440;
 function fit(){ const vp=document.getElementById('vp'); vp.classList.toggle('m', VW===375); vp.style.width=VW+'px'; vp.style.zoom=Math.min(1,(window.innerWidth-32)/VW); }
