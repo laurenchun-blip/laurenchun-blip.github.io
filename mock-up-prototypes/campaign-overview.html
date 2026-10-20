@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Campaign Overview · Mockup Placements</title>
+<title>Campaign Overview V1</title>
+<!-- V1 (MVP): simple moderation status (Not started / In review / Review finished) + See details. The fuller card lives in campaign-overview-v2.html. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap">
@@ -53,7 +54,7 @@ h1,h2,h3,p{margin:0}
 main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 
 /* ---------- Campaigns list ---------- */
-.head{display:flex;flex-direction:column;gap:16px;margin-bottom:20px}
+.head{display:flex;flex-direction:column;gap:16px;margin-bottom:20px;max-width:1072px}
 .head h1{font-size:24px;font-weight:600;letter-spacing:-.01em}
 .head-acts{display:flex;gap:8px;flex-wrap:wrap}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:var(--r-md);font-size:14px;font-weight:600;white-space:nowrap}
@@ -67,6 +68,9 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border-2)}
 .tabs button{padding:8px 12px;font-size:14px;font-weight:500;color:var(--text-2);border-bottom:2px solid transparent;margin-bottom:-1px}
 .tabs button[aria-selected="true"]{color:var(--accent-2);border-bottom-color:var(--accent);font-weight:600}
+/* Archived is storage, not a workflow: right after the other tabs, behind a thin divider, lighter until selected */
+.tabs .tab-arch{margin-left:12px;position:relative;color:var(--text-3)}
+.tabs .tab-arch::before{content:"";position:absolute;left:-6px;top:10px;bottom:10px;width:1px;background:var(--border-2)}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:1072px}
 
 .ccard{position:relative;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r-lg);overflow:hidden;text-align:left;transition:box-shadow .15s,border-color .15s;cursor:pointer}
@@ -100,6 +104,142 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 .cfoot.error{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger)}
 .cfoot.warn{background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn)}
 .cfoot .icon{width:16px;height:16px}
+.head-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.head-l{display:flex;flex-direction:column;gap:16px}
+.lctl{display:flex;align-items:center;gap:8px}
+.viewbtn{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 10px;border-radius:var(--r-md);font-size:14px;font-weight:500}
+.viewbtn:hover{background:var(--surface-3)}
+.viewbtn .icon{width:18px;height:18px}
+.search{position:relative;display:block}
+.search>.icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--text-2);pointer-events:none}
+.search input{width:260px;height:38px;padding:0 34px 0 36px;border:1px solid var(--border-2);border-radius:var(--r-md);background:var(--surface);font:inherit;font-size:14px;color:var(--text)}
+.search input::-webkit-search-cancel-button{display:none}
+.search input::placeholder{color:var(--text-3)}
+.search input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+.qx{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:26px;height:26px;display:grid;place-items:center;border-radius:50%;color:var(--text-2)}
+.qx:hover{background:var(--surface-2)}
+.qx .icon{width:15px;height:15px}
+.empty b{display:block;color:var(--text);font-weight:600}
+.empty p{margin-top:6px}
+.empty .btn{margin-top:14px}
+/* Table view */
+.tbl-wrap{max-width:1072px;background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r-lg);overflow:auto}
+.ctbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.ctbl th{padding:8px 10px;text-align:left;font-size:12px;font-weight:600;color:var(--text-2);background:var(--surface-2);border-bottom:1px solid var(--border);white-space:nowrap}
+.ctbl th.grp{text-align:center;padding-bottom:2px;border-bottom:0;color:var(--text-3)}
+.ctbl thead tr:first-child th[rowspan]{vertical-align:bottom}
+.ctbl td{padding:10px;border-top:1px solid var(--border);vertical-align:middle}
+.ctbl tbody tr:first-child td{border-top:0}
+.ctbl .num{text-align:right;font-variant-numeric:tabular-nums}
+.ctbl td.num{font-weight:600}
+.ctbl .dash{color:var(--text-3);font-weight:500}
+.trow{cursor:pointer}
+.trow:hover td{background:var(--surface-2)}
+.trow[aria-current="true"] td{background:var(--accent-bg)}
+.tname{display:flex;align-items:center;gap:10px;min-width:190px}
+.tname>div{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
+.tname b{font-weight:600}
+.tthumb{flex:none;width:64px;aspect-ratio:3.5/1;border-radius:4px;overflow:hidden;box-shadow:0 0 0 1px var(--border)}
+.tthumb .cre-empty{border:0}
+.ctbl td.when{white-space:nowrap}
+.ctbl td.when small{white-space:normal;min-width:110px}
+.ctbl td.when small{display:block;font-size:12px;color:var(--text-2)}
+.talert{display:flex;align-items:center;gap:5px;margin-top:5px;font-size:12.5px;font-weight:600;text-align:left}
+.ctbl td.tstat{min-width:170px}
+.ctbl td.tstat .status{white-space:nowrap}
+button.talert:hover{text-decoration:underline}
+.talert .icon{width:14px;height:14px}
+.talert.error{color:var(--danger)} .talert.warn{color:var(--warn)}
+.tacts>div{display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.ctbl td.tprim{width:1%;white-space:nowrap;padding-left:8px;padding-right:4px}
+.ctbl td.tmod{white-space:nowrap}
+.ctbl td.tmod .mword{display:block;font-size:13.5px}
+.ctbl td.tmod small{display:block;font-size:12px;color:var(--text-2)}
+.ctbl td.tacts{width:1%}
+.cact.bad{color:var(--danger)}
+/* Status sections: a heading row that collapses its group, in both views */
+.lsec{max-width:1072px}
+.lsec+.lsec{margin-top:28px}
+.lsec-h{margin:0 0 12px}
+.lsec-b{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:2px 0}
+.lsec-b .icon{width:16px;height:16px;color:var(--text-2);transition:transform .15s}
+.lsec-b[aria-expanded="false"] .icon{transform:rotate(-90deg)}
+.lsec-b .tt{font-size:15px;font-weight:600;color:var(--text)}
+.lsec-b .cnt{min-width:22px;height:20px;padding:0 6px;border-radius:999px;background:var(--surface-3);font-size:12px;font-weight:600;color:var(--text-2);display:grid;place-items:center}
+.lsec.attention .cnt,.gsec.attention .cnt{background:var(--danger-bg);color:var(--danger)}
+.lsec-b .hint{font-size:12.5px;color:var(--text-3);font-weight:400}
+.ctbl .ghead th{padding:14px 12px 8px;background:var(--surface);border-bottom:1px solid var(--border);border-top:1px solid var(--border-2)}
+.ctbl .gsec:first-of-type .ghead th{border-top:0}
+/* Lifecycle layout: Up next, tab counts, filter */
+.tabs button{display:inline-flex;align-items:center;gap:6px}
+.tcnt{min-width:20px;height:18px;padding:0 6px;border-radius:999px;background:var(--surface-3);color:var(--text-2);font-size:11.5px;font-weight:600;display:inline-grid;place-items:center}
+.tcnt.bad{background:var(--danger);color:#fff}
+.fwrap{position:relative}
+.fbtn{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 12px;border:1px solid var(--border-2);border-radius:var(--r-md);background:var(--surface);font-size:14px;font-weight:500}
+.fbtn:hover{background:var(--surface-2)}
+.fbtn.on{border-color:var(--accent);color:var(--accent-2)}
+.fbtn.on .tcnt{background:var(--accent);color:#fff}
+.fbtn .icon{width:18px;height:18px}
+.fpop{position:absolute;right:0;top:44px;z-index:20;width:250px;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:0 10px 30px rgba(0,0,0,.14);display:flex;flex-direction:column;gap:4px}
+.fgrp{display:flex;flex-direction:column;border-top:1px solid var(--border);padding-top:6px;margin-top:2px}
+.fgrp>b{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);padding:4px 8px}
+.fchk{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:var(--r-md);font-size:14px;cursor:pointer}
+.fchk:hover{background:var(--surface-2)}
+.fchk input{margin:0;width:16px;height:16px;accent-color:var(--accent)}
+.fchk small{margin-left:auto;font-size:12px;color:var(--danger);font-weight:600}
+.ffoot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding:8px 4px 2px;margin-top:2px}
+.ffoot .btn{padding:6px 12px;font-size:13px}
+.fchips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:-4px}
+.attn1{max-width:1072px;margin-bottom:20px;display:flex;align-items:center;gap:10px;padding:10px 12px 10px 14px;border:1px solid var(--danger-border);border-radius:var(--r-lg);background:var(--surface);color:var(--danger)}
+.attn1 .icon{width:20px;height:20px;flex:none}
+.attn1-t{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:baseline;column-gap:8px;row-gap:2px;font-size:14px;color:var(--text-2)}
+.attn1-t b{font-weight:600;color:var(--text)}
+.attn1 .btn{flex:none;padding:7px 12px;font-size:13px}
+.upnext{max-width:1072px;margin-bottom:28px;background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r-lg);overflow:hidden}
+.upnext h2{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);padding:12px 16px 4px}
+.un-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--border)}
+.upnext h2+.un-row{border-top:0}
+.un-ic{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center}
+.un-ic .icon{width:18px;height:18px}
+.un-row.fix .un-ic{background:var(--danger-bg);color:var(--danger)}
+.un-row.ending .un-ic{background:var(--warn-bg);color:var(--warn)}
+.un-row.wrapped .un-ic{background:var(--success-bg);color:var(--success)}
+.un-row.draft .un-ic{background:var(--surface-3);color:var(--text-2)}
+.un-t{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:baseline;column-gap:8px;row-gap:2px}
+.un-t b{font-weight:600;font-size:14.5px}
+.un-t span{font-size:13.5px;color:var(--text-2)}
+.un-row.fix .un-t span{color:var(--danger)}
+.un-t .linkbtn{flex-basis:100%;text-align:left;font-size:12.5px}
+.un-a{flex:none;display:flex;gap:8px}
+.un-a .btn{padding:7px 12px;font-size:13px}
+.un-a .btn .icon{width:15px;height:15px}
+.list-h{font-size:15px;font-weight:600;margin:0 0 12px}
+.arch-link{max-width:1072px;margin-top:16px;text-align:center}
+.pm-wrap{position:relative;display:inline-flex}
+.pmenu{position:absolute;top:calc(100% + 6px);right:0;z-index:30;min-width:220px}
+.pmenu button{white-space:nowrap}
+.archbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--border-2)}
+.archbar .linkbtn{display:inline-flex;align-items:center;gap:2px;font-size:14px}
+.archbar .linkbtn .icon{width:18px;height:18px}
+.archbar h2{font-size:15px;font-weight:600}
+.arch-note{max-width:1072px;margin:0 0 16px;font-size:13.5px;color:var(--text-2)}
+.arch-grp{max-width:1072px;margin-top:24px;display:flex;flex-direction:column;gap:12px}
+.arch-tg{display:flex;align-items:center;gap:8px;width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--surface);font-size:14px;font-weight:600;color:var(--text);text-align:left}
+.arch-tg:hover{background:var(--surface-2)}
+.arch-tg .icon{width:18px;height:18px;color:var(--text-2)}
+.arch-tg span{flex:1}
+.arch-tg small{font-size:12.5px;font-weight:600;color:var(--text-2);background:var(--surface-3);border-radius:999px;padding:1px 8px}
+.arch-tg .icon:last-child{width:16px;height:16px;transition:transform .15s}
+.arch-grp.open .arch-tg .icon:last-child{transform:rotate(180deg)}
+.trow.attn td:first-child{box-shadow:inset 3px 0 0 var(--danger)}
+.tnote{display:block;margin-top:4px;font-size:12px;color:var(--text-3)}
+.first{max-width:560px;margin:24px auto 0;padding:40px 32px;text-align:center;background:var(--surface);border:1px solid var(--border-2);border-radius:var(--r-lg);display:flex;flex-direction:column;align-items:center;gap:10px}
+.first .bb{position:relative;width:120px;aspect-ratio:3.5/1;margin-bottom:16px;border:2px solid var(--border-2);border-radius:4px;background:var(--surface-2)}
+.first .bb::after{content:"";position:absolute;left:50%;top:100%;width:4px;height:14px;transform:translateX(-50%);background:var(--border-2)}
+.first h2{font-size:19px;font-weight:600}
+.first p{color:var(--text-2);max-width:420px}
+.first .btn{margin-top:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .empty{padding:40px;text-align:center;color:var(--text-2);background:var(--surface);border:1px dashed var(--border-2);border-radius:var(--r-lg);max-width:1072px}
 
 /* ---------- Creative (shared by card thumbs, drawer rows and the mockup face) ---------- */
@@ -164,6 +304,18 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 /* Moderation (look A): the status pill is the headline, with the board count beside it and "See details" on the same line.
    Only a rejection that blocks delivery adds a light red band and the Replace action. Moderation only: no budget wording. */
 .mod{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;scroll-margin-top:12px}
+/* V1 (MVP): flat, one status and one link. No border, counts, reasons or By sign dimension (those are V2).
+   Desktop: See details sits on the status line at the right. Phones (full-screen drawer): it stacks under the explanation. */
+.mod1{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:2px;align-items:baseline;scroll-margin-top:12px}
+.mod1.flash{animation:flash 1.2s ease-out;border-radius:var(--r-lg)}
+.mod1 .mword{grid-column:1;grid-row:1;display:inline-flex;align-items:center;gap:6px}
+.mod1 .mword .icon{width:16px;height:16px;align-self:center}
+.mod1 .linkbtn{grid-column:2;grid-row:1;font-size:14px;text-decoration:underline;text-underline-offset:2px}
+.mod1 .sub{grid-column:1/-1;grid-row:2;font-size:13px;color:var(--text-2)}
+@media (max-width:767px){
+  .mod1{grid-template-columns:minmax(0,1fr)}
+  .mod1 .linkbtn{grid-column:1;grid-row:3;justify-self:start;margin-top:6px}
+}
 .mod.flash{animation:flash 1.2s ease-out}
 .mod-top{display:flex;flex-direction:column;gap:6px;padding:12px 14px}
 .mod-hl{display:flex;align-items:center;gap:10px;min-width:0}
@@ -173,7 +325,7 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 .mod-top .why{font-size:13px;color:var(--text-2)}
 .mod-top .btn{align-self:flex-start;margin-top:4px;padding:7px 12px;font-size:13px}
 .mword{flex:none;font-size:14px;line-height:20px;font-weight:600}
-.mword.ok{color:var(--success)} .mword.review{color:var(--warn)} .mword.fix{color:var(--danger)} .mword.none{color:var(--text-2)}
+.mword.done{color:var(--text)} .mword.ok{color:var(--success)} .mword.review{color:var(--warn)} .mword.fix{color:var(--danger)} .mword.none{color:var(--text-2)}
 /* Per-dimension status uses small chips: in a list they scan faster than text. The summary line above stays text. */
 .mod-row .tags{gap:4px}
 .linkbtn{flex:none;font-size:13px;font-weight:600;color:var(--accent-2);white-space:nowrap}
@@ -218,6 +370,27 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 .cr1 .linkbtn{margin-top:3px}
 
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+/* Ended recap: one card. Mockup on top, then the outcome. */
+.recap{flex:none;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;background:var(--surface)}
+.recap .mock{border-radius:0;margin:0}
+.rc-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.rc-h{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
+.rc-h .icon{width:18px;height:18px;color:var(--success)}
+.rc-h b{font-size:15px;font-weight:600}
+.rc-h span{margin-left:auto;font-size:13px;color:var(--text-2)}
+.rc-nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.rc-nums div{display:flex;flex-direction:column;gap:2px}
+.rc-nums b{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.rc-nums span{font-size:12.5px;color:var(--text-2)}
+.rc-sum{font-size:13.5px;color:var(--text-2)}
+.rc-acts{display:flex;flex-wrap:wrap;gap:8px}
+.carry1 .cv{display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:8px 12px;font-size:13.5px;align-items:baseline}
+.carry1 .cv>span{color:var(--text-2)}
+.carry1 .cv b{font-weight:500}
+.carry1 .cv em{font-style:normal;font-size:12.5px;font-weight:600;color:var(--success);display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.carry1 .cv em .icon{width:14px;height:14px}
+.cv-fine{font-size:12.5px;color:var(--text-3)}
+
 .kpi{padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-md);display:flex;flex-direction:column;gap:2px}
 .kpi span{font-size:12px;color:var(--text-2);font-weight:500}
 .nodata{font-size:12.5px;color:var(--text-3)}
@@ -230,7 +403,8 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 .mock .ex.mwb i{display:inline-block;margin-right:4px;padding:0 4px;border-radius:3px;background:var(--brand);color:#fff;font-style:normal;font-size:10px;letter-spacing:-.02em}
 .mock-acts{position:relative;display:flex;align-items:center;gap:8px}
 /* Mockup actions are labeled and scoped to the mockup ("Share mockup" / "Download mockups"); the footer is for the whole campaign */
-.mock-acts .btn{flex:1}
+.mock-acts .btn,.rc-acts .btn{flex:none;padding:6px 10px;font-size:13px}
+.mock-acts .btn .icon,.rc-acts .btn .icon{width:16px;height:16px}
 /* Share sub-view: pushes inside the drawer on every device (no modal over the drawer) */
 .dhead .dback.sv{display:inline-flex;align-items:center;gap:2px;height:32px;padding:0 6px 0 2px;margin:-4px 0 4px -6px;border-radius:var(--r-md);font-size:14px;font-weight:600;color:var(--accent-2)}
 .dhead.sub{flex-wrap:wrap}
@@ -258,6 +432,21 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 .file .mock .ex{right:3px;bottom:3px;padding:1px 4px;font-size:6.5px}
 .file .mock .ex.mwb i{font-size:6px;padding:0 2px;margin-right:2px}
 .file .sq{width:52px;aspect-ratio:1;justify-self:start}
+/* Social square = the Billboard Maker marketing look: an illustrated sky-and-grass scene, the creative on a framed
+   board with two legs, and a dark "Made with [Blip logo]" pill bottom-right. Sized in cqw so it scales to any size. */
+.soc{container-type:inline-size;border-radius:4px;overflow:hidden}
+.soc-in{position:relative;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;padding:24cqw 9cqw 0;background:linear-gradient(180deg,#8FB6D6 0%,#BFD6E6 46%,#A9BE97 46%,#8CA37A 100%)}
+.soc-board{width:100%;display:flex;flex-direction:column;align-items:center}
+.soc-board .t{display:block;width:100%;aspect-ratio:3.5/1;border:1.3cqw solid #71808C;border-radius:.7cqw;box-shadow:0 2.4cqw 6cqw rgba(20,32,44,.3);overflow:hidden;container-type:size}
+.soc-legs{display:flex;gap:34%;width:46%}
+.soc-legs span{flex:1;height:13cqw;background:linear-gradient(90deg,#65727D,#7C8A96)}
+.soc-mark{position:absolute;right:3.5cqw;bottom:3.5cqw;display:inline-flex;align-items:center;gap:1.2cqw;padding:1.8cqw 3cqw;border-radius:999px;background:rgba(20,32,44,.42);color:#fff;font-size:4.2cqw;font-weight:600;letter-spacing:.02em;line-height:1;white-space:nowrap;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.soc-mark svg{display:block;height:1.05em;width:auto}
+.file.soc-row{grid-template-columns:120px minmax(0,1fr)}
+.file .soc{width:120px}
+/* Keep the file list text styles off the creative art inside the scene */
+.file .soc .cre b{display:block;flex:1;font-size:min(21cqh,5.4cqw);font-weight:800;line-height:1.05;word-break:normal}
+.file .soc .cre small{display:block;position:absolute;margin:0;color:inherit;font-size:min(7cqh,2.2cqw)}
 .file .sq .ex.mwb{font-size:0;padding:1px}
 .file .sq .ex.mwb i{margin:0}
 .file .sq img{width:100%;height:100%;object-fit:cover}
@@ -271,6 +460,15 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 
 .nextcard{padding:14px 16px;border:1px solid var(--accent-border);border-radius:var(--r-lg);background:var(--accent-bg);display:flex;flex-direction:column;gap:12px}
 .nextcard h3{font-size:14.5px;font-weight:600;color:var(--accent-2)}
+/* V1 status card (in review): two lines, status first. Desktop: See details on the status line; phones: it wraps under. */
+.nc1{gap:4px;padding:12px 14px}
+.nc1-top{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
+.nc1-top .icon{width:18px;height:18px;color:var(--accent-2)}
+.nc1-top b{font-size:15px;font-weight:600;color:var(--text)}
+.nc1-when{flex:1;min-width:0;font-size:13.5px;color:var(--text-2)}
+.nc1-top .linkbtn{font-size:14px;text-decoration:underline;text-underline-offset:2px}
+.nc1 p{font-size:13.5px;color:var(--text-2);padding-left:26px}
+@media (max-width:767px){.nc1-when{flex-basis:100%;order:3;padding-left:26px}.nc1-top .linkbtn{margin-left:auto}}
 .nextcard .next li::before{background:var(--surface);color:var(--text-2);box-shadow:inset 0 0 0 1px var(--accent-border)}
 .nextcard .next li.now::before{background:var(--accent);color:#fff;box-shadow:none}
 .next{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:n}
@@ -278,6 +476,13 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 .next li::before{counter-increment:n;content:counter(n);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;background:var(--surface-3);color:var(--text-2)}
 .next li.now::before{background:var(--accent);color:#fff}
 .next b{color:var(--text);font-weight:600;display:block}
+.nx-jump{align-self:flex-start;display:inline-flex;align-items:center;gap:4px;margin-left:34px;font-size:13.5px;font-weight:600;color:var(--accent-2);text-decoration:underline;text-underline-offset:2px}
+.nx-jump .icon{width:16px;height:16px}
+.nx-top{display:flex;align-items:center;flex-wrap:wrap;gap:2px 10px}
+.nx-top b{display:inline}
+.nx-st{font-weight:500;color:var(--text-2)}
+.nx-st .icon{width:15px;height:15px}
+.nx-top .linkbtn{margin-left:auto;font-size:13.5px;text-decoration:underline;text-underline-offset:2px}
 
 .facts{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:var(--r-lg)}
 .fact{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;padding:11px 14px;border-top:1px solid var(--border);font-size:13.5px}
@@ -299,6 +504,7 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 .menu{position:absolute;right:52px;top:52px;z-index:5;min-width:180px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:0 10px 30px rgba(0,0,0,.14);padding:6px;display:flex;flex-direction:column}
 .menu button{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r-md);font-size:14px;text-align:left}
 .menu button:hover{background:var(--surface-2)}
+.menu button.danger{color:var(--danger)}
 .menu .icon{width:17px;height:17px;color:var(--text-2)}
 
 .toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:80;max-width:calc(100vw - 32px);background:#232a33;color:#fafafa;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.2)}
@@ -329,6 +535,17 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
   .prail{display:none}
   main{padding:20px 16px 96px}
   .head h1{font-size:20px}
+  .lctl{width:100%}
+  .lctl .viewbtn{display:none}
+  .fpop{right:auto;left:0}
+  .un-row{flex-wrap:wrap}
+  .un-a{width:100%;padding-left:44px}
+  .tabs{overflow-x:auto;gap:0;scrollbar-width:none;padding-right:28px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs button{padding:8px 9px;flex:none}
+  .tabs .tab-arch{margin-left:8px}
+  .search{flex:1}
+  .search input{width:100%}
   .grid{grid-template-columns:1fr}
   .veil{top:0;left:0;z-index:60;background:transparent}
   .drawer{width:100%;box-shadow:none}
@@ -362,15 +579,15 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 </style>
 </head>
 <body>
-<header class="ptop"><a class="wordmark" href="dashboard.html" aria-label="Blip home">blip</a><span class="sp"></span>
+<header class="ptop"><a class="wordmark" href="../mockup-placement/pages/dashboard.html" aria-label="Blip home">blip</a><span class="sp"></span>
   <button class="phelp" data-act="help" aria-label="Help"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.5a2.3 2.3 0 114 1.6c-.8.6-1.8 1.1-1.8 2.4M12 16.6v.1"/></svg></button>
   <span class="pav" aria-label="Account">LC</span></header>
 <div class="pbody">
   <nav class="prail" aria-label="Main">
     <span class="porg" title="Ridgeline Auto Care">RA</span>
-    <a class="pnav" href="dashboard.html" aria-label="Home" title="Home"><svg class="icon" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6h-6v6H5a1 1 0 01-1-1z"/></svg></a>
+    <a class="pnav" href="../mockup-placement/pages/dashboard.html" aria-label="Home" title="Home"><svg class="icon" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6h-6v6H5a1 1 0 01-1-1z"/></svg></a>
     <a class="pnav" href="campaign-overview.html" aria-label="Campaigns" title="Campaigns" aria-current="page"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="13" r="8"/><circle cx="11" cy="13" r="4.5"/><circle cx="11" cy="13" r="1.2" fill="currentColor"/><path d="m11 13 8-8m-3 0h3v3"/></svg></a>
-    <a class="pnav" href="library.html" aria-label="My Library" title="My Library"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="3.5" width="14" height="5" rx="1"/><path d="M18 6h2v5h-8v3"/><rect x="10.5" y="14" width="3" height="7" rx=".8"/></svg></a>
+    <a class="pnav" href="../mockup-placement/pages/library.html" aria-label="My Library" title="My Library"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="3.5" width="14" height="5" rx="1"/><path d="M18 6h2v5h-8v3"/><rect x="10.5" y="14" width="3" height="7" rx=".8"/></svg></a>
     <button class="pnav" data-act="nav" aria-label="Reports" title="Reports"><svg class="icon" viewBox="0 0 24 24"><path d="M5 21v-5M9.5 21v-8M14 21v-6M18.5 21v-9"/><path d="m4 11 5-5 4 3 7-6m-3 0h3v3"/></svg></button>
   </nav>
   <main id="main"></main>
@@ -381,7 +598,7 @@ main{padding:28px clamp(16px,3.5vw,48px) 96px;min-width:0;max-width:1200px}
 <div class="statepick" id="statepick">
   <div class="sp-body">
     <label class="sp-f"><span class="sp-lbl">Step</span> <select id="stateSel" aria-label="Step in the flow"></select></label>
-    <a class="sp-hub" href="index.html">All prototypes</a><span class="sp-div" aria-hidden="true"></span>
+    <a class="sp-hub" href="../mockup-placement/pages/index.html">All prototypes</a><span class="sp-div" aria-hidden="true"></span>
     <span class="sp-nav"><button id="spPrev" aria-label="Previous step"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button id="spNext" aria-label="Next step"><svg class="icon" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></span>
   </div>
 </div>
@@ -404,7 +621,9 @@ const ICON = {
   pauseC:'<circle cx="12" cy="12" r="8.5"/><path d="M10 9v6M14 9v6"/>', flag:'<path d="M6 21V4M6 4h11l-2 4 2 4H6"/>',
   repeat:'<path d="M17 3l3 3-3 3"/><path d="M4 11V10a4 4 0 014-4h12"/><path d="M7 21l-3-3 3-3"/><path d="M20 13v1a4 4 0 01-4 4H4"/>',
   link:'<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
-  plus:'<path d="M12 5v14M5 12h14"/>', copy:'<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a1 1 0 00-1-1H6a1 1 0 00-1 1v9a1 1 0 001 1h2"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  cards:'<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>',
+  rows:'<path d="M4 6h16M4 12h16M4 18h16"/>', filter:'<path d="M4 6h16M7 12h10M10 18h4"/>', copy:'<rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a1 1 0 00-1-1H6a1 1 0 00-1 1v9a1 1 0 001 1h2"/>',
   archive:'<rect x="3.5" y="5" width="17" height="4" rx="1"/><path d="M5 9v9a1 1 0 001 1h12a1 1 0 001-1V9M10 13h4"/>', external:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>'
 };
 const ic = n => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`;
@@ -433,11 +652,11 @@ const creative = k => { const c = CRE[k]; return `<div class="cre" style="--cbg:
      rows   one per sign dimension: [dimension, boards, approved, inReview, rejected]. Never grouped by creative:
             people mostly add sizes of the same creative, so a partly approved dimension is just counts. */
 const CAMPAIGNS = [
-  {id:'fall', tab:'active', name:'Fall service promo', status:'running', label:'Running', opt:true, cre:['brakes'],
+  {id:'fall', tab:'main', name:'Fall service promo', status:'running', label:'Running', opt:true, cre:['brakes'],
     imp:'7.2k', spend:'$37', blips:'1,480', daily:[960,1010,1040,990,1050,1060,1090],
     dates:'Sep 15 – Oct 31, 2026', left:'24 days left', perDay:15, locs:12, where:'Orem and Provo, UT', alerts:[],
     mod:{state:'ok', rows:[['1400 × 400',8,8,0,0],['840 × 400',4,3,0,1]]}},
-  {id:'winter', tab:'active', name:'Winter tires', status:'stopped', label:'Not running', opt:true, cre:['tires'],
+  {id:'winter', tab:'main', name:'Winter tires', status:'stopped', label:'Not running', opt:true, cre:['tires'],
     imp:'0', spend:'$0.00', blips:'0', daily:[0,0,0,0,0,0,0],
     dates:'Oct 1 – Nov 30, 2026', left:'Stopped Oct 2', perDay:20, locs:8, where:'Orem, UT',
     alerts:[{kind:'error', sev:'block', title:'Creative rejected on all boards', body:'Not running until a new creative is approved.', cta:'Replace creative', act:'replace', link:'See details'}],
@@ -467,38 +686,79 @@ const CAMPAIGNS = [
     imp:'6.8k', spend:'$40', blips:'1,310', dates:'Oct 1 – Nov 30, 2026', left:'54 days left', perDay:20, locs:14, where:'Orem, UT',
     alerts:[{kind:'warn', sev:'warn', title:'Area is maxed out', body:'Every available board in this area is in use. Choose a new location to keep growing.', cta:'Choose a new location', act:'setupStep', step:'Locations'}],
     mod:{state:'ok', rows:[['1400 × 400',10,10,0,0],['840 × 400',4,4,0,0]]}},
-  {id:'summer', tab:'active', name:'Summer brake push', status:'paused', label:'Paused', opt:false, cre:['summer','brakes'], daypart:'Weekdays, 6 AM – 7 PM',
+  {id:'modSlow', tab:'hidden', name:'Fall service promo', status:'running', label:'Running', opt:false, cre:['brakes'],
+    imp:'4.6k', spend:'$22', blips:'930', daily:[600,640,660,610,650,670,690],
+    dates:'Sep 15 – Oct 31, 2026', left:'24 days left', perDay:15, locs:12, where:'Orem and Provo, UT', alerts:[],
+    mod:{state:'ok', slow:true, rows:[['1400 × 400',8,8,0,0],['840 × 400',4,0,4,0]]}},
+  {id:'summer', tab:'main', name:'Summer brake push', status:'paused', label:'Paused', opt:false, cre:['summer','brakes'], daypart:'Weekdays, 6 AM – 7 PM',
     imp:'1.1k', spend:'$9.40', blips:'214', daily:[420,380,300,0,0,0,0],
     dates:'Aug 1 – Oct 31, 2026', left:'Paused Oct 4', perDay:15, locs:8, where:'Provo, UT',
     /* No payment alert at the campaign level for now: payment problems become one account banner (campaign overview redesign) */
     alerts:[],
     mod:{state:'ok', rows:[['1400 × 400',8,8,0,0]]}},
-  {id:'oil', tab:'active', name:'Oil change deal', status:'review', label:'In review', opt:true, cre:['oil'],
+  {id:'oil', tab:'main', name:'Oil change deal', status:'review', label:'In review', opt:true, cre:['oil'],
     dates:'Starts Oct 15, 2026 · ends Nov 15', span:'Oct 15 – Nov 15', left:'Starts in 8 days', perDay:16, locs:10, where:'Orem and Lehi, UT', alerts:[],
     mod:{state:'review', rows:[['1400 × 400',8,0,8,0],['840 × 400',2,0,2,0]]}},
   /* Drafts, matching the product's two draft states: setup not finished ("Complete campaign"), and finished but not launched ("Launch") */
-  {id:'hours', tab:'draft', name:'Saturday hours', status:'draft', label:'Draft', opt:false, cre:['hours'], alerts:[],
+  {id:'hours', tab:'main', name:'Saturday hours', status:'draft', label:'Draft', opt:false, cre:['hours'], alerts:[],
     perDay:12, locs:6, where:'Orem, UT', dates:null, setup:{locations:true, budget:true, duration:false, creative:true}},
-  {id:'grand', tab:'draft', name:'Grand opening', status:'draft', label:'Draft', opt:true, cre:[], alerts:[],
+  {id:'grand', tab:'main', name:'Grand opening', status:'draft', label:'Draft', opt:true, cre:[], alerts:[],
     perDay:20, locs:8, where:'Lehi, UT', dates:null, setup:{locations:true, budget:true, duration:false, creative:false}},
-  {id:'tuneup', tab:'draft', name:'Winter tune-up', status:'draft', label:'Draft', opt:true, cre:['brakes'], alerts:[],
+  {id:'tuneup', tab:'main', name:'Winter tune-up', status:'draft', label:'Draft', opt:true, cre:['brakes'], alerts:[],
     perDay:18, locs:10, where:'Orem and Provo, UT', dates:'Nov 1 – Dec 15, 2026', left:'Starts once approved', dims:2,
     setup:{locations:true, budget:true, duration:true, creative:true}},
-  {id:'spring', tab:'archived', name:'Spring tune-up', status:'ended', label:'Ended', opt:true, cre:['oil'],
-    imp:'41k', spend:'$540', blips:'8,920', dates:'Mar 1 – Apr 30, 2026', left:'Ended Apr 30 · ran 61 days', runDays:61, perDay:18, locs:12, where:'Orem, UT', alerts:[],
-    mod:{state:'ok', rows:[['1400 × 400',9,9,0,0],['840 × 400',3,3,0,0]]}}
+  {id:'weekend', tab:'main', name:'Weekend tire sale', status:'running', label:'Running', opt:false, cre:['tires'],
+    imp:'3.9k', spend:'$84', blips:'760', dates:'Sep 25 – Oct 9, 2026', left:'Ends in 2 days', perDay:12, locs:6, where:'Lehi, UT', alerts:[],
+    mod:{state:'ok', rows:[['1400 × 400',6,6,0,0]]}},
+  {id:'school', tab:'main', name:'Back to school brakes', status:'ended', label:'Completed', opt:false, cre:['summer'], endedAgo:7,
+    imp:'18.4k', spend:'$214', blips:'3,960', dates:'Aug 1 – Sep 30, 2026', left:'Completed Sep 30 · ran 61 days', runDays:61, perDay:12, locs:8, where:'Provo, UT', alerts:[],
+    mod:{state:'ok', rows:[['1400 × 400',8,8,0,0]]}},
+  {id:'spring', tab:'main', name:'Spring tune-up', status:'ended', label:'Completed', opt:true, cre:['oil'], endedAgo:160,
+    imp:'41k', spend:'$540', blips:'8,920', dates:'Mar 1 – Apr 30, 2026', left:'Completed Apr 30 · ran 61 days', runDays:61, perDay:18, locs:12, where:'Orem, UT', alerts:[],
+    mod:{state:'ok', rows:[['1400 × 400',9,9,0,0],['840 × 400',3,3,0,0]]}},
+  {id:'holiday', tab:'archived', name:'Holiday hours 2025', status:'ended', label:'Completed', opt:false, cre:['hours'], endedAgo:280,
+    imp:'22k', spend:'$300', blips:'4,610', dates:'Dec 1 – Dec 31, 2025', left:'Completed Dec 31 · ran 31 days', runDays:31, perDay:10, locs:6, where:'Orem, UT', alerts:[],
+    mod:{state:'ok', rows:[['1400 × 400',6,6,0,0]]}}
 ];
 const getC = id => CAMPAIGNS.find(c => c.id === id);
 const isPhone = () => matchMedia('(max-width:767px)').matches;
-const state = {tab:'active', open:null, focus:null, menu:false, enter:false, toast:'', details:false, sv:null, to:['Me'], msg:'', toBad:false};
+const state = {layout:'next', tab:'all', f:{attn:false, status:[], archived:false, sort:'attn'}, fOpen:false, emptyAcct:false, closed:{}, open:null, focus:null, menu:false, enter:false, toast:'', details:false, q:'', view:'card', sv:null, to:['Me'], msg:'', toBad:false};
 
-/* ---------- Campaigns list ---------- */
+/* ---------- Campaigns list (option B) ----------
+   One list in status sections, in the order a person acts on them: Needs attention → Drafts → Active → Ended.
+   Drafts sit next to live campaigns so they get finished; ended campaigns stay in the list with their results until
+   someone archives them (no auto-archive). Archived is its own tab, a flat list. Every section collapses. */
+const SECS = [
+  ['attention', 'Needs attention', 'Fix these to keep them running'],
+  ['drafts', 'Drafts', 'Finish setup to launch'],
+  ['active', 'Active', ''],
+  ['ended', 'Ended', 'Numbers cover the whole run · stays here until archived']
+];
+const RUN_ORDER = {running:0, review:1, paused:2, stopped:3};
+const secOf = c => c.status === 'draft' ? 'drafts' : c.status === 'ended' ? 'ended' : c.alerts.length ? 'attention' : 'active';
+const blocked = c => c.alerts.some(a => a.sev === 'block' || a.kind === 'error');
+const wholeRun = c => c.status === 'ended';
+
+/* The row's one action, shared by cards and the table: Pause / Start, Review when an alert stops it,
+   Launch or Continue setup for drafts. In review and ended have none. */
+function primary(c, inCard){
+  if(c.status === 'running') return `<button class="cact" data-act="toggle" data-id="${c.id}">${ic('pause')}Pause</button>`;
+  if(c.status === 'paused' || c.status === 'stopped'){
+    if(blocked(c)) return inCard ? '' : `<button class="cact bad" data-act="review" data-id="${c.id}">${ic('alert')}Review</button>`;
+    return `<button class="cact" data-act="toggle" data-id="${c.id}">${ic('play')}Start</button>`;
+  }
+  if(c.status === 'draft'){
+    const st = c.setup, keys = ['locations','budget','duration','creative'], next = keys.find(k => !st[k]);
+    return next ? `<button class="cact" data-act="setupStep" data-step="${next}">${ic('chev')}Continue setup</button>`
+      : `<button class="cact" data-act="launch">${ic('play')}Launch</button>`;
+  }
+  return '';
+}
+
 function card(c){
-  const live = c.status === 'running', canRun = c.status === 'paused' || c.status === 'stopped';
-  const toggle = live ? `<button class="cact" data-act="toggle" data-id="${c.id}">${ic('pause')}Pause</button>`
-    : canRun ? `<button class="cact" data-act="toggle" data-id="${c.id}">${ic('play')}Start</button>` : '';
+  const lbl = wholeRun(c) ? `Final results · ${c.runDays} days` : 'Last 7 days';
   const stats = c.imp != null
-    ? `<div class="lbl">Last 7 days</div><div class="nums"><div><b>${c.imp}</b><span>Impressions</span></div><div><b>${c.spend}</b><span>Spend</span></div><div><b>${c.blips}</b><span>Blips</span></div></div>`
+    ? `<div class="lbl">${lbl}</div><div class="nums"><div><b>${c.imp}</b><span>Impressions</span></div><div><b>${c.spend}</b><span>Spend</span></div><div><b>${c.blips}</b><span>Blips</span></div></div>`
     : `<div class="lbl">Last 7 days</div><div class="nums dash"><div><b>–</b><span>Impressions</span></div><div><b>–</b><span>Spend</span></div><div><b>–</b><span>Blips</span></div></div><p class="wait">${c.status === 'draft' ? 'No data yet. Launch the campaign to start moderation.' : 'No data yet. Numbers start the day after it goes live.'}</p>`;
   const a = c.alerts, foot = !a.length ? '' : a.length === 1 && a[0].kind === 'error'
     ? `<div class="cfoot error">${ic('alert')}${esc(a[0].title)}<span class="sp"></span><button data-act="review" data-id="${c.id}">Review →</button></div>`
@@ -506,34 +766,234 @@ function card(c){
   return `<article class="ccard" data-act="open" data-id="${c.id}" tabindex="0" role="button" aria-label="${esc(c.name)} details" aria-current="${state.open === c.id}">
     <div class="thumb">${c.cre.length ? creative(c.cre[0]) : '<div class="cre-empty">No creative yet</div>'}</div>
     <div class="inner">
-      <div class="crow">${c.opt ? '<span class="tag-opt">Blip optimized</span>' : ''}<span class="sp"></span>${toggle}
+      <div class="crow">${c.opt ? '<span class="tag-opt">Blip optimized</span>' : ''}<span class="sp"></span>${primary(c, true)}
         <button class="ciconb" data-act="edit" data-id="${c.id}" aria-label="Edit ${esc(c.name)}">${ic('pencil')}</button></div>
       <div class="cname">${esc(c.name)}</div>
-      <span class="status ${c.status}"><i></i>${c.label}</span>
+      <span class="status ${c.status}"><i></i>${c.label}${c.tab === 'archived' ? ' <span class="ctag none">Archived</span>' : ''}</span>
       <div class="cstats">${stats}</div>
     </div>${foot}</article>`;
 }
-function list(){
-  const items = CAMPAIGNS.filter(c => c.tab === state.tab);
-  const tabs = [['active','Active'],['archived','Archived'],['draft','Draft']].map(([k,l]) => `<button role="tab" aria-selected="${state.tab===k}" data-act="tab" data-t="${k}">${l}</button>`).join('');
-  return `<div class="head"><h1>Campaigns</h1>
-      <div class="head-acts"><button class="btn primary" data-act="create">${ic('plus')}Create</button><button class="btn secondary" data-act="moderation">Check moderation</button></div>
-      <div class="tabs" role="tablist">${tabs}</div></div>
-    ${items.length ? `<div class="grid">${items.map(card).join('')}</div>` : '<div class="empty">No campaigns here yet.</div>'}`;
+
+/* Moderation, overall: the same words as the drawer's Moderation card, with the board count under them */
+function modCell(c){
+  /* V1: the same three words as the drawer's Moderation status, no counts */
+  const m = c.mod;
+  if(!m || c.status === 'draft') return `<span class="mword none">Not started</span><small>${c.status === 'draft' ? 'After launch' : ''}</small>`;
+  if(m.state === 'none') return `<span class="mword none">Not started</span><small>No creative yet</small>`;
+  const t = modCounts(m.rows);
+  if(t.wait > 0 && c.status !== 'ended') return `<span class="mword review">In review</span><small>${m.slow ? 'Taking longer than usual' : ''}</small>`;
+  return `<span class="mword done">Review finished</span><small></small>`;
 }
+
+/* Table: columns run from what people act on (left) to what they check now and then (right):
+   Action · Campaign · Status · Moderation · Last 7 days · Dates · Edit. The alert sits under the status. Phones get cards. */
+const COLS = 9;
+function row(c){
+  /* When the action column already says Review, the alert under the status is just the reason, not a second button */
+  const a = c.alerts, tag = primary(c).includes('data-act="review"') ? 'span' : 'button';
+  const alert = !a.length ? '' : a.length === 1 && a[0].kind === 'error'
+    ? `<${tag} class="talert error" data-act="review" data-id="${c.id}">${ic('alert')}${esc(a[0].title)}</${tag}>`
+    : `<${tag} class="talert warn" data-act="review" data-id="${c.id}">${ic('warn')}${a.length} alert${a.length>1?'s':''}</${tag}>`;
+  const n = v => c.imp != null ? v : '<span class="dash">–</span>';
+  const when = c.dates ? `${esc(span(c))}<small>${esc(c.left || '')}</small>` : '<span class="dash">Not set</span>';
+  return `<tr class="trow${needsAttn(c) ? ' attn' : ''}" data-act="open" data-id="${c.id}" tabindex="0" aria-label="${esc(c.name)} details" aria-current="${state.open === c.id}">
+    <td class="tprim">${primary(c)}</td>
+    <td><div class="tname"><span class="thumb tthumb">${c.cre.length ? creative(c.cre[0]) : '<div class="cre-empty"></div>'}</span>
+      <div><b>${esc(c.name)}</b>${c.opt ? '<span class="tag-opt">Blip optimized</span>' : ''}</div></div></td>
+    <td class="tstat"><span class="status ${c.status}"><i></i>${c.label}</span>${c.tab === 'archived' ? ' <span class="ctag none">Archived</span>' : ''}${alert}${wholeRun(c) && state.tab !== 'ended' ? '<small class="tnote">Numbers cover the whole run</small>' : ''}</td>
+    <td class="tmod">${modCell(c)}</td>
+    <td class="num">${n(c.imp)}</td><td class="num">${n(c.spend)}</td><td class="num">${n(c.blips)}</td>
+    <td class="when">${when}</td>
+    <td class="tacts"><button class="ciconb" data-act="edit" data-id="${c.id}" aria-label="Edit ${esc(c.name)}">${ic('pencil')}</button></td></tr>`;
+}
+function secHead(k, title, hint, count, open, tag){
+  const inner = `<button class="lsec-b" data-act="sec" data-s="${k}" aria-expanded="${open}">${ic('down')}<span class="tt">${title}</span><span class="cnt">${count}</span>${hint ? `<span class="hint">${hint}</span>` : ''}</button>`;
+  return tag === 'tr' ? `<tr class="ghead"><th colspan="${COLS}" scope="colgroup">${inner}</th></tr>` : `<h2 class="lsec-h">${inner}</h2>`;
+}
+function table(groups, grp = 'Last 7 days'){
+  const body = groups.map(([s, items]) => {
+    if(!s) return `<tbody>${items.map(row).join('')}</tbody>`;
+    const open = isOpen(s[0]);
+    return `<tbody class="gsec ${s[0]}">${secHead(s[0], s[1], s[2], items.length, open, 'tr')}${open ? items.map(row).join('') : ''}</tbody>`;
+  }).join('');
+  return `<div class="tbl-wrap"><table class="ctbl">
+    <thead><tr><th rowspan="2"><span class="sr">Action</span></th><th rowspan="2">Campaign</th><th rowspan="2">Status</th><th rowspan="2">Moderation</th><th colspan="3" class="grp">${grp}</th><th rowspan="2">Dates</th><th rowspan="2"><span class="sr">Edit</span></th></tr>
+      <tr><th class="num">Impressions</th><th class="num">Spend</th><th class="num">Blips</th></tr></thead>
+    ${body}</table></div>`;
+}
+function cards(groups){
+  return groups.map(([s, items]) => {
+    if(!s) return `<div class="grid">${items.map(card).join('')}</div>`;
+    const open = isOpen(s[0]);
+    return `<section class="lsec ${s[0]}">${secHead(s[0], s[1], s[2], items.length, open)}${open ? `<div class="grid">${items.map(card).join('')}</div>` : ''}</section>`;
+  }).join('');
+}
+
+/* Search: name only, like the product, but it filters as you type, says when nothing matches (the product's
+   no-results message never shows), and points to Archived when the match is there. Searching opens every section. */
+const TABS = [['main','Campaigns'],['archived','Archived']];
+const inTab = (c, t) => c.tab === t;
+const match = c => !state.q.trim() || c.name.toLowerCase().includes(state.q.trim().toLowerCase());
+const isOpen = k => !!state.q.trim() || !state.closed[k];
+function resultsB(){
+  const items = CAMPAIGNS.filter(c => inTab(c, state.tab) && match(c));
+  const view = isPhone() ? 'card' : state.view;
+  if(items.length){
+    const groups = state.tab === 'archived' ? [[null, items]]
+      : SECS.map(s => [s, items.filter(c => secOf(c) === s[0]).sort((a, b) => s[0] === 'active' ? RUN_ORDER[a.status] - RUN_ORDER[b.status] : 0)]).filter(g => g[1].length);
+    return view === 'table' ? table(groups) : cards(groups);
+  }
+  if(!state.q.trim()) return `<div class="empty">${state.tab === 'archived' ? 'Nothing archived.' : 'No campaigns yet.'}</div>`;
+  const other = TABS.find(([k]) => k !== state.tab), n = CAMPAIGNS.filter(c => inTab(c, other[0]) && match(c)).length;
+  return `<div class="empty"><b>No ${state.tab === 'archived' ? 'archived ' : ''}campaigns match “${esc(state.q.trim())}”</b>
+    ${n ? `<p><button class="linkbtn" data-act="tab" data-t="${other[0]}">${n} in ${other[1]}</button></p>` : ''}
+    <button class="btn secondary" data-act="clearQ">Clear search</button></div>`;
+}
+function listB(){
+  const tabs = TABS.map(([k,l]) => `<button role="tab" aria-selected="${state.tab===k}" data-act="tab" data-t="${k}">${l}</button>`).join('');
+  const viewBtn = state.view === 'table'
+    ? `<button class="viewbtn" data-act="view" data-v="card">${ic('cards')}Card view</button>`
+    : `<button class="viewbtn" data-act="view" data-v="table">${ic('rows')}List view</button>`;
+  return `<div class="head"><div class="head-top">
+      <div class="head-l"><h1>Campaigns</h1>
+        <div class="head-acts"><button class="btn primary" data-act="create">${ic('plus')}Create</button><button class="btn secondary" data-act="moderation">Check moderation</button></div></div>
+      <div class="lctl">${viewBtn}<label class="search">${ic('search')}<input id="q" type="search" placeholder="Search by name" aria-label="Search campaigns by name" autocomplete="off" value="${esc(state.q)}">
+        <button class="qx" data-act="clearQ" aria-label="Clear search" ${state.q ? '' : 'hidden'}>${ic('close')}</button></label></div></div>
+      <div class="tabs" role="tablist">${tabs}</div></div>
+    <div id="results">${resultsB()}</div>`;
+}
+
+/* ---------- Campaigns list: lifecycle layout (2026-10-15) ----------
+   The page moves each campaign to its next step. Tabs: All (default) · Active · Drafts · Completed, then Archived set apart
+   at the end (delete only from there). Phones swipe the row. On All, a one-line attention banner sits above the list
+   only when something needs action (V1 replaced the Up next list).
+   All lists live and ended campaigns; drafts show through the Finish row (and their own tab). */
+const ENDING_SOON = 2, WRAPPED_DAYS = 30;   /* SMB advertisers act at the last minute: 1–2 days, not a week */
+/* V1: All · Active · Drafts · Completed, then Archived set apart at the end. On phones the row swipes, with a fade
+   on the right edge so the hidden tabs read as "swipe for more". */
+const NTABS = [['all','All'],['active','Active'],['drafts','Drafts'],['ended','Completed'],['archived','Archived']];
+const STATUS_OPTS = {
+  all:[['running','Running'],['review','In review'],['paused','Paused'],['stopped','Not running'],['ready','Draft, ready to launch'],['unfinished','Draft, not finished']],
+  active:[['running','Running'],['review','In review'],['paused','Paused'],['stopped','Not running']],
+  drafts:[['ready','Ready to launch'],['unfinished','Not finished']], ended:[]
+};
+const SORTS = [['attn','Needs attention first'],['ending','Ending soonest'],['spend','Most spend (7 days)']];
+const freshF = () => ({attn:false, status:[], archived:false, sort:'attn'});
+const isLive = c => c.status !== 'draft' && c.status !== 'ended';
+const needsAttn = c => isLive(c) && c.alerts.length > 0;
+const stepsLeft = c => ['locations','budget','duration','creative'].filter(k => !c.setup[k]).length;
+const daysLeft = c => { const m = /(\d+) days? left|Ends in (\d+) day/.exec(c.left || ''); return m ? +(m[1] || m[2]) : 999; };
+const spendNum = c => parseFloat(String(c.spend || '0').replace(/[$,]/g, '')) || 0;
+const statusKey = c => c.status === 'draft' ? (stepsLeft(c) ? 'unfinished' : 'ready') : c.status;
+const RANK = c => needsAttn(c) ? 0 : ({running:1, review:2, paused:3, stopped:4}[c.status] ?? 5);
+const SORT_FN = {
+  attn:(a, b) => RANK(a) - RANK(b) || (a.endedAgo || 0) - (b.endedAgo || 0),
+  ending:(a, b) => daysLeft(a) - daysLeft(b),
+  spend:(a, b) => spendNum(b) - spendNum(a)
+};
+const pool = () => CAMPAIGNS.filter(c => c.tab === 'main' || c.tab === 'archived');
+/* Archived campaigns only show in the Archived tab; every other tab is the main list */
+const inNTab = (c, t) => t === 'archived' ? c.tab === 'archived' : c.tab !== 'main' ? false : t === 'active' ? isLive(c) : t === 'drafts' ? c.status === 'draft' : t === 'ended' ? c.status === 'ended' : true;
+const filtersOn = () => state.f.attn || state.f.status.length || state.f.archived || state.f.sort !== 'attn';
+function itemsFor(t){
+  return pool().filter(c => inNTab(c, t) && match(c) && (!state.f.attn || needsAttn(c)) && (!state.f.status.length || state.f.status.includes(statusKey(c))))
+    .sort(SORT_FN[state.f.sort]);
+}
+
+/* V1: no Up next list. Updates like "ending soon" or "wrapped" belong in notifications. The list only gets a one-line
+   banner when something needs action (the same alerts the cards show), and nothing otherwise. One campaign: its
+   problem and Review. Several: the count, and Review opens Active filtered to Needs attention. */
+function attnBanner(){
+  const fix = CAMPAIGNS.filter(c => c.tab === 'main' && needsAttn(c));
+  if(!fix.length) return '';
+  const one = fix.length === 1, c = fix[0];
+  const txt = one ? `<b>${esc(c.name)}</b><span>${esc(c.alerts[0].title)}</span>` : `<b>${fix.length} campaigns need attention</b>`;
+  const btn = one ? `<button class="btn primary" data-act="review" data-id="${c.id}">Review</button>` : `<button class="btn primary" data-act="attnView">Review</button>`;
+  return `<div class="attn1" role="alert">${ic('alert')}<div class="attn1-t">${txt}</div>${btn}</div>`;
+}
+
+function filterPop(){
+  const opts = STATUS_OPTS[state.tab] || [], nAttn = CAMPAIGNS.filter(c => c.tab === 'main' && needsAttn(c)).length;
+  return `<div class="fpop" role="dialog" aria-label="Filter campaigns">
+    ${state.tab === 'drafts' || state.tab === 'ended' ? '' : `<label class="fchk"><input type="checkbox" data-f="attn" ${state.f.attn ? 'checked' : ''}>Needs attention<small>${nAttn}</small></label>`}
+    ${opts.length ? `<div class="fgrp"><b>Status</b>${opts.map(([v, l]) => `<label class="fchk"><input type="checkbox" data-f="status" value="${v}" ${state.f.status.includes(v) ? 'checked' : ''}>${l}</label>`).join('')}</div>` : ''}
+    <div class="fgrp"><b>Sort</b>${SORTS.map(([v, l]) => `<label class="fchk"><input type="radio" name="fsort" data-f="sort" value="${v}" ${state.f.sort === v ? 'checked' : ''}>${l}</label>`).join('')}</div>
+
+    <div class="ffoot"><button class="linkbtn" data-act="fReset">Reset</button><button class="btn secondary" data-act="fOpen">Done</button></div></div>`;
+}
+function filterChips(){
+  const ch = [];
+  if(state.f.attn) ch.push(['attn', '', 'Needs attention']);
+  state.f.status.forEach(v => ch.push(['status', v, ((STATUS_OPTS[state.tab] || []).find(o => o[0] === v) || [, v])[1]]));
+  if(state.f.archived) ch.push(['archived', '', 'Archived shown']);
+  if(state.f.sort !== 'attn') ch.push(['sort', '', `Sort: ${SORTS.find(s => s[0] === state.f.sort)[1]}`]);
+  return ch.length ? `<div class="fchips">${ch.map(([k, v, l]) => `<span class="chip">${esc(l)}<button data-act="fRm" data-k="${k}" data-v="${v}" aria-label="Remove ${esc(l)}">${ic('close')}</button></span>`).join('')}<button class="linkbtn" data-act="fReset">Clear all</button></div>` : '';
+}
+
+function resultsNext(){
+  if(state.emptyAcct) return '';
+  const items = itemsFor(state.tab), view = isPhone() ? 'card' : state.view;
+  const showUp = state.tab === 'all' && !state.q.trim() && !state.f.attn && !state.f.status.length;
+  /* V1: Archived is its own tab. Delete only lives here (archive first, then delete), so the tab says so. */
+  const arch = '';
+  const archNote = state.tab === 'archived' && items.length ? `<p class="arch-note">Archived campaigns are hidden from the other tabs. Delete one to remove it permanently.</p>` : '';
+  const grp = state.tab === 'ended' || state.tab === 'archived' ? 'Final results' : 'Last 7 days';
+  let body;
+  if(items.length) body = view === 'table' ? table([[null, items]], grp) : `<div class="grid">${items.map(card).join('')}</div>`;
+  else if(!state.q.trim() && !filtersOn()) body = `<div class="empty">${{all:'No campaigns yet.', active:'Nothing running right now.', drafts:'No drafts.', ended:'No completed campaigns yet.', archived:'Nothing archived.'}[state.tab]}</div>`;
+  else {
+    const others = NTABS.filter(([k]) => k !== state.tab).map(([k, l]) => [k, l, itemsFor(k).length]).filter(x => x[2]);
+    body = `<div class="empty"><b>No campaigns match${state.q.trim() ? ` “${esc(state.q.trim())}”` : ' these filters'}</b>
+      ${others.length ? `<p>${others.map(([k, l, n]) => `<button class="linkbtn" data-act="tab" data-t="${k}">${n} in ${l}</button>`).join(' · ')}</p>` : ''}
+      <button class="btn secondary" data-act="${state.q.trim() ? 'clearQ' : 'fReset'}">${state.q.trim() ? 'Clear search' : 'Reset filters'}</button></div>`;
+  }
+  return (showUp ? attnBanner() : '') + archNote + body + arch;
+}
+function listNext(){
+  const head = `<div class="head-l"><h1>Campaigns</h1>
+        <div class="head-acts"><button class="btn primary" data-act="create">${ic('plus')}Create</button><button class="btn secondary" data-act="moderation">Check moderation</button></div></div>`;
+  if(state.emptyAcct) return `<div class="head"><div class="head-top">${head}</div></div>
+    <div class="first"><span class="bb" aria-hidden="true"></span><h2>Put the business on a billboard</h2>
+      <p>Three steps: choose where it runs, set a daily budget, add a creative. Moderation usually takes 1–2 business days, then it goes live.</p>
+      <button class="btn primary" data-act="create">${ic('plus')}Create campaign</button>
+      <button class="linkbtn" data-act="maker">No creative yet? Make one with Billboard Maker</button></div>`;
+  const q = state.q.trim(), nAttn = CAMPAIGNS.filter(c => c.tab === 'main' && needsAttn(c)).length;
+  const tabs = NTABS.map(([k, l]) => {
+    const n = q ? itemsFor(k).length : null;
+    const badge = q ? `<span class="tcnt">${n}</span>` : k === 'active' && nAttn ? `<span class="tcnt bad" title="${nAttn} need attention">${nAttn}</span>`
+      : k === 'drafts' ? `<span class="tcnt">${CAMPAIGNS.filter(c => c.tab === 'main' && c.status === 'draft').length}</span>` : '';
+    return `<button role="tab" aria-selected="${state.tab === k}" data-act="tab" data-t="${k}"${k === 'archived' ? ' class="tab-arch"' : ''}>${l}${badge}</button>`;
+  }).join('');
+  const nf = (state.f.attn ? 1 : 0) + state.f.status.length + (state.f.archived ? 1 : 0) + (state.f.sort !== 'attn' ? 1 : 0);
+  const viewBtn = state.view === 'table'
+    ? `<button class="viewbtn" data-act="view" data-v="card">${ic('cards')}Card view</button>`
+    : `<button class="viewbtn" data-act="view" data-v="table">${ic('rows')}List view</button>`;
+  return `<div class="head"><div class="head-top">${head}
+      <div class="lctl">${viewBtn}<div class="fwrap"><button class="fbtn ${nf ? 'on' : ''}" data-act="fOpen" aria-haspopup="dialog" aria-expanded="${state.fOpen}">${ic('filter')}Filter${nf ? `<span class="tcnt">${nf}</span>` : ''}</button>${state.fOpen ? filterPop() : ''}</div>
+        <label class="search">${ic('search')}<input id="q" type="search" placeholder="Search by name" aria-label="Search campaigns by name" autocomplete="off" value="${esc(state.q)}">
+        <button class="qx" data-act="clearQ" aria-label="Clear search" ${state.q ? '' : 'hidden'}>${ic('close')}</button></label></div></div>
+      <div class="tabs" role="tablist">${tabs}</div>${filterChips()}</div>
+    <div id="results">${resultsNext()}</div>`;
+}
+const results = () => state.layout === 'b' ? resultsB() : resultsNext();
+const list = () => state.layout === 'b' ? listB() : listNext();
 
 /* ---------- Mockup image ----------
    The label is baked into every exported file so the disclaimer travels with the image:
-   team version = "Preview only"; social version = "Made with Blip" (presentable, still signals a creation, not a photo). */
+   team version = the photo mockup labeled "Preview only"; social version = the Billboard Maker marketing scene with a
+   "Made with Blip" mark (presentable, clearly a creation, not a photo of a real board). */
 function mockImg(c, v){
   const tag = v === 'social' ? '<span class="ex mwb"><i>blip</i>Made with Blip</span>' : '<span class="ex">Preview only</span>';
   return `<div class="mock"><img src="${MOCK[c.cre[0]]}" width="900" height="333" alt="${esc(CRE[c.cre[0]].name)} shown on a highway billboard">${tag}</div>`;
 }
+const BLIP_LOGO = '<svg viewBox="0 0 97 46" aria-hidden="true"><path fill="currentColor" d="M58.6674 8.73141C58.6674 9.42073 58.1504 9.88028 57.5185 9.88028H53.038C52.4061 9.88028 51.8891 9.42073 51.8891 8.73141V6.77833C51.8891 6.14645 52.4061 5.68691 53.038 5.68691H57.5185C58.1504 5.68691 58.6674 6.14645 58.6674 6.77833V8.73141ZM58.6674 30.1578C58.6674 30.7323 58.1504 31.1918 57.5185 31.1918H53.038C52.4061 31.1918 51.8891 30.7323 51.8891 30.1578V14.8779C51.8891 14.3034 52.4061 13.7864 53.038 13.7864H57.5185C58.1504 13.7864 58.6674 14.3034 58.6674 14.8779V30.1578ZM45.4555 0V29.9281C45.4555 30.6174 44.8236 30.9046 44.1917 30.9046H39.7686C39.1942 30.9046 38.6772 30.6174 38.6772 29.9281V0H16.3892V10.1675H26.7864C30.0032 10.1675 31.8989 11.9482 31.8989 15.1076V25.9645C31.8989 29.1813 30.0032 30.9046 26.7864 30.9046H11.3342C10.4151 30.9046 9.61089 30.3302 9.61089 29.4111V0H0.879517V40.2104H65.1011V11.661C65.1011 10.7994 65.6755 10.1675 66.5946 10.1675H82.1617C85.3785 10.1675 87.389 11.9482 87.389 15.1076V25.9645C87.389 29.1813 85.3785 30.9046 82.1617 30.9046H71.8793V45.7825H78.313V40.2104H96.1204V0H45.4555ZM80.6107 15.797H71.8793V25.3326H80.6107V15.797ZM25.1206 15.797H16.3892V25.3326H25.1206V15.797Z"/></svg>';
+/* The social square, built like the Billboard Maker marketing mockup */
+const socialScene = c => `<div class="soc"><div class="soc-in"><div class="soc-board"><span class="t">${creative(c.cre[0])}</span><div class="soc-legs"><span></span><span></span></div></div><span class="soc-mark">Made with ${BLIP_LOGO}</span></div></div>`;
 const slug = c => c.name.toLowerCase().replace(/[^a-z0-9]+/g,'-');
 /* The pack: everything goes to everyone for now (MVP = preview + square). A team/client include choice comes later. */
 function packRows(c){
   return `<div class="file">${mockImg(c,'team')}<span><b>${slug(c)}-preview.jpg</b><small>Labeled “Preview only”</small></span></div>
-    <div class="file"><div class="mock sq"><img src="${MOCK[c.cre[0]]}" alt=""><span class="ex mwb"><i>blip</i>Made with Blip</span></div><span><b>${slug(c)}-social-square.jpg</b><small>1080×1080 for social · Tagged “Made with Blip”</small></span></div>`;
+    <div class="file soc-row">${socialScene(c)}<span><b>${slug(c)}-social-square.jpg</b><small>1080×1080 for social · Billboard scene with a “Made with Blip” mark</small></span></div>`;
 }
 /* Share mockup sub-view: emails the mockup images. (The campaign itself is shared with Copy link in the footer.) */
 function shareView(c){
@@ -567,28 +1027,57 @@ function modRows(rows){
   }).join('');
 }
 function modHTML(c){
+  /* V1 (MVP): the status says where review stands and nothing else. In review while any board is waiting,
+     Review finished once every board has a decision (it plays on approved boards only). Past 3 business days
+     in review adds "Taking longer than usual". Paused shows the real status: sign owners keep reviewing. */
   const m = c.mod; if(!m) return '';
-  const t = modCounts(m.rows);
-  const PILL = {ok:'Approved', review:'In review', fix:'Rejected', none:'Not started'};
-  let line, see = false, extra = '';
-  /* Each part stays whole, so a narrow drawer wraps between parts, never inside one */
-  const parts = a => a.filter(Boolean).map(x => `<span class="nw">${x}</span>`).join(' · ');
-  if(m.state === 'review') line = parts([`${t.boards} boards`, 'Usually 1–2 business days']);
-  else if(m.state === 'none') line = parts(['No creative to review yet']);
-  else if(m.state === 'fix'){
-    /* The banner at the top holds the fix; the card only reports the state. No reason here: it can be "Other",
-       or come from the sign owner rather than Blip, so the reasons stay in the editor behind See details. */
-    line = parts([`${t.bad} of ${t.boards} boards`]);
-    see = true;
+  const t = modCounts(m.rows), ended = c.status === 'ended';
+  let word, cls, sub = '', see = true, icon = '';
+  if(m.state === 'none'){ word = 'Not started'; cls = 'none'; sub = 'Starts once a creative is added'; see = false; }
+  else if(t.wait > 0 && !ended){
+    word = 'In review'; cls = 'review';
+    if(m.slow){ sub = 'Taking longer than usual'; icon = ic('clock'); }
+    else sub = c.status === 'paused' ? 'Review continues while paused' : 'Usually 1–2 business days';
   } else {
-    line = parts([`${t.ok} of ${t.boards} boards`, t.bad && `${t.bad} rejected`, t.wait && `${t.wait} in review`, t.none && `${t.none} need a creative`]);
-    see = t.ok < t.boards;
+    word = 'Review finished'; cls = 'done';
+    if(ended && t.wait > 0) sub = 'Some boards weren’t reviewed before the end date';
+    else if(c.status === 'running') sub = 'Plays on approved boards only';
   }
-  const list = state.modOpen ? `<div class="mod-list">${modRows(m.rows)}</div>` : '';
   return `<section class="sec"><div class="sec-h"><h3>Moderation</h3></div>
-    <div class="mod ${m.state} ${state.focus==='mod'?'flash':''}" id="modCard">
-      <div class="mod-top"><div class="mod-hl"><span class="mword ${m.state}">${PILL[m.state]}</span><span class="ln">${line}</span>${see ? '<button class="linkbtn" data-act="seeMod">See details</button>' : ''}</div>${extra}</div>
-      <button class="mod-tg" data-act="modToggle" aria-expanded="${!!state.modOpen}"><span>By sign dimension</span>${ic('down')}</button>${list}
+    <div class="mod1 ${state.focus==='mod'?'flash':''}" id="modCard"><span class="mword ${cls}">${icon}${word}</span>${see ? '<button class="linkbtn" data-act="seeMod">See details</button>' : ''}${sub ? `<span class="sub">${sub}</span>` : ''}</div></section>`;
+}
+
+/* ---------- Ended: campaign recap (V1 pitch) ----------
+   An ended campaign gets an end state instead of the live layout: the mockup tells the story, the final numbers sit
+   under it, abbreviated like everywhere else (18.4k), so modeled impression decimals never show, one
+   plain summary line, and one download for the existing proof-of-play reports. No live report generation, no link to
+   Analytics. Moderation is done, so it's left out; Details stays below. */
+const num = v => { const t = String(v == null ? '' : v).replace(/[$,\s]/g, ''); const k = /k$/i.test(t); return Math.round(parseFloat(t) * (k ? 1000 : 1)) || 0; };
+const whole = n => Math.round(n).toLocaleString('en-US');
+/* D3: completed drawers explain what "Duplicate campaign" (the footer's primary) carries over. Approvals belong to the
+   creative and the sign owner, not the campaign, so what's approved can start without a new review. */
+function carryHTML(c){
+  const t = c.mod ? modCounts(c.mod.rows) : {ok:0, boards:c.locs}, ok = t.ok;
+  const chk = label => `<em>${ic('check')}${label}</em>`;
+  const boardsMark = !ok ? '' : c.opt ? chk('Approved in this area') : chk(ok >= t.boards ? 'All approved' : `${ok} approved`);
+  return `<section class="sec carry1"><div class="sec-h"><h3>What a duplicate carries over</h3></div>
+    <div class="cv">
+      <span>Creative</span><b>${esc(CRE[c.cre[0]].name)}</b>${ok ? chk('Approved') : '<span></span>'}
+      <span>${c.opt ? 'Area' : 'Boards'}</span><b>${c.opt ? esc(c.where) : `${c.locs} in ${esc(c.where)}`}</b>${boardsMark || '<span></span>'}
+      <span>Budget</span><b>$${c.perDay}/day</b><span></span>
+      <span>Duration</span><b>ASAP - Ongoing</b><span></span>
+    </div>
+    <p class="cv-fine">${ok ? 'What’s already approved can start without a new review. Changing the creative or boards starts one.' : 'Needs a new review before it runs.'}</p></section>`;
+}
+function recapHTML(c){
+  const imp = num(c.imp), spend = num(c.spend), blips = num(c.blips), days = c.runDays || 1;
+  const cpm = imp ? (spend / imp * 1000).toLocaleString('en-US', {style:'currency', currency:'USD'}) : '–';
+  return `<section class="recap" aria-label="Campaign recap">
+    ${mockImg(c, 'team')}
+    <div class="rc-body">
+      <div class="rc-h">${ic('check')}<b>Campaign complete</b><span>${esc(span(c))}</span></div>
+      <div class="rc-nums"><div><b>${esc(c.imp)}</b><span>Impressions</span></div><div><b>${esc(c.blips)}</b><span>Blips</span></div><div><b>${esc(c.spend)}</b><span>Spent</span></div></div>
+      <div class="rc-acts"><button class="btn secondary" data-act="pop" aria-label="Download proof of play">${ic('download')}Proof of play</button><button class="btn secondary" data-act="sv" data-v="mockup" aria-label="Share mockup">${ic('share')}Mockup</button></div>
     </div></section>`;
 }
 
@@ -602,21 +1091,23 @@ function drawerHTML(){
     ? `<div class="mbanner ${a.sev==='warn'?'warn':''} ${state.focus==='alerts'&&i===0?'flash':''}" role="${a.sev==='warn'?'status':'alert'}">${ic(a.sev==='warn'?'warn':'alert')}<div><b>${esc(a.title)}</b><p>${esc(a.body)}</p><div class="acts"><button class="btn ${a.sev==='warn'?'secondary':'primary'}" data-act="${a.act}" data-step="${esc(a.step||'')}">${esc(a.cta)}</button>${a.link ? `<button class="linkbtn" data-act="seeMod">${esc(a.link)}</button>` : ''}</div></div></div>`
     : `<div class="alert ${a.kind} ${state.focus==='alerts'&&i===0?'flash':''}" role="${a.kind==='error'?'alert':'status'}">${ic(a.kind==='error'?'alert':'warn')}<div><b>${esc(a.title)}</b><p>${esc(a.body)}</p>${a.action?`<button class="btn ${a.kind==='error'?'danger':'warn'}" data-act="${a.act}">${esc(a.action)}</button>`:''}</div></div>`).join('');
   const numbersEmpty = `<section class="sec"><div class="sec-h"><h3>Last 7 days</h3></div>
-      <div class="kpis dash"><div class="kpi"><span>Impressions</span><b>–</b></div><div class="kpi"><span>Spend</span><b>–</b></div><div class="kpi"><span>Blips</span><b>–</b></div></div>
       <p class="nodata">No data yet. Numbers start the day after it goes live.</p></section>`;
-  const numbers = c.imp == null ? numbersEmpty : `<section class="sec"><div class="sec-h"><h3>Last 7 days</h3><span>Oct 1 – Oct 7</span></div>
+  const numbers = c.imp == null ? numbersEmpty : `<section class="sec"><div class="sec-h"><h3>${wholeRun(c) ? 'Whole run' : 'Last 7 days'}</h3><span>${wholeRun(c) ? esc(span(c)) : 'Oct 1 – Oct 7'}</span></div>
       <div class="kpis"><div class="kpi"><span>Impressions</span><b>${c.imp}</b></div><div class="kpi"><span>Spend</span><b>${c.spend}</b></div><div class="kpi"><span>Blips</span><b>${c.blips}</b></div></div></section>`;
   const mock = !c.cre.length ? '' : `<section class="sec"><h3>On a billboard</h3>
       ${mockImg(c, 'team')}
       <p class="cap">Preview only. Not a photo from the campaign.</p>
       <div class="mock-acts"><button class="btn secondary" data-act="sv" data-v="mockup">${ic('share')}Share mockup</button><button class="btn secondary" data-act="download">${ic('download')}Download mockups</button></div></section>`;
   if(c.status === 'draft') return draftHTML(c, mock);
-  /* Recently submitted: a temporary blue card at the top (where temporary notices go), with the steps to first numbers.
-     It disappears once the campaign is live; timing stays in the Moderation card. */
+  /* Recently submitted (V1): "What happens next" sets the whole expectation up front, so nobody has to log back in to
+     find out: step 1 is moderation, step 2 is going live, with the email that confirms it. One link
+     at the bottom jumps down to the Moderation section (no per-step links, since only step 1 has details). It disappears once the campaign is live; the Moderation section after the mockup keeps the record. */
+  const slow = c.mod && c.mod.slow;
   const next = review ? `<section class="nextcard" aria-label="What happens next"><h3>What happens next</h3><ol class="next">
-      <li class="now"><span><b>Moderation</b>Each board reviews the creative. An email confirms approvals.</span></li>
-      <li><span><b>Goes live Oct 15</b>Plays on each of the ${c.locs} boards across ${esc(c.where)} once it’s approved there.</span></li>
-      <li><span><b>First numbers</b>Impressions and spend show here the day after it starts.</span></li></ol></section>` : '';
+      <li class="now"><div><b>Moderation</b>
+        <span>${slow ? 'Taking longer than usual.' : 'Usually 1–2 business days.'} Each board reviews the creative.</span></div></li>
+      <li><div><b>Goes live when scheduled</b><span>Plays on each board once it’s approved there. An email confirms when it’s live.</span></div></li></ol>
+      <button class="nx-jump" data-act="toMod">See moderation status${ic('down')}</button></section>` : '';
   const facts = `<section class="sec details ${state.details?'open':''}"><h3 class="dt-desk">Details</h3>
       <button class="dt-toggle" data-act="details" aria-expanded="${!!state.details}"><span class="dt-sum">${esc(factsLine(c))}</span>${ic('down')}</button>
       <div class="facts">
@@ -626,11 +1117,14 @@ function drawerHTML(){
       <div class="fact"><span>Creative</span><div class="cr1"><span class="t">${creative(c.cre[0])}</span><div><b>${esc(CRE[c.cre[0]].name)}</b><small>${c.cre.length > 1 ? `+${c.cre.length - 1} more` : `${c.mod ? c.mod.rows.length : 1} sign dimension${c.mod && c.mod.rows.length > 1 ? 's' : ''}`}</small><button class="linkbtn" data-act="seeCre">See details</button></div></div></div>
     </div></section>`;
   const mod = modHTML(c);
-  const body = review ? next + numbers + mock + mod + facts : alerts + numbers + mock + mod + facts;
+  /* One order in every drawer, built for the most common state (running): notice → numbers → mockup → Moderation → Details.
+     In review, the status card at the top carries the live moderation status, so it's never buried. */
+  const body = c.status === 'ended' ? alerts + recapHTML(c) + carryHTML(c) : review ? next + numbers + mock + mod + facts : alerts + numbers + mock + mod + facts;
   const canStart = c.status === 'paused' || c.status === 'stopped', blocked = canStart && c.alerts.length;
   const toggleItem = live ? `<button role="menuitem" data-act="toggle" data-id="${c.id}">${ic('pause')}Pause campaign</button>`
     : canStart ? `<button role="menuitem" data-act="toggle" data-id="${c.id}" ${blocked ? 'disabled title="Fix the alerts first"' : ''}>${ic('play')}Start campaign${blocked ? '<small>Fix the alerts first</small>' : ''}</button>` : '';
-  const menu = state.menu ? `<div class="menu" role="menu">${toggleItem}<button role="menuitem" data-act="duplicate">${ic('copy')}Duplicate</button><button role="menuitem" data-act="archive">${ic('archive')}Archive</button></div>` : '';
+  const archiveItem = c.tab === 'archived' ? `<button role="menuitem" data-act="unarchive">${ic('archive')}Unarchive</button><button role="menuitem" class="danger" data-act="delete">${ic('close')}Delete permanently</button>` : `<button role="menuitem" data-act="archive">${ic('archive')}Archive</button>`;
+  const menu = state.menu ? `<div class="menu" role="menu"><button role="menuitem" data-act="analytics">${ic('chart')}Analytics</button>${toggleItem}<button role="menuitem" data-act="duplicate">${ic('copy')}Duplicate</button>${archiveItem}</div>` : '';
   return `<div class="veil ${state.enter?'enter':''}" data-act="close"><aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle">
     <div class="dhead"><button class="dback" data-act="close">${ic('back')}Campaigns</button>
       <div class="tt"><h2 id="dTitle">${esc(c.name)}</h2><div class="crow"><span class="status ${c.status}"><i></i>${c.label}</span>${c.opt ? '<span class="tag-opt">Blip optimized</span>' : ''}</div></div>
@@ -641,7 +1135,7 @@ function drawerHTML(){
     <div class="dbody">${body}</div>
     <div class="dfoot"><span class="sp"></span>
       ${c.status === 'ended'
-        ? `<button class="btn secondary" data-act="copyLink">${ic('link')}Copy link</button><button class="btn primary" data-act="runAgain">${ic('repeat')}Duplicate &amp; relaunch</button>`
+        ? `<button class="btn secondary" data-act="copyLink">${ic('link')}Copy link</button><button class="btn primary" data-act="rerun">${ic('copy')}Duplicate and rerun</button>`
         : `<button class="btn secondary" data-act="edit">${ic('pencil')}Edit</button><button class="btn secondary" data-act="copyLink">${ic('link')}Copy link</button>`}</div>
   </aside></div>`;
 }
@@ -659,10 +1153,9 @@ function draftHTML(c, mock){
   /* Streamlined: "Not set" has no link; Continue setup in the footer is the one way forward */
   const missing = () => `<span class="missing">Not set</span>`;
   const numbers = `<section class="sec"><div class="sec-h"><h3>Last 7 days</h3></div>
-      <div class="kpis dash"><div class="kpi"><span>Impressions</span><b>–</b></div><div class="kpi"><span>Spend</span><b>–</b></div><div class="kpi"><span>Blips</span><b>–</b></div></div>
-      <p class="nodata">No data yet. Launch the campaign to start moderation.</p></section>`;
+      <p class="nodata">No data yet. Numbers start the day after it goes live.</p></section>`;
   const mod = `<section class="sec"><div class="sec-h"><h3>Moderation</h3></div>
-      <div class="mod"><div class="mod-top"><div class="mod-hl"><span class="mword none">Not started</span><span class="ln"><span class="nw">Starts after launch</span> · <span class="nw">Usually 1–2 business days</span></span></div></div></div></section>`;
+      <div class="mod1"><span class="mword none">Not started</span><span class="sub">Starts after launch · Usually 1–2 business days</span></div></section>`;
   const facts = `<section class="sec details ${state.details?'open':''}"><h3 class="dt-desk">Details</h3>
       <button class="dt-toggle" data-act="details" aria-expanded="${!!state.details}"><span class="dt-sum ${ready ? '' : 'unset'}">${ready ? esc(factsLine(c)) : 'Not finished'}</span>${ic('down')}</button>
       <div class="facts">
@@ -674,7 +1167,7 @@ function draftHTML(c, mock){
   const empty = `<section class="sec"><h3>On a billboard</h3>
       <div class="mock-empty"><span class="bb"></span><div class="mt"><b>No creative yet</b><p>Add one in setup to see it on a billboard.</p></div></div></section>`;
   const body = numbers + (st.creative ? mock : empty) + mod + facts;
-  const menu = state.menu ? `<div class="menu" role="menu"><button role="menuitem" data-act="duplicate">${ic('copy')}Duplicate</button><button role="menuitem" data-act="deleteDraft">${ic('archive')}Delete draft</button></div>` : '';
+  const menu = state.menu ? `<div class="menu" role="menu"><button role="menuitem" data-act="duplicate">${ic('copy')}Duplicate</button><button role="menuitem" data-act="archive">${ic('archive')}Archive</button><button role="menuitem" data-act="deleteDraft">${ic('archive')}Delete draft</button></div>` : '';
   const foot = ready
     ? `<button class="btn secondary" data-act="edit">${ic('pencil')}Edit</button><button class="btn primary" data-act="launch">Launch campaign</button>`
     : `<button class="btn primary" data-act="setupStep" data-step="${keys.find(k => !st[k])}">Continue setup</button>`;
@@ -697,7 +1190,9 @@ let lastDrawerView = null;
 function render(){
   const view = state.open ? `${state.open}|${state.sv || ''}` : null;
   const prevBody = $('.dbody'), prevTop = prevBody ? prevBody.scrollTop : 0;
+  const qFocus = document.activeElement && document.activeElement.id === 'q', qSel = qFocus ? document.activeElement.selectionStart : 0;
   $('#main').innerHTML = list();
+  if(qFocus){ const q = $('#q'); q.focus({preventScroll:true}); q.setSelectionRange(qSel, qSel); }
   $('#drawer').innerHTML = drawerHTML();
   if (view && view === lastDrawerView){ const b = $('.dbody'); if (b) b.scrollTop = prevTop; }
   lastDrawerView = view;
@@ -718,6 +1213,8 @@ function close(){
   v.classList.add('leave'); setTimeout(done, 200);
 }
 document.addEventListener('click', e => {
+  /* A click outside the filter popover closes it */
+  if(state.fOpen && !e.target.closest('.fwrap')){ state.fOpen = false; if(!e.target.closest('[data-act]')){ render(); return; } }
   const t = e.target.closest('[data-act]'); if(!t) { if(state.menu){ state.menu = false; render(); } return; }
   const a = t.dataset.act, id = t.dataset.id;
   if(a !== 'menu' && state.menu){ state.menu = false; }
@@ -725,20 +1222,23 @@ document.addEventListener('click', e => {
     case 'open': open(id); break;
     case 'review': e.stopPropagation(); open(id, 'alerts'); break;
     case 'close': if(e.target === t || t.closest('.dback, .dx')){ state.sv = null; close(); } break;
-    case 'tab': state.tab = t.dataset.t; render(); break;
+    case 'tab': state.tab = t.dataset.t; state.f.status = []; state.fOpen = false; state.pageMenu = false; render(); break;
     case 'menu': state.menu = !state.menu; render(); break;
     case 'details': state.details = !state.details; render(); break;
     case 'toggle': { const c = getC(id || state.open); if(c.status === 'running'){ c.status = 'paused'; c.label = 'Paused'; toast(`${c.name} paused`); } else { c.status = 'running'; c.label = 'Running'; toast(`${c.name} started`); } break; }
     case 'edit': toast('Opens the campaign builder'); break;
     case 'replace': { const c = getC(state.open); toast(`Opens the ${c.opt ? 'Creative' : 'Design'} step in the editor, where each rejection reason is listed`); break; }
-    case 'seeMod': { const c = getC(state.open); toast(`Opens the ${c.opt ? 'Creative' : 'Design'} step in the editor, with the rejection reasons`); break; }
+    case 'toMod': { state.focus = 'mod'; render(); const m = $('#modCard'); m && m.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center'}); setTimeout(() => { state.focus = null; }, 1300); break; }
+    case 'seeMod': { const c = getC(state.open); toast(`Opens the ${c.opt ? 'Creative' : 'Design'} step in campaign creation`); break; }
     case 'seeCre': { const c = getC(state.open); toast(`Opens the ${c.opt ? 'Creative' : 'Design'} step in the editor, with every creative and size`); break; }
     case 'setupStep': toast(`Opens the campaign editor at ${t.dataset.step.charAt(0).toUpperCase() + t.dataset.step.slice(1)}`); break;
-    case 'runAgain': { const c = getC(state.open); toast(`Duplicates ${c.name} as a new ${c.runDays}-day campaign starting today, then opens it to review before launch`); break; }
+    case 'rerun': { const c = getC(state.open); toast(`Opens a duplicate of ${c.name} in the campaign editor, everything filled in (duration ASAP - Ongoing), to review and launch`); break; }
+    case 'runAgain': { const c = getC(id || state.open); toast(`Duplicates ${c.name} as a new ${c.runDays}-day campaign starting today, then opens it to review before launch`); break; }
     case 'launch': toast('Submits the campaign for moderation'); break;
     case 'deleteDraft': toast('Asks to confirm, then deletes the draft'); break;
     case 'modToggle': state.modOpen = !state.modOpen; state.focus = null; render(); break;
     case 'pay': toast('Opens payment settings'); break;
+    case 'pop': { const c = getC(state.open); toast(`Downloaded ${slug(c)}-proof-of-play.zip · Campaign summary and proof of performance (PDF)`); break; }
     case 'download': { const c = getC(state.open); toast(`Downloaded ${slug(c)}-mockups.zip · 2 images`); break; }
     case 'sv': state.sv = t.dataset.v; state.to = ['Me']; state.msg = ''; state.toBad = false; state.menu = false; render(); setTimeout(() => $('#svTo') && $('#svTo').focus(), 0); break;
     case 'svBack': state.sv = null; render(); break;
@@ -751,6 +1251,22 @@ document.addEventListener('click', e => {
       state.sv = null; toast(`${what} sent to ${who}`); break; }
     case 'duplicate': toast('Duplicated as a draft'); break;
     case 'archive': toast('Moved to Archived'); break;
+    case 'unarchive': toast('Moved back to Active'); break;
+    case 'analytics': toast('Opens the Analytics page for this campaign'); break;
+    case 'view': state.view = t.dataset.v; render(); break;
+    case 'sec': e.stopPropagation(); state.closed[t.dataset.s] = !state.closed[t.dataset.s]; render(); break;
+    case 'clearQ': state.q = ''; render(); $('#q').focus(); break;
+    case 'fOpen': state.fOpen = !state.fOpen; render(); break;
+    case 'fReset': state.f = freshF(); render(); break;
+    case 'fRm': { const k = t.dataset.k; if(k === 'status') state.f.status = state.f.status.filter(v => v !== t.dataset.v); else if(k === 'sort') state.f.sort = 'attn'; else state.f[k] = false; render(); break; }
+    case 'attnView': state.tab = 'active'; state.f = freshF(); state.f.attn = true; render(); break;
+    case 'endingView': state.tab = 'active'; state.f = freshF(); state.f.sort = 'ending'; render(); break;
+    case 'showArch': state.tab = 'ended'; state.archOpen = true; render(); break;
+    case 'archToggle': state.archOpen = !state.archOpen; render(); break;
+    case 'delete': { const c = getC(state.open); state.menu = false; toast(`Asks to confirm: Delete ${c.name} permanently? This can’t be undone.`); break; }
+    case 'seeResults': open(id); break;
+    case 'extend': { const c = getC(id); toast(`Opens ${c.name} in the campaign builder at Duration (a one-step Extend needs engineering)`); break; }
+    case 'maker': toast('Opens Billboard Maker'); break;
     case 'create': toast('Opens the campaign builder'); break;
     case 'moderation': toast('Opens moderation status'); break;
     case 'help': toast('Opens the support hub drawer (not part of this prototype)'); break;
@@ -760,7 +1276,20 @@ document.addEventListener('click', e => {
 function addTo(v){ v.split(/[,;\s]+/).map(x => x.trim()).filter(x => /.+@.+\..+/.test(x) && !state.to.includes(x)).forEach(x => state.to.push(x)); if(state.to.length) state.toBad = false; }
 document.addEventListener('input', e => {
   if(e.target.id === 'svMsg') state.msg = e.target.value;
+  /* Full render so tab counts follow the search; render() keeps the input's focus and caret */
+  if(e.target.id === 'q'){ state.q = e.target.value; render(); }
   if(e.target.id === 'svTo' && /[,;]/.test(e.target.value)){ addTo(e.target.value); render(); $('#svTo').focus(); }
+});
+document.addEventListener('change', e => {
+  const k = e.target.dataset && e.target.dataset.f; if(!k) return;
+  if(k === 'status'){ const v = e.target.value; state.f.status = e.target.checked ? [...state.f.status, v] : state.f.status.filter(x => x !== v); }
+  else if(k === 'sort') state.f.sort = e.target.value;
+  else state.f[k] = e.target.checked;
+  const sel = `[data-f="${k}"]` + (e.target.value && k !== 'attn' && k !== 'archived' ? `[value="${e.target.value}"]` : '');
+  render(); const el = $(sel); el && el.focus();
+});
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && state.fOpen){ state.fOpen = false; render(); return; }
 });
 document.addEventListener('keydown', e => {
   if(e.target.id !== 'svTo') return;
@@ -771,37 +1300,50 @@ document.addEventListener('focusout', e => { if(e.target.id === 'svTo' && e.targ
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape' && state.sv){ state.sv = null; render(); return; }
   if(e.key === 'Escape' && state.open) close();
-  if((e.key === 'Enter' || e.key === ' ') && e.target.matches('.ccard')){ e.preventDefault(); e.target.click(); }
+  if(e.key === 'Escape' && e.target.id === 'q' && state.q){ state.q = ''; render(); $('#q').focus(); return; }
+  if((e.key === 'Enter' || e.key === ' ') && e.target.matches('.ccard, .trow')){ e.preventDefault(); e.target.click(); }
 });
 
 /* ---------- Step picker ---------- */
 const STEPS = [
-  ['Campaigns', [['list','Active campaigns'],['drafts','Draft tab']]],
+  ['Campaigns', [['list','All · cards, attention banner'],['table','All · table, attention banner'],['activeTab','Active tab, needs attention first'],['draftsTab','Drafts tab'],['endedTab','Completed tab'],['archTab','Archived tab, delete lives here'],['filter','Filter open'],['filtered','Filtered: needs attention'],['search','Search: counts on every tab'],['searchNone','Search: no match in All, found in Drafts'],['newAcct','New account, no campaigns']]],
+  ['Earlier · status sections (option B)', [['bCards','Cards in sections'],['bTable','Table in sections'],['bArchived','Archived tab']]],
   ['Draft drawer', [['draftOpen','Draft, setup not finished'],['draftNoCre','Draft, no creative yet'],['draftReady','Draft, ready to launch']]],
   ['Banners', [['rejected','Creative rejected (blocking)'],['bnFit','Creative doesn’t fit (blocking)'],['bnSizesB','Sign sizes missing a creative (blocking)'],['bnSizesW','1 sign size missing a creative (warning)'],['bnUnavail','Selected boards unavailable (blocking)'],['bnExpand','Not enough boards nearby (warning)'],['bnMaxed','Area is maxed out (warning)']]],
-  ['Details drawer · moderation lifecycle', [['review','1 · Submitted, in review'],['running','2 · Running, partly approved (quiet)'],['rejected','3 · Rejected, can’t spend (from Review →)'],['alerts','4 · Paused'],['ended','5 · Ended']]],
+  ['Details drawer · moderation lifecycle', [['review','1 · Submitted, in review'],['modSlow','1b · In review, taking longer than usual'],['running','2 · Running, review finished'],['rejected','3 · Rejected, can’t spend (from Review →)'],['alerts','4 · Paused'],['ended','5 · Ended']]],
   ['Share', [['svMockup','Share mockup (email)']]],
   ['Entry points', [['email','From the “campaign is live” email']]]
 ];
 const ORDER = STEPS.flatMap(([,s]) => s.map(x => x[0]));
 $('#stateSel').innerHTML = STEPS.map(([g,s]) => `<optgroup label="${g}">${s.map(([k,l]) => `<option value="${k}">${l}</option>`).join('')}</optgroup>`).join('');
 function jump(k){
-  state.tab = k === 'drafts' ? 'draft' : 'active'; state.open = null; state.menu = false; state.focus = null; state.toast = ''; state.sv = null;
+  const B = ['bCards','bTable','bArchived'].includes(k);
+  state.layout = B ? 'b' : 'next'; state.closed = {}; state.view = k === 'table' || k === 'bTable' ? 'table' : 'card';
+  state.tab = B ? (k === 'bArchived' ? 'archived' : 'main') : ({activeTab:'active', filtered:'active', draftsTab:'drafts', endedTab:'ended', archTab:'archived', ended:'ended'}[k] || 'all');
+  state.f = freshF(); if(k === 'filtered') state.f.attn = true; state.fOpen = k === 'filter'; state.emptyAcct = k === 'newAcct';
+  state.q = k === 'search' ? 'tire' : k === 'searchNone' ? 'grand' : ''; state.open = null; state.menu = false; state.focus = null; state.toast = ''; state.sv = null;
   if(k === 'svMockup'){ open('fall'); state.sv = 'mockup'; state.to = ['Me']; state.msg = ''; state.toBad = false; render(); $('#stateSel').value = k; return; }
   if(k === 'running') open('fall'); else if(k === 'rejected') open('winter', 'alerts'); else if(k === 'alerts') open('summer', 'alerts');
-  else if(k === 'draftOpen'){ state.tab = 'draft'; open('hours'); }
-  else if(k === 'draftNoCre'){ state.tab = 'draft'; open('grand'); }
-  else if(k === 'draftReady'){ state.tab = 'draft'; open('tuneup'); }
-  else if(k === 'ended'){ state.tab = 'archived'; open('spring'); }
-  else if(k.startsWith('bn')) open(k);
+  else if(k === 'draftOpen'){ open('hours'); }
+  else if(k === 'draftNoCre'){ open('grand'); }
+  else if(k === 'draftReady'){ open('tuneup'); }
+  else if(k === 'ended'){ open('spring'); }
+  else if(k.startsWith('bn') || k === 'modSlow') open(k);
   else if(k === 'review') open('oil'); else if(k === 'email'){ open('fall'); toast('Opened from the email’s “View campaign performance” link'); }
   else render();
   $('#stateSel').value = k;
 }
 function current(){
-  if(!state.open) return state.tab === 'draft' ? 'drafts' : 'list';
+  if(!state.open){
+    if(state.layout === 'b') return state.tab === 'archived' ? 'bArchived' : state.view === 'table' ? 'bTable' : 'bCards';
+    if(state.emptyAcct) return 'newAcct';
+    if(state.q) return state.q === 'tire' ? 'search' : state.q === 'grand' ? 'searchNone' : 'list';
+    if(state.fOpen) return 'filter';
+    if(state.f.attn && state.tab === 'active') return 'filtered';
+    return {active:'activeTab', drafts:'draftsTab', ended:'endedTab', archived:'archTab'}[state.tab] || (state.view === 'table' ? 'table' : 'list');
+  }
   if(state.sv) return 'svMockup';
-  return {hours:'draftOpen', grand:'draftNoCre', tuneup:'draftReady', fall:'running', winter:'rejected', bnFit:'bnFit', bnSizesB:'bnSizesB', bnSizesW:'bnSizesW', bnUnavail:'bnUnavail', bnExpand:'bnExpand', bnMaxed:'bnMaxed', summer:'alerts', oil:'review', spring:'ended'}[state.open] || 'list';
+  return {hours:'draftOpen', grand:'draftNoCre', tuneup:'draftReady', fall:'running', winter:'rejected', bnFit:'bnFit', bnSizesB:'bnSizesB', bnSizesW:'bnSizesW', bnUnavail:'bnUnavail', bnExpand:'bnExpand', bnMaxed:'bnMaxed', summer:'alerts', oil:'review', spring:'ended', modSlow:'modSlow'}[state.open] || 'list';
 }
 function syncPicker(){
   const sel = $('#stateSel'); if(document.activeElement !== sel && sel.value !== 'email') sel.value = current();
