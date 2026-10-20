@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discover Locations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="stylesheet" href="css/discover.css">
+</head>
+<body>
+
+<!-- Nav -->
+<header class="nav">
+  <div class="nav__left">
+    <a href="#" class="nav__logo" aria-label="Blip home"><img src="assets/figma/imgBlipColorLogo.svg" alt="blip"></a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#">How it works <span class="caret"></span></a>
+      <a href="#" aria-current="page">Locations</a>
+      <a href="#">Pricing</a>
+      <a href="#">Resources <span class="caret"></span></a>
+    </nav>
+  </div>
+  <div class="nav__right">
+    <a href="#" class="nav__login">Login</a>
+    <a href="#" class="btn btn--pink nav__cta">Get Started</a>
+    <button class="nav__burger" aria-label="Open menu" aria-expanded="false" id="burger"><span></span><span></span><span></span></button>
+  </div>
+  <div class="nav__drawer" id="drawer" hidden>
+    <a href="#">How it works</a><a href="#">Locations</a><a href="#">Pricing</a><a href="#">Resources</a><a href="#">Login</a>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <h1>Find Digital Billboard Locations Near You</h1>
+  <p>Ready to get your brand on the big screen? Search across our <span data-bind="boardsPlus">3,500+</span> boards to find digital billboards in your neighborhood or go nationwide.<span class="hide-mobile"> Find the right location for your brand.</span></p>
+</section>
+
+<!-- Map and Stats -->
+<section class="map-stats" id="map-section">
+  <div class="map-card">
+    <form class="map-search" id="search-form" role="search" autocomplete="off">
+      <div class="map-search__field">
+        <img src="assets/figma/imgIcon1.svg" width="15" height="15" alt="">
+        <input id="search-input" type="search" role="combobox" placeholder="Search a state or city, like Texas or Miami" aria-label="Search a state or city" aria-autocomplete="list" aria-controls="search-suggest" aria-expanded="false">
+        <button type="button" class="map-search__clear" id="search-clear" aria-label="Clear search" hidden>×</button>
+        <ul class="map-search__suggest" id="search-suggest" role="listbox" hidden></ul>
+      </div>
+      <button class="btn btn--pink map-search__btn" type="submit">Search</button>
+      <p class="map-search__msg" id="search-msg" role="status"></p>
+    </form>
+
+    <div class="map-tools">
+      <div class="zoom-toggle" role="group" aria-label="Zoom">
+        <button type="button" id="zoom-in" aria-label="Zoom in"><img src="assets/figma/imgGroup134.svg" width="11.5" height="11.5" alt=""></button>
+        <button type="button" id="zoom-out" aria-label="Zoom out"><img src="assets/figma/imgModeBtn.svg" width="29" height="26" alt=""></button>
+      </div>
+      <button type="button" class="reset-btn" id="reset-view">Reset view</button>
+      <button type="button" class="fs-btn" id="fullscreen" aria-pressed="false" aria-label="Full screen map" title="Full screen map">
+        <svg class="fs-enter" width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="#fb0060" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4.5V1h3.5M8.5 1H12v3.5M12 8.5V12H8.5M4.5 12H1V8.5"/></svg>
+        <svg class="fs-exit" width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="#fb0060" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 1v3.5H1M12 4.5H8.5V1M8.5 12V8.5H12M1 8.5h3.5V12"/></svg>
+      </button>
+    </div>
+
+    <div class="mode-toggle" role="radiogroup" aria-label="Map mode">
+      <button type="button" role="radio" aria-checked="true" data-mode="density">Density</button>
+      <button type="button" role="radio" aria-checked="false" data-mode="pins">Pins</button>
+    </div>
+
+    <div class="map-frame">
+      <div id="map" aria-label="Map of Blip digital billboard coverage"></div>
+      <div id="overview"></div>
+      <div class="map-loading" id="map-loading"><span class="spinner"></span>Loading sign locations…</div>
+      <aside class="panel" id="panel" aria-live="polite" hidden></aside>
+    </div>
+
+    <div class="legend" id="legend">
+      <div class="legend__row">
+        <strong>Inventory density</strong>
+        <span class="legend__pair"><i class="sw sw--low"></i>Low</span>
+        <span class="legend__pair"><i class="sw sw--med"></i>Medium</span>
+        <span class="legend__pair"><i class="sw sw--high"></i>High</span>
+        <span class="legend__pair"><i class="sw sw--none"></i>No coverage yet</span>
+      </div>
+      <p class="legend__note">Coverage: <span data-bind="statesLive">46</span> states, some states do not allow billboards.</p>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="glance"><b class="grad-navy" data-bind="blipsDelivered">2B+</b><span>Blips delivered to date</span></div>
+    <div class="glance"><b class="grad-navy" data-bind="boardsShort">3.5K+</b><span>digital signs in network</span></div>
+    <div class="glance"><b class="grad-navy" data-bind="marketsCovered">170</b><span>markets covered</span></div>
+    <div class="glance"><b class="grad-navy" data-bind="statesLive">46</b><span>states live</span></div>
+  </div>
+</section>
+
+<!-- Top Markets -->
+<section class="section top-markets">
+  <h2 class="h-sec">Top Markets</h2>
+  <p class="sub">Ranked by digital sign count across Blip’s network</p>
+  <div class="market-grid" id="top-markets"></div>
+</section>
+
+<!-- Find the markets -->
+<section class="teal-band">
+  <span class="pill pill--white">Built for smarter buys</span>
+  <h2 class="h-xl">Find the markets that match your audience</h2>
+  <p class="teal-band__sub">Explore real Blip billboard coverage before you build a campaign —<br class="hide-mobile"> from national reach down to local streets, highways, and sign details.</p>
+  <div class="feature-grid">
+    <div class="feature"><span class="feature__icon"><img src="assets/figma/imgIcon2.svg" alt=""></span><div class="feature__body"><h3>Spot strong markets faster</h3><p>Start on the full-country view, then zoom into corridors your audience actually passes by.</p></div></div>
+    <div class="feature"><span class="feature__icon"><img src="assets/figma/imgIcon3.svg" alt=""></span><div class="feature__body"><h3>Move from map to launch</h3><p>When a market looks right, jump into Blip to choose signs and set your daily budget.</p></div></div>
+    <div class="feature"><span class="feature__icon"><img src="assets/figma/imgIcon4.svg" alt=""></span><div class="feature__body"><h3>Preview real sign locations</h3><p>Open any pin to check the exact spot, photos, and daily traffic before you set anything up.</p></div></div>
+  </div>
+  <div class="teal-band__ctas">
+    <a href="#map-section" class="btn btn--white show-mobile">Explore the map</a>
+    <a href="#" class="btn btn--white">Sign Up for Free</a>
+  </div>
+</section>
+
+<!-- Industries -->
+<section class="section industries">
+  <span class="pill pill--pink">Built for your business</span>
+  <h2 class="h-xl h-xl--navy">Find the billboard strategy that fits your business</h2>
+  <p class="sub">Every industry uses out-of-home differently. See what a typical campaign looks like for yours.</p>
+  <div class="industry-grid">
+    <div class="industry"><span class="industry__icon"><img src="assets/figma/imgIcon5.svg" alt=""></span><h3>Restaurants &amp; QSR</h3><p>Drive foot traffic within a few miles of each location.</p><div class="chips"><span>grand openings</span><span>seasonal pushes</span></div></div>
+    <div class="industry"><span class="industry__icon"><img src="assets/figma/imgIcon6.svg" alt=""></span><h3>Real estate</h3><p>Build name recognition across a metro or a single corridor.</p><div class="chips"><span>new listings</span><span>open houses</span></div></div>
+    <div class="industry"><span class="industry__icon"><img src="assets/figma/imgIcon7.svg" alt=""></span><h3>Political &amp; advocacy</h3><p>Reach an entire district fast, with rapid launch turnaround.</p><div class="chips"><span>campaign sprints</span></div></div>
+    <div class="industry"><span class="industry__icon"><img src="assets/figma/imgIcon8.svg" alt=""></span><h3>Retail &amp; local services</h3><p>Keep your storefront top of mind for nearby shoppers.</p><div class="chips"><span>sales events</span><span>holiday pushes</span></div></div>
+    <div class="industry"><span class="industry__icon"><img src="assets/figma/imgIcon9.svg" alt=""></span><h3>Healthcare</h3><p>Build trust with patients before they ever search your name.</p><div class="chips"><span>new locations</span></div></div>
+    <div class="industry"><span class="industry__icon"><img src="assets/figma/imgIcon10.svg" alt=""></span><h3>Auto dealers</h3><p>Own the highway leading straight to your lot.</p><div class="chips"><span>clearance events</span></div></div>
+    <div class="industry"><span class="industry__icon"><img src="assets/figma/imgIcon11.svg" alt=""></span><h3>Entertainment &amp; events</h3><p>Sell out a venue or a weekend with a burst campaign.</p><div class="chips"><span>ticket on-sale</span></div></div>
+    <div class="industry"><span class="industry__icon"><img src="assets/figma/imgIcon12.svg" alt=""></span><h3>Financial services</h3><p>Pair broad reach with the credibility a physical sign implies.</p><div class="chips"><span>new branches</span></div></div>
+  </div>
+</section>
+
+<!-- Why rent -->
+<section class="why">
+  <div class="why__media">
+    <img class="why__photo" src="assets/figma/imgRectangle85.png" alt="Highway at sunrise with a Blip digital billboard">
+    <img class="why__shot why__shot--map" src="assets/figma/imgScreenshot20260409At12557Pm1.png" alt="">
+    <img class="why__shot why__shot--perf" src="assets/figma/imgScreenshot20260409At12422Pm1.png" alt="">
+  </div>
+  <div class="why__copy">
+    <span class="pill pill--pink">Features</span>
+    <h2 class="h-xl h-xl--navy">Why Rent <span class="show-mobile-inline">Digital </span>Billboards with Blip</h2>
+    <ul class="why__list">
+      <li><img src="assets/figma/imgGroup131.svg" width="23" height="23" alt=""><p><b>Billboard finder built for speed:</b> Browse <span data-bind="boardsPlus">2,700+</span> screens across <span data-bind="statesLive">46</span>+ states from your computer or phone. Find billboards available near you in seconds.</p></li>
+      <li><img src="assets/figma/imgGroup131.svg" width="23" height="23" alt=""><p><b>Flexible billboard rental:</b> Rent by the day, week, or month. No long-term contracts required.</p></li>
+      <li><img src="assets/figma/imgGroup131.svg" width="23" height="23" alt=""><p><b>Pay-per-display pricing:</b> You’re charged only when your ad actually runs, so your budget goes toward real impressions instead of reserved time slots.</p></li>
+      <li><img src="assets/figma/imgGroup131.svg" width="23" height="23" alt=""><p><b>Real time analytics:</b> Track how many people you’re reaching and optimize or change your ad on the fly.</p></li>
+      <li><img src="assets/figma/imgGroup131.svg" width="23" height="23" alt=""><p><b>Fast approval:</b> Blip reviews designs in about 90 minutes, with final sign owner approval taking a few days. Most campaigns are live within a week.</p></li>
+    </ul>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="teal-band how">
+  <h2 class="h-xl">How Billboard Rental Works with Blip</h2>
+  <p class="teal-band__sub">Renting a digital billboard with Blip takes minutes, not weeks. You can start with a budget that fits your needs and scale up when you’re ready. No Contracts. No Minimums.</p>
+  <!-- Steps component, Figma 755:22537 (variants Default / 2 / 3 / 4) -->
+  <div class="how__card" id="how-card">
+    <div class="how__content">
+      <div class="how__left">
+        <span class="pill pill--pink-solid how__pill" id="how-step">Step One</span>
+        <div class="how__text"><h3 id="how-title">Choose your favorite location</h3><div id="how-copy"><p>Pick where you want your ads to live (and shine!). Browse billboards for rent at one location or across multiple markets.</p></div></div>
+      </div>
+      <div class="how__right">
+        <div class="how__arrows">
+          <button type="button" id="how-prev" aria-label="Previous step"><img src="assets/figma/how/chevron-left.svg" width="24" height="24" alt=""></button>
+          <button type="button" id="how-next" aria-label="Next step"><img src="assets/figma/how/chevron-right.svg" width="24" height="24" alt="" class="flip-x"></button>
+        </div>
+        <div class="how__media" id="how-media"></div>
+      </div>
+    </div>
+    <div class="how__dots" id="how-dots"></div>
+  </div>
+</section>
+
+<!-- Trust -->
+<section class="trust">
+  <span class="pill pill--pink">Proof, not promises</span>
+  <h2 class="h-xl h-xl--navy">Advertisers are already running on Blip</h2>
+  <p class="sub">Real budgets, real campaigns — before you’re asked to commit yours.</p>
+  <div class="trust__stats">
+    <div class="glance"><b class="grad-pink" data-bind="advertisers">45.5K</b><span>Advertisers who’ve run campaigns on Blip</span></div>
+    <div class="glance"><b class="grad-pink" data-bind="impressions">28.79B</b><span>In total marketplace impressions</span></div>
+    <div class="glance"><b class="grad-pink" data-bind="adsPlayed">2B+</b><span>Ads played on our network</span></div>
+  </div>
+  <h3 class="trust__label">Trusted by leading brands</h3>
+  <div class="logos">
+    <img src="assets/figma/imgImage12.png" alt="The Picklr">
+    <img src="assets/figma/imgImage13.png" alt="R&amp;R BBQ">
+    <img src="assets/figma/imgImage6.png" alt="Angel Studios">
+    <img src="assets/figma/imgImage16.png" alt="Mo’ Bettahs">
+    <img src="assets/figma/imgImage14.png" alt="Berkshire Hathaway HomeServices">
+    <img src="assets/figma/imgImage15.png" alt="Veronica’s Insurance">
+    <img src="assets/figma/imgImage17.png" alt="Virgil’s Pizzeria">
+  </div>
+</section>
+
+<!-- Browse by state -->
+<section class="section by-state">
+  <h2 class="h-sec">Browse billboards by state</h2>
+  <p class="sub">A crawlable index with clean links to every state page</p>
+  <div class="state-grid" id="state-grid"></div>
+  <button type="button" class="load-all" id="load-all">Load All &gt;</button>
+  <div class="not-allowed">
+    <strong>Where billboards aren’t allowed</strong>
+    <p>Alaska, Hawaii, Maine, and Vermont ban billboards by state law, so there’s no inventory to show — and never will be. Rhode Island and Oregon prohibit new billboard construction, which caps what can ever run there.</p>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-band">
+  <h2>Ready to Find Billboard Locations Near You?</h2>
+  <p>Browse <span data-bind="boardsPlus">3,500+</span> screens, set your budget, and launch your local billboard advertising campaign in minutes.</p>
+  <a href="#" class="btn btn--white">Get Started</a>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <h2 class="h-sec h-sec--faq">Frequently Asked Questions <br class="hide-mobile">About Digital Billboard Rentals</h2>
+  <div class="faq__list" id="faq"></div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <img src="assets/figma/imgBlipColorLogo.svg" alt="blip" class="footer__logo">
+      <div class="footer__social">
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.8" cy="7.2" r=".6" fill="currentColor"/></svg></a>
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 8h2V5h-2.5C11.6 5 10.5 6.3 10.5 8.2V10H8.5v3h2v7h3v-7h2.2l.4-3h-2.6V8.6c0-.4.2-.6.5-.6Z" fill="currentColor" stroke="none"/></svg></a>
+        <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M6.5 9.5v8M6.5 6.5v.01M10.5 17.5v-4.5c0-1.7 1-2.8 2.5-2.8s2.5 1.1 2.5 2.8v4.5M10.5 9.5v8"/></svg></a>
+        <a href="#" aria-label="X"><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></a>
+      </div>
+    </div>
+    <div class="footer__col"><h4>Company</h4><a href="#">About</a><a href="#">Careers</a><a href="#">Privacy Policy</a><a href="#">Terms</a></div>
+    <div class="footer__col"><h4>Product</h4><a href="#">Pricing</a><a href="#">Locations</a><a href="#">Create Account</a><a href="#">Billboard Design Services</a></div>
+    <div class="footer__col"><h4>Partners</h4><a href="#">For Media Owners</a><a href="#">For Non-Profits</a><a href="#">For Agencies</a></div>
+    <div class="footer__col"><h4>Resources</h4><a href="#">Blog</a><a href="#">Success Stories</a><a href="#">Help Center</a><a href="#">Billboard Design Guidelines</a><a href="#">Subscribe to our Newsletter</a></div>
+  </div>
+  <div class="footer__legal">© 2026 Blip® — Pay Per Flip®, Pay Per Blip®, Blip®, and Blip Billboards® are registered trademarks of ACME Intergalactic Inc.</div>
+</footer>
+
+<div class="map-tip" id="map-tip" hidden></div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
