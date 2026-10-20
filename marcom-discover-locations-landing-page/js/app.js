@@ -544,7 +544,9 @@
     : n >= 1e3 ? (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'K'
     : fmt(Math.round(n));
   const avgViews = o => o.viewsN ? compact(o.viewsSum / o.viewsN) : null;
-  const ctas = guide => `<div class="panel__ctas"><a class="cta cta--fill" href="#">Start Advertising</a><a class="cta cta--line" href="#">${esc(guide)} Advertising Guide</a></div>`;
+  // Sign-up and login go to the live marketplace; the guide pages don't exist in this prototype yet.
+  const REGISTER_URL = 'https://marketplace.blipbillboards.com/register';
+  const ctas = guide => `<div class="panel__ctas"><a class="cta cta--fill" href="${REGISTER_URL}">Start Advertising</a><a class="cta cta--line" href="#">${esc(guide)} Advertising Guide</a></div>`;
   const countBlock = n => `<span class="count"><b>${fmt(n)}</b><small>boards</small></span><span class="chev"><img src="${FIG}imgIcon.svg" alt=""></span>`;
 
   function stateView(name, s, d = {}) {

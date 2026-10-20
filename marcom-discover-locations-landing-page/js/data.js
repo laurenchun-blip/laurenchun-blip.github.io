@@ -37,7 +37,10 @@
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
-      const res = await fetch(url, { signal: ctrl.signal });
+      // devblip doesn't send `Vary: Origin`, so a copy the browser cached for one site (say localhost) carries that
+      // site's CORS header and gets rejected when the same browser opens the GitHub Pages copy. Always fetch fresh.
+      const crossSite = new URL(url, location.href).origin !== location.origin;
+      const res = await fetch(url, { signal: ctrl.signal, cache: crossSite ? 'no-store' : 'default' });
       if (!res.ok) throw new Error(res.status + ' ' + url);
       return await res.json();
     } finally { clearTimeout(t); }
