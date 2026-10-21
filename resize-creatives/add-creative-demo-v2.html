@@ -214,8 +214,10 @@
   .md{background:var(--surface);border-radius:var(--r-lg);box-shadow:0 14px 44px rgba(0,0,0,.26);width:100%;max-width:960px;overflow:hidden;display:flex;flex-direction:column;max-height:100%;}
   .mdhd{padding:14px 20px 12px;border-bottom:var(--hair) solid var(--border);display:flex;align-items:center;gap:12px;}
   .mdhd .t{font-size:15.5px;font-weight:600;margin:0;} .mdhd .s{font-size:12.5px;color:var(--text-2);font-weight:500;margin:2px 0 0;}
-  /* the name gives way so the size always shows */
-  .mdhd .s .src{display:inline-block;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;}
+  /* the name gives way so the size always shows, on phones too */
+  .mdhd .s:has(.src){display:flex;gap:.3em;}
+  .mdhd .s:has(.src) > span:not(.src){flex:none;}
+  .mdhd .s .src{flex:0 1 auto;min-width:0;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .mdhd .sp{flex:1;}
   .mdhd .back{background:transparent;border:0;color:var(--text-2);cursor:pointer;font-size:17px;padding:2px 6px 2px 0;}
   .mdhd .x{background:transparent;border:0;color:var(--text-2);cursor:pointer;font-size:15px;line-height:1;width:28px;height:28px;
@@ -1369,7 +1371,7 @@
   }
   /* the modal subtitle once the file is scanned: which creative this is, and its original size */
   function srcSub(){ var f = files()[0], n = srcLabel(f);
-    return 'Original <span class="src" title="'+n+'">'+n+'</span> · '+f.w+'×'+f.h; }
+    return '<span>Original</span><span class="src" title="'+n+'">'+n+'</span><span>· '+f.w+'×'+f.h+'</span>'; }
   function srcline(){
     return files().map(function(f){
       return '<div class="srcline"><span class="tn" style="height:'+Math.round(48/(f.w/f.h))+'px;background-image:'+ART[f.art]+'"></span>'+
