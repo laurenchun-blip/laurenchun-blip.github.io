@@ -318,6 +318,8 @@
   .rpv.zoomable:hover span{transform:scale(1.03);}
   .rpv span{display:block;background-size:100% 100%;background-repeat:no-repeat;border-radius:1px;box-shadow:0 1px 4px rgba(0,0,0,.22);}
   .rpv.empty span{background:var(--surface);border:var(--hair) dashed var(--border-2);box-shadow:none;}
+  .rpv,.nlpv,.nlbig{grid-template-columns:minmax(0,1fr);}
+  .rpv > span:not(.ock),.nlpv > span,.nlbig > span{flex:none;max-width:calc(100% - 24px);height:auto;}
   .rpv .ov{position:absolute;inset:0;display:grid;place-items:center;background:rgba(247,247,247,.72);
            font-size:11.5px;font-weight:600;color:var(--violet);}
   .rpv .todo{position:absolute;inset:0;display:grid;place-items:center;font-size:11.5px;font-weight:500;color:var(--text-3);}
@@ -648,7 +650,9 @@
   /* library picker */
   .lpsearch svg{color:var(--text-3);flex:none;}
   select.lpsel{display:block;font-family:inherit;font-size:13px;font-weight:500;color:var(--text);background:var(--surface);
-               border:var(--hair) solid var(--border-2);border-radius:var(--r-md);padding:7px 8px;cursor:pointer;}
+               border:var(--hair) solid var(--border-2);border-radius:var(--r-md);padding:7px 32px 7px 10px;cursor:pointer;
+               -webkit-appearance:none;appearance:none;background-repeat:no-repeat;background-position:right 10px center;background-size:12px 12px;
+               background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%23525252' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");}
   .lpk .pv{grid-template-columns:minmax(0,1fr);justify-items:center;}
   .lpk .pv i{max-width:calc(100% - 16px);height:auto !important;}
   .lpk.sel,.lpk.sel:hover{border-color:var(--accent);background:var(--accent-bg);}
@@ -1016,7 +1020,7 @@
       ]},
     pike:{id:'pike', brand:'pike', name:'Pike & Co · Open at 6', created:'Jan 8, 2026',
       images:[
-        {w:1600, h:900,  prov:'original', file:'pike-open6-1600×900.jpg'}
+        {w:1920, h:1080, prov:'original', file:'pike-open6-1920×1080.jpg'}
       ]}
   };
   var LIB_ORDER = ['ridge','vera','hall','pike'];
@@ -1158,6 +1162,17 @@
     return {w:Math.max(10,Math.round(w), 0), h:Math.max(9,Math.round(h))};
   }
   var ROWBOX={w:52,h:44};
+  /* a preview in the sign's exact shape: the width is a ceiling (CSS narrows it to the card), the height follows the ratio */
+  function shape(d,mw,mh){ var r=d[0]/d[1], w=mw; if(w/r>mh) w=mh*r; return 'width:'+Math.round(w)+'px;aspect-ratio:'+d[0]+'/'+d[1]; }
+  /* the file already has the sign's shape, so nothing is cut off */
+  function asIs(i){ return !i.saved && i.cost<0.001; }
+  /* picked from My Library, not uploaded in this visit (an upload is saved to the library too, so DESIGNS can't tell) */
+  function libPick(){ return !!(S.src && S.src.kind==='lib'); }
+  /* a fitted dimension's tag: where it came from, then what was done to it (nothing, a scale down, or a crop) */
+  function fitLab(i){
+    var from = libPick() ? 'From My Library' : 'Your upload';
+    if(!asIs(i)) return from+' · Cropped';
+    return i.f.w===i.d[0] && i.f.h===i.d[1] ? from : from+' · Scaled '+(i.f.w>i.d[0] ? 'down' : 'up'); }
 
   /* each sign dimension takes an image the design already carries when there is one; otherwise it is measured against the original */
   function plan(){
@@ -1196,9 +1211,10 @@
     f.w=Math.max(minW,Math.min(mx.w,f.w)); f.h=f.w/r;
     f.x=Math.max(0,Math.min(i.f.w-f.w,f.x)); f.y=Math.max(0,Math.min(i.f.h-f.h,f.y)); return f; }
   function cropBG(i,pw){
-    var f=FR(i), src=i.f, r=i.d[0]/i.d[1], cw=f.h*r, cx=f.x+(f.w-cw)/2, k=pw/cw;
-    return 'background-image:'+ART[src.art]+';background-size:'+(src.w*k)+'px '+(src.h*k)+'px;'+
-           'background-position:-'+(cx*k)+'px -'+(f.y*k)+'px'; }
+    var f=FR(i), src=i.f, r=i.d[0]/i.d[1], cw=f.h*r, cx=f.x+(f.w-cw)/2;
+    var px = src.w-cw>0.5 ? cx/(src.w-cw)*100 : 0, py = src.h-f.h>0.5 ? f.y/(src.h-f.h)*100 : 0;
+    return 'background-image:'+ART[src.art]+';background-size:'+(src.w/cw*100)+'% '+(src.h/f.h*100)+'%;'+
+           'background-position:'+px+'% '+py+'%'; }
   function fitBG(i,pw){ /* pure scale, no crop */
     return 'background-image:'+ART[i.f.art]+';background-size:100% 100%'; }
   /* a new AI layout, drawn for the sign's own shape */
@@ -1361,9 +1377,11 @@
      when there is some; My Library shows only for a creative picked from it (lib is null otherwise). An upload always
      shows its original's line, even at "—", so it is clear nothing crops to fit; a library pick drops it when empty */
   function receiptLines(base, orig, lib){
+    /* a library pick's original lives in My Library too, so everything fitted from it counts there */
+    if(libPick()){ lib = (lib || 0) + orig; orig = 0; }
     var rows = [];
     if(base) rows.push(['Already on campaign', base]);
-    if(lib === null || orig) rows.push(['From the original', orig]);
+    if(lib === null || orig) rows.push(['From your upload', orig]);
     if(lib !== null) rows.push(['From My Library', lib]);
     return rows.map(function(r, n){
       return '<li class="'+(r[1]?'':'off')+'"><span class="d">'+r[0]+'</span><span class="v">'+(r[1]?(n?'+':'')+r[1]:'—')+'</span></li>';
@@ -1371,7 +1389,7 @@
   }
   /* the modal subtitle once the file is scanned: which creative this is, and its original size */
   function srcSub(){ var f = files()[0], n = srcLabel(f);
-    return '<span>Original</span><span class="src" title="'+n+'">'+n+'</span><span>· '+f.w+'×'+f.h+'</span>'; }
+    return '<span>'+(libPick() ? 'From My Library' : 'Your upload')+'</span><span class="src" title="'+n+'">'+n+'</span><span>· '+f.w+'×'+f.h+'</span>'; }
   function srcline(){
     return files().map(function(f){
       return '<div class="srcline"><span class="tn" style="height:'+Math.round(48/(f.w/f.h))+'px;background-image:'+ART[f.art]+'"></span>'+
@@ -1394,7 +1412,7 @@
     return wrapMD('Add creative','',dotsEl(0),
       '<div class="loadwrap">'+
       '<span class="loadthumb" style="'+thumbStyle(f)+'"></span>'+
-      (DESIGNS[f.id]
+      (libPick()
         ? '<div class="loaddone"><p class="loadok"><i>&#10003;</i>Added from My Library</p>'+
           '<p class="loadfile">'+srcLabel(f)+'</p>'+
           '<p class="loadfile loadrep"><button class="elink" data-a="libreplace">Choose a different creative</button></p></div></div>'
@@ -1441,10 +1459,7 @@
     var regenPicked   = stretchedOpen.filter(function(i){ return rg[kOf(i.d)]; });
 
     function pv(i){
-      var maxW = 262, maxH = 76, r = i.d[0]/i.d[1];
-      var w = maxW, h = Math.round(w/r);
-      if(h > maxH){ h = maxH; w = Math.round(h*r); }
-      return '<span style="width:'+w+'px;height:'+h+'px;'+artBG(i,w)+'"></span>';
+      return '<span style="'+shape(i.d,262,76)+';'+artBG(i,262)+'"></span>';
     }
     /* one card per dimension. From My Library ones came with the design; a stretched one carries Regenerate where a crop carries Edit */
     function ckCard(i){
@@ -1461,8 +1476,9 @@
         lab = '<span class="lmono">New layout</span>';
         act = '<button class="elink" data-a="aiedit" data-k="'+k+'">Edit</button>';
       } else {
-        lab = '<span class="lmono">Cropped</span>';
-        act = '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>';
+        lab = '<span class="lmono">'+fitLab(i)+'</span>';
+        /* already the sign's shape: nothing to crop, so no Edit */
+        act = asIs(i) ? '' : '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>';
       }
       return '<div class="rcard'+cls+'">'+
         '<div class="rpv zoomable" data-a="zoom" data-k="'+k+'">'+pv(i)+'</div>'+
@@ -1478,9 +1494,9 @@
 
     /* an AI offer card: the fitted card, empty, with an outline where the layout will go; the whole card is the checkbox */
     function offerCard(i){
-      var k = kOf(i.d), on = !!sel[k], gb = fitBox(i.d, 262, 76);
+      var k = kOf(i.d), on = !!sel[k];
       return '<button class="rcard ocard'+(on?' on':'')+'" role="checkbox" aria-checked="'+on+'" data-a="pickcard" data-k="'+k+'">'+
-        '<span class="rpv"><span class="oghost" style="width:'+gb.w+'px;height:'+gb.h+'px"></span>'+
+        '<span class="rpv"><span class="oghost" style="'+shape(i.d,262,76)+'"></span>'+
           '<span class="ock" aria-hidden="true">'+(on?'&#10003;':'')+'</span></span>'+
         '<span class="rft"><span class="r1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="linline">· '+fmtName(i.d)+'</span></span>'+
           /* signs are counted in the receipt; the card only notes when another creative already covers it */
@@ -1567,7 +1583,7 @@
     var zw=840, zh=Math.round(zw/(i.d[0]/i.d[1]));
     if(zh>350){ zh=350; zw=Math.round(zh*(i.d[0]/i.d[1])); }
     var f=i.f, fromReview = S.zoomFrom==='aiedit';
-    var big = '<div class="nlbig" style="height:380px"><span style="width:'+zw+'px;height:'+zh+'px;'+artBG(i,zw)+'"></span></div>';
+    var big = '<div class="nlbig" style="height:380px"><span style="'+shape(i.d,zw,zh)+';'+artBG(i,zw)+'"></span></div>';
     /* what applies to this one item sits as text links on its source line; the footer stays the screen's own */
     var acts = '';
     if(up) acts = '<button class="elink" data-a="removeai" data-k="'+k+'">Remove</button>'+
@@ -1580,7 +1596,7 @@
     else if(isAI) acts = '<button class="elink" data-a="removeai" data-k="'+k+'">Remove</button>'+
                          '<button class="elink" data-a="regen" data-k="'+k+'">Regenerate</button>'+
                          '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>';
-    else acts = '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>';
+    else if(!asIs(i)) acts = '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>';
     var src = up
       ? '<div class="zsrc"><span class="nm">'+up.name+'</span><span class="dm">Your upload</span><span class="sp"></span>'+acts+'</div>'
       : '<div class="zsrc"><span class="tn" style="height:'+Math.round(64/(f.w/f.h))+'px;background-image:'+ART[f.art]+'"></span>'+
@@ -1616,7 +1632,7 @@
     /* their own file fills the slot the AI layout left */
     if(S.uploaded[k])
       return '<div class="nlcard'+(S.landed[k]?' landed':'')+'">'+
-        '<div class="nlpv zoomable" data-a="zoom" data-k="'+k+'"><span style="width:'+w+'px;height:'+h+'px;'+artBG(i,w)+'"></span>'+rmBtn+'</div>'+
+        '<div class="nlpv zoomable" data-a="zoom" data-k="'+k+'"><span style="'+shape(i.d,maxW,maxH)+';'+artBG(i,w)+'"></span>'+rmBtn+'</div>'+
         foot('<button class="elink" data-a="uploadown" data-k="'+k+'">Replace</button>', 'Your upload')+'</div>';
     /* a removed layout keeps its place and shape in the grid, and offers the way to fill it themselves.
        A removed regenerated layout removes the whole dimension; the stretched version is not put back */
@@ -1636,7 +1652,7 @@
     }
     return '<div class="nlcard'+(S.landed[k]?' landed':'')+'">'+
       (busy ? buildPV(i, maxW, maxH, 'nlpv', st ? 'Regenerating' : '')
-            : '<div class="nlpv zoomable" data-a="zoom" data-k="'+k+'"><span style="width:'+w+'px;height:'+h+'px;'+aiBG(i,w)+'"></span>'+rmBtn+'</div>')+
+            : '<div class="nlpv zoomable" data-a="zoom" data-k="'+k+'"><span style="'+shape(i.d,maxW,maxH)+';'+aiBG(i,w)+'"></span>'+rmBtn+'</div>')+
       foot(busy ? '' : '<button class="elink" data-a="regen" data-k="'+k+'">Regenerate</button>'+
                        '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>',
            '')+'</div>';
@@ -1645,7 +1661,7 @@
   function buildPV(i, maxW, maxH, cls, verb){
     var r = i.d[0]/i.d[1], w = maxW, h = Math.round(w/r); if(h>maxH){ h=maxH; w=Math.round(h*r); }
     return '<div class="'+cls+' skel" role="status" aria-label="'+(verb||'Resizing')+' '+i.d[0]+'×'+i.d[1]+'">'+
-      '<span class="sk" style="width:'+w+'px;height:'+h+'px"></span></div>';
+      '<span class="sk" style="'+shape(i.d,maxW,maxH)+'"></span></div>';
   }
   /* the new layouts lead (removed ones keep their card and place), crops and saved images ride along underneath, and this screen applies */
   /* the new layouts lead (removed ones keep their card and place), crops and saved images ride along underneath, and this screen applies.
@@ -1670,12 +1686,12 @@
     var fitCard = function(i){
       var k = kOf(i.d), mw = 262, mh = 76, r = i.d[0]/i.d[1], w = mw, h = Math.round(w/r);
       if(h > mh){ h = mh; w = Math.round(h*r); }
-      var lab = i.saved ? 'From My Library'+(isRegen(i) ? ' · Stretched' : '') : 'Cropped';
+      var lab = i.saved ? 'From My Library'+(isRegen(i) ? ' · Stretched' : '') : fitLab(i);
       return '<div class="rcard"><div class="rpv zoomable" data-a="zoom" data-k="'+k+'">'+
-          '<span style="width:'+w+'px;height:'+h+'px;'+(i.saved ? savedBG(i,w) : (i.band==='fit'?fitBG(i,w):cropBG(i,w)))+'"></span></div>'+
+          '<span style="'+shape(i.d,mw,mh)+';'+(i.saved ? savedBG(i,w) : (i.band==='fit'?fitBG(i,w):cropBG(i,w)))+'"></span></div>'+
         '<div class="rft"><div class="r1"><span class="rd">'+i.d[0]+'×'+i.d[1]+'</span><span class="linline">· '+fmtName(i.d)+'</span></div>'+
           '<div class="r2"><span class="lmono">'+lab+'</span><span class="sp"></span>'+
-            (i.saved ? '' : '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>')+'</div></div></div>';
+            (i.saved || asIs(i) ? '' : '<button class="elink" data-a="adjust" data-k="'+k+'">Edit</button>')+'</div></div></div>';
     };
     var fitList = crops.concat(kept).sort(bySigns);
     var body = '<div class="ckpanel merged"><div class="rhead"><p class="rt">Sign dimensions</p></div>'+
