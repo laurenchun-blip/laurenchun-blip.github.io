@@ -623,7 +623,6 @@
         <h3 class="sign-name">${esc(title)}</h3>
         <p class="sign-meta">${esc(meta)}</p>
         <div class="icon-row">
-          <button type="button" class="icon-btn" data-act="save" aria-pressed="false" aria-label="Save sign" title="Save sign"><img src="${FIG}panel/iconAdd.svg" alt=""></button>
           <a class="icon-btn" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Open location in Google Maps" title="Open in Google Maps"><img src="${FIG}panel/iconOpen.svg" alt=""></a>
         </div>
         <div class="specs">
@@ -674,12 +673,6 @@
         if (prev && prev.type === 'city') return openCity(prev.id);
         if (prev) return openState(prev.id);
         return closePanel();
-      }
-      case 'save': {
-        const on = t.getAttribute('aria-pressed') !== 'true';
-        t.setAttribute('aria-pressed', String(on));
-        t.title = on ? 'Saved' : 'Save sign';
-        return;
       }
     }
   }
@@ -813,7 +806,7 @@
       media: `<img class="how__img how__img--contain" src="${HOW}step1-location.png" alt="Blip map with billboard locations and a sign detail card">` },
     { title: 'Set Your Budget and Schedule',
       copy: '<p>Spend what makes sense for your business and scale as you need. We offer flexible options for first-timers and big spenders, and everyone in between, so you can maximize every penny.</p>',
-      media: `<div class="how__pair"><img class="how__shot how__shot--a" src="${HOW}step2-schedule.png" alt="Campaign schedule settings"><img class="how__shot how__shot--b" src="${HOW}step2-reach.png" alt="Estimated reach card"></div>` },
+      media: `<div class="how__pair"><img class="how__shot how__shot--a" src="${HOW}step2-schedule.png" alt="Campaign schedule settings"><img class="how__shot how__shot--b" src="${HOW}step2-reach.png" alt="Estimated reach card"><img class="how__shot how__shot--c" src="${HOW}step2-budget.png" alt="Daily budget setting"></div>` },
     { title: 'Upload Your Design',
       copy: '<p>Create simple, easy-to-read artwork that stands out and grabs attention. No designer needed; simple works best on a billboard, and getting started takes just a few minutes.</p><p>Need help with your design? We have your back <a href="#">with our billboard design services</a>.</p>',
       media: `<img class="how__img how__img--cover" src="${HOW}step3-design.png" alt="Uploading a billboard design">` },
