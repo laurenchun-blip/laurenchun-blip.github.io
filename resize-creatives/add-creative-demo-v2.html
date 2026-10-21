@@ -214,6 +214,8 @@
   .md{background:var(--surface);border-radius:var(--r-lg);box-shadow:0 14px 44px rgba(0,0,0,.26);width:100%;max-width:960px;overflow:hidden;display:flex;flex-direction:column;max-height:100%;}
   .mdhd{padding:14px 20px 12px;border-bottom:var(--hair) solid var(--border);display:flex;align-items:center;gap:12px;}
   .mdhd .t{font-size:15.5px;font-weight:600;margin:0;} .mdhd .s{font-size:12.5px;color:var(--text-2);font-weight:500;margin:2px 0 0;}
+  /* the name gives way so the size always shows */
+  .mdhd .s .src{display:inline-block;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;}
   .mdhd .sp{flex:1;}
   .mdhd .back{background:transparent;border:0;color:var(--text-2);cursor:pointer;font-size:17px;padding:2px 6px 2px 0;}
   .mdhd .x{background:transparent;border:0;color:var(--text-2);cursor:pointer;font-size:15px;line-height:1;width:28px;height:28px;
@@ -1353,6 +1355,21 @@
       '<div class="cacts"><button class="btn sm" data-a="stay">Keep editing</button>'+
       '<button class="btn pri sm" data-a="leave">Exit</button></div></div></div>';
   }
+  /* the receipt's source lines, shared by the checklist and the review. What the campaign already covers shows only
+     when there is some; My Library shows only for a creative picked from it (lib is null otherwise). An upload always
+     shows its original's line, even at "—", so it is clear nothing crops to fit; a library pick drops it when empty */
+  function receiptLines(base, orig, lib){
+    var rows = [];
+    if(base) rows.push(['Already on campaign', base]);
+    if(lib === null || orig) rows.push(['From the original', orig]);
+    if(lib !== null) rows.push(['From My Library', lib]);
+    return rows.map(function(r, n){
+      return '<li class="'+(r[1]?'':'off')+'"><span class="d">'+r[0]+'</span><span class="v">'+(r[1]?(n?'+':'')+r[1]:'—')+'</span></li>';
+    }).join('');
+  }
+  /* the modal subtitle once the file is scanned: which creative this is, and its original size */
+  function srcSub(){ var f = files()[0], n = srcLabel(f);
+    return 'Original <span class="src" title="'+n+'">'+n+'</span> · '+f.w+'×'+f.h; }
   function srcline(){
     return files().map(function(f){
       return '<div class="srcline"><span class="tn" style="height:'+Math.round(48/(f.w/f.h))+'px;background-image:'+ART[f.art]+'"></span>'+
@@ -1491,11 +1508,16 @@
         '<div class="rgrid">'+shown.map(ckCard).join('')+'</div></div>';
     }
 
-    /* the one place the numbers live, kept to two lines and a total: what is fitted now, what ticked AI dimensions add */
-    var fitted = unionSigns(shown), withAI = unionSigns(shown.concat(picked)), gain = withAI - fitted;
+    /* the one place the numbers live, one line per source so every number maps to a card or to the campaign:
+       what is already on it, what the original crops to, what My Library adds, what ticked AI dimensions add */
+    var libItems = shown.filter(function(i){ return i.saved; });
+    var origItems = shown.filter(function(i){ return !i.saved && p.aiTask.indexOf(i)<0; });
+    var base = unionSigns([]), fromOrig = unionSigns(origItems) - base;
+    var fitted = unionSigns(origItems.concat(libItems)), fromLib = fitted - base - fromOrig;
+    var withAI = unionSigns(shown.concat(picked)), gain = withAI - fitted;
     /* a pane of the modal, not a card: like an order summary, with the total set in the step's own "N of N signs" style */
     var side = '<aside class="ckside" aria-label="Sign coverage"><p class="sh">Sign coverage</p><ul>'+
-      '<li><span class="d">Ready to use</span><span class="v">'+fitted+'</span></li>'+
+      receiptLines(base, fromOrig, libItems.length ? fromLib : null)+
       (missing.length ? '<li class="'+(gain?'ai':'off')+'"><span class="d">Resize with AI</span><span class="v">'+(gain?'+'+gain:'—')+'</span></li>' : '')+
       '</ul><div class="stot"><span class="d">Total</span><span class="v">'+withAI+' of '+T+' signs</span></div></aside>';
     body = '<div class="ckmain">'+body+'</div>'+side;
@@ -1511,7 +1533,8 @@
     /* no count in the footer: the header says what is covered now, the offer panel says what resizing adds */
     var ft = '<span class="sp"></span>'+primary;
     if(footOnly) return ft;
-    return wrapMD('Add creative', '', dotsEl(anyOffer?1:2), body, ft, true, 'split');
+    /* the original is not a sign dimension, so it gets no card; its name and size under the title keep the source in view */
+    return wrapMD('Add creative', srcSub(), dotsEl(anyOffer?1:2), body, ft, true, 'split');
   }
 
   function mdEditor(){
@@ -1661,22 +1684,24 @@
         : 'All new layouts removed. You can continue with just your original creative, or upload your own for '+these+' now or later.')+'</p>' : '')+
       (fitList.length ? (gridItems.length ? '<div class="fitrow"><p class="sublab">Ready to use</p><div class="rgrid">'+fitList.map(fitCard).join('')+'</div></div>'
                                           : '<div class="rgrid">'+fitList.map(fitCard).join('')+'</div>') : '')+'</div>';
-    /* same arithmetic as the checklist: Fitted includes what earlier creatives already cover, and each later line
-       counts only the signs it adds on top, so nothing is counted twice */
+    /* same arithmetic as the checklist: the campaign comes first, and each later line counts only the signs it
+       adds on top, so nothing is counted twice */
     var notGone = function(i){ return !S.removed[kOf(i.d)]; };
-    var fitItems = crops.concat(p.saved.filter(notGone));
+    var libItems = p.saved.filter(notGone);
     var aiItems = ready.filter(function(i){ return !i.saved && !S.uploaded[kOf(i.d)]; });
-    var fitted = unionSigns(fitItems), aiMade = unionSigns(fitItems.concat(aiItems)) - fitted;
+    var base = unionSigns([]), fromOrig = unionSigns(crops) - base;
+    var fitted = unionSigns(crops.concat(libItems)), fromLib = fitted - base - fromOrig;
+    var aiMade = unionSigns(crops.concat(libItems, aiItems)) - fitted;
     var tot = unionSigns(coveredItems), ups = tot - fitted - aiMade;
     var line = function(lab, val, cls){ return '<li class="'+(cls||'')+'"><span class="d">'+lab+'</span><span class="v">'+val+'</span></li>'; };
     var anyAI = aiAll(p).some(function(i){ return !i.saved; });
     var side = '<aside class="ckside" aria-label="Sign coverage"><p class="sh">Sign coverage</p><ul>'+
       /* the same lines as the checklist's receipt, so the numbers read the same before and after resizing */
-      line('Ready to use', fitted)+
+      receiptLines(base, fromOrig, libItems.length ? fromLib : null)+
       (anyAI ? (S.building ? line('Resize with AI', '…', 'off') : line('Resize with AI', aiMade ? '+'+aiMade : '—', aiMade ? 'ai' : 'off')) : '')+
       (ups ? line('Your uploads', '+'+ups) : '')+
       '</ul><div class="stot"><span class="d">Total</span><span class="v">'+tot+' of '+total()+' signs</span></div></aside>';
-    return wrapMD('Add creative', '', dotsEl(2), '<div class="ckmain">'+body+'</div>'+side, ft, true, 'split');
+    return wrapMD('Add creative', srcSub(), dotsEl(2), '<div class="ckmain">'+body+'</div>'+side, ft, true, 'split');
   }
 
   function paintCanvas(){
