@@ -195,7 +195,8 @@ body.map-fullscreen { overflow: hidden; }
 .panel__close { width: 20px; height: 20px; border: 0; background: none; padding: 0; display: grid; place-items: center; margin-right: -4px; }
 .panel__close img { width: 9px; height: 9px; }
 .panel__back { display: inline-flex; align-items: center; gap: 5px; padding: 2px 6px; border: .5px solid var(--teal); border-radius: 30px; background: none; font: 700 8px var(--font-body); color: var(--seafoam); }
-.panel__back img { width: 4px; height: 6px; transform: none; }
+/* Drawn as a left chevron at its own ratio — Figma's 5×3 down-chevron stretched and rotated into 4×6 looked bent. */
+.panel__back svg { flex: none; width: 4px; height: 7px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
 .panel__back:hover { background: var(--chip-bg); }
 
 .metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 15px; }
@@ -311,6 +312,8 @@ body.map-fullscreen { overflow: hidden; }
 .why__media { position: relative; flex: 0 1 632px; min-width: 0; height: 535px; }
 .why__photo { position: absolute; left: 0; top: 45px; display: block; width: 100%; height: 391px; object-fit: cover; border-radius: 12px 0 0 12px; }
 .why__shot { position: absolute; border-radius: 4px; }
+/* Up to 1440 the photo bleeds off the right edge; past that the media stops at 632px and floats free, so round all corners. */
+@media (min-width: 1441px) { .why__photo { border-radius: 12px; } }
 .why__shot--map { top: 0; left: 54px; width: 216px; height: 82px; object-fit: cover; box-shadow: 0 0 9px rgba(0,0,0,.19); }
 .why__shot--perf { top: 339px; left: 187px; width: 354px; height: 196px; object-fit: cover; object-position: 30% 30%; box-shadow: 0 0 9px rgba(0,0,0,.15); }
 
@@ -319,20 +322,21 @@ body.map-fullscreen { overflow: hidden; }
 .how .h-xl { margin-top: 0; line-height: 42px; }
 .how .teal-band__sub { margin-top: 14px; max-width: 780px; }
 .how__card { margin-top: 35px; width: 100%; max-width: 839px; background: #fff; border-radius: 10px; padding: 20px 30px; filter: drop-shadow(0 0 2px rgba(0,0,0,.25)); display: flex; flex-direction: column; align-items: center; gap: 22px; text-align: left; }
-.how__content { display: flex; align-items: flex-end; gap: 79px; width: 100%; }
-.how__left { width: 391px; flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: 19px; }
+.how__content { display: flex; align-items: flex-end; gap: clamp(28px, 6vw, 79px); width: 100%; }
+/* Both columns shrink below the 839px card (tablet widths) instead of pushing the arrows and image off the card. */
+.how__left { flex: 0 1 391px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 19px; }
 .how__pill { width: 90px; padding: 0; }
 .how__text { display: flex; flex-direction: column; gap: 10px; min-height: 189px; }
 .how__text h3 { font: 700 25px/33px var(--font-head); color: var(--seafoam); }
 .how__text p { font: 400 14px/21px var(--font-body); color: #000; }
 .how__text a { text-decoration: underline; text-underline-position: from-font; }
-.how__right { width: 309px; flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 18px; }
+.how__right { flex: 0 1 309px; min-width: 240px; display: flex; flex-direction: column; align-items: flex-end; gap: 18px; }
 .how__arrows { display: flex; gap: 8px; }
 .how__arrows button { border: 0; padding: 8px; border-radius: 99px; background: var(--mint); display: grid; place-items: center; }
 .how__arrows button:hover { background: #dcf1f1; }
 .how__arrows img { display: block; width: 24px; height: 24px; }
 .flip-x { transform: scaleX(-1); }
-.how__media { position: relative; width: 309px; height: 184px; }
+.how__media { position: relative; width: 100%; aspect-ratio: 309 / 184; }
 .how__img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 7px; }
 .how__img--contain { object-fit: contain; }
 .how__img--cover { object-fit: cover; }
@@ -409,6 +413,18 @@ body.map-fullscreen { overflow: hidden; }
 @media (max-width: 1100px) {
   .why { gap: 48px; }
   .why__copy { width: min(541px, 48%); }
+  /* One-line headings only fit at the Figma width; let them wrap so three cards don't push the page sideways. */
+  .feature { padding: 28px 24px; }
+  .feature h3 { white-space: normal; }
+}
+
+/* Narrow tablet (761–960): the desktop nav still shows, so tighten it before the burger takes over. */
+@media (max-width: 960px) {
+  .nav { padding: 14px 24px; }
+  .nav__left { gap: 24px; }
+  .nav__links { gap: 18px; }
+  .nav__links a, .nav__login { font-size: 16px; white-space: nowrap; }
+  .nav__cta { padding: 10px 20px; font-size: 16px; white-space: nowrap; }
 }
 
 /* ---------- mobile — viewport=mobile (678:5311) ---------- */

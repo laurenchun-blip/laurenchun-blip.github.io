@@ -613,7 +613,7 @@
     return `${handle}<div class="panel__scroll" style="gap:16px">
       <div class="panel__pad">
         <div class="panel__title-row">
-          <button type="button" class="panel__back" data-act="back"><img src="${FIG}panel/back.svg" alt="" style="transform:rotate(90deg)">Back to ${esc(city ? city.name : sg.state)}</button>
+          <button type="button" class="panel__back" data-act="back"><svg viewBox="0 0 6 10" aria-hidden="true"><path d="M5 1 1 5l4 4"/></svg>Back to ${esc(city ? city.name : sg.state)}</button>
           ${close}
         </div>
         ${sg.photo ? `<div class="board-preview board-preview--photo"><img src="${esc(sg.photo)}" alt="Photo of sign ${esc(sg.name)}" loading="lazy" onerror="this.parentNode.outerHTML=window.__boardPreview()"></div>` : boardPreview()}
