@@ -68,7 +68,7 @@ h1,h2,h3{text-wrap:balance}
 .pnav[aria-current="page"]{border-color:var(--accent);background:var(--surface-2)}
 .pnav::after{content:attr(data-tip);position:absolute;left:calc(100% + 10px);top:50%;transform:translate(-4px,-50%);background:#232a33;color:#fafafa;font-size:12px;font-weight:500;padding:5px 9px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s,transform .12s;z-index:20}
 .pnav:hover::after,.pnav:focus-visible::after{opacity:1;transform:translate(0,-50%)}
-.d-main{padding:28px clamp(24px,3.5vw,48px) 64px;min-width:0;width:100%;max-width:1320px}
+.d-main{padding:28px clamp(24px,3.5vw,48px) 64px;min-width:0;width:100%}
 .m-main{padding:20px 16px 40px;display:flex;flex-direction:column;gap:20px;width:100%;max-width:760px;margin-inline:auto}
 
 /* ---------- Type + buttons ---------- */
@@ -151,9 +151,10 @@ h1,h2,h3{text-wrap:balance}
 .chip[aria-pressed="true"],.chip.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent-2);font-weight:600}
 .chip.on select{color:var(--accent-2);font-weight:600}
 .chip select{border:0;background:transparent;font-size:13px;font-weight:500;padding:0;cursor:pointer}
-/* Creative grid: 4 across on desktop (matches the Figma Creative grid component), 3 on small laptops/tablets, 1 on phones */
+/* Creative grid (matches the Figma Creative grid): 1 on phones, 3 below 1024px, 4 on desktop, 6 from 1680px; past that cards grow, never more than 6 */
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 @media (max-width:1023px){.app.wide .grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1680px){.app.wide .grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
 .app.compact .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
 .list{display:flex;flex-direction:column;gap:12px}
 .dcard{padding:8px 8px 10px;display:flex;flex-direction:column;gap:8px;text-align:left;width:100%;cursor:pointer}
@@ -540,9 +541,9 @@ button.lrow:hover{background:var(--surface-2)}
 .eh-acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
 .eh-acts .btn .icon{width:18px;height:18px}
 /* Grey secondary: equal-weight choices that sit together */
-.btn.gray{background:var(--surface);border:1px solid var(--border-2);color:var(--text)}
+.btn.gray{height:36px;padding:0 16px;border-radius:8px;background:#fff;border:1px solid #bfbfbf;color:#131313;font-size:14px;font-weight:600}
 .btn.gray:hover{background:var(--surface-2)}
-.btn.gray .icon{width:18px;height:18px;color:var(--text-2)}
+.btn.gray .icon{width:18px;height:18px;color:#131313}
 .eh-pair{display:flex;flex-direction:column;gap:10px;width:100%}
 .eh-acts .link.u{font-size:15px;text-decoration:underline;text-underline-offset:3px}
 .app.compact .eh-acts{align-items:center}
@@ -1364,8 +1365,8 @@ function libBar(){
   const n = state.designs.length, shown = filtered().length;
   const note = n && isFiltered() ? `<span class="shown">${shown} of ${n}</span>` : '';
   const clear = note ? `<span class="libnote">${note}<button class="link" data-act="clearFilters">Clear filters</button></span>` : '';
-  return `<div class="libtools"><div class="librow">${search}<span class="sp"></span>${isM()?'':clear}${toggle}</div>
-    <div class="libbar">${isM()?'':chips}<div class="libright">${camps}${dims}${sort}</div></div>${isM()?clear:''}</div>`;
+  return `<div class="libtools"><div class="librow">${isM() ? `${search}<span class="sp"></span>${toggle}` : `<span class="sp"></span>${clear}${search}`}</div>
+    <div class="libbar">${isM()?'':chips}<div class="libright">${camps}${dims}${sort}${isM()?'':toggle}</div></div>${isM()?clear:''}</div>`;
 }
 /* Header actions: Upload and Generate, kept visible to expose the Billboard Maker */
 function addMenuHTML(){
@@ -1377,7 +1378,7 @@ function addMenuHTML(){
 }
 function headerActs(mobile){
   /* Upload only: add from URL / Shopify / Canva is out of scope for this version */
-  const split = `<button class="btn secondary sm" data-act="upload"${mobile?' style="flex:1"':''}>${ic('upload')}Upload</button>`;
+  const split = `<button class="btn gray sm" data-act="upload"${mobile?' style="flex:1"':''}>${ic('upload')}Upload</button>`;
   const gen = `<button class="btn primary sm" data-act="make"${mobile?' style="flex:1"':''}>Generate</button>`;
   if(mobile){
     /* Phones: one compact "+ Add" beside the title, like Drive / Canva / Dropbox; full buttons live in empty states */
