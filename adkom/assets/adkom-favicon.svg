@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="adkom-a" gradientUnits="userSpaceOnUse" x1="5" y1="41" x2="42" y2="7">
+      <stop offset="0" stop-color="#1EC1DB"/>
+      <stop offset="1" stop-color="#54BA4B"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" fill="#1F1F30"/>
+  <path fill="url(#adkom-a)" fill-rule="evenodd" d="M5.21 40.96 L14.52 40.90 L15.47 40.33 L18.47 34.52 L19.21 33.91 L30.66 33.81 L31.33 34.40 L32.03 40.22 L32.73 40.90 L41.36 40.90 L42.00 40.28 L38.48 7.45 L37.70 7.00 L22.98 7.03 L22.10 7.61 L5.00 40.25 Z M29.49 15.65 L30.10 16.64 L30.80 25.08 L30.61 26.12 L29.88 26.50 L23.35 26.36 L23.07 25.98 L23.21 25.13 L27.59 16.50 L28.51 15.65 Z"/>
+</svg>

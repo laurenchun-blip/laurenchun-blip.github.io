@@ -1,0 +1,136 @@
+/* Role tokens mirrored from Figma "[ADKOM] Agent-Native App POC" (Color / Roles, Layout / Radius).
+   Neutral tint mode: Warm paper. Use role names only; no hex values outside this file. */
+:root {
+  /* Surfaces */
+  --bg-page: #fbfaf7;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f4f3f1;
+  --bg-muted: #e7e6e4;
+  --bg-selected: #e8fbff;
+  --bg-inverse: #100f0d;
+
+  /* Text */
+  --text-primary: #1c1a18;
+  --text-secondary: #5c5b59;
+  --text-placeholder: #7b7a78;
+  --text-link: #047080;
+  --text-on-action: #ffffff;
+  --text-on-inverse: #ffffff;
+  --text-disabled: #a3a2a0;
+
+  /* Borders */
+  --border-default: #e7e6e4;
+  --border-strong: #d5d4d2;
+
+  /* Actions */
+  --action-primary: #047080;
+  --action-primary-hover: #035b68;
+  --action-disabled: #e7e6e4;
+
+  /* Navigation */
+  --nav-bg: #ffffff;
+  --nav-border: #e7e6e4;
+  --nav-selected-bg: #e8fbff;
+  --nav-selected-icon: #047080;
+
+  /* Agent */
+  --agent-bg: #f2f7ff;
+  --agent-border: #c7dcfe;
+
+  /* Status */
+  --success-bg: #ebfde9;
+  --success-border: #b6ecb0;
+  --success-text: #207719;
+  --warning-bg: #fff5e8;
+  --warning-border: #fdd399;
+  --warning-text: #865900;
+  --warning-solid: #ca8909;
+  --info-bg: #f2f7ff;
+  --info-border: #c7dcfe;
+  --info-text: #2d60b4;
+  --info-solid: #3e78da;
+  --error-bg: #fff1f0;
+  --error-border: #fbc6c2;
+  --error-text: #b4261b;
+
+  /* Map roles */
+  --map-land: #fbfaf7;
+  --map-water: #ddedef;
+  --map-park: #e5efe7;
+  --map-road: #ffffff;
+  --map-road-minor: #f4f3f1;
+  --map-highway: #e7e6e4;
+  --map-label: #5c5b59;
+  --map-building: #f1efeb;
+  /* Streets look (prototype addition, not in Figma yet) */
+  --map-road-street: #e2e0dc;
+  --map-road-casing: #d5d4d2;
+
+  /* Metrics (prototype addition: deep ink navy, a hint of blue without reading as a link) */
+  --text-metric: #1b2a4e;
+
+  /* Pins and markers */
+  --pin-available: #319329;
+  --pin-hold: #a66f02;      /* Amber 600: 3:1+ against map land */
+  --pin-proposal: #047080;
+  --pin-new: #00404a;
+  --pin-ring: #ffffff;
+  --pin-outside: #a5a4a2;   /* Stone 400: listings outside the radius */
+  --marker-poi: #3e78da;
+  --marker-client: #100f0d;
+  --marker-gap: #a66f02;
+  --ring-radius: #047080;
+
+  /* Filter chip "on" state. Chosen 2026-11-04: D "check only" (neutral chip, Stone 700 label, green check), set via data-chip="neutral". These :root values are the fallback. */
+  --success-solid: #319329;
+  --chip-on-border: var(--success-solid);
+  --chip-on-text: var(--success-text);
+  --chip-on-bg: var(--success-bg);
+  --chip-on-check: var(--success-text);
+  --chip-on-badge: var(--success-solid);
+
+  /* Brand */
+  --logo-default: #00404a;
+  --brand-from: #31c1dc;
+  --brand-to: #69d957;
+
+  /* Radius (Layout / Radius) */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-full: 999px;
+
+  /* Size (Layout / Size) */
+  --size-prompt-max: 720px;
+  --size-rail: 64px;
+  --size-sidebar: 232px;
+  --size-chat: 400px;
+
+  /* Effects */
+  --shadow-chip: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-field-inner: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-pop: 0 8px 24px rgba(16, 15, 13, 0.12), 0 1px 3px rgba(16, 15, 13, 0.08);
+  --scrim: rgba(16, 15, 13, 0.32);
+}
+
+/* Chip color variants for comparison. Scoped to any element so a comparison sheet can show them side by side. */
+/* Ramps from the ADKOM color system: Green 300 #90DF87 · 500 #4CB243 · 600 #319329 · 700 #207719; Stone 700 #43423F. */
+:root {
+  --green-300: #90df87;
+  --green-500: #4cb243;
+  --green-600: #319329;
+  --green-700: #207719;
+  --green-wash: #f5f9f3;   /* desaturated: warm paper with a trace of green */
+  --stone-700: #43423f;
+}
+[data-chip="teal"] { --chip-on-border: var(--action-primary); --chip-on-text: var(--text-link); --chip-on-bg: var(--bg-surface); --chip-on-check: var(--text-link); --chip-on-badge: var(--action-primary); }
+[data-chip="check"] { --chip-on-border: var(--action-primary); --chip-on-text: var(--text-link); --chip-on-bg: var(--bg-surface); --chip-on-check: var(--success-text); --chip-on-badge: var(--action-primary); }
+[data-chip="green"] { --chip-on-border: var(--success-solid); --chip-on-text: var(--success-text); --chip-on-bg: var(--success-bg); --chip-on-check: var(--success-text); --chip-on-badge: var(--success-solid); }
+/* A · Lauren's direction: white chip, gray label, green stroke and check */
+[data-chip="soft"] { --chip-on-border: var(--green-600); --chip-on-text: var(--stone-700); --chip-on-bg: var(--bg-surface); --chip-on-check: var(--green-700); --chip-on-badge: var(--green-600); }
+/* B · same, with a near-neutral wash so "on" still reads at a glance */
+[data-chip="wash"] { --chip-on-border: var(--green-500); --chip-on-text: var(--stone-700); --chip-on-bg: var(--green-wash); --chip-on-check: var(--green-700); --chip-on-badge: var(--green-600); }
+/* C · lighter stroke, the check carries the green */
+[data-chip="light"] { --chip-on-border: var(--green-300); --chip-on-text: var(--stone-700); --chip-on-bg: var(--bg-surface); --chip-on-check: var(--green-700); --chip-on-badge: var(--green-600); }
+/* D · neutral chip, only the check is green (quietest) */
+[data-chip="neutral"] { --chip-on-border: var(--border-strong); --chip-on-text: var(--stone-700); --chip-on-bg: var(--bg-surface); --chip-on-check: var(--green-700); --chip-on-badge: var(--stone-700); }
