@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blip locations</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+  :root{
+    --page:#eef1f5; --surface:#ffffff; --surface-2:#f6f8fb;
+    --text:#141a21; --text-2:#5a6572; --text-3:#95a0ad;
+    --border:#e6eaf0; --border-2:#d7dde6;
+    --accent:#2f6bd8; --accent-2:#1f4fa0; --accent-bg:#eaf1fc; --accent-border:#bcd4f6;
+    --pin:#FB0060; --ring:#176BF5; --good:#1a7f45;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;font-family:var(--font);background:var(--surface);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.45;padding:0;}
+  button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit;}
+  .wrap{max-width:1100px;margin:0 auto;display:flex;gap:48px;align-items:flex-start;flex-wrap:wrap;}
+  .side{flex:1;min-width:300px;max-width:520px;}
+  .side h1{font-size:24px;letter-spacing:-.02em;margin:0 0 6px;}
+  .side .lede{color:var(--text-2);font-size:14.5px;margin:0 0 20px;}
+  .side h2{font-size:14px;margin:22px 0 8px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-2);}
+  .side ol,.side ul{margin:0;padding-left:20px;font-size:14px;}
+  .side li{margin:0 0 6px;}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;}
+  .preset{font-size:13px;font-weight:600;border:1px solid var(--border-2);background:#fff;border-radius:18px;padding:7px 13px;}
+  .preset:hover{border-color:var(--accent);color:var(--accent);}
+  .preset.on,.preset.on:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .fine{font-size:12.5px;color:var(--text-3);margin-top:18px;}
+
+  /* phone */
+  .phone{width:100%;height:100vh;height:100dvh;background:var(--surface);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+  .head{padding-top:12px;}
+  .foot{padding-bottom:max(16px,env(safe-area-inset-bottom));}
+  .notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:104px;height:26px;background:#10141b;border-radius:18px;z-index:60;}
+  .sb{height:46px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 5px;font-size:13px;font-weight:600;}
+  .head{flex:none;display:flex;align-items:center;justify-content:space-between;padding:6px 18px 10px;border-bottom:1px solid var(--border);background:var(--surface);position:relative;z-index:5;min-height:44px;}
+  .head .x{font-size:20px;line-height:1;min-width:24px;}
+  .head .x.bk{font-size:24px;}
+  .head .help{color:var(--accent);font-size:15px;font-weight:600;}
+  .head .ttl{font-size:16px;font-weight:700;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;}
+  .stage{flex:1;position:relative;overflow:hidden;}
+  .foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px 22px;border-top:1px solid var(--border);background:var(--surface);}
+  .prog{height:4px;background:var(--border);flex:none;}
+  .prog i{display:block;height:100%;width:34%;background:var(--accent);transition:width .3s;}
+  .back{font-size:16px;font-weight:700;color:var(--text);}
+  .btn{height:46px;padding:0 22px;border-radius:10px;background:var(--accent);color:#fff;font-size:16px;font-weight:700;display:grid;place-items:center;text-align:center;}
+  .btn.full{width:100%;}
+  .btn.off{background:#c7d3e8;cursor:default;}
+
+  .gbg{position:absolute;inset:0;background:var(--surface-2);overflow-y:auto;padding:16px 16px 24px;}
+  .ttl2{font-size:15px;font-weight:700;margin:0 0 12px;}
+  .sub2{font-size:12.5px;color:var(--text-2);margin:-6px 0 12px;}
+  .fld{height:42px;background:#fff;border:1px solid var(--border-2);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 10px;font-size:14px;color:var(--text);width:100%;}
+  .fld.focus{border:2px solid var(--accent);padding:0 9px;}
+  .fld .ph{color:var(--text-3);}
+  .fld .lic{color:var(--text-3);display:grid;place-items:center;}
+  .fld input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;color:var(--text);}
+  .fld .clr{color:var(--text-3);font-size:15px;}
+  .quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 20px;}
+  .qbtn{height:44px;border:1px solid var(--border-2);background:#fff;border-radius:11px;display:flex;align-items:center;justify-content:center;gap:7px;font-size:13.5px;font-weight:600;}
+  .qbtn .qi{display:grid;place-items:center;}
+  .empty{margin-top:34px;text-align:center;color:var(--text-2);}
+  .empty .eic{width:44px;height:44px;border-radius:12px;background:var(--accent-bg);color:var(--accent);display:grid;place-items:center;margin:0 auto 10px;}
+  .empty .et{font-size:14px;font-weight:700;color:var(--text);}
+  .empty .es{font-size:12.5px;}
+  .lim{font-size:12px;color:var(--text-3);margin:-8px 2px 0;}
+  .gbg.center{display:flex;flex-direction:column;justify-content:center;padding-bottom:56px;}
+  .hero{width:48px;height:48px;border-radius:12px;background:var(--accent-bg);color:var(--accent);display:grid;place-items:center;margin:0 auto 14px;flex:none;}
+  .gbg.center .ttl2{font-size:16px;margin-bottom:10px;}
+
+  .tot{display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-2);font-weight:600;margin:0 0 10px;}
+  .tot b{color:var(--text);}
+  .alist2{border-top:1px solid var(--border-2);border-bottom:1px solid var(--border-2);}
+  .arow2{display:flex;align-items:center;gap:10px;padding:13px 2px;}
+  .arow2+.arow2{border-top:1px solid var(--border);}
+  .arow2 .api{color:var(--accent);flex:none;display:grid;place-items:center;}
+  .arow2 .anm{flex:1;min-width:0;}
+  .arow2 .anm b{display:block;font-size:14.5px;}
+  .arow2 .anm span{display:block;font-size:12.5px;color:var(--text-2);}
+  .arow2 .anm span b{display:inline;font-size:12.5px;color:var(--text);}
+  .arow2.flash{animation:flash 1.2s ease-out;}
+  @keyframes flash{from{background:var(--accent-bg);}to{background:transparent;}}
+  .editbtn{flex:none;font-size:14px;font-weight:700;color:var(--accent);padding:6px 2px;}
+  .addrow{display:flex;align-items:center;margin-top:14px;padding:4px 2px;color:var(--accent);font-size:14.5px;font-weight:700;}
+
+  .tagfld{background:#fff;border:2px solid var(--accent);border-radius:10px;min-height:48px;padding:6px 9px;display:flex;flex-wrap:wrap;align-items:center;align-content:flex-start;gap:6px;cursor:text;}
+  .tagfld .lic{color:var(--text-3);display:grid;place-items:center;height:32px;}
+  .tagfld input{flex:1 1 120px;min-width:0;height:32px;border:0;outline:0;background:transparent;font:inherit;font-size:14px;color:var(--text);}
+  .tagfld.has{min-height:96px;}
+  .tagfld.has input{flex-basis:100%;height:40px;padding-left:2px;}
+  .tchip{display:inline-flex;align-items:center;height:32px;background:var(--accent-bg);color:var(--accent-2);font-size:13px;font-weight:600;border-radius:16px;padding:0 2px 0 12px;white-space:nowrap;cursor:default;}
+  .tchip .tx{width:28px;height:28px;display:grid;place-items:center;font-size:11px;color:var(--accent-2);border-radius:50%;}
+  .tchip .tx:hover{background:rgba(31,79,160,.1);}
+  .chips2{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px;}
+  .chip2{display:inline-flex;align-items:center;gap:6px;background:var(--accent-bg);color:var(--accent-2);font-size:12.5px;font-weight:600;border-radius:16px;padding:5px 10px;}
+  .chip2 i{font-style:normal;font-size:11px;opacity:.8;}
+  .reslist{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:10px;}
+  .reslist:empty{display:none;}
+  .res{display:flex;align-items:center;gap:10px;padding:11px 12px;border-top:1px solid var(--border);font-size:13.5px;width:100%;}
+  .res:first-child{border-top:0;}
+  .res .rn{flex:1;}
+  .res .rn small{display:block;font-size:11.5px;color:var(--text-3);}
+  .res .rc{font-size:12px;color:var(--text-3);font-variant-numeric:tabular-nums;}
+  .res.nosign{cursor:default;}
+  .res.nosign .rn,.res.nosign .rn small{color:var(--text-3);}
+  .res .add{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent);display:grid;place-items:center;font-size:15px;line-height:1;flex:none;margin-left:8px;}
+  .res .add.off{border:0;}
+  .res .add.on{background:var(--accent);color:#fff;font-size:12px;}
+  .res .added{font-size:12px;color:var(--text-3);flex:none;}
+  .shint{font-size:12.5px;color:var(--text-3);margin:12px 2px 0;}
+  .curnote{font-size:12px;color:var(--text-3);margin-top:12px;}
+  .pinrow{display:flex;align-items:center;gap:10px;width:100%;background:#fff;border:1px solid var(--border-2);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:13.5px;font-weight:600;color:var(--text);}
+  .pinrow .pi{color:var(--pin);display:grid;place-items:center;flex:none;}
+  .pinrow .pl{flex:1;min-width:0;}
+  .pinrow .pl small{display:block;font-size:11.5px;font-weight:400;color:var(--text-3);}
+  .pinrow .chev{color:var(--text-3);font-size:18px;line-height:1;flex:none;}
+  .pinrow.off{cursor:default;color:var(--text-3);}
+
+  .rhead{font-size:15px;font-weight:700;margin:0 0 8px;}
+  .locrow{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border-2);border-radius:10px;padding:12px;}
+  .locrow .api{color:var(--accent);flex:none;display:grid;place-items:center;}
+  .locrow .ln{flex:1;min-width:0;}
+  .locrow .ln b{display:block;font-size:15px;}
+  .locrow .ln span{display:block;font-size:12px;color:var(--text-2);}
+  .locrow .chg{flex:none;font-size:14px;font-weight:700;color:var(--accent);padding:6px 2px;}
+  .radcard{width:100%;background:#fff;border:1px solid var(--border-2);border-radius:10px;padding:0 12px;min-height:48px;display:flex;align-items:center;gap:10px;}
+  .radcard.focus{border:2px solid var(--accent);padding:0 11px;}
+  .radcard .rl{flex:1;min-width:0;display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12px;}
+  .radcard .rl b{font-weight:700;}
+  .radcard .rl .rsub{color:var(--text-2);}
+  .radcard .rl .rtag2{margin-left:auto;}
+  .radcard .rdd{color:var(--text);display:grid;place-items:center;flex:none;}
+  .usesug{font-size:13px;font-weight:700;color:var(--accent);margin:10px 2px 0;display:block;}
+  .budnote{font-size:12px;color:var(--text-2);background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px;margin-top:16px;line-height:1.4;}
+  .danger{display:flex;align-items:center;gap:7px;color:#c0392b;font-size:13.5px;font-weight:600;margin-top:26px;}
+  .rtag2{display:inline-flex;align-items:center;height:16px;font-size:9.5px;font-weight:700;line-height:1;color:var(--good);background:#e8f6ee;border-radius:4px;padding:0 5px;margin-left:6px;flex:none;}
+
+  .dim{position:absolute;inset:0;background:rgba(20,26,33,.35);z-index:7;animation:fade .15s;}
+  .osheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:14px 14px 0 0;z-index:8;padding:14px 0 18px;animation:up .2s ease-out;}
+  @keyframes up{from{transform:translateY(100%);}to{transform:none;}}
+  @keyframes fade{from{opacity:0;}to{opacity:1;}}
+  .osheet .oh{font-size:13px;font-weight:700;padding:0 16px 8px;}
+  .opt{display:flex;align-items:center;gap:8px;padding:11px 16px;font-size:14px;width:100%;}
+  .opt:hover{background:var(--surface-2);}
+  .opt .on{flex:1;display:flex;align-items:center;}
+  .opt .oc{font-size:12.5px;color:var(--text-2);font-variant-numeric:tabular-nums;min-width:64px;text-align:left;}
+  .opt .oc .n{display:inline-block;min-width:2ch;text-align:right;}
+  .opt .ck{width:16px;color:var(--accent);flex:none;}
+  .opt.sel{color:var(--accent);font-weight:600;}
+  .opt.zero{cursor:default;}
+  .opt.zero:hover{background:none;}
+  .opt.zero .on,.opt.zero .oc{color:var(--text-3);}
+
+  /* drop a pin */
+  #map{position:absolute;inset:0;background:#e8edf2;}
+  .bigpin{position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);color:var(--pin);z-index:3;pointer-events:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));}
+  .mapsearch{position:absolute;top:12px;left:12px;right:12px;z-index:5;}
+  .mapsearch .fld{box-shadow:0 2px 8px rgba(20,30,50,.08);border-radius:10px;}
+  .mapsearch .reslist{margin-top:6px;box-shadow:0 6px 18px rgba(20,30,50,.14);}
+  .zoom.low,.zoom.low~.maphint{top:66px;}
+  .bigpin.hide{display:none;}
+  .zoom{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;background:#fff;border:1px solid var(--border-2);border-radius:9px;overflow:hidden;z-index:4;}
+  .zoom button{width:34px;height:32px;display:grid;place-items:center;font-size:18px;color:var(--text);text-align:center;}
+  .zoom button+button{border-top:1px solid var(--border);}
+  .maphint{position:absolute;left:50%;transform:translateX(-50%);top:12px;background:rgba(20,26,33,.78);color:#fff;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:14px;white-space:nowrap;z-index:4;pointer-events:none;transition:opacity .3s;}
+  .maphint.gone{opacity:0;}
+  .pincard{position:absolute;left:12px;right:12px;bottom:14px;background:#fff;border-radius:14px;box-shadow:0 6px 20px rgba(20,30,50,.18);padding:14px;z-index:5;}
+  .pincard .pt{font-size:15px;font-weight:700;}
+  .pincard .ps{font-size:13px;color:var(--text-2);margin:2px 0 12px;}
+  .maplibregl-ctrl-attrib{font-size:9px;}
+
+  .toast{position:absolute;left:14px;right:14px;bottom:16px;background:#1d2530;color:#fff;font-size:13px;font-weight:600;padding:11px 14px;border-radius:10px;display:flex;align-items:center;gap:10px;z-index:20;animation:up .2s ease-out;}
+  .toast span{flex:1;}
+  .toast button{color:#8fb6ff;font-weight:700;}
+  .sumrow{display:flex;justify-content:space-between;font-size:13.5px;padding:10px 2px;border-top:1px solid var(--border);}
+  .sumrow span{color:var(--text-2);}
+</style>
+</head>
+<body>
+<div class="phone" id="phone"><div id="app" style="flex:1;display:flex;flex-direction:column;min-height:0;position:relative"></div></div>
+
+<script>
+const R=[5,10,15,25,35,50], MAX=5;
+const I={
+  pin:'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>',
+  bigpin:'<svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>',
+  search:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+  nav:'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21 3L3 10.5l7.5 2.5L13 21z"/></svg>',
+  dd:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>',
+  trash:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3"/></svg>',
+  emptyPin:'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>'
+};
+
+// counts per radius: 5,10,15,25,35,50 · c:null = no signs within 50 mi
+const P=[
+  {id:'oak',name:'Oakland, CA',region:'Bay Area region',lat:37.8044,lng:-122.2712,sug:15,c:[6,13,22,35,48,61]},
+  {id:'oakpark',name:'Oak Park, IL',region:'Chicago region',lat:41.885,lng:-87.7845,sug:10,c:[4,9,15,24,33,41]},
+  {id:'oakhurst',name:'Oakhurst, CA',region:'Madera County',lat:37.328,lng:-119.649,sug:null,c:null},
+  {id:'oaklawn',name:'Oak Lawn, IL',region:'Chicago region',lat:41.7108,lng:-87.758,sug:15,c:[1,3,6,14,22,30]},
+  {id:'sf',name:'San Francisco, CA',region:'Bay Area region',lat:37.7749,lng:-122.4194,sug:10,c:[9,20,31,44,55,70]},
+  {id:'sanleandro',name:'San Leandro, CA',region:'Bay Area region',lat:37.7249,lng:-122.1561,sug:15,c:[3,8,14,30,46,60]},
+  {id:'sj',name:'San Jose, CA',region:'Bay Area region',lat:37.3382,lng:-121.8863,sug:15,c:[2,6,10,18,27,52]},
+  {id:'sanardo',name:'San Ardo, CA',region:'Monterey County',lat:36.0186,lng:-120.9046,sug:null,c:null},
+  {id:'berk',name:'Berkeley, CA',region:'Bay Area region',lat:37.8715,lng:-122.273,sug:10,c:[7,18,25,37,50,63]},
+  {id:'berkh',name:'Berkeley Heights, NJ',region:'New York region',lat:40.676,lng:-74.438,sug:15,c:[1,5,11,26,58,120]},
+  {id:'berks',name:'Berkeley Springs, WV',region:'Eastern Panhandle',lat:39.6265,lng:-78.2272,sug:null,c:null},
+  {id:'alameda',name:'Alameda, CA',region:'Bay Area region',lat:37.7652,lng:-122.2416,sug:10,c:[4,15,24,36,49,62]},
+  {id:'la',name:'Los Angeles, CA',region:'Los Angeles region',lat:34.0522,lng:-118.2437,sug:15,c:[0,4,12,40,88,150]},
+  {id:'hou',name:'Houston, TX',region:'Houston region',lat:29.7604,lng:-95.3698,sug:25,c:[0,0,3,9,20,35]},
+  {id:'aus',name:'Austin, TX',region:'Austin region',lat:30.2672,lng:-97.7431,sug:10,c:[5,12,19,30,38,44]},
+  {id:'94601',name:'94601 · Oakland, CA',region:'Bay Area region',lat:37.7766,lng:-122.2177,sug:10,c:[5,12,24,38,51,63]},
+];
+const CURRENT={id:'cur',name:'Fruitvale, Oakland',region:'Current location',lat:37.7748,lng:-122.2241,sug:10,c:[5,12,24,38,51,63]};
+const HOODS=[['Fruitvale, Oakland',37.7748,-122.2241],['Downtown Oakland',37.8044,-122.2712],['Rockridge, Oakland',37.8441,-122.2517],['Berkeley',37.8715,-122.273],['Alameda',37.7652,-122.2416],['San Leandro',37.7249,-122.1561],['Mission District, SF',37.7599,-122.4148],['Downtown SF',37.7897,-122.4],['Sunset District, SF',37.7536,-122.4935],['Daly City',37.6879,-122.4702],['Hayward',37.6688,-122.0808],['Fremont',37.5485,-121.9886],['San Mateo',37.563,-122.3255],['Palo Alto',37.4419,-122.143],['San Jose',37.3382,-121.8863],['Walnut Creek',37.9101,-122.0652],['Richmond',37.9358,-122.3477],['Downtown LA',34.0522,-118.2437],['Chicago Loop',41.8837,-87.6325],['Downtown Austin',30.2672,-97.7431],['Downtown Houston',29.7604,-95.3698]];
+
+// illustrative sign positions for the pin map
+const SIGNS=(()=>{let s=7;const rnd=()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+  const g=()=>Math.sqrt(-2*Math.log(rnd()||1e-9))*Math.cos(2*Math.PI*rnd());
+  const hubs=[[37.80,-122.25,45,.07],[37.765,-122.44,22,.03],[37.67,-122.09,25,.06],[37.34,-121.89,40,.08],[37.55,-122.3,20,.05],[34.05,-118.25,110,.22],[41.88,-87.7,80,.12],[30.27,-97.74,40,.08],[29.76,-95.37,30,.2]];
+  const out=[];hubs.forEach(([la,ln,n,sd])=>{for(let i=0;i<n;i++)out.push([ln+g()*sd*1.25,la+g()*sd]);});return out;})();
+const miles=(a,b,c,d)=>{const r=Math.PI/180,x=Math.sin((c-a)*r/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin((d-b)*r/2)**2;return 7918*Math.asin(Math.sqrt(x));};
+function pinInfo(lat,lng){
+  const ds=SIGNS.map(([x,y])=>miles(lat,lng,y,x));
+  const c=R.map(r=>ds.filter(d=>d<=r).length);
+  let sug=R.find((r,i)=>c[i]>=5); if(!sug) sug=R.find((r,i)=>c[i]>0)||null;
+  let best=null,bd=1e9; HOODS.forEach(([n,a,b])=>{const d=miles(lat,lng,a,b); if(d<bd){bd=d;best=n;}});
+  const st=S.pinStart;
+  const name=bd<4?best:(bd<15?'Near '+best:(st&&miles(lat,lng,st.lat,st.lng)<15?'Near '+st.name:'Dropped pin'));
+  return {name,c:sug?c:null,sug,all:c};
+}
+
+let S, uid=0, LOC=true;
+const blank=()=>({areas:[],screen:'list',from:'list',search:{mode:'add',q:'',picked:[]},draft:null,sheet:false,toast:null,flash:null,pinStart:null});
+function mk(p,kind){return {key:++uid,id:p.id,name:p.name,region:p.region,lat:p.lat,lng:p.lng,c:p.c,sug:p.sug,r:p.sug,kind:kind||'place'};}
+const cnt=(a,r)=>a.c[R.indexOf(r)];
+const total=()=>S.areas.reduce((t,a)=>t+cnt(a,a.r),0);
+const plural=(n,w)=>n+' '+w+(n===1?'':'s');
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function openMapAt(t){
+  const {mode,picked}=S.search;
+  if(mode!=='change'&&S.areas.length+picked.length>=MAX){toast('Up to 5 areas per campaign');return;}
+  S.pinStart=t?{lat:t.lat,lng:t.lng,name:bare(t.name)}:null;S.screen='pin';render();
+}
+let toastTimer;
+function toast(msg,undo){clearTimeout(toastTimer);S.toast={msg,undo};render();toastTimer=setTimeout(()=>{S.toast=null;render();},undo?5000:2600);}
+
+/* ---------- screens ---------- */
+function startBlock(){
+  return `<button class="fld" data-act="openSearch"><span class="lic">${I.search}</span><span class="ph">Search a city, address, or ZIP</span></button>
+    <div class="quick">
+      <button class="qbtn" data-act="current"><span class="qi" style="color:var(--accent)">${I.nav}</span>Current location</button>
+      <button class="qbtn" data-act="openPin"><span class="qi" style="color:var(--pin)">${I.pin}</span>Drop a pin</button>
+    </div>`;
+}
+function vList(){
+  const n=S.areas.length;
+  let body;
+  if(!n){
+    body=`<div class="hero">${I.emptyPin}</div>
+      <div class="ttl2">Where should ads appear?</div>
+      <div class="sub2">Search a place, use current location, or drop a pin. Blip suggests a radius for each.</div>
+      ${startBlock()}
+      <div class="lim">Up to 5 areas per campaign.</div>`;
+  } else {
+    body=`<div class="ttl2">Where should ads appear?</div>
+      <div class="tot"><span>${plural(n,'area')}</span><span>Up to <b>${total()}</b> signs</span></div>
+      <div class="alist2">${S.areas.map(a=>`<div class="arow2${S.flash&&S.flash.includes(a.key)?' flash':''}"><span class="api">${I.pin}</span><div class="anm"><b>${esc(a.name)}</b><span>${a.r} mi · ${a.r===a.sug?'Suggested radius':'Edited'}</span><span>Up to <b>${cnt(a,a.r)}</b> signs</span></div><button class="editbtn" data-act="edit" data-k="${a.key}">Edit</button></div>`).join('')}</div>
+      ${n<MAX?`<button class="addrow" data-act="addArea">+ Add area</button>`:`<div class="shint">5 of 5 areas added.</div>`}`;
+  }
+  return `<div class="head"><button class="x" data-act="exit">✕</button><span class="help">Need Help?</span></div>
+    <div class="stage"><div class="gbg${n?'':' center'}">${body}</div></div>
+    <div class="prog"><i></i></div>
+    <div class="foot"><button class="back" data-act="wizBack">Back</button><button class="btn${n?'':' off'}" data-act="confirm">Confirm Locations</button></div>`;
+}
+function vAddStart(){
+  return `<div class="head"><button class="x bk" data-act="toList">‹</button><span class="ttl">Add area</span><span></span></div>
+    <div class="stage"><div class="gbg center"><div class="hero">${I.emptyPin}</div>
+      <div class="ttl2">Where else should ads appear?</div>
+      <div class="sub2">Search a place, use current location, or drop a pin. Blip suggests a radius for each.</div>
+      ${startBlock()}<div class="lim">${plural(MAX-S.areas.length,'more area')} can be added.</div></div></div>`;
+}
+function matches(q){q=q.trim().toLowerCase(); if(!q) return []; return P.filter(p=>p.name.toLowerCase().startsWith(q)||p.name.toLowerCase().includes(' '+q)).slice(0,6);}
+function resultsHTML(){
+  const {mode,q,picked}=S.search, list=matches(q);
+  if(!q.trim()) return '';
+  if(!list.length) return `<div class="res nosign"><span class="rn">No matching places<small>Try a city, address, or ZIP</small></span></div>`;
+  const inList=id=>S.areas.some(a=>a.id===id && (mode==='add'||a.key!==S.draft.key));
+  return list.map(p=>{
+    if(!p.c) return `<div class="res nosign"><span class="rn">${p.name}<small>${mode==='add'?'Not available':p.region}</small></span>${mode==='add'?'<span class="add off"></span>':'<span class="rc">Not available</span>'}</div>`;
+    const sub=`${cnt(p,p.sug)} signs in ${p.sug} mi`;
+    if(inList(p.id)) return `<div class="res nosign"><span class="rn">${p.name}<small>${sub}</small></span><span class="added">Added</span></div>`;
+    if(mode==='change') return `<button class="res" data-act="changeTo" data-id="${p.id}"><span class="rn">${p.name}<small>${p.region}</small></span><span class="rc">${sub}</span></button>`;
+    const on=picked.includes(p.id);
+    return `<button class="res" data-act="toggle" data-id="${p.id}"><span class="rn">${p.name}<small>${sub}</small></span><span class="add${on?' on':''}">${on?'✓':'+'}</span></button>`;
+  }).join('');
+}
+// where "Drop a pin near…" would open the map
+function pinTarget(){
+  const {mode,q}=S.search;
+  if(q.trim()) return matches(q)[0]||null;
+  if(mode==='change') return S.draft;
+  const last=S.areas[S.areas.length-1];
+  if(last) return last;
+  return LOC?CURRENT:null;
+}
+const bare=n=>n.replace(/^Pin · /,'');
+function pinRowHTML(){
+  const t=pinTarget();
+  if(!t) return `<div class="pinrow off"><span class="pi">${I.pin}</span><span class="pl">Drop a pin<small>Search a place to drop a pin near it</small></span></div>`;
+  const lbl=t.id==='cur'?'Drop a pin at current location':'Drop a pin near '+esc(bare(t.name));
+  return `<button class="pinrow" data-act="pinFromSearch"><span class="pi">${I.pin}</span><span class="pl">${lbl}<small>Move the map to adjust the exact spot</small></span><span class="chev">›</span></button>`;
+}
+function vSearch(){
+  const {mode,picked}=S.search;
+  const n=picked.length;
+  // picked places sit inside the field; only the ✕ removes one, the rest of the field focuses the input
+  const chips=mode==='add'?picked.map(id=>`<span class="tchip">${P.find(p=>p.id===id).name}<button class="tx" data-act="toggle" data-id="${id}" aria-label="Remove">✕</button></span>`).join(''):'';
+  const title=mode==='add'?'Add areas':'Change location';
+  const ph='Search a city, address, or ZIP';
+  return `<div class="head"><button class="x bk" data-act="searchBack">‹</button><span class="ttl">${title}</span><span></span></div>
+    <div class="stage"><div class="gbg">
+      <div class="tagfld${n?' has':''}" id="tagfld"><span class="lic">${I.search}</span>${chips}<input id="q" autocomplete="off" placeholder="${n?'Add another place':ph}" value="${esc(S.search.q)}"></div>
+      <div id="pinrow">${pinRowHTML()}</div>
+      <div class="reslist" id="results">${resultsHTML()}</div>
+      ${mode==='change'?`<div class="curnote">Currently: ${esc(S.draft.name)}</div>`:''}
+    </div></div>
+    ${mode==='add'?`<div class="foot"><button class="btn full${n?'':' off'}" data-act="addPicked">${n?'Add '+plural(n,'area'):'Add areas'}</button></div>`:''}`;
+}
+function vEdit(){
+  const d=S.draft, sug=d.r===d.sug;
+  const sheet=S.sheet?`<div class="dim" data-act="closeSheet"></div><div class="osheet"><div class="oh">Radius · ${esc(d.name)}</div>${R.map((r,i)=>{const c=d.c[i],sel=r===d.r;
+      return c?`<button class="opt${sel?' sel':''}" data-act="pickR" data-r="${r}"><span class="ck">${sel?'✓':''}</span><span class="on">${r} mi${r===d.sug?'<span class="rtag2">Suggested</span>':''}</span><span class="oc"><span class="n">${c}</span> signs</span></button>`
+      :`<div class="opt zero"><span class="ck"></span><span class="on">${r} mi</span><span class="oc">No signs</span></div>`;}).join('')}</div>`:'';
+  return `<div class="head"><button class="x" data-act="cancelEdit">✕</button><span class="ttl">Edit area</span><button class="help" data-act="doneEdit">Done</button></div>
+    <div class="stage"><div class="gbg">
+      <div class="rhead">Location</div>
+      <div class="locrow"><span class="api">${I.pin}</span><div class="ln"><b>${esc(d.name)}</b><span>${esc(d.region)}</span></div><button class="chg" data-act="change">Change</button></div>
+      <div style="height:20px"></div>
+      <div class="rhead">Radius</div>
+      <button class="radcard${S.sheet?' focus':''}" data-act="openSheet"><span class="rl"><b>${d.r} mi</b><span class="rsub">Up to ${cnt(d,d.r)} signs</span>${sug?'<span class="rtag2">Suggested</span>':''}</span><span class="rdd">${I.dd}</span></button>
+      ${sug?'':`<button class="usesug" data-act="useSug">Use suggested (${d.sug} mi)</button>`}
+      <div class="budnote">A larger radius spreads the same daily budget across more signs, so each sign plays less often.</div>
+      <button class="danger" data-act="remove">${I.trash}Remove area</button>
+    </div>${sheet}</div>`;
+}
+function vPin(){
+  const {mode,picked}=S.search;
+  const lbl=mode==='change'?'Use this spot':(mode==='add'&&picked.length?'Add '+plural(picked.length+1,'area'):'Add area');
+  return `<div class="head"><button class="x bk" data-act="pinBack">‹</button><span class="ttl">Drop a pin</span><span></span></div>
+    <div class="stage">
+      <div id="map"></div>
+      <div class="bigpin" id="bigpin">${I.bigpin}</div>
+      ${mode==='pin'?`<div class="mapsearch"><div class="fld"><span class="lic">${I.search}</span><input id="mq" autocomplete="off" placeholder="Search a city, address, or ZIP"></div><div class="reslist" id="mres"></div></div>`:''}
+      <div class="zoom${mode==='pin'?' low':''}"><button data-act="zin">+</button><button data-act="zout">−</button></div>
+      <div class="maphint" id="hint">Move the map to adjust</div>
+      <div class="pincard"><div class="pt" id="pt">Finding signs…</div><div class="ps" id="ps">&nbsp;</div><button class="btn full off" id="pinAdd" data-act="pinAdd">${lbl}</button></div>
+    </div>`;
+}
+function vNext(){
+  return `<div class="head"><button class="x" data-act="exit">✕</button><span class="help">Need Help?</span></div>
+    <div class="stage"><div class="gbg">
+      <div class="ttl2">Strategy</div>
+      <div class="sub2" style="margin-top:0">Next wizard step. This prototype covers the location step only.</div>
+      <div class="tot" style="margin-top:14px"><span>${plural(S.areas.length,'area')} confirmed</span><span>Up to <b>${total()}</b> signs</span></div>
+      ${S.areas.map(a=>`<div class="sumrow"><b>${esc(a.name)}</b><span>${a.r} mi</span></div>`).join('')}
+    </div></div>
+    <div class="prog"><i style="width:56%"></i></div>
+    <div class="foot"><button class="back" data-act="toList">Back</button><button class="btn off">Continue</button></div>`;
+}
+
+/* ---------- render ---------- */
+let map=null;
+function render(){
+  const app=document.getElementById('app');
+  if(S.screen!=='pin'&&map){map.remove();map=null;}
+  if(S.screen==='pin'&&map){renderToast();return;}
+  const v={list:vList,addStart:vAddStart,search:vSearch,edit:vEdit,pin:vPin,next:vNext}[S.screen]();
+  app.innerHTML=v;
+  renderToast();
+  if(S.screen==='search'){const q=document.getElementById('q');document.getElementById('tagfld').onclick=e=>{if(!e.target.closest('.tchip'))q.focus();};q.focus();q.setSelectionRange(q.value.length,q.value.length);q.oninput=()=>{S.search.q=q.value;document.getElementById('results').innerHTML=resultsHTML();document.getElementById('pinrow').innerHTML=pinRowHTML();};}
+  if(S.screen==='pin') initMap();
+  S.flash=null;
+}
+function renderToast(){
+  const app=document.getElementById('app');
+  app.querySelectorAll('.toast').forEach(t=>t.remove());
+  if(!S.toast) return;
+  const el=document.createElement('div');el.className='toast';
+  el.innerHTML=`<span>${esc(S.toast.msg)}</span>${S.toast.undo?'<button data-act="undo">Undo</button>':''}`;
+  const stage=app.querySelector('.stage');(stage||app).appendChild(el);
+}
+
+/* ---------- map ---------- */
+function circle(lng,lat,mi){const pts=[],dLat=mi/69,dLng=mi/(69*Math.cos(lat*Math.PI/180));for(let i=0;i<=64;i++){const t=i/64*2*Math.PI;pts.push([lng+dLng*Math.cos(t),lat+dLat*Math.sin(t)]);}return {type:'Feature',geometry:{type:'Polygon',coordinates:[pts]}};}
+let pinNow=null;
+function initMap(){
+  const st=S.pinStart;
+  const view=st?{center:[st.lng,st.lat],zoom:10.3}:{bounds:[[-124.8,24.5],[-66.9,49.4]],fitBoundsOptions:{padding:{top:70,bottom:150,left:10,right:10}}};
+  map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/bright',...view,attributionControl:{compact:true}});
+  map.on('load',()=>{
+    map.addSource('signs',{type:'geojson',data:{type:'FeatureCollection',features:SIGNS.map(c=>({type:'Feature',geometry:{type:'Point',coordinates:c}}))}});
+    map.addSource('ring',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+    map.addLayer({id:'ringf',type:'fill',source:'ring',paint:{'fill-color':'#176BF5','fill-opacity':.09}});
+    map.addLayer({id:'ringl',type:'line',source:'ring',paint:{'line-color':'#176BF5','line-width':2}});
+    map.addLayer({id:'signs',type:'circle',source:'signs',minzoom:PINZ,paint:{'circle-radius':4,'circle-color':'#FB0060','circle-stroke-color':'#fff','circle-stroke-width':1.5}});
+    updatePin();lockR();
+  });
+  hintDone=false;pinR=null;
+  map.on("move",updatePin);
+  map.on("moveend",lockR);
+  map.on("dragstart",()=>{if(map.getZoom()>=PINZ)hintDone=true;});
+  // zoomed out: a tap drops the pin there and zooms in (matches the current product)
+  map.on("click",e=>{if(map.getZoom()<PINZ){S.pinStart=null;pinR=null;map.flyTo({center:e.lngLat,zoom:10.3});}});
+  const mq=document.getElementById('mq');
+  if(mq) mq.oninput=()=>{const l=matches(mq.value);document.getElementById('mres').innerHTML=mq.value.trim()&&!l.length?`<div class="res nosign"><span class="rn">No matching places<small>Try a city, address, or ZIP</small></span></div>`:l.map(p=>`<button class="res" data-act="jump" data-id="${p.id}"><span class="rn">${p.name}<small>${p.region}</small></span></button>`).join('');};
+}
+const PINZ=7.5; // below this the pin and radius are hidden
+let hintDone=false;
+// radius is set once, where the pin lands (open, search, or tap), and stays fixed while the map moves
+let pinR=null;
+function lockR(){
+  if(!map||pinR!==null||map.getZoom()<PINZ) return;
+  const c=map.getCenter(), info=pinInfo(c.lat,c.lng);
+  if(info.sug){pinR=info.sug;updatePin();}
+}
+function updatePin(){
+  if(!map||!map.getSource('ring')) return;
+  const far=map.getZoom()<PINZ;
+  document.getElementById('bigpin').classList.toggle('hide',far);
+  const hint=document.getElementById('hint');
+  hint.textContent=far?'Tap the map to drop a pin':'Move the map to adjust';
+  hint.classList.toggle('gone',!far&&hintDone);
+  if(far){
+    pinNow=null;pinR=null;
+    map.getSource('ring').setData({type:'FeatureCollection',features:[]});
+    document.getElementById('pt').textContent='Tap the map to drop a pin';
+    document.getElementById('ps').innerHTML='Or search a city, address, or ZIP.';
+    document.getElementById('pinAdd').classList.add('off');
+    return;
+  }
+  const c=map.getCenter(), info=pinInfo(c.lat,c.lng);
+  const r=pinR!==null?pinR:info.sug, n=r?info.all[R.indexOf(r)]:0;
+  pinNow={name:info.name,lat:c.lat,lng:c.lng,sug:n?r:null,c:info.all};
+  map.getSource('ring').setData(r?{type:'FeatureCollection',features:[circle(c.lng,c.lat,r)]}:{type:'FeatureCollection',features:[]});
+  document.getElementById('pt').textContent=info.name;
+  document.getElementById('ps').innerHTML=!r?'No signs within 50 mi':(n?`${n} signs in ${r} mi · Suggested radius`:`No signs in ${r} mi`);
+  document.getElementById('pinAdd').classList.toggle('off',!n);
+}
+
+/* ---------- actions ---------- */
+const A={
+  preset(t){const p=t.dataset.p;S=blank();
+    if(p==='one') S.areas=[mk(P[0])];
+    if(p==='three'){const a=mk(P[0]),b=mk(P[4]),c=mk({id:'pin1',name:'Pin · Fruitvale, Oakland',region:'Dropped pin',lat:37.7748,lng:-122.2241,sug:10,c:[3,12,19,24,51,63]},'pin');c.r=25;S.areas=[a,b,c];}
+    render();},
+  exit(){toast('Exits the campaign builder');},
+  wizBack(){toast('Back to Objective (not in this prototype)');},
+  confirm(){if(S.areas.length){S.screen='next';render();}},
+  toList(){S.screen='list';render();},
+  addArea(){S.screen='addStart';render();},
+  openSearch(){S.from=S.screen;S.search={mode:'add',q:'',picked:[]};S.screen='search';render();},
+  searchBack(){S.screen=S.search.mode==='change'?'edit':S.from;render();},
+  toggle(t){const id=t.dataset.id,pk=S.search.picked;const i=pk.indexOf(id);
+    if(i>=0)pk.splice(i,1); else { if(S.areas.length+pk.length>=MAX){toast('Up to 5 areas per campaign');return;} pk.push(id);}
+    const q=S.search.q;render();},
+  addPicked(){const pk=S.search.picked;if(!pk.length)return;const added=pk.map(id=>mk(P.find(p=>p.id===id)));S.areas.push(...added);S.flash=added.map(a=>a.key);S.screen='list';render();},
+  current(){
+    if(!LOC){S.from=S.screen;S.search={mode:'add',q:'',picked:[]};S.screen='search';render();toast('Location is off. Search a place instead.');return;}
+    if(S.areas.some(a=>a.id==='cur')){toast('Current location is already added');return;}if(S.areas.length>=MAX)return;const a=mk(CURRENT,'current');S.areas.push(a);S.flash=[a.key];S.screen='list';render();toast('Added '+a.name);},
+  openPin(){S.from=S.screen;S.search={mode:'pin',q:'',picked:[]};const last=S.areas[S.areas.length-1];openMapAt(last||(LOC?CURRENT:null));},
+  pinFromSearch(){const t=pinTarget();if(t)openMapAt(t);},
+  pinBack(){S.screen=S.search.mode==='pin'?S.from:'search';render();},
+  zin(){map&&map.zoomIn();}, zout(){map&&map.zoomOut();},
+  jump(t){const p=P.find(x=>x.id===t.dataset.id);S.pinStart={lat:p.lat,lng:p.lng,name:p.name};pinR=null;map.flyTo({center:[p.lng,p.lat],zoom:10.3});const mq=document.getElementById('mq');mq.value='';mq.blur();document.getElementById('mres').innerHTML='';},
+  pinAdd(){if(!pinNow||!pinNow.sug)return;
+    const f={id:'pin'+Date.now(),name:'Pin · '+pinNow.name,region:'Dropped pin',lat:pinNow.lat,lng:pinNow.lng,sug:pinNow.sug,c:pinNow.c};
+    if(S.search.mode==='change'){Object.assign(S.draft,f,{r:f.sug,kind:'pin'});S.screen='edit';render();return;}
+    const added=S.search.mode==='add'?S.search.picked.map(id=>mk(P.find(p=>p.id===id))):[];
+    added.push(mk(f,'pin'));S.areas.push(...added);S.flash=added.map(a=>a.key);S.screen='list';render();},
+  loc(t){LOC=t.dataset.v==='1';document.querySelectorAll('[data-act="loc"]').forEach(b=>b.classList.toggle('on',b===t));if(S.screen==='search')render();},
+  edit(t){const a=S.areas.find(x=>x.key==+t.dataset.k);S.draft={...a};S.sheet=false;S.screen='edit';render();},
+  openSheet(){S.sheet=true;render();}, closeSheet(){S.sheet=false;render();},
+  pickR(t){S.draft.r=+t.dataset.r;S.sheet=false;render();},
+  useSug(){S.draft.r=S.draft.sug;render();},
+  change(){S.search={mode:'change',q:'',picked:[]};S.screen='search';render();},
+  changeTo(t){const p=P.find(x=>x.id===t.dataset.id);Object.assign(S.draft,{id:p.id,name:p.name,region:p.region,lat:p.lat,lng:p.lng,c:p.c,sug:p.sug,r:p.sug,kind:'place'});S.screen='edit';render();},
+  cancelEdit(){S.draft=null;S.screen='list';render();},
+  doneEdit(){const i=S.areas.findIndex(a=>a.key===S.draft.key);S.areas[i]={...S.draft};S.flash=[S.draft.key];S.draft=null;S.screen='list';render();},
+  remove(){const i=S.areas.findIndex(a=>a.key===S.draft.key),a=S.areas[i];S.areas.splice(i,1);S.draft=null;S.screen='list';
+    toast('Removed '+a.name,()=>{S.areas.splice(i,0,a);S.flash=[a.key];});},
+  undo(){const u=S.toast&&S.toast.undo;S.toast=null;clearTimeout(toastTimer);if(u)u();render();},
+};
+document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;const f=A[t.dataset.act];if(f){e.preventDefault();f(t);}});
+
+S=blank();
+(()=>{const u=new URLSearchParams(location.search);
+  if(u.get('location')==='off') LOC=false;
+  const st=u.get('start'); if(st==='one'||st==='three') A.preset({dataset:{p:st}}); else render();})();
+</script>
+</body>
+</html>
