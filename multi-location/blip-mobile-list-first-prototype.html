@@ -169,6 +169,18 @@
   .pincard{position:absolute;left:12px;right:12px;bottom:14px;background:#fff;border-radius:14px;box-shadow:0 6px 20px rgba(20,30,50,.18);padding:14px;z-index:5;}
   .pincard .pt{font-size:15px;font-weight:700;}
   .pincard .ps{font-size:13px;color:var(--text-2);margin:2px 0 12px;}
+  .pinnone{display:flex;gap:10px;}
+  .nearby{border-top:1px solid var(--border);margin:-4px 0 12px;}
+  .nearby:empty{display:none;}
+  .nrow{display:flex;align-items:center;gap:10px;width:100%;padding:9px 0;border-bottom:1px solid var(--border);}
+  .nrow .api{color:var(--accent);display:grid;place-items:center;flex:none;}
+  .nrow .nm{flex:1;min-width:0;}
+  .nrow .nm b{display:block;font-size:14px;}
+  .nrow .nm span{display:block;font-size:12px;color:var(--text-2);}
+  .nrow .chev{color:var(--text-3);font-size:18px;line-height:1;flex:none;}
+  .pinnone[hidden],.btn[hidden]{display:none;}
+  .pinnone .btn{flex:1;padding:0 10px;}
+  .btn2{flex:1;height:46px;border-radius:10px;border:1px solid var(--accent-border);color:var(--accent);font-size:16px;font-weight:700;display:grid;place-items:center;text-align:center;}
   .maplibregl-ctrl-attrib{font-size:9px;}
 
   .toast{position:absolute;left:14px;right:14px;bottom:16px;background:#1d2530;color:#fff;font-size:13px;font-weight:600;padding:11px 14px;border-radius:10px;display:flex;align-items:center;gap:10px;z-index:20;animation:up .2s ease-out;}
@@ -251,6 +263,7 @@ const P=[
   {id:'berkh',name:'Berkeley Heights, NJ',region:'New York region',lat:40.676,lng:-74.438,sug:15,c:[1,5,11,26,58,120]},
   {id:'berks',name:'Berkeley Springs, WV',region:'Eastern Panhandle',lat:39.6265,lng:-78.2272,sug:null,c:null},
   {id:'alameda',name:'Alameda, CA',region:'Bay Area region',lat:37.7652,lng:-122.2416,sug:10,c:[4,15,24,36,49,62]},
+  {id:'chi',name:'Chicago, IL',region:'Chicago region',lat:41.8781,lng:-87.6298,sug:10,c:[8,18,30,45,60,80]},
   {id:'la',name:'Los Angeles, CA',region:'Los Angeles region',lat:34.0522,lng:-118.2437,sug:15,c:[0,4,12,40,88,150]},
   {id:'hou',name:'Houston, TX',region:'Houston region',lat:29.7604,lng:-95.3698,sug:25,c:[0,0,3,9,20,35]},
   {id:'aus',name:'Austin, TX',region:'Austin region',lat:30.2672,lng:-97.7431,sug:10,c:[5,12,19,30,38,44]},
@@ -400,7 +413,7 @@ function vPin(){
       ${mode==='pin'?`<div class="mapsearch"><div class="fld"><span class="lic">${I.search}</span><input id="mq" autocomplete="off" placeholder="Search a city, address, or ZIP"></div><div class="reslist" id="mres"></div></div>`:''}
       <div class="zoom${mode==='pin'?' low':''}"><button data-act="zin">+</button><button data-act="zout">−</button></div>
       <div class="maphint" id="hint">Move the map to adjust</div>
-      <div class="pincard"><div class="pt" id="pt">Finding signs…</div><div class="ps" id="ps">&nbsp;</div><button class="btn full off" id="pinAdd" data-act="pinAdd">${lbl}</button></div>
+      <div class="pincard"><div class="pt" id="pt">Finding signs…</div><div class="ps" id="ps">&nbsp;</div><button class="btn full off" id="pinAdd" data-act="pinAdd">${lbl}</button><div class="nearby" id="nearby"></div><div class="pinnone" id="pinNone" hidden><button class="btn full" data-act="pinBack">${mode==='pin'?'Go back':'Back to search'}</button></div></div>
     </div>`;
 }
 function vNext(){
@@ -461,6 +474,14 @@ function initMap(){
   const mq=document.getElementById('mq');
   if(mq) mq.oninput=()=>{const l=matches(mq.value);document.getElementById('mres').innerHTML=mq.value.trim()&&!l.length?`<div class="res nosign"><span class="rn">No matching places<small>Try a city, address, or ZIP</small></span></div>`:l.map(p=>`<button class="res" data-act="jump" data-id="${p.id}"><span class="rn">${p.name}<small>${p.region}</small></span></button>`).join('');};
 }
+// up to 3 places with signs within 50 mi of the pin, nearest first;
+// if none, the 3 closest major areas with signs, however far
+const MAJOR=['sf','la','chi','hou','aus'];
+function nearbyPlaces(lat,lng){
+  const withD=P.filter(p=>p.c&&!/^\d/.test(p.name)).map(p=>({...p,d:Math.round(miles(lat,lng,p.lat,p.lng))})).sort((a,b)=>a.d-b.d);
+  const near=withD.filter(p=>p.d<=50).slice(0,3);
+  return near.length?{kind:'near',list:near}:{kind:'major',list:withD.filter(p=>MAJOR.includes(p.id)).slice(0,3)};
+}
 const PINZ=7.5; // below this the pin and radius are hidden
 let hintDone=false;
 // radius is set once, where the pin lands (open, search, or tap), and stays fixed while the map moves
@@ -483,15 +504,20 @@ function updatePin(){
     document.getElementById('pt').textContent='Tap the map to drop a pin';
     document.getElementById('ps').innerHTML='Or search a city, address, or ZIP.';
     document.getElementById('pinAdd').classList.add('off');
+    document.getElementById('pinAdd').hidden=false;document.getElementById('pinNone').hidden=true;document.getElementById('nearby').innerHTML='';
     return;
   }
   const c=map.getCenter(), info=pinInfo(c.lat,c.lng);
   const r=pinR!==null?pinR:info.sug, n=r?info.all[R.indexOf(r)]:0;
   pinNow={name:info.name,lat:c.lat,lng:c.lng,sug:n?r:null,c:info.all};
   map.getSource('ring').setData(r?{type:'FeatureCollection',features:[circle(c.lng,c.lat,r)]}:{type:'FeatureCollection',features:[]});
-  document.getElementById('pt').textContent=info.name;
-  document.getElementById('ps').innerHTML=!r?'No signs within 50 mi':(n?`${n} signs in ${r} mi · Suggested radius`:`No signs in ${r} mi`);
-  document.getElementById('pinAdd').classList.toggle('off',!n);
+  const none=!n, where=info.name==='Dropped pin'?'this spot':esc(info.name);
+  document.getElementById('pt').textContent=none?'No signs near this spot':info.name;
+  const nb=none?nearbyPlaces(c.lat,c.lng):{kind:'near',list:[]}, near=nb.list;
+  document.getElementById('nearby').innerHTML=near.map(p=>`<button class="nrow" data-act="goNear" data-id="${p.id}"><span class="api">${I.pin}</span><span class="nm"><b>${esc(p.name)}</b><span>${p.d.toLocaleString()} mi away · ${cnt(p,p.sug)} signs</span></span><span class="chev">›</span></button>`).join('');
+  document.getElementById('ps').innerHTML=none?(nb.kind==='near'?`Nothing within ${r||50} mi of ${where}. Nearby places with signs:`:`Nothing within 50 mi of ${where}. Closest major areas with signs:`):`${n} signs in ${r} mi · Suggested radius`;
+  document.getElementById('pinAdd').classList.toggle('off',none);
+  document.getElementById('pinAdd').hidden=none;document.getElementById('pinNone').hidden=!none;
 }
 
 /* ---------- actions ---------- */
@@ -516,6 +542,7 @@ const A={
     if(S.areas.some(a=>a.id==='cur')){toast('Current location is already added');return;}if(S.areas.length>=MAX)return;const a=mk(CURRENT,'current');S.areas.push(a);S.flash=[a.key];S.screen='list';render();toast('Added '+a.name);},
   openPin(){S.from=S.screen;S.search={mode:'pin',q:'',picked:[]};const last=S.areas[S.areas.length-1];openMapAt(last||(LOC?CURRENT:null));},
   pinFromSearch(){const t=pinTarget();if(t)openMapAt(t);},
+  goNear(t){const p=P.find(x=>x.id===t.dataset.id);S.pinStart={lat:p.lat,lng:p.lng,name:p.name};pinR=null;map.flyTo({center:[p.lng,p.lat],zoom:10.3});},
   pinBack(){S.screen=S.search.mode==='pin'?S.from:'search';render();},
   zin(){map&&map.zoomIn();}, zout(){map&&map.zoomOut();},
   jump(t){const p=P.find(x=>x.id===t.dataset.id);S.pinStart={lat:p.lat,lng:p.lng,name:p.name};pinR=null;map.flyTo({center:[p.lng,p.lat],zoom:10.3});const mq=document.getElementById('mq');mq.value='';mq.blur();document.getElementById('mres').innerHTML='';},
